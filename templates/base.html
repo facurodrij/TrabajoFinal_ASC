@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block meta %}
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% endblock meta %}
+
+    <title>{{ title }} - RESERVÁ</title>
+
+    {% block stylesheets %}
+        <!-- Bootstrap 4.6 -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.6.0/css/bootstrap.min.css"
+              integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+              crossorigin="anonymous">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+              integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+              crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <!-- AdminLTE 3 -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    {% endblock stylesheets %}
+</head>
+
+<body class="{% block body_class %}hold-transition dark-mode sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed{% endblock body_class %}">
+<!--Any flash messages pop up in any page because this is the base template-->
+{% if messages %}
+    <div class="alert alert-dismissible" role="alert">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+{% endif %}
+{% block content %}
+    <!-- Contenido general de la aplicacion -->
+{% endblock content %}
+
+{% block javascripts %}
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <!-- Popper -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"
+            integrity="sha512-4Qs9KqxbvJc2KJgUdKdVvVJH0Zq+GJYgJF1Ea/4+0JxkWjGq+4qVqhcWcP6v+0P4QbP6iQzn8hF3zvDhJZr2Rg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- AdminLTE 3 -->
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+    <!-- Bootstrap Show Password -->
+    <script src="https://unpkg.com/bootstrap-show-password@1.2.1/dist/bootstrap-show-password.min.js"></script>
+{% endblock javascripts %}
+</body>
+</html>
