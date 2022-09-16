@@ -14,6 +14,7 @@ class RegisterView(SuccessMessageMixin, CreateView):
     template_name = 'registration/register.html'
     form_class = RegisterForm
     success_message = 'Usuario creado exitosamente'
+    success_url = reverse_lazy('login')
 
     def get_context_data(self, **kwargs):
         context = super(RegisterView, self).get_context_data(**kwargs)
@@ -25,8 +26,8 @@ class RegisterView(SuccessMessageMixin, CreateView):
         if form.is_valid():
             form.save()
             messages.success(request, self.success_message)
-            return redirect('login')
-        return render(request, self.template_name, {'form': form})
+            return self.success_url
+        return render(request, self.template_name, {'form': form, 'title': 'Registro'})
 
 
 class CustomLoginView(LoginView):
@@ -53,7 +54,7 @@ class CustomLoginView(LoginView):
 
 @login_required
 def profile(request):
-
+    """ Vista para el perfil de usuario """
     context = {
         'title': 'Perfil',
     }
@@ -64,7 +65,7 @@ def profile(request):
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
-            messages.success(request, 'Your profile is updated successfully')
+            messages.success(request, 'Perfil actualizado exitosamente')
             return redirect(to='accounts-profile')
     else:
         user_form = UpdateUserForm(instance=request.user)
