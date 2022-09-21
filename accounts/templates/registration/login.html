@@ -9,18 +9,6 @@
 
 {% block content %}
     <div class="login-box">
-        {% if form.errors %}
-            <div class="alert alert-danger alert-dismissible" role="alert">
-                <div id="form_errors">
-                    {% for key, value in form.errors.items %}
-                        <strong>{{ value }}</strong>
-                    {% endfor %}
-                </div>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        {% endif %}
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
                 <a href="{% url 'index' %}" class="h1">RESERVÁ</a>
@@ -59,9 +47,25 @@
                     <a href="{% url 'password_reset' %}">Olvidé mi contraseña</a>
                 </p>
                 <p class="mb-0">
-                    Nuevo en el sitio? <a href="{% url 'accounts-register' %}">Registrarse</a>
+                    Nuevo en el sitio? <a href="{% url 'register' %}">Registrarse</a>
                 </p>
             </div>
         </div>
     </div>
 {% endblock content %}
+{% block javascripts %}
+    {% if form.errors %}
+        <script>
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Ocurrió un error',
+                {% for key, value in form.errors.items %}
+                    text: '{{ value|join:" " }}',
+                {% endfor %}
+                showConfirmButton: true,
+            })
+            document.body.classList.remove('swal2-height-auto');
+        </script>
+    {% endif %}
+{% endblock javascripts %}

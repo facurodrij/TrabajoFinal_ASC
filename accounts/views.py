@@ -26,7 +26,7 @@ class RegisterView(SuccessMessageMixin, CreateView):
         if form.is_valid():
             form.save()
             messages.success(request, self.success_message)
-            return self.success_url
+            return redirect(self.success_url)
         return render(request, self.template_name, {'form': form, 'title': 'Registro'})
 
 
@@ -66,7 +66,7 @@ def profile(request):
             user_form.save()
             profile_form.save()
             messages.success(request, 'Perfil actualizado exitosamente')
-            return redirect(to='accounts-profile')
+            return redirect(to='profile')
     else:
         user_form = UpdateUserForm(instance=request.user)
         profile_form = UpdateProfileForm(instance=request.user.profile)

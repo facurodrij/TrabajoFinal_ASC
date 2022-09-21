@@ -1,46 +1,86 @@
-{% extends "base.html" %}
+{% extends "index.html" %}
 {% load static %}
 
 {% block content %}
-    {% if user_form.errors %}
-        <div class="alert alert-danger alert-dismissible" role="alert">
-            <div id="form_errors">
-                {% for key, value in user_form.errors.items %}
-                    <strong>{{ value }}</strong>
-                {% endfor %}
-            </div>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    {% endif %}
-    <div class="form-content">
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="form-row">
-                <div class="col-md-5">
-                    <div class="form-group">
-                        <div class="row my-3 p-3">
-                            <img class="rounded-circle account-avatar" src="{{ user.profile.get_avatar }}"
-                                 alt="avatar"/>
-                        </div>
-                        <label class="small mb-1">Username:</label>
-                        {{ user_form.username }}
-                        <label class="small mb-1">Email:</label>
-                        {{ user_form.email }}
-                    </div>
-                    <div class="form-group">
-                        <a href="{% url 'password_change' %}">Change Password</a>
-                        <hr>
-                        <label class="small mb-1">Change Avatar:</label>
-                        {{ profile_form.avatar }}
-                    </div>
-                    <label class="small mb-1">Bio:</label> {{ profile_form.bio }}
+    {% include 'navbar.html' %}
+    <div class="container-fluid">
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="d-flex flex-column align-items-center text-center">
+                    <img class="rounded-circle mt-5"
+                         src="{{ user.profile.get_avatar }}" alt="">
+                    <span class="font-weight-bold mt-3">{{ user.username }}</span>
+                    <span class="text-black-50">{{ user.email }}</span>
                 </div>
             </div>
-            <br><br>
-            <button type="submit" class="btn btn-dark btn-lg">Save Changes</button>
-            <button type="reset" class="btn btn-dark btn-lg">Reset</button>
-        </form>
+            <div class="col-md-6">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h4 class="card-title">Actualizar Perfil</h4>
+                    </div>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="labels">{{ user_form.first_name.label }}</label>
+                                {{ user_form.first_name }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ user_form.last_name.label }}</label>
+                                {{ user_form.last_name }}
+                            </div>
+                            <div class="form-group">
+                                <label for="customFileLang">Avatar</label>
+                                <div class="input-group">
+                                    <div class="custom-file">
+                                        {{ profile_form.avatar }}
+                                        <label class="custom-file-label" for="customFileLang">Seleccionar
+                                            Archivo</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ profile_form.bio.label }}</label>
+                                {{ profile_form.bio }}
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary profile-button" type="submit">Guardar Cambios</button>
+                            <button class="btn btn-secondary" type="reset">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock content %}
+
+{% block javascripts %}
+    {% if user_form.errors %}
+        <script>
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Ocurrió un error',
+                {% for key, value in user_form.errors.items %}
+                    text: '{{ key }}: {{ value|join:" " }}',
+                {% endfor %}
+                showConfirmButton: true,
+            })
+            document.body.classList.remove('swal2-height-auto');
+        </script>
+    {% elif profile_form.errors %}
+        <script>
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Ocurrió un error',
+                {% for key, value in profile_form.errors.items %}
+                    text: '{{ value|join:" " }}',
+                {% endfor %}
+                showConfirmButton: true,
+            })
+            document.body.classList.remove('swal2-height-auto');
+        </script>
+    {% endif %}
+{% endblock javascripts %}

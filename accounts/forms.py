@@ -1,11 +1,17 @@
 from django import forms
-from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+# from django.contrib.auth import get_user_model
 
-from .models import Profile
+from .models import Profile, User
 
 
 class RegisterForm(UserCreationForm):
+    """Formulario para registrar un nuevo usuario."""
+
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.fields['first_name'].widget.attrs['autofocus'] = True
+
     # fields we want to include and customize in our form
     first_name = forms.CharField(max_length=100,
                                  required=True,
@@ -66,19 +72,22 @@ class LoginForm(AuthenticationForm):
 
 
 class UpdateUserForm(forms.ModelForm):
-    username = forms.CharField(max_length=100,
-                               required=True,
-                               widget=forms.TextInput(attrs={'class': 'form-control'}))
-    email = forms.EmailField(required=True,
-                             widget=forms.TextInput(attrs={'class': 'form-control'}))
+    """Formulario para actualizar los datos de un usuario."""
+    first_name = forms.CharField(max_length=100,
+                                 required=True,
+                                 widget=forms.TextInput(attrs={'class': 'form-control'}))
+    last_name = forms.CharField(max_length=100,
+                                required=True,
+                                widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = User
-        fields = ['username', 'email']
+        fields = ['first_name', 'last_name']
 
 
 class UpdateProfileForm(forms.ModelForm):
-    avatar = forms.ImageField(widget=forms.FileInput(attrs={'class': 'form-control-file'}))
+    avatar = forms.ImageField(required=False, widget=forms.FileInput(
+        attrs={'class': 'custom-file-input', 'id': 'customFileLang', 'lang': 'es'}))
     bio = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 5}))
 
     class Meta:

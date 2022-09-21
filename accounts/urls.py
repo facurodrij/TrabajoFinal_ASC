@@ -5,8 +5,8 @@ from .views import *
 from .decorators import *
 
 urlpatterns = [
-    path('register/', no_login_required(RegisterView.as_view()), name='accounts-register'),
-    path('perfil/', profile, name='accounts-profile'),
+    path('register/', no_login_required(RegisterView.as_view()), name='register'),
+    path('perfil/', profile, name='profile'),
     path('login/', no_login_required(CustomLoginView.as_view()), name='login'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
 
