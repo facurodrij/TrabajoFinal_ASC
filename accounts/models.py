@@ -1,7 +1,13 @@
+import uuid
+import os.path as path
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from PIL import Image
 from django.conf import settings
+
+
+class User(AbstractUser):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
 
 class Profile(models.Model):
@@ -22,15 +28,18 @@ class Profile(models.Model):
         """Metodo para representar el objeto Profile."""
         return self.user.username
 
+    # Redimensionar la imagen de perfil
     def save(self, *args, **kwargs):
         """Metodo save() sobrescrito para redimensionar la imagen."""
-        if self.avatar:
+        super().save(*args, **kwargs)
+        try:
             img = Image.open(self.avatar.path)
             if img.height > 300 or img.width > 300:
                 output_size = (300, 300)
                 img.thumbnail(output_size)
                 img.save(self.avatar.path)
-        super().save(*args, **kwargs)
+        except Exception as e:
+            print(e)
 
     def get_avatar(self):
         """Metodo para obtener la imagen de perfil del usuario."""
