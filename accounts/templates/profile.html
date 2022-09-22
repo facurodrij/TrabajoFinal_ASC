@@ -76,7 +76,7 @@
                 icon: 'error',
                 title: 'Ocurrió un error',
                 {% for key, value in profile_form.errors.items %}
-                    text: '{{ value|join:" " }}',
+                    text: '{{ key }}: {{ value|join:" " }}',
                 {% endfor %}
                 showConfirmButton: true,
             })

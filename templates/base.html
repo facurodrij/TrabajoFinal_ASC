@@ -20,43 +20,19 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
     <!-- SweetAlert2 Theme Borderless -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-borderless@5.0.12/borderless.min.css">
-
     {% block stylesheets %}
+        <!-- Bloque para agregar CSS desde otros templates -->
     {% endblock stylesheets %}
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.33/dist/sweetalert2.all.min.js"></script>
     <!-- BS Custom File Input -->
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
 </head>
 
 <body class="{% block body_class %}{% endblock body_class %}">
-<!--Any flash messages pop up in any page because this is the base template-->
-{% if messages %}
-    <script>
-        {% for message in messages %}
-            {% if message.tags == 'success' %}
-                Swal.fire({
-                    position: 'top-end',
-                    icon: '{{ message.tags }}',
-                    title: '{{ message }}',
-                    showConfirmButton: false,
-                    timer: 1500
-                })
-            {% endif %}
-            {% if message.tags == 'error' %}
-                Swal.fire({
-                    position: 'top-end',
-                    icon: '{{ message.tags }}',
-                    title: '{{ message }}',
-                    showConfirmButton: true,
-                })
-            {% endif %}
-        {% endfor %}
-    </script>
-{% endif %}
+
 {% block content %}
     <!-- Contenido general de la aplicacion -->
 {% endblock content %}
+
 <!-- jQuery -->
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
         integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
@@ -71,7 +47,36 @@
         crossorigin="anonymous"></script>
 <!-- AdminLTE 3 -->
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.33/dist/sweetalert2.all.min.js"></script>
+<!--Any flash messages pop up in any page because this is the base template-->
+{% if messages %}
+    <script>
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                Swal.fire({
+                    position: 'top-end',
+                    icon: '{{ message.tags }}',
+                    title: '{{ message }}',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+                document.body.classList.remove('swal2-height-auto');
+            {% endif %}
+            {% if message.tags == 'error' %}
+                Swal.fire({
+                    position: 'top-end',
+                    icon: '{{ message.tags }}',
+                    title: '{{ message }}',
+                    showConfirmButton: true,
+                })
+                document.body.classList.remove('swal2-height-auto');
+            {% endif %}
+        {% endfor %}
+    </script>
+{% endif %}
 {% block javascripts %}
+    <!-- Bloque para agregar JS desde otros templates -->
 {% endblock javascripts %}
 </body>
 </html>

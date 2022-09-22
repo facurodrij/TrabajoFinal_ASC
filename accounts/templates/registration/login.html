@@ -53,6 +53,7 @@
         </div>
     </div>
 {% endblock content %}
+
 {% block javascripts %}
     {% if form.errors %}
         <script>
@@ -61,7 +62,7 @@
                 icon: 'error',
                 title: 'Ocurrió un error',
                 {% for key, value in form.errors.items %}
-                    text: '{{ value|join:" " }}',
+                    text: '{{ key }}: {{ value|join:" " }}',
                 {% endfor %}
                 showConfirmButton: true,
             })
