@@ -5,11 +5,43 @@ from django.contrib.auth.models import AbstractUser
 from PIL import Image
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from django import template
+from django.template.defaultfilters import register
+from django.contrib.auth.models import UnicodeUsernameValidator
 
 
 class User(AbstractUser):
+    username_validator = UnicodeUsernameValidator()
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(unique=True, verbose_name=_('Email'))
+    username = models.CharField(
+        _("username"),
+        max_length=150,
+        unique=True,
+        help_text=_(
+            "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
+        ),
+        validators=[username_validator],
+        error_messages={
+            "unique": _("Username: Una persona con ese nombre de usuario ya existe."),
+            "invalid": _(
+                "Username: Este campo solo puede contener letras, números y los siguientes caracteres: @/./+/-/_"),
+        },
+    )
+    email = models.EmailField(
+        unique=True,
+        verbose_name=_('Email'),
+        error_messages={
+            "unique": _("Email: Una persona con ese email ya existe."),
+        },
+    )
+
+    def __str__(self):
+        return self.username
+
+    class Meta:
+        verbose_name = _('Usuario')
+        verbose_name_plural = _('Usuarios')
 
 
 class Profile(models.Model):
@@ -17,7 +49,7 @@ class Profile(models.Model):
     """Atributo OneToOneField para relacionar el modelo Profile con el modelo User."""
 
     bio = models.TextField(max_length=500, null=True, blank=True, verbose_name=_('Biografía'))
-    """Atributo para almacenar la biografía del usuario."""
+    genero = models.ForeignKey('parameters.Genero', blank=True, on_delete=models.CASCADE, verbose_name=_('Género'))
 
     def avatar_directory_path(self, filename):
         """Funcion para guardar el archivo en MEDIA_ROOT/user_<id>/<filename>"""

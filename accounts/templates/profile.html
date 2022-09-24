@@ -63,7 +63,7 @@
                 icon: 'error',
                 title: 'Ocurrió un error',
                 {% for key, value in user_form.errors.items %}
-                    text: '{{ key }}: {{ value|join:" " }}',
+                    text: '{{ value|join:" " }}',
                 {% endfor %}
                 showConfirmButton: true,
             })
@@ -76,7 +76,7 @@
                 icon: 'error',
                 title: 'Ocurrió un error',
                 {% for key, value in profile_form.errors.items %}
-                    text: '{{ key }}: {{ value|join:" " }}',
+                    text: '{{ value|join:" " }}',
                 {% endfor %}
                 showConfirmButton: true,
             })

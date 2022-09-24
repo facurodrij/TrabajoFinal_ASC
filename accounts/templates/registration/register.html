@@ -81,7 +81,7 @@
                 icon: 'error',
                 title: 'Ocurrió un error',
                 {% for key, value in form.errors.items %}
-                    text: '{{ key }},: {{ value|join:" " }}',
+                    text: '{{ value|join:" " }}',
                 {% endfor %}
                 showConfirmButton: true,
             })
