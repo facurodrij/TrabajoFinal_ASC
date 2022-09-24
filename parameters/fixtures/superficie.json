@@ -1,0 +1,74 @@
+[
+  {
+    "model": "parameters.Superficie",
+    "pk": 1,
+    "fields": {
+      "nombre": "Arena",
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Superficie",
+    "pk": 2,
+    "fields": {
+      "nombre": "Blindex y sintético",
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Superficie",
+    "pk": 3,
+    "fields": {
+      "nombre": "Cemento",
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Superficie",
+    "pk": 4,
+    "fields": {
+      "nombre": "Cesped artificial",
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Superficie",
+    "pk": 5,
+    "fields": {
+      "nombre": "Cesped natural",
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Superficie",
+    "pk": 6,
+    "fields": {
+      "nombre": "Polvo de ladrillo",
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Superficie",
+    "pk": 7,
+    "fields": {
+      "nombre": "Tierra",
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Superficie",
+    "pk": 8,
+    "fields": {
+      "nombre": "Madera",
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  }
+]

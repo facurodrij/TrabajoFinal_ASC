@@ -1,0 +1,242 @@
+[
+  {
+    "model": "parameters.Provincia",
+    "pk": 1,
+    "fields": {
+      "nombre": "Buenos Aires",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 2,
+    "fields": {
+      "nombre": "CABA",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 3,
+    "fields": {
+      "nombre": "Catamarca",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 4,
+    "fields": {
+      "nombre": "Chaco",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 5,
+    "fields": {
+      "nombre": "Chubut",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 6,
+    "fields": {
+      "nombre": "Córdoba",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 7,
+    "fields": {
+      "nombre": "Corrientes",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 8,
+    "fields": {
+      "nombre": "Entre Ríos",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 9,
+    "fields": {
+      "nombre": "Formosa",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 10,
+    "fields": {
+      "nombre": "Jujuy",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 11,
+    "fields": {
+      "nombre": "La Pampa",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 12,
+    "fields": {
+      "nombre": "La Rioja",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 13,
+    "fields": {
+      "nombre": "Mendoza",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 14,
+    "fields": {
+      "nombre": "Misiones",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 15,
+    "fields": {
+      "nombre": "Neuquén",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 16,
+    "fields": {
+      "nombre": "Río Negro",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 17,
+    "fields": {
+      "nombre": "Salta",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 18,
+    "fields": {
+      "nombre": "San Juan",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 19,
+    "fields": {
+      "nombre": "San Luis",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 20,
+    "fields": {
+      "nombre": "Santa Cruz",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 21,
+    "fields": {
+      "nombre": "Santa Fe",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 22,
+    "fields": {
+      "nombre": "Santiago del Estero",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 23,
+    "fields": {
+      "nombre": "Tierra del Fuego, Antártida e Islas del Atlántico Sur",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "parameters.Provincia",
+    "pk": 24,
+    "fields": {
+      "nombre": "Tucumán",
+      "pais": 1,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  }
+]
