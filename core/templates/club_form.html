@@ -1,0 +1,42 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+    {% include 'navbar.html' %}
+    <div class="container-fluid">
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h4 class="card-title">{{ title }}</h4>
+                    </div>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <div class="card-footer">
+                            <button class="btn btn-primary profile-button" type="submit">Guardar Cambios</button>
+                            <button class="btn btn-secondary" type="reset">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block javascripts %}
+    {% if form.errors %}
+        <script>
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Ocurrió un error',
+                {% for key, value in form.errors.items %}
+                    text: '{{ value|join:" " }}',
+                {% endfor %}
+                showConfirmButton: true,
+            })
+            document.body.classList.remove('swal2-height-auto');
+        </script>
+    {% endif %}
+{% endblock javascripts %}
