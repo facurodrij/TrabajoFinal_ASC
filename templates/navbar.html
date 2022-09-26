@@ -1,5 +1,5 @@
-<nav class="navbar navbar-expand-lg navbar-green">
-    <a class="navbar-brand text-bold text-dark" href="{% url 'index' %}">RESERVÁ</a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand text-bold" href="{% url 'index' %}">RESERVÁ</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -8,14 +8,19 @@
         <ul class="navbar-nav ml-auto">
             {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'profile' %}">Perfil</a>
+                    <a class="nav-link" href="{% url 'profile' %}">Perfil</a>
                 </li>
+                {% if user.is_superuser or user.is_staff %}
+                    <li class="nav-item mb-2 my-lg-0 mr-lg-2">
+                        <a class="btn btn-outline-warning" href="{% url 'admin:index' %}">Panel Admin</a>
+                    </li>
+                {% endif %}
                 <li class="nav-item">
                     <a class="btn btn-outline-dark" href="{% url 'logout' %}">Logout</a>
                 </li>
             {% else %}
                 <li class="nav-item">
-                    <a class="nav-link text-dark" href="{% url 'login' %}">Login</a>
+                    <a class="nav-link" href="{% url 'login' %}">Login</a>
                 </li>
                 <li>
                     <a class="btn btn-outline-dark" href="{% url 'register' %}">Register</a>

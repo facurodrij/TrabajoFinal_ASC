@@ -3,9 +3,10 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views import View
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.views import LoginView
 from django.views.generic import CreateView
+from django.contrib.auth.models import Permission, PermissionDenied
 
 from .forms import RegisterForm, LoginForm, UpdateUserForm, UpdateProfileForm
 
@@ -24,7 +25,8 @@ class RegisterView(SuccessMessageMixin, CreateView):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            user.user_permissions.add(Permission.objects.get(codename='change_profile'))
             messages.success(request, self.success_message)
             return redirect(self.success_url)
         return render(request, self.template_name, {'form': form, 'title': 'Registro'})
@@ -53,6 +55,7 @@ class CustomLoginView(LoginView):
 
 
 @login_required
+@permission_required('accounts.change_profile', raise_exception=True)
 def profile(request):
     """ Vista para el perfil de usuario """
     context = {

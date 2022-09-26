@@ -51,16 +51,17 @@ class Profile(models.Model):
     bio = models.TextField(max_length=500, null=True, blank=True, verbose_name=_('Biografía'))
     genero = models.ForeignKey('parameters.Genero', null=True, blank=True, on_delete=models.CASCADE,
                                verbose_name=_('Género'))
-    avatar = models.ImageField(upload_to='accounts.Profile.avatar_directory_path', null=True, blank=True, verbose_name=_('Avatar'))
+
+    def avatar_directory_path(self, filename):
+        """Metodo para obtener la ruta de la imagen de perfil del usuario."""
+        return 'img/profile_avatar/{0}/{1}'.format(self.user.username, filename)
+
+    avatar = models.ImageField(upload_to=avatar_directory_path, null=True, blank=True, verbose_name=_('Avatar'))
     """Atributo para almacenar la imagen de perfil del usuario."""
 
     def __str__(self):
         """Metodo para representar el objeto Profile."""
         return self.user.username
-
-    def avatar_directory_path(self, filename):
-        """Funcion para guardar el archivo en MEDIA_ROOT/user_<id>/<filename>"""
-        return 'profile_avatars/user_{0}/{1}'.format(self.user.id, filename)
 
     def save(self, *args, **kwargs):
         """Metodo save() sobrescrito para redimensionar la imagen."""

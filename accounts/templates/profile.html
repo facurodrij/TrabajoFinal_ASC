@@ -11,6 +11,9 @@
                          src="{{ user.profile.get_avatar }}" alt="">
                     <span class="font-weight-bold mt-3">{{ user.username }}</span>
                     <span class="text-black-50">{{ user.email }}</span>
+                    {% if user.is_superuser or user.is_staff %}
+                        <span><strong>Administrador del Sistema</strong></span>
+                    {% endif %}
                 </div>
             </div>
             <div class="col-md-6">
@@ -32,11 +35,7 @@
                             <div class="form-group">
                                 <label for="customFileLang">Avatar</label>
                                 <div class="input-group">
-                                    <div class="custom-file">
-                                        {{ profile_form.avatar }}
-                                        <label class="custom-file-label" for="customFileLang">Seleccionar
-                                            Archivo</label>
-                                    </div>
+                                    {{ profile_form.avatar }}
                                 </div>
                             </div>
                             <div class="form-group">

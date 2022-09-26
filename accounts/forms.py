@@ -86,8 +86,8 @@ class UpdateUserForm(forms.ModelForm):
 
 
 class UpdateProfileForm(forms.ModelForm):
-    avatar = forms.ImageField(required=False, widget=forms.FileInput(
-        attrs={'class': 'custom-file-input', 'id': 'customFileLang', 'lang': 'es'}))
+    """Formulario para actualizar los datos de un perfil de usuario."""
+    avatar = forms.ImageField(required=False, widget=forms.FileInput(attrs={'class': 'form-control-file'}))
     bio = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 5}))
 
     class Meta:
