@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
+from django.contrib import messages
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from .models import *
+from .forms import *
 
 
 class IndexView(TemplateView):
@@ -25,10 +27,13 @@ class ClubListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Listado de clubes'
-        # if 'deleted' from the url add context['club_deleted_pk'] = deleted value
+        context['clubs_deleted'] = Club.deleted_objects.all()
         if self.request.GET.get('deleted', ''):
-            context['club_deleted'] = Club.deleted_objects.get(pk=self.request.GET.get('deleted', ''))
-            # context['club_deleted_name'] = Club.objects.get(pk=self.request.GET.get('deleted'))
+            """Si el parámetro deleted está presente en la URL, se obtiene el pk del club eliminado."""
+            try:
+                context['club_deleted'] = Club.deleted_objects.get(pk=self.request.GET.get('deleted', ''))
+            except Club.DoesNotExist:
+                print('No existe el club eliminado')
         return context
 
 
@@ -36,10 +41,15 @@ class ClubCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """Vista para crear un club."""
     model = Club
     template_name = 'club_form.html'
-    fields = ['nombre', 'pais', 'provincia', 'localidad', 'direccion', 'logo']
+    form_class = ClubForm
     permission_required = 'core.add_club'
     permission_denied_message = 'No tiene permiso para crear un club'
     success_url = reverse_lazy('club_list')
+
+    # Success message
+    def form_valid(self, form):
+        messages.success(self.request, 'Club creado exitosamente')
+        return super(ClubCreateView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -50,11 +60,16 @@ class ClubCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 class ClubUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """Vista para actualizar un club."""
     model = Club
+    form_class = ClubForm
     template_name = 'club_form.html'
-    fields = ['nombre', 'pais', 'provincia', 'localidad', 'direccion', 'logo']
     permission_required = 'core.change_club'
     permission_denied_message = 'No tiene permiso para actualizar un club'
     success_url = reverse_lazy('club_list')
+
+    # Success message
+    def form_valid(self, form):
+        messages.success(self.request, 'Club actualizado exitosamente')
+        return super(ClubUpdateView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

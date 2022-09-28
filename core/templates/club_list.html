@@ -12,7 +12,10 @@
                 <a href="{% url 'club_create' %}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Nuevo Club
                 </a>
-                <table class="table table-hover table-bordered mt-3" id="data">
+                <div class="text mt-5">
+                    <h3>Clubes Activos</h3>
+                </div>
+                <table class="table table-hover table-bordered mt-1" id="data">
                     <thead class="bg-gray-dark">
                     <tr>
                         <th scope="col" style="width: 20%;">#</th>
@@ -39,6 +42,35 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                {% if clubs_deleted %}
+                    <div class="text mt-5">
+                        <h3>Clubes Eliminados</h3>
+                    </div>
+                    <table class="table table-hover table-bordered mt-3">
+                        <thead class="bg-gray-dark">
+                        <tr>
+                            <th scope="col" style="width: 20%;">#</th>
+                            <th scope="col" style="width: 70%;">Nombre</th>
+                            <th scope="col" style="width: 10%;">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for club in clubs_deleted %}
+                            <tr>
+                                <td>{{ club.id }}</td>
+                                <td>{{ club.nombre }}</td>
+                                <td>
+                                    <a href="{% url 'club_restore' club.id %}" club_name="{{ club.nombre }}"
+                                       type="button"
+                                       class="btn btn-outline-danger btn-restore">
+                                        <i class="fa fa-undo"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -70,10 +102,10 @@
                 position: 'top-end',
                 icon: 'success',
                 title: 'EL Club {{ club_deleted.nombre }} ha sido eliminado',
-                showConfirmButton: false,
-                showCancelButton: true,
-                cancelButtonText: '<a class="text-white" href="{% url 'club_restore' club_deleted.pk %}">Deshacer <i class="fa fa-undo" aria-hidden="true"></i></a>',
-                timer: 5000,
+                showConfirmButton: true,
+                showCancelButton: false,
+                confirmButtonText: '<a class="text-white" href="{% url 'club_restore' club_deleted.pk %}">Deshacer <i class="fa fa-undo" aria-hidden="true"></i></a>',
+                timer: 4000,
                 timerProgressBar: true,
             })
             document.body.classList.remove('swal2-height-auto');

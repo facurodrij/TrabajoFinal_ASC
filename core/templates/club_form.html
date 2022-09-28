@@ -5,6 +5,15 @@
     {% include 'navbar.html' %}
     <div class="container-fluid">
         <div class="row mt-5">
+            {% if object %}
+                <div class="col-md-4">
+                    <div class="d-flex flex-column align-items-center text-center">
+                        <img class="rounded-circle mt-5"
+                             src="{{ object.get_logo }}" alt="">
+                        <span class="font-weight-bold mt-3">{{ object.nombre }}</span>
+                    </div>
+                </div>
+            {% endif %}
             <div class="col-md-6">
                 <div class="card card-primary">
                     <div class="card-header">
@@ -12,7 +21,34 @@
                     </div>
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        {{ form.as_p }}
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="labels">{{ form.nombre.label }}</label>
+                                {{ form.nombre }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ form.pais.label }}</label>
+                                {{ form.pais }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ form.provincia.label }}</label>
+                                {{ form.provincia }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ form.localidad.label }}</label>
+                                {{ form.localidad }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ form.direccion.label }}</label>
+                                {{ form.direccion }}
+                            </div>
+                            <div class="form-group">
+                                <label for="customFileLang">Logo</label>
+                                <div class="input-group">
+                                    {{ form.logo }}
+                                </div>
+                            </div>
+                        </div>
                         <div class="card-footer">
                             <button class="btn btn-primary profile-button" type="submit">Guardar Cambios</button>
                             <button class="btn btn-secondary" type="reset">Reset</button>
