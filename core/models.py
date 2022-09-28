@@ -7,8 +7,6 @@ from django.conf import settings
 
 class Club(SoftDeleteModel):
     nombre = models.CharField(max_length=255, verbose_name='Nombre')
-    pais = models.ForeignKey('parameters.Pais', on_delete=models.PROTECT, verbose_name='País')
-    provincia = models.ForeignKey('parameters.Provincia', on_delete=models.PROTECT)
     localidad = models.ForeignKey('parameters.Localidad', on_delete=models.PROTECT)
     direccion = models.CharField(max_length=255, verbose_name='Dirección')
     socios = models.ManyToManyField('accounts.User', through='Socio', related_name='socios')
@@ -38,14 +36,14 @@ class Club(SoftDeleteModel):
 
     def get_logo(self):
         """Metodo para obtener la imagen de perfil del usuario."""
-
-        if self.logo:
+        try:
             return self.logo.url
-        else:
-            return settings.STATIC_URL + 'img/empty.png'
+        except Exception as e:
+            print(e)
+            return settings.STATIC_URL + 'img/default.png'
 
     class Meta:
-        unique_together = ('pais', 'provincia', 'localidad', 'direccion')
+        unique_together = ('localidad', 'direccion')
         verbose_name = 'Club'
         verbose_name_plural = "Clubes"
         ordering = ['id']

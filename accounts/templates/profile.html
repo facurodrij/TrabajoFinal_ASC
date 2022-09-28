@@ -6,9 +6,9 @@
     <div class="container-fluid">
         <div class="row mt-5">
             <div class="col-md-4">
-                <div class="d-flex flex-column align-items-center text-center">
+                <div class="d-flex flex-column align-items-center text-center mb-3">
                     <img class="rounded-circle mt-5"
-                         src="{{ user.profile.get_avatar }}" alt="">
+                         src="{{ user.profile.get_avatar }}" alt="" style="max-width: 300px">
                     <span class="font-weight-bold mt-3">{{ user.username }}</span>
                     <span class="text-black-50">{{ user.email }}</span>
                     {% if user.is_superuser or user.is_staff %}
@@ -16,13 +16,13 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h4 class="card-title">Actualizar Perfil</h4>
-                    </div>
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
+            <div class="col-md-7">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="card">
+                        <div class="card-header bg-primary">
+                            <h4 class="card-title">Actualizar Perfil</h4>
+                        </div>
                         <div class="card-body">
                             <div class="form-group">
                                 <label class="labels">{{ user_form.first_name.label }}</label>
@@ -47,8 +47,8 @@
                             <button class="btn btn-primary profile-button" type="submit">Guardar Cambios</button>
                             <button class="btn btn-secondary" type="reset">Reset</button>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

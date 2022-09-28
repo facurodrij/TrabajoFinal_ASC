@@ -6,13 +6,11 @@ from .models import Club
 class ClubForm(forms.ModelForm):
     class Meta:
         model = Club
-        fields = ['nombre', 'pais', 'provincia', 'localidad', 'direccion', 'logo']
+        fields = ['nombre', 'localidad', 'direccion', 'logo']
         widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'pais': forms.Select(attrs={'class': 'form-control'}),
-            'provincia': forms.Select(attrs={'class': 'form-control'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre'}),
             'localidad': forms.Select(attrs={'class': 'form-control'}),
-            'direccion': forms.TextInput(attrs={'class': 'form-control'}),
+            'direccion': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Dirección'}),
             'logo': forms.FileInput(attrs={'class': 'form-control-file'}),
         }
         labels = {

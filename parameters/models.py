@@ -85,7 +85,7 @@ class Localidad(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
 
     def __str__(self):
-        return self.nombre
+        return self.nombre + ', ' + self.provincia.nombre + ', ' + self.pais.nombre
 
     class Meta:
         unique_together = ('nombre', 'provincia', 'pais')
