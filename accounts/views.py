@@ -26,7 +26,6 @@ class RegisterView(SuccessMessageMixin, CreateView):
         form = self.form_class(request.POST)
         if form.is_valid():
             user = form.save()
-            user.user_permissions.add(Permission.objects.get(codename='change_profile'))
             messages.success(request, self.success_message)
             return redirect(self.success_url)
         return render(request, self.template_name, {'form': form, 'title': 'Registro'})
