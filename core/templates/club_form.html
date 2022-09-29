@@ -9,6 +9,9 @@
         .select2-container {
             width: 100% !important;
         }
+        .select2-selection__choice__display {
+            color: #000 !important;
+        }
     </style>
 {% endblock %}
 
@@ -52,10 +55,14 @@
                                 {{ form.direccion }}
                             </div>
                             <div class="form-group">
-                                <label for="customFileLang">Logo</label>
+                                <label for="customFileLang">{{ form.logo.label }}</label>
                                 <div class="input-group">
                                     {{ form.logo }}
                                 </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ form.administrador.label }}</label>
+                                {{ form.administrador }}
                             </div>
                         </div>
                         <div class="card-footer">
@@ -79,6 +86,16 @@
                     language: 'es',
                     placeholder: "Seleccione una localidad",
                     allowClear: true,
+                }
+            );
+            $('#id_administrador').select2(
+                {
+                    {#theme: 'bootstrap4',#}
+                    {#language: 'es',#}
+                    placeholder: "Seleccione un administrador",
+                    {#allowClear: true,#}
+                    {#multiple: true,#}
+                    {#tags: true,#}
                 }
             );
         });

@@ -21,17 +21,17 @@ class ClubListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """Vista para listar los clubs."""
     model = Club
     template_name = 'club_list.html'
-    permission_required = 'core.view_club'
-    permission_denied_message = 'No tiene permiso para ver la lista de clubes'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Listado de clubes'
-        context['clubs_deleted'] = Club.deleted_objects.all()
+        context['model_name'] = 'Club'
+        context['model_name_plural'] = 'Clubes'
+        context['all_model_deleted'] = Club.deleted_objects.all()
         if self.request.GET.get('deleted', ''):
             """Si el parámetro deleted está presente en la URL, se obtiene el pk del club eliminado."""
             try:
-                context['club_deleted'] = Club.deleted_objects.get(pk=self.request.GET.get('deleted', ''))
+                context['model_deleted'] = Club.deleted_objects.get(pk=self.request.GET.get('deleted', ''))
             except Club.DoesNotExist:
                 print('No existe el club eliminado')
         return context
@@ -44,7 +44,10 @@ class ClubCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     form_class = ClubForm
     permission_required = 'core.add_club'
     permission_denied_message = 'No tiene permiso para crear un club'
-    success_url = reverse_lazy('club_list')
+
+    # Redireccionar al club creado
+    def get_success_url(self):
+        return reverse('club_update', kwargs={'pk': self.object.pk})
 
     # Success message
     def form_valid(self, form):

@@ -9,7 +9,8 @@ class Club(SoftDeleteModel):
     nombre = models.CharField(max_length=255, verbose_name='Nombre')
     localidad = models.ForeignKey('parameters.Localidad', on_delete=models.PROTECT)
     direccion = models.CharField(max_length=255, verbose_name='Dirección')
-    socios = models.ManyToManyField('accounts.User', through='Socio', related_name='socios')
+    administrador = models.ManyToManyField('accounts.User', related_name='club_admin', verbose_name='Administrador')
+    socios = models.ManyToManyField('accounts.User', through='Socio', related_name='club_socio', verbose_name='Socios')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

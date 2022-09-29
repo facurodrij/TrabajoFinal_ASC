@@ -9,12 +9,9 @@
                 <h4 class="card-title">{{ title }}</h4>
             </div>
             <div class="card-body">
-                <a href="{% url 'club_create' %}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Nuevo Club
+                <a href="{% url 'club_create' %}" class="btn btn-primary mb-3">
+                    <i class="fas fa-plus"></i> Agregar {{ model_name }}
                 </a>
-                <div class="text mt-5">
-                    <h3>Clubes Activos</h3>
-                </div>
                 <table class="table table-hover table-bordered mt-1" id="data">
                     <thead class="bg-gray-dark">
                     <tr>
@@ -24,16 +21,17 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for club in club_list %}
+                    {% for object in object_list %}
                         <tr>
-                            <td>{{ club.id }}</td>
-                            <td>{{ club.nombre }}</td>
+                            <td>{{ object.id }}</td>
+                            <td>{{ object.nombre }}</td>
                             <td>
-                                <a href="{% url 'club_update' club.id %}"
+                                <a href="{% url 'club_update' object.id %}"
                                    class="btn btn-outline-warning">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a href="{% url 'club_delete' club.id %}" club_name="{{ club.nombre }}" type="button"
+                                <a href="{% url 'club_delete' object.id %}"
+                                   type="button"
                                    class="btn btn-outline-danger btn-delete">
                                     <i class="fas fa-trash-alt"></i>
                                 </a>
@@ -42,9 +40,9 @@
                     {% endfor %}
                     </tbody>
                 </table>
-                {% if clubs_deleted %}
+                {% if all_model_deleted %}
                     <div class="text mt-5">
-                        <h3>Clubes Eliminados</h3>
+                        <h3>{{ model_name_plural }} Eliminados</h3>
                     </div>
                     <table class="table table-hover table-bordered mt-3">
                         <thead class="bg-gray-dark">
@@ -55,12 +53,12 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for club in clubs_deleted %}
+                        {% for object in all_model_deleted %}
                             <tr>
-                                <td>{{ club.id }}</td>
-                                <td>{{ club.nombre }}</td>
+                                <td>{{ object.id }}</td>
+                                <td>{{ object.nombre }}</td>
                                 <td>
-                                    <a href="{% url 'club_restore' club.id %}" club_name="{{ club.nombre }}"
+                                    <a href="{% url 'club_restore' object.id %}"
                                        type="button"
                                        class="btn btn-outline-danger btn-restore">
                                         <i class="fa fa-undo"></i>
@@ -77,35 +75,16 @@
 {% endblock content %}
 
 {% block javascripts %}
-    <script>
-        {# si btn_delete es clickeado ejecutar funcion   #}
-        $('.btn-delete').click(function (e) {
-            e.preventDefault();
-            var href = $(this).attr('href');
-            var club_name = $(this).attr('club_name');
-            Swal.fire({
-                title: 'Seguro desea eliminar el club ' + club_name + '?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Si, borrar!'
-            });
-            $('.swal2-confirm').click(function () {
-                window.location.href = href;
-            });
-        });
-    </script>
-    {% if club_deleted %}
+    {% if model_deleted %}
         <script>
             Swal.fire({
                 position: 'top-end',
                 icon: 'success',
-                title: 'EL Club {{ club_deleted.nombre }} ha sido eliminado',
+                title: 'EL {{ model_name }} <strong>{{ model_deleted }}</strong> ha sido eliminado',
                 showConfirmButton: true,
                 showCancelButton: false,
-                confirmButtonText: '<a class="text-white" href="{% url 'club_restore' club_deleted.pk %}">Deshacer <i class="fa fa-undo" aria-hidden="true"></i></a>',
-                timer: 4000,
+                confirmButtonText: '<a class="text-white" href="{% url 'club_restore' model_deleted.pk %}">Deshacer <i class="fa fa-undo" aria-hidden="true"></i></a>',
+                timer: 5000,
                 timerProgressBar: true,
             })
             document.body.classList.remove('swal2-height-auto');
