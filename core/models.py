@@ -9,8 +9,6 @@ class Club(SoftDeleteModel):
     nombre = models.CharField(max_length=255, verbose_name='Nombre')
     localidad = models.ForeignKey('parameters.Localidad', on_delete=models.PROTECT)
     direccion = models.CharField(max_length=255, verbose_name='Dirección')
-    administrador = models.ManyToManyField('accounts.User', related_name='club_admin', verbose_name='Administrador')
-    socios = models.ManyToManyField('accounts.User', through='Socio', related_name='club_socio', verbose_name='Socios')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -41,30 +39,13 @@ class Club(SoftDeleteModel):
             return self.logo.url
         except Exception as e:
             print(e)
-            return settings.STATIC_URL + 'img/default.png'
+            return settings.STATIC_URL + 'img/empty.png'
 
     class Meta:
         unique_together = ('localidad', 'direccion')
         verbose_name = 'Club'
         verbose_name_plural = "Clubes"
         ordering = ['id']
-
-
-class Socio(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    club = models.ForeignKey(Club, on_delete=models.CASCADE)
-    user = models.ForeignKey('accounts.User', on_delete=models.CASCADE)
-    categoria = models.ForeignKey('parameters.SocioCategoria', on_delete=models.PROTECT)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.user.username
-
-    class Meta:
-        unique_together = ('club', 'user')
-        verbose_name = 'Socio'
-        verbose_name_plural = "Socios"
 
 
 class Cancha(models.Model):
@@ -75,7 +56,6 @@ class Cancha(models.Model):
     techado = models.BooleanField(default=False, verbose_name='¿Es techada?')
     iluminacion = models.BooleanField(default=False, verbose_name='Iluminación')
     precio = models.DecimalField(max_digits=20, decimal_places=2, verbose_name='Precio por hora')
-    club = models.ForeignKey(Club, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -83,6 +63,6 @@ class Cancha(models.Model):
         return 'Cancha {0} - {1}'.format(self.numero, self.club.nombre)
 
     class Meta:
-        unique_together = ('numero', 'club', 'deporte')
+        unique_together = ('numero', 'deporte')
         verbose_name = 'Cancha'
         verbose_name_plural = "Canchas"

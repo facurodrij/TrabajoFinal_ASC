@@ -10,13 +10,24 @@ from .models import Profile
 def create_profile(sender, instance, created, **kwargs):
     """Funcion para crear un perfil de usuario cuando se crea un usuario y asignarle los permisos de perfil."""
     Profile.objects.get_or_create(user=instance)
-    try:
-        instance.user_permissions.add(Permission.objects.get(codename='change_profile'))
-    except Exception as e:
-        print(e)
 
 
 @receiver(post_save, sender=get_user_model())
 def save_profile(sender, instance, **kwargs):
     """Funcion para guardar el perfil de usuario cuando se guarda un usuario."""
     instance.profile.save()
+
+
+@receiver(post_save, sender=get_user_model())
+def add_permissions(sender, instance, created, **kwargs):
+    """Funcion para asignar permisos a un usuario cuando se crea."""
+    if created:
+        try:
+            if instance.is_superuser or instance.is_staff:
+                # Asignar todos los permisos al superusuario
+                for perm in Permission.objects.all():
+                    instance.user_permissions.add(perm)
+            else:
+                instance.user_permissions.add(Permission.objects.get(codename='change_profile'))
+        except Exception as e:
+            print(e)

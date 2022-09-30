@@ -1,0 +1,19 @@
+[
+  {
+    "model": "auth.Group",
+    "pk": 1,
+    "fields": {
+      "name": "Administrador del club",
+      "permissions": [
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28
+      ]
+    }
+  }
+]

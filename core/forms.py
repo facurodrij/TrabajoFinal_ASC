@@ -3,22 +3,18 @@ from django import forms
 from .models import Club
 
 
-class ClubForm(forms.ModelForm):
+class UpdateClubForm(forms.ModelForm):
+    """Formulario para actualizar el club."""
+    nombre = forms.CharField(max_length=100,
+                             required=True,
+                             widget=forms.TextInput(attrs={'class': 'form-control'}))
+    localidad = forms.Select(attrs={'class': 'form-control'})
+    direccion = forms.CharField(max_length=100,
+                                required=True,
+                                widget=forms.TextInput(attrs={'class': 'form-control'}))
+    logo = forms.ImageField(required=False,
+                            widget=forms.FileInput(attrs={'class': 'form-control-file'}))
+
     class Meta:
         model = Club
-        fields = ['nombre', 'localidad', 'direccion', 'logo', 'administrador']
-        widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre'}),
-            'localidad': forms.Select(attrs={'class': 'form-control'}),
-            'direccion': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Dirección'}),
-            'logo': forms.FileInput(attrs={'class': 'form-control-file'}),
-            'administrador': forms.SelectMultiple(attrs={'class': 'form-control input-sm select2-multiple'}),
-        }
-        labels = {
-            'nombre': 'Nombre',
-            'pais': 'País',
-            'provincia': 'Provincia',
-            'localidad': 'Localidad',
-            'direccion': 'Dirección',
-            'logo': 'Logo',
-        }
+        fields = ['nombre', 'localidad', 'direccion', 'logo']

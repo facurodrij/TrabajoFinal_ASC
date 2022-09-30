@@ -5,7 +5,4 @@
 {% block content %}
     {% include 'navbar.html' %}
     <h1>Index del sistema</h1>
-    {% if user.is_superuser %}
-        <h3><a href="{% url 'club_list' %}">Clubes</a></h3>
-    {% endif %}
 {% endblock content %}
