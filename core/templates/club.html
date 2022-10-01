@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends "extends/base.html" %}
 {% load static %}
 
 {% block stylesheets %}
@@ -7,10 +7,16 @@
           href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
 {% endblock %}
 
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item active">Club</li>
+    </ol>
+{% endblock %}
+
 {% block content %}
-    {% include 'navbar.html' %}
     <div class="container-fluid">
-        <div class="row mt-5">
+        <div class="row">
             <div class="col-md-4">
                 <div class="d-flex flex-column align-items-center text-center mb-3">
                     <img class="rounded-circle mt-5"

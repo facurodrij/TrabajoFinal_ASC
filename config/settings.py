@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     # Aplicaciones de terceros
     'widget_tweaks',
     'django_cleanup.apps.CleanupConfig',
+    'active_link',
     # Aplicaciones locales
     'parameters',
     'accounts',
@@ -88,6 +89,10 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
+FIXTURE_DIRS = [
+    BASE_DIR / 'fixtures',
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

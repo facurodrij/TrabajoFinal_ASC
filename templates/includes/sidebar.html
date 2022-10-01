@@ -1,0 +1,70 @@
+{% load static %}
+{% load active_link_tags %}
+{% if user.is_authenticated %}
+    <!-- Main Sidebar Container -->
+    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <!-- Brand Logo -->
+        <a href="{% url 'index' %}" class="brand-link">
+            <img src="{% static 'img/logo.png' %}" alt="RESERVÁ Logo" class="brand-image img-circle elevation-3">
+            <span class="brand-text font-light text-bold">RESERVÁ</span>
+        </a>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Sidebar user panel (optional) -->
+            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                <div class="image">
+                    <img src="{{ user.profile.get_avatar }}" class="img-circle elevation-2" alt="User Avatar">
+                </div>
+                <div class="info">
+                    <a href="{% url 'profile' %}" class="d-block">{{ user.username }}</a>
+                </div>
+            </div>
+
+            <!-- Sidebar Menu -->
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+                    <!-- Add icons to the links using the .nav-icon class
+                         with font-awesome or any other icon font library -->
+                    {% if user.is_admin %}
+                        <li class="nav-item">
+                            <a href="{% url 'club' %}" class="nav-link {% active_link 'club' %}">
+                                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABmJLR0QA/wD/AP+gvaeTAAAIrElEQVRoge2Zf4xcVRXHP+fO7JbBLltDBSItpNiK3UJ/zLsz3Qy/tqWShohAkIqxIPgnmAhKEBWLVgyI/FACwZAIyI+oReSHUTCl3S0s6+7MfaUrLkVaaQsoID+k3bbDzsx7xz/mzXaYbndn2IU2jd/kJbvv3nfu93vvueecewf+j4MIzrnuXC635ECwI+MkoNGfz6rqD1Op1FP7y85ECangQxGZCDumkQEPZMRHeumc625wRsblWvXaGY3XiK5Vr89W+llrJ8RFx7IzGq+xXOskEVk9UdFpArEXr4N7j1QgIuuCILg2nU6vG62fc+5bwLHRMx2YAkwGmoDWqNt2oAjsBN4DXomebY2SHonXqHuk1md7e3uPjMfjp6rqEhFZChzTKIkx8CbwtIg8papPWmtfqYcXjLEiAP39/UcUi8XlwEXAPACRYTtvARuAmcCMD0l+C7AZmA8cCZyvqudHxDeo6n2xWOyBZDL51mhGRt0jzrk7isXiVuDmiohqqOr11tozROS2DykCEbnNWnuGql4/QvN8EbklDMNtuVzu9tHs7CWks7OzepUuBRKjfH8+QBAEDwO12bkeaPTtsK19ICEil1X+WbVqVay2wwd8ra+v7/B4PP5bVV0SEStR3rD7JBKG4bHpdPpV59wKVX3fGLMpDMNN8Xh8ZywW214oFHYCNDc3Tw6CoLVUKk02xswKw3CWiBxirV2ZzWanG2O21fKpQZHyVhBgdaFQuCCTyby7l5C+vr7DY7FYD/BZYIuqfh3oEJFrRzC6C/iziDw8NDT0eCaTyY9CYEz09PQkJk2a9EVVPQ84E/hEbR9V/RHQJSJ3U96P/ygUCpmKGIk6Gd/31wAd0Xddnuct7urqmtTS0tIfiQPYICI3qOofrbW7qwfq7OyMt7S0rARmAZ8BplIOwS1Rl0HKofdt4J/ApsHBwRWLFi0qVdtxzh0qImep6tWUAwDAS4ODg/M6OjqGfN9fW8PzdBEJBcD3/WWq+rtqgyJyied59/q+v1hVbwJWep73mIjoqlWrYjNmzDhFRM4FzimVSie1t7e/5vv+s6qaqWMREJEez/NO6u3tnRaPx7uBx1T1kS1btjyzbNmyQFXF9/2zgRUicqXneWt9379YVe+pMbXMWvuQRLPQWaWygreB2dbatysvBgYGJufz+W8Al1MOlRVSV3ie93Pf9y9X1VvrFLKvb94Ebk0kEnfMmTNnZ+Wlc24qsJHySldjrbX29ErUOmGEsd4xxgz7qu/7l+Xz+a3A9dUigJ1hGH4aoFQq3a+qi0SkLQiCqcAUa61ECWxKEARTRaRNVReVSqX7AaJvd1bZOxK4IZ/Pb/F9fzhSRVzeGYHnibAnIbbWND5TKBTOyWQy727atGnSrFmzhsIwzIvI4VH7i8B9ItK5Y8cOV/HzhQsXvgN0jTAY1trtlQmiPLMApFKpqzo7O7932GGHWWCxql4IfA6YGoZhHiDisK2npyfT3Nz8KHBKlelPQrTZnXN/B+ZEDS8AGWvt9lwu9yUR+cHg4ODCjo6OIefcdcBqa+06EVGA7u7ulubm5qQxxgNmUy5bplN2gTjlugvK9VWJcjXwKvCqqr4Qi8X83bt3P3fyyScPAqiqOOdOAz5vrb0mCjh9qroylUo97JxrBXqAtsjuS9ba4wUgl8t9X0SuAzDGpJLJpMvlcheKyL2Uk+aV1tqbK1PQ399/RKFQ+KqInBXNzpilzhgoAt0i8riIPFhdjjjnvg3cBIQi8jXP8x5Yv369DcMwF3VZaa29VmB4E2+gHDY3iMh3VfUR4BBVXSMi51lrtzvnjgF+DHwZmDRO8vvCEPCbMAxXRIm2FfgDsBh4X0TOjcqZ+cDLpVJpQXt7+47hhOj7/mxV7QKOqDL6clNT09x58+bt8n3/ElW9HTj0IxJQi13AZdbaX0cT3Q8cV9X+iogs9TxvI0S1lnPuRM/zNhpj0kB/VeetxWJxei6Xu0hV7/4YRUA5u9/j+/7yfD4/Ddha1eYD7Z7nbcxms/NhT9G4JpvNppLJ5LZEIpFW1WuAPOXlHBCRX36MAqohqnoXMBBxGRSRqxKJRMZa+7rv++3GmLWwR8injDHrnHOXtrW1FVOp1E/CMDweuBMoMHoF/FEjEXG4Ezje87yftbW1lZxz31TVtdSE3+oSvNMYc0UymeyH4WJyOXABsJBxXuo1CB+4LwiCB6McRS6XWyAit1BViVhrZSQhUC7hHxKRGz3P8ysvo6j1BVU9VUROA46aQNIKbFbV9SLytDHmT8lkcvg87/u+F7n82dRM5mhCquEDvwIetda+Xt2QzWanx2KxNlU9AThORKap6lGUBbZQrhgq7ltiTwX8OvBvyolxK/AcsL4q+wPDx+yvABezpxLeC/UKqUCBnKo+YYz5q6r21g48XjjnWo0xNgzD04EzgAXUcWVlrZVGMrIAaRFJqypA6JzbTLluehHYLCJvBEHwZjwe/088Ht8RBIEuWLDgPVWV559/fkqpVIoHQdAiIlNE5GhVna6qR4vIbMozPiMMw0b1D5Ord0UOWFhr5aC5aTxohIy3av0AVHVRKpUa8TxSi+gIvWaixq6syK6JMFavCADP89ZOxJhEp8uKkA0TZHR/4DnYI+QX+5HIuCAiP4dIiOd5vxeRUX86OEDRmUwmH4FIiIioqp4N/G2/0moMA83NzedV7g6Gw6+1drsxZgmwer9Rqx9/ATrmzp3738qLD+SRZDL5lud5S4GrKRd4Bxp2qOp3PM87s/riEEZIiCISWmt/2tTUNFNEbgd21/bZD9gF3GaMmZlKpW4Ukb0KsjEPSc65VhFZHt3OJ0fr2+jP1HXUeD5wN/DgWJV2QwP39vZOa2pqOlNVlwJp4Ojq9gkQ8i9V7TPGPFksFp9ob29/rV5bDZUokeG7oodsNnuUiCSNMXPCMJzZiC0AVb3LGLM5DMMBVV2fTqffaNTGQYf/ATDDEnoTuwWMAAAAAElFTkSuQmCC"
+                                     class="nav-icon" alt="icon">
+                                <p>
+                                    Mi Club
+                                    <span class="right badge badge-danger">New</span>
+                                </p>
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <p>
+                                Starter Pages
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Active Page</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Inactive Page</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <!-- /.sidebar-menu -->
+        </div>
+        <!-- /.sidebar -->
+    </aside>
+{% endif %}

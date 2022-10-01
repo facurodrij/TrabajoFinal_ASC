@@ -3,4 +3,5 @@ Pillow~=9.2.0
 django-widget-tweaks
 django-cleanup
 django-soft-delete
+django-active-link
 psycopg2-binary

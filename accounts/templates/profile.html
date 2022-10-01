@@ -1,10 +1,16 @@
-{% extends "index.html" %}
+{% extends "extends/base.html" %}
 {% load static %}
 
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item active">Perfil</li>
+    </ol>
+{% endblock %}
+
 {% block content %}
-    {% include 'navbar.html' %}
     <div class="container-fluid">
-        <div class="row mt-5">
+        <div class="row">
             <div class="col-md-4">
                 <div class="d-flex flex-column align-items-center text-center mb-3">
                     <img class="rounded-circle mt-5"

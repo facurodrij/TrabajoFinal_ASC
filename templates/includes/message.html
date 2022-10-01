@@ -1,0 +1,25 @@
+{% if messages %}
+    <script>
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                Swal.fire({
+                    position: 'top-end',
+                    icon: '{{ message.tags }}',
+                    title: '{{ message }}',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+                document.body.classList.remove('swal2-height-auto');
+            {% endif %}
+            {% if message.tags == 'error' %}
+                Swal.fire({
+                    position: 'top-end',
+                    icon: '{{ message.tags }}',
+                    title: '{{ message }}',
+                    showConfirmButton: true,
+                })
+                document.body.classList.remove('swal2-height-auto');
+            {% endif %}
+        {% endfor %}
+    </script>
+{% endif %}

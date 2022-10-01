@@ -39,6 +39,10 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
+    def is_admin(self):
+        """ Verifica si el usuario es administrador del club o superusuario """
+        return self.is_superuser or self.is_staff or self.groups.filter(name='Administrador del club').exists()
+
     class Meta:
         verbose_name = _('Usuario')
         verbose_name_plural = _('Usuarios')

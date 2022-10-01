@@ -13,7 +13,7 @@ from .forms import *
 
 class IndexView(TemplateView):
     """Vista para la página de inicio."""
-    template_name = 'index.html'
+    template_name = 'pages/index.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -24,8 +24,7 @@ class IndexView(TemplateView):
 @login_required(login_url='login')
 def club(request):
     """ Vista para el club, solo acceden superusuarios, staff y administradores del club """
-    if not request.user.is_superuser and not request.user.is_staff and not request.user.groups.filter(
-            name='Administrador del club').exists():
+    if not request.user.is_admin():
         messages.error(request, 'No tienes permiso para acceder a esta página')
         return redirect('index')
     context = {
