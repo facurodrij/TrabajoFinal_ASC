@@ -98,7 +98,9 @@ class Localidad(models.Model):
 class SocioCategoria(models.Model):
     """Modelo para almacenar las categorías de los socios."""
     nombre = models.CharField(max_length=255, verbose_name=_('Nombre'))
-    precio = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('Precio'))
+    precio_inscripcion = models.DecimalField(max_digits=10, default=0.10, decimal_places=2,
+                                             verbose_name=_('Precio de inscripción'))
+    cuota = models.DecimalField(max_digits=10, default=0.10, decimal_places=2, verbose_name=_('Cuota'))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
 
@@ -108,3 +110,17 @@ class SocioCategoria(models.Model):
     class Meta:
         verbose_name = _('Categoría de socio')
         verbose_name_plural = _('Categorías de socios')
+
+
+class SocioEstado(models.Model):
+    """Modelo para almacenar los estados de los socios."""
+    nombre = models.CharField(max_length=255, verbose_name=_('Nombre'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        verbose_name = _('Estado de socio')
+        verbose_name_plural = _('Estados de socios')

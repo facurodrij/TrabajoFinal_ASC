@@ -84,7 +84,7 @@ class Profile(models.Model):
         if self.avatar:
             return self.avatar.url
         else:
-            return settings.STATIC_URL + 'img/empty.png'
+            return settings.STATIC_URL + 'img/empty.svg'
 
     class Meta:
         verbose_name = _('Perfil')

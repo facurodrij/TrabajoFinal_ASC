@@ -15,5 +15,15 @@
         28
       ]
     }
+  },
+  {
+    "model": "auth.Group",
+    "pk": 2,
+    "fields": {
+      "name": "Socio",
+      "permissions": [
+
+      ]
+    }
   }
 ]

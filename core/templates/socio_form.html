@@ -1,0 +1,112 @@
+{% extends "extends/base.html" %}
+{% load static %}
+{% block stylesheets %}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            {#            <div class="col-md-4">#}
+            {#                {% if object %}#}
+            {#                    <div class="d-flex flex-column align-items-center text-center mb-3">#}
+            {#                        <img class="rounded-circle mt-5"#}
+            {#                             src="{{ object.get_logo }}" alt="" style="max-width: 300px">#}
+            {#                        <span class="font-weight-bold mt-3">{{ object.nombre }}</span>#}
+            {#                    </div>#}
+            {#                {% else %}#}
+            {#                    <div class="d-flex flex-column align-items-center text-center mb-3">#}
+            {#                        <img class="rounded-circle mt-5"#}
+            {#                             src="{% static 'img/empty.png' %}" alt="" style="max-width: 300px">#}
+            {#                        <span class="font-weight-bold mt-3">No hay datos</span>#}
+            {#                    </div>#}
+            {#                {% endif %}#}
+            {#            </div>#}
+            <div class="col-12">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="card">
+                        <div class="card-header bg-primary">
+                            <h4 class="card-title">{{ title }}</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="labels">{{ form.user.label }}</label>
+                                {{ form.user }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ form.categoria.label }}</label>
+                                {{ form.categoria }}
+                            </div>
+                            <div class="form-group clearfix">
+                                <div class="icheck-primary d-inline">
+                                    {{ form.is_inscripto }}
+                                    <label for="check_inscripto">{{ form.is_inscripto.label }}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ form.estado.label }}</label>
+                                {{ form.estado }}
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary profile-button" type="submit">Guardar Cambios</button>
+                            <button class="btn btn-secondary" type="reset">Reset</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#id_user').select2(
+                {
+                    width: '100%',
+                    theme: 'bootstrap4',
+                    language: 'es',
+                    placeholder: "Seleccione un usuario",
+                    allowClear: true,
+                }
+            );
+            $('#id_estado').select2(
+                {
+                    width: '100%',
+                    theme: 'bootstrap4',
+                    language: 'es',
+                    placeholder: "Seleccione un estado",
+                    allowClear: true,
+                }
+            );
+            $('#id_categoria').select2(
+                {
+                    width: '100%',
+                    theme: 'bootstrap4',
+                    language: 'es',
+                    placeholder: "Seleccione una categoria",
+                    allowClear: true,
+                }
+            );
+        });
+    </script>
+    {% if form.errors %}
+        <script>
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Ocurrió un error',
+                {% for key, value in form.errors.items %}
+                    text: '{{ value|join:" " }}',
+                {% endfor %}
+                showConfirmButton: true,
+            })
+            document.body.classList.remove('swal2-height-auto');
+        </script>
+    {% endif %}
+{% endblock javascripts %}
