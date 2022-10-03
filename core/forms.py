@@ -35,10 +35,12 @@ class SocioForm(forms.ModelForm):
 
     class Meta:
         model = Socio
-        fields = ['user', 'categoria', 'estado', 'is_inscripto']
+        fields = ['user', 'categoria', 'localidad', 'direccion', 'estado', 'is_inscripto']
         widgets = {
             'user': forms.Select(attrs={'class': 'form-control'}),
             'categoria': forms.Select(attrs={'class': 'form-control'}),
+            'localidad': forms.Select(attrs={'class': 'form-control'}),
+            'direccion': forms.TextInput(attrs={'class': 'form-control'}),
             'estado': forms.Select(attrs={'class': 'form-control'}),
             'is_inscripto': forms.CheckboxInput(attrs={'id': 'check_inscripto'}),
         }

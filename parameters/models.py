@@ -20,6 +20,7 @@ class Genero(models.Model):
 class Deporte(models.Model):
     """Modelo para almacenar los deportes."""
     nombre = models.CharField(max_length=255, verbose_name=_('Nombre'))
+    cant_jugadores = models.SmallIntegerField(null=True, blank=True, verbose_name=_('Cantidad de jugadores por equipo'))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -28,7 +29,7 @@ class Deporte(models.Model):
         verbose_name_plural = _('Deportes')
 
     def __str__(self):
-        return self.nombre
+        return self.nombre + ' ' + str(self.cant_jugadores)
 
 
 class Superficie(models.Model):

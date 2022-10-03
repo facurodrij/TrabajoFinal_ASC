@@ -5,6 +5,7 @@ from PIL import Image
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
+
 class Club(SoftDeleteModel):
     nombre = models.CharField(max_length=255, verbose_name='Nombre')
     localidad = models.ForeignKey('parameters.Localidad', on_delete=models.PROTECT)
@@ -13,7 +14,7 @@ class Club(SoftDeleteModel):
     updated_at = models.DateTimeField(auto_now=True)
 
     def logo_directory_path(self, filename):
-        """Metodo para obtener la ruta de la imagen del logo del club."""
+        """Método para obtener la ruta de la imagen del logo del club."""
         return 'img/club_logo/{0}/{1}'.format(self.id, filename)
 
     logo = models.ImageField(upload_to=logo_directory_path, null=True, blank=True, verbose_name='Logo')
@@ -22,7 +23,7 @@ class Club(SoftDeleteModel):
         return self.nombre
 
     def save(self, *args, **kwargs):
-        """Metodo save() sobrescrito para redimensionar la imagen."""
+        """Método save() sobrescrito para redimensionar la imagen."""
         super().save(*args, **kwargs)
         try:
             img = Image.open(self.logo.path)
@@ -34,7 +35,7 @@ class Club(SoftDeleteModel):
             print(e)
 
     def get_logo(self):
-        """Metodo para obtener la imagen de perfil del usuario."""
+        """Método para obtener la imagen de perfil del usuario."""
         try:
             return self.logo.url
         except Exception as e:
@@ -51,7 +52,6 @@ class Club(SoftDeleteModel):
 class Cancha(models.Model):
     numero = models.SmallIntegerField(verbose_name='Número')
     deporte = models.ForeignKey('parameters.Deporte', on_delete=models.PROTECT)
-    capacidad = models.SmallIntegerField(verbose_name='Capacidad por equipo')
     superficie = models.ForeignKey('parameters.Superficie', on_delete=models.PROTECT)
     techado = models.BooleanField(default=False, verbose_name='¿Es techada?')
     iluminacion = models.BooleanField(default=False, verbose_name='Iluminación')
@@ -60,7 +60,7 @@ class Cancha(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return 'Cancha {0} - {1}'.format(self.numero, self.club.nombre)
+        return 'Cancha {0} - {1}'.format(self.numero, self.deporte)
 
     class Meta:
         unique_together = ('numero', 'deporte')
@@ -71,6 +71,8 @@ class Cancha(models.Model):
 class Socio(SoftDeleteModel):
     user = models.OneToOneField(get_user_model(), on_delete=models.PROTECT)
     categoria = models.ForeignKey('parameters.SocioCategoria', on_delete=models.PROTECT)
+    localidad = models.ForeignKey('parameters.Localidad', on_delete=models.PROTECT)
+    direccion = models.CharField(max_length=255, verbose_name='Dirección')
     is_inscripto = models.BooleanField(default=False, verbose_name='¿Está inscripto?')
     estado = models.ForeignKey('parameters.SocioEstado', on_delete=models.PROTECT, default=1)
     created_at = models.DateTimeField(auto_now_add=True)
