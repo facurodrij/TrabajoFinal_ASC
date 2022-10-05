@@ -80,4 +80,19 @@
             });
         });
     </script>
+    {% if model_deleted %}
+        <script>
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: 'EL {{ model_name }} <strong>{{ model_deleted }}</strong> ha sido eliminado',
+                showConfirmButton: true,
+                showCancelButton: false,
+                confirmButtonText: '<a class="text-white" href="{% url 'restaurar_socio' model_deleted.pk %}">Deshacer <i class="fa fa-undo" aria-hidden="true"></i></a>',
+                timer: 5000,
+                timerProgressBar: true,
+            })
+            document.body.classList.remove('swal2-height-auto');
+        </script>
+    {% endif %}
 {% endblock %}

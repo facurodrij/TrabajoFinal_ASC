@@ -9,21 +9,6 @@
 {% block content %}
     <div class="container-fluid">
         <div class="row">
-            {#            <div class="col-md-4">#}
-            {#                {% if object %}#}
-            {#                    <div class="d-flex flex-column align-items-center text-center mb-3">#}
-            {#                        <img class="rounded-circle mt-5"#}
-            {#                             src="{{ object.get_logo }}" alt="" style="max-width: 300px">#}
-            {#                        <span class="font-weight-bold mt-3">{{ object.nombre }}</span>#}
-            {#                    </div>#}
-            {#                {% else %}#}
-            {#                    <div class="d-flex flex-column align-items-center text-center mb-3">#}
-            {#                        <img class="rounded-circle mt-5"#}
-            {#                             src="{% static 'img/empty.png' %}" alt="" style="max-width: 300px">#}
-            {#                        <span class="font-weight-bold mt-3">No hay datos</span>#}
-            {#                    </div>#}
-            {#                {% endif %}#}
-            {#            </div>#}
             <div class="col-12">
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
@@ -98,6 +83,15 @@
                     theme: 'bootstrap4',
                     language: 'es',
                     placeholder: "Seleccione una categoria",
+                    allowClear: true,
+                }
+            );
+            $('#id_localidad').select2(
+                {
+                    width: '100%',
+                    theme: 'bootstrap4',
+                    language: 'es',
+                    placeholder: "Seleccione una localidad",
                     allowClear: true,
                 }
             );
