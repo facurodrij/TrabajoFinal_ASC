@@ -1,0 +1,15 @@
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap4.min.css"/>
+<script type="text/javascript" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/3.2.4/js/dataTables.fixedHeader.min.js"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json"></script>
+<script>
+    $(document).ready(function () {
+        let table = $('.dataTable').DataTable({
+            fixedHeader: true,
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json'
+            }
+        });
+    });
+</script>
