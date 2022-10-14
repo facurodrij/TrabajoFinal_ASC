@@ -3,24 +3,12 @@ from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 
-from .models import Profile
-
 
 @receiver(post_save, sender=get_user_model())
-def create_profile(sender, instance, created, **kwargs):
-    """Funcion para crear un perfil de usuario cuando se crea un usuario y asignarle los permisos de perfil."""
-    Profile.objects.get_or_create(user=instance)
-
-
-@receiver(post_save, sender=get_user_model())
-def save_profile(sender, instance, **kwargs):
-    """Funcion para guardar el perfil de usuario cuando se guarda un usuario."""
-    instance.profile.save()
-
-
-@receiver(post_save, sender=get_user_model())
-def add_permissions(sender, instance, created, **kwargs):
-    """Funcion para asignar permisos a un usuario cuando se crea."""
+def add_permissions_user(sender, instance, created, **kwargs):
+    """
+    Función para asignar permisos a un usuario cuando se crea.
+    """
     if created:
         try:
             if instance.is_superuser or instance.is_staff:
@@ -28,6 +16,7 @@ def add_permissions(sender, instance, created, **kwargs):
                 for perm in Permission.objects.all():
                     instance.user_permissions.add(perm)
             else:
-                instance.user_permissions.add(Permission.objects.get(codename='change_profile'))
+                # Asignar permiso de usuario para ver y actualizar sus datos
+                instance.user_permissions.add(Permission.objects.get(codename='change_persona'))
         except Exception as e:
             print(e)

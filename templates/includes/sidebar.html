@@ -12,15 +12,16 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <!-- Sidebar user panel (optional) -->
-            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                <div class="image">
-                    <img src="{{ user.profile.get_avatar }}" class="img-circle elevation-2" alt="User Avatar">
+            {% if not user.is_admin %}
+                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                    <div class="image">
+                        <img src="{{ user.get_imagen }}" class="img-circle elevation-2" alt="User Imagen">
+                    </div>
+                    <div class="info">
+                        <a href="{% url 'persona' %}" class="d-block">{{ user.username }}</a>
+                    </div>
                 </div>
-                <div class="info">
-                    <a href="{% url 'profile' %}" class="d-block">{{ user.username }}</a>
-                </div>
-            </div>
-
+            {% endif %}
             <!-- Sidebar Menu -->
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">

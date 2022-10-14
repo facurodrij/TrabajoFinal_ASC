@@ -1,0 +1,177 @@
+{% extends "extends/base.html" %}
+{% load static %}
+
+{% block stylesheets %}
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+{% endblock stylesheets %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item active">Datos Personales</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="d-flex flex-column align-items-center text-center mb-3">
+                    <img class="rounded-circle mt-5"
+                         src="{{ user.get_imagen }}" alt="" style="max-width: 300px">
+                    <span class="font-weight-bold mt-3">{{ user.username }}</span>
+                    <span class="text-black-50">{{ user.email }}</span>
+                    <span class="text-black-50"><a href="{% url 'password_change' %}">Cambiar contraseña</a></span>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="card">
+                        <div class="card-header bg-primary">
+                            <h4 class="card-title">Actualizar Datos</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="labels">{{ user_form.email.label }}</label>
+                                {{ user_form.email }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ user_form.username.label }}</label>
+                                {{ user_form.username }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ persona_form.nombre.label }}</label>
+                                {{ persona_form.nombre }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ persona_form.apellido.label }}</label>
+                                {{ persona_form.apellido }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ persona_form.sexo.label }}</label>
+                                {{ persona_form.sexo }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ persona_form.fecha_nacimiento.label }}</label>
+                                <div class="input-group" id="div_id_fecha_nacimiento" data-target-input="nearest">
+                                    {{ persona_form.fecha_nacimiento }}
+                                    <div class="input-group-append" data-target="#id_fecha_nacimiento"
+                                         data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
+                                </div>
+                                <script type="text/javascript">
+                                    function deferDateTimePicker_id_fecha_nacimiento() {
+                                        if (window.jQuery && $.fn.datetimepicker) {
+                                            $('#id_fecha_nacimiento').datetimepicker({
+                                                "format": "L",
+                                                "icons": {"time": "fa fa-clock-o"},
+                                                "locale": "es-AR",
+                                                "date": "{{ user.usuariopersona.persona.fecha_nacimiento }}",
+                                                "minDate": "1900-01-01",
+                                                "maxDate": Date.now(),
+                                            });
+                                        } else {
+                                            setTimeout(function () {
+                                                deferDateTimePicker_id_fecha_nacimiento()
+                                            }, 50);
+                                        }
+                                    }
+
+                                    deferDateTimePicker_id_fecha_nacimiento();
+                                </script>
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ persona_form.localidad.label }}</label>
+                                {{ persona_form.localidad }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ persona_form.direccion.label }}</label>
+                                {{ persona_form.direccion }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_imagen">Imagen</label>
+                                <div class="input-group">
+                                    {{ persona_form.imagen }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                {{ persona_form.bio }}
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary profile-button" type="submit">Guardar Cambios</button>
+                            <button class="btn btn-secondary" type="reset">Reset</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block javascripts %}
+    <!-- Django Tempus Dominus -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/css/tempusdominus-bootstrap-4.min.css"
+          media="all" rel="stylesheet">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment-with-locales.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js"></script>
+    <!-- Select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#id_localidad').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Seleccione una localidad',
+                allowClear: true,
+                width: '100%',
+                language: 'es'
+            });
+            $('#id_sexo').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Seleccione un sexo',
+                allowClear: true,
+                width: '100%',
+                language: 'es'
+            });
+        });
+    </script>
+    {% if user_form.errors %}
+        <script>
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Ocurrió un error',
+                {% for key, value in user_form.errors.items %}
+                    text: '{{ value|join:" " }}',
+                {% endfor %}
+                showConfirmButton: true,
+            })
+            document.body.classList.remove('swal2-height-auto');
+        </script>
+    {% elif persona_form.errors %}
+        <script>
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Ocurrió un error',
+                {% for key, value in persona_form.errors.items %}
+                    text: '{{ value|join:" " }}',
+                {% endfor %}
+                showConfirmButton: true,
+            })
+            document.body.classList.remove('swal2-height-auto');
+        </script>
+    {% endif %}
+    <script type="text/javascript">
+        {#$('#id_fecha_nacimiento').datetimepicker({#}
+        {#    date: new Date("{{ user.usuariopersona.persona.fecha_nacimiento }}"),#}
+        {#format: 'DD-MM-YYYY',#}
+        console.log(new Date("2011-09-24".replace(/-/g, '\/')));
+        console.log(new Date("{{ user.usuariopersona.persona.fecha_nacimiento }}"));
+    </script>
+{% endblock javascripts %}

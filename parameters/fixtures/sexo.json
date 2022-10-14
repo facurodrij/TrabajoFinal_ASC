@@ -1,0 +1,37 @@
+[
+  {
+    "model": "parameters.Sexo",
+    "pk": 1,
+    "fields": {
+      "nombre": "Masculino"
+    }
+  },
+  {
+    "model": "parameters.Sexo",
+    "pk": 2,
+    "fields": {
+      "nombre": "Femenino"
+    }
+  },
+  {
+    "model": "parameters.Sexo",
+    "pk": 3,
+    "fields": {
+      "nombre": "No binario"
+    }
+  },
+  {
+    "model": "parameters.Sexo",
+    "pk": 4,
+    "fields": {
+      "nombre": "No especificado"
+    }
+  },
+  {
+    "model": "parameters.Sexo",
+    "pk": 5,
+    "fields": {
+      "nombre": "Prefiero no decirlo"
+    }
+  }
+]

@@ -1,38 +1,41 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views import View
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.views import LoginView
-from django.views.generic import CreateView
-from django.contrib.auth.models import Permission, PermissionDenied
 
-from .forms import RegisterForm, LoginForm, UpdateUserForm, UpdateProfileForm
+from .models import UsuarioPersona
+from .forms import *
+from .decorators import no_login_required
 
 
-class RegisterView(SuccessMessageMixin, CreateView):
-    template_name = 'registration/register.html'
-    form_class = RegisterForm
-    success_message = 'Usuario creado exitosamente'
-    success_url = reverse_lazy('login')
-
-    def get_context_data(self, **kwargs):
-        context = super(RegisterView, self).get_context_data(**kwargs)
-        context['title'] = 'Registro'
-        return context
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            user = form.save()
-            messages.success(request, self.success_message)
-            return redirect(self.success_url)
-        return render(request, self.template_name, {'form': form, 'title': 'Registro'})
+@no_login_required
+def register(request):
+    """
+    Vista para registrar un nuevo usuario.
+    """
+    context = {
+        'title': 'Registro',
+    }
+    if request.method == 'POST':
+        user_form = CustomUserCreationForm(request.POST)
+        persona_form = PersonaCreateForm(request.POST)
+        if user_form.is_valid() and persona_form.is_valid():
+            user = user_form.save()
+            persona = persona_form.save()
+            UsuarioPersona.objects.create(user=user, persona=persona)
+            messages.success(request, 'Usuario registrado correctamente.')
+            return redirect('login')
+    else:
+        user_form = CustomUserCreationForm()
+        persona_form = PersonaCreateForm()
+    return render(request, 'registration/register.html',
+                  {'user_form': user_form, 'persona_form': persona_form, **context})
 
 
 class CustomLoginView(LoginView):
-    form_class = LoginForm
+    form_class = CustomAuthenticationForm
+    sucess_url = reverse_lazy('index')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -54,23 +57,25 @@ class CustomLoginView(LoginView):
 
 
 @login_required
-@permission_required('accounts.change_profile', raise_exception=True)
-def profile(request):
-    """ Vista para el perfil de usuario """
+@permission_required('accounts.change_persona', raise_exception=True)
+def persona(request):
+    """
+    Vista para los datos personales del usuario.
+    """
     context = {
-        'title': 'Perfil',
+        'title': 'Datos Personales',
     }
     if request.method == 'POST':
-        user_form = UpdateUserForm(request.POST, instance=request.user)
-        profile_form = UpdateProfileForm(request.POST, request.FILES, instance=request.user.profile)
+        user_form = CustomUserChangeForm(request.POST, instance=request.user)
+        persona_form = PersonaChangeForm(request.POST, request.FILES, instance=request.user.usuariopersona.persona)
 
-        if user_form.is_valid() and profile_form.is_valid():
+        if user_form.is_valid() and persona_form.is_valid():
             user_form.save()
-            profile_form.save()
-            messages.success(request, 'Perfil actualizado exitosamente')
-            return redirect(to='profile')
+            persona_form.save()
+            messages.success(request, 'Datos Personales actualizados exitosamente')
+            return redirect(to='persona')
     else:
-        user_form = UpdateUserForm(instance=request.user)
-        profile_form = UpdateProfileForm(instance=request.user.profile)
+        user_form = CustomUserChangeForm(instance=request.user)
+        persona_form = PersonaChangeForm(instance=request.user.usuariopersona.persona)
 
-    return render(request, 'profile.html', {'user_form': user_form, 'profile_form': profile_form, **context})
+    return render(request, 'persona.html', {'user_form': user_form, 'persona_form': persona_form, **context})

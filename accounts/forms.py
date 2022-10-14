@@ -1,28 +1,18 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-# from django.contrib.auth import get_user_model
+# django admin
+from django.contrib.admin.widgets import AdminFileWidget
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm, ReadOnlyPasswordHashField
+from django.utils.translation import gettext_lazy as _
+from tempus_dominus.widgets import DatePicker, TimePicker, DateTimePicker
 
-from .models import Profile, User
+from .models import User, Persona
 
 
-class RegisterForm(UserCreationForm):
-    """Formulario para registrar un nuevo usuario."""
+class CustomUserCreationForm(UserCreationForm):
+    """
+    Formulario para registrar un nuevo usuario.
+    """
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.fields['first_name'].widget.attrs['autofocus'] = True
-
-    # fields we want to include and customize in our form
-    first_name = forms.CharField(max_length=100,
-                                 required=True,
-                                 widget=forms.TextInput(attrs={'placeholder': 'Nombre',
-                                                               'class': 'form-control',
-                                                               }))
-    last_name = forms.CharField(max_length=100,
-                                required=True,
-                                widget=forms.TextInput(attrs={'placeholder': 'Apellido',
-                                                              'class': 'form-control',
-                                                              }))
     username = forms.CharField(max_length=100,
                                required=True,
                                widget=forms.TextInput(attrs={'placeholder': 'Username',
@@ -47,10 +37,51 @@ class RegisterForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'email', 'password1', 'password2']
+        fields = ['username', 'email', 'password1', 'password2']
 
 
-class LoginForm(AuthenticationForm):
+class PersonaCreateForm(forms.ModelForm):
+    """
+    Formulario para registrar los datos personales
+    de un Usuario o Miembro No Registrado.
+    """
+    dni = forms.CharField(max_length=8,
+                          required=True,
+                          widget=forms.TextInput(attrs={'placeholder': 'DNI',
+                                                        'class': 'form-control',
+                                                        }))
+    sexo = forms.Select(attrs={'class': 'form-control select2'})
+    nombre = forms.CharField(max_length=100,
+                             required=True,
+                             widget=forms.TextInput(attrs={'placeholder': 'Nombre',
+                                                           'class': 'form-control',
+                                                           }))
+    apellido = forms.CharField(max_length=100,
+                               required=True,
+                               widget=forms.TextInput(attrs={'placeholder': 'Apellido',
+                                                             'class': 'form-control',
+                                                             }))
+    fecha_nacimiento = forms.DateField(required=True,
+                                       widget=forms.DateInput(
+                                           attrs={
+                                               'class': 'form-control  datetimepicker-input',
+                                               'data-toggle': 'datetimepicker',
+                                               'data-target': '#id_fecha_nacimiento',
+                                           }
+                                       ))
+    localidad = forms.Select(attrs={'class': 'form-control'})
+    direccion = forms.CharField(max_length=255,
+                                required=True,
+                                widget=forms.TextInput(attrs={'placeholder': 'Dirección',
+                                                              'class': 'form-control',
+                                                              }))
+
+    class Meta:
+        model = Persona
+        fields = ['dni', 'sexo', 'nombre', 'apellido', 'fecha_nacimiento', 'localidad', 'direccion']
+
+
+class CustomAuthenticationForm(AuthenticationForm):
     username = forms.CharField(max_length=100,
                                required=True,
                                widget=forms.TextInput(attrs={'placeholder': 'Username',
@@ -64,32 +95,66 @@ class LoginForm(AuthenticationForm):
                                                                  'id': 'password',
                                                                  'name': 'password',
                                                                  }))
-    remember_me = forms.BooleanField(required=False)
+    remember_me = forms.BooleanField(required=False, label='Recordarme')
 
     class Meta:
         model = User
         fields = ['username', 'password', 'remember_me']
 
 
-class UpdateUserForm(forms.ModelForm):
-    """Formulario para actualizar los datos de un usuario."""
-    first_name = forms.CharField(max_length=100,
-                                 required=True,
-                                 widget=forms.TextInput(attrs={'class': 'form-control'}))
-    last_name = forms.CharField(max_length=100,
-                                required=True,
-                                widget=forms.TextInput(attrs={'class': 'form-control'}))
+class CustomUserChangeForm(UserChangeForm):
+    """
+    Formulario para actualizar los datos del modelo usuario.
+    """
+    username = forms.CharField(max_length=150,
+                               required=True,
+                               widget=forms.TextInput(attrs={'placeholder': 'Username',
+                                                             'class': 'form-control',
+                                                             }))
+    email = forms.EmailField(required=True,
+                             widget=forms.TextInput(attrs={'placeholder': 'Email',
+                                                           'class': 'form-control',
+                                                           }))
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name']
+        fields = ['username', 'email']
 
 
-class UpdateProfileForm(forms.ModelForm):
-    """Formulario para actualizar los datos de un perfil de usuario."""
-    avatar = forms.ImageField(required=False, widget=forms.FileInput(attrs={'class': 'form-control-file'}))
-    bio = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 5}))
+class PersonaChangeForm(forms.ModelForm):
+    """
+    Formulario para actualizar los datos personales
+    de un Usuario o Miembro No Registrado.
+    """
+    sexo = forms.Select(attrs={'class': 'form-control select2'})
+    nombre = forms.CharField(max_length=100,
+                             required=True,
+                             widget=forms.TextInput(attrs={'placeholder': 'Nombre',
+                                                           'class': 'form-control',
+                                                           }))
+    apellido = forms.CharField(max_length=100,
+                               required=True,
+                               widget=forms.TextInput(attrs={'placeholder': 'Apellido',
+                                                             'class': 'form-control',
+                                                             }))
+    fecha_nacimiento = forms.DateField(required=True,
+                                       widget=forms.DateInput(
+                                           attrs={
+                                               'autocomplete': 'off',
+                                               'class': 'form-control  datetimepicker-input',
+                                               'data-toggle': 'datetimepicker',
+                                               'data-target': '#id_fecha_nacimiento',
+                                           }
+                                       ))
+    localidad = forms.Select(attrs={'class': 'form-control'})
+    direccion = forms.CharField(max_length=255,
+                                required=True,
+                                widget=forms.TextInput(attrs={'placeholder': 'Dirección',
+                                                              'class': 'form-control',
+                                                              }))
+    imagen = forms.ImageField(required=False,
+                              widget=AdminFileWidget)
 
     class Meta:
-        model = Profile
-        fields = ['avatar', 'bio']
+        model = Persona
+        fields = ['sexo', 'nombre', 'apellido', 'fecha_nacimiento', 'localidad', 'direccion', 'imagen']
