@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 # Parámetros para perfiles de usuario
 class Sexo(models.Model):
     """Modelo para almacenar los sexos de los usuarios."""
-    nombre = models.CharField(max_length=20, verbose_name=_('Nombre'))
+    nombre = models.CharField(max_length=100, unique=True, verbose_name=_('Nombre'))
 
     class Meta:
         verbose_name = _('Sexo')
@@ -34,7 +34,7 @@ class Deporte(models.Model):
 
 class Superficie(models.Model):
     """Modelo para almacenar las superficies de las canchas."""
-    nombre = models.CharField(max_length=255, verbose_name=_('Nombre'))
+    nombre = models.CharField(max_length=100, unique=True, verbose_name=_('Nombre'))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
 
@@ -49,7 +49,7 @@ class Superficie(models.Model):
 # Parámetros de localización
 class Pais(models.Model):
     """Modelo para almacenar los países."""
-    nombre = models.CharField(max_length=255, unique=True, verbose_name=_('Nombre'))
+    nombre = models.CharField(max_length=100, unique=True, verbose_name=_('Nombre'))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
 
@@ -63,7 +63,7 @@ class Pais(models.Model):
 
 class Provincia(models.Model):
     """Modelo para almacenar las provincias."""
-    nombre = models.CharField(max_length=255, verbose_name=_('Nombre'))
+    nombre = models.CharField(max_length=100, verbose_name=_('Nombre'))
     pais = models.ForeignKey(Pais, on_delete=models.PROTECT, verbose_name=_('País'))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
