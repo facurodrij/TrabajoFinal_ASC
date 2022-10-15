@@ -1,0 +1,57 @@
+[
+  {
+    "model": "socios.Estado",
+    "pk": 1,
+    "fields": {
+      "nombre": "Falta aprobación",
+      "code": "FA",
+      "is_active": false,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "socios.Estado",
+    "pk": 2,
+    "fields": {
+      "nombre": "Aprobado",
+      "code": "AP",
+      "is_active": true,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "socios.Estado",
+    "pk": 3,
+    "fields": {
+      "nombre": "Rechazado",
+      "code": "RE",
+      "is_active": false,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "socios.Estado",
+    "pk": 4,
+    "fields": {
+      "nombre": "Al día",
+      "code": "AD",
+      "is_active": true,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "socios.Estado",
+    "pk": 5,
+    "fields": {
+      "nombre": "Socio moroso",
+      "code": "SM",
+      "is_active": false,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  }
+]

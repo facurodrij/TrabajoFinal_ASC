@@ -1,0 +1,26 @@
+[
+  {
+    "model": "socios.Tipo",
+    "pk": 1,
+    "fields": {
+      "nombre": "Socio Individual",
+      "code": "SI",
+      "admite_miembro": false,
+      "cant_max_miembros": 0,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "socios.Tipo",
+    "pk": 2,
+    "fields": {
+      "nombre": "Socio Familiar",
+      "code": "SF",
+      "admite_miembro": true,
+      "cant_max_miembros": 5,
+      "created_at": "2022-10-01T00:00:00Z",
+      "updated_at": "2022-10-01T00:00:00Z"
+    }
+  }
+]
