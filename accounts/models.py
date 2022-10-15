@@ -1,4 +1,6 @@
 import uuid
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
@@ -46,22 +48,25 @@ class User(AbstractUser, SoftDeleteModel):
         """
         Devuelve el nombre completo del usuario.
         """
-        return self.usuariopersona.persona.nombre + ' ' + self.usuariopersona.persona.apellido
+        return self.usuariopersona.persona.get_full_name()
 
     def get_short_name(self):
         """
         Devuelve el nombre corto del usuario.
         """
-        return self.usuariopersona.persona.nombre
+        return self.usuariopersona.persona.get_short_name()
+
+    def get_edad(self):
+        """
+        Devuelve la edad del usuario.
+        """
+        return self.usuariopersona.persona.get_edad()
 
     def get_imagen(self):
         """
         Devuelve la imagen del usuario.
         """
-        if self.usuariopersona.persona.imagen:
-            return self.usuariopersona.persona.imagen.url
-        else:
-            return settings.STATIC_URL + 'img/empty.svg'
+        return self.usuariopersona.persona.get_imagen()
 
     def is_admin(self):
         """
@@ -112,6 +117,31 @@ class Persona(SoftDeleteModel):
 
     def __str__(self):
         return self.dni
+
+    def get_full_name(self):
+        """
+        Devuelve el nombre completo de la persona.
+        """
+        return self.nombre + ' ' + self.apellido
+
+    def get_short_name(self):
+        """
+        Devuelve el nombre corto de la persona.
+        """
+        return self.nombre
+
+    def get_edad(self):
+        edad = relativedelta(datetime.now(), self.fecha_nacimiento)
+        return edad.years
+
+    def get_imagen(self):
+        """
+        Devuelve la imagen de la persona.
+        """
+        if self.imagen:
+            return self.imagen.url
+        else:
+            return settings.STATIC_URL + 'img/empty.svg'
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

@@ -62,6 +62,12 @@ def persona(request):
     """
     Vista para los datos personales del usuario.
     """
+    try:
+        UsuarioPersona.objects.get(user=request.user)
+    except UsuarioPersona.DoesNotExist:
+        messages.error(request, 'Su usuario no tiene relación con la tabla persona, por ende no puede ver el sitio.')
+        return redirect('index')
+
     context = {
         'title': 'Datos Personales',
     }

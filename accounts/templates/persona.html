@@ -167,11 +167,4 @@
             document.body.classList.remove('swal2-height-auto');
         </script>
     {% endif %}
-    <script type="text/javascript">
-        {#$('#id_fecha_nacimiento').datetimepicker({#}
-        {#    date: new Date("{{ user.usuariopersona.persona.fecha_nacimiento }}"),#}
-        {#format: 'DD-MM-YYYY',#}
-        console.log(new Date("2011-09-24".replace(/-/g, '\/')));
-        console.log(new Date("{{ user.usuariopersona.persona.fecha_nacimiento }}"));
-    </script>
 {% endblock javascripts %}
