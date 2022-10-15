@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'parameters',
     'accounts',
     'core',
+    'socios',
 ]
 
 MIDDLEWARE = [
