@@ -3,7 +3,6 @@ from django.db import models
 from django_softdelete.models import SoftDeleteModel, SoftDeleteManager
 from PIL import Image
 from django.conf import settings
-from django.contrib.auth import get_user_model
 
 
 class Club(SoftDeleteModel):
@@ -66,17 +65,3 @@ class Cancha(models.Model):
         unique_together = ('numero', 'deporte')
         verbose_name = 'Cancha'
         verbose_name_plural = "Canchas"
-
-
-class Socio(SoftDeleteModel):
-    user = models.OneToOneField(get_user_model(), on_delete=models.PROTECT)
-    categoria = models.ForeignKey('parameters.SocioCategoria', on_delete=models.PROTECT)
-    localidad = models.ForeignKey('parameters.Localidad', on_delete=models.PROTECT)
-    direccion = models.CharField(max_length=255, verbose_name='Dirección')
-    is_inscripto = models.BooleanField(default=False, verbose_name='¿Está inscripto?')
-    estado = models.ForeignKey('parameters.SocioEstado', on_delete=models.PROTECT, default=1)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.user.username
