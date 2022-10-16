@@ -3,7 +3,6 @@ from django import forms
 from django.contrib.admin.widgets import AdminFileWidget
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm, ReadOnlyPasswordHashField
 from django.utils.translation import gettext_lazy as _
-from tempus_dominus.widgets import DatePicker, TimePicker, DateTimePicker
 
 from .models import User, Persona
 
