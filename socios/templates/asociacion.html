@@ -30,70 +30,25 @@
             <a href="{% url 'index' %}" class="h1">RESERVÁ</a>
         </div>
         <div class="card-body">
-            <p class="login-box-msg">Registrar un nuevo usuario</p>
+            <p class="login-box-msg">Solicitud de asociación</p>
             <form method="post">
                 {% csrf_token %}
                 <div class="input-group mb-3">
-                    {{ user_form.username }}
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-user"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="input-group mb-3">
-                    {{ user_form.email }}
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-envelope"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="input-group mb-3">
-                    {{ user_form.password1 }}
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-lock"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="input-group mb-3">
-                    {{ user_form.password2 }}
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-lock"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="input-group mb-3">
-                    {{ persona_form.dni }}
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-id-card"></span>
-                        </div>
-                    </div>
+                    {{ tipo_form.tipo }}
                 </div>
                 <div class="input-group mb-3">
                     {{ persona_form.nombre }}
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-id-card"></span>
-                        </div>
-                    </div>
                 </div>
                 <div class="input-group mb-3">
                     {{ persona_form.apellido }}
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-id-card"></span>
-                        </div>
-                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    {{ persona_form.dni }}
                 </div>
                 <div class="input-group mb-3">
                     {{ persona_form.sexo }}
                 </div>
                 <div class="form-group">
-                    <label class="labels">{{ persona_form.fecha_nacimiento.label }}</label>
                     <div class="input-group" id="div_id_fecha_nacimiento" data-target-input="nearest">
                         {{ persona_form.fecha_nacimiento }}
                         <div class="input-group-append" data-target="#id_fecha_nacimiento"
@@ -108,7 +63,7 @@
                                     "format": "L",
                                     "icons": {"time": "fa fa-clock-o"},
                                     "locale": "es-AR",
-                                    "date": "2000/01/01",
+                                    "date": null,
                                     "minDate": "1900-01-01",
                                     "maxDate": Date.now(),
                                 });
@@ -128,13 +83,25 @@
                 <div class="input-group mb-3">
                     {{ persona_form.direccion }}
                 </div>
+                <div class="input-group mb-3">
+                    {{ user_form.username }}
+                </div>
+                <div class="input-group mb-3">
+                    {{ user_form.email }}
+                </div>
+                <div class="input-group mb-3">
+                    {{ user_form.password1 }}
+                </div>
+                <div class="input-group mb-3">
+                    {{ user_form.password2 }}
+                </div>
                 <div class="row mb-3">
                     <div class="col-12">
-                        <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
+                        <button type="submit" class="btn btn-primary btn-block">Enviar</button>
                     </div>
                 </div>
             </form>
-            <a href="{% url 'login' %}" class="text-center">Ya tengo cuenta</a>
+            <a href="{% url 'login' %}" class="text-center">Ya soy socio</a>
         </div>
     </div>
 </div>
@@ -178,9 +145,16 @@
             width: '100%',
             language: 'es'
         });
+        $('#id_tipo').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione un tipo de socio',
+            allowClear: true,
+            width: '100%',
+            language: 'es'
+        });
     });
 </script>
-{% if persona_form.errors or user_form.errors %}
+{% if user_form.errors or persona_form.errors %}
     <script>
         Swal.fire({
             position: 'top-end',

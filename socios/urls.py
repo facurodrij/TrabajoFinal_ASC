@@ -11,4 +11,5 @@ from .views import *
 
 urlpatterns = [
     path('socios/', socios, name='socios'),
+    path('asociarse/', asociacion, name='asociarse'),
 ]

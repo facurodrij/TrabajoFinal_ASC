@@ -4,6 +4,7 @@
     "pk": 1,
     "fields": {
       "nombre": "Falta aprobación",
+      "descripcion": "Su Usuario aún no ha sido aprobado por el comité",
       "code": "FA",
       "is_active": false,
       "created_at": "2022-10-01T00:00:00Z",
@@ -15,6 +16,7 @@
     "pk": 2,
     "fields": {
       "nombre": "Aprobado",
+      "descripcion": "Usted ha sido aprobado por el comité",
       "code": "AP",
       "is_active": true,
       "created_at": "2022-10-01T00:00:00Z",
@@ -26,6 +28,7 @@
     "pk": 3,
     "fields": {
       "nombre": "Rechazado",
+      "descripcion": "Su Usuario ha sido rechazado por el comité, por favor contacte al club para más información",
       "code": "RE",
       "is_active": false,
       "created_at": "2022-10-01T00:00:00Z",
@@ -37,6 +40,7 @@
     "pk": 4,
     "fields": {
       "nombre": "Al día",
+      "descripcion": "Usted está al día con sus pagos",
       "code": "AD",
       "is_active": true,
       "created_at": "2022-10-01T00:00:00Z",
@@ -48,6 +52,7 @@
     "pk": 5,
     "fields": {
       "nombre": "Socio moroso",
+      "descripcion": "Usted está adeudando el pago de varias cuotas",
       "code": "SM",
       "is_active": false,
       "created_at": "2022-10-01T00:00:00Z",

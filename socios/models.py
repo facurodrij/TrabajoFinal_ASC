@@ -167,10 +167,9 @@ class Estado(models.Model):
     #     ('FA', 'Falta aprobación'),
     #     ('AP', 'Aprobado'),
     #     ('RE', 'Rechazado'),
-    #     ('AD', 'Al día'),
-    #     ('SM', 'Socio moroso'),
     # )
-    nombre = models.CharField(max_length=255, unique=True, verbose_name='Nombre')
+    nombre = models.CharField(max_length=50, unique=True, verbose_name='Nombre')
+    descripcion = models.CharField(max_length=255, verbose_name='Descripción')
     code = models.CharField(max_length=2, unique=True, verbose_name='Código')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
