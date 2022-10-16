@@ -113,7 +113,7 @@ class Persona(SoftDeleteModel):
         """
         return 'img/{0}/{1}/{2}'.format(self._meta.model_name, self.usuariopersona.user.username, filename)
 
-    imagen = models.ImageField(upload_to=image_directory_path, null=True, blank=True, verbose_name=_('Imagen'))
+    imagen = models.ImageField(upload_to=image_directory_path, verbose_name=_('Imagen'))
 
     def __str__(self):
         return self.dni

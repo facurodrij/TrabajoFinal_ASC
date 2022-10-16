@@ -22,12 +22,14 @@ class CustomUserCreationForm(UserCreationForm):
                                                            'class': 'form-control',
                                                            }))
     password1 = forms.CharField(max_length=50,
+                                label='Contraseña',
                                 required=True,
                                 widget=forms.PasswordInput(attrs={'placeholder': 'Contraseña',
                                                                   'class': 'form-control',
                                                                   'data-toggle': 'password',
                                                                   }))
     password2 = forms.CharField(max_length=50,
+                                label='Confirmar contraseña',
                                 required=True,
                                 widget=forms.PasswordInput(attrs={'placeholder': 'Confirmar contraseña',
                                                                   'class': 'form-control',
@@ -151,7 +153,7 @@ class PersonaChangeForm(forms.ModelForm):
                                 widget=forms.TextInput(attrs={'placeholder': 'Dirección',
                                                               'class': 'form-control',
                                                               }))
-    imagen = forms.ImageField(required=False,
+    imagen = forms.ImageField(required=True,
                               widget=AdminFileWidget)
 
     class Meta:

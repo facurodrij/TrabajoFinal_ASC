@@ -1,12 +1,12 @@
 {% extends "extends/base.html" %}
 {% load static %}
 
-{% block stylesheets %}
+{% block head_css %}
     <!-- Select2 -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
-{% endblock stylesheets %}
+{% endblock head_css %}
 
 {% block breadcrumbs %}
     <ol class="breadcrumb float-sm-right">
@@ -114,7 +114,7 @@
     </div>
 {% endblock content %}
 
-{% block javascripts %}
+{% block body_js %}
     <!-- Django Tempus Dominus -->
     <link href="//cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/css/tempusdominus-bootstrap-4.min.css"
           media="all" rel="stylesheet">
@@ -167,4 +167,4 @@
             document.body.classList.remove('swal2-height-auto');
         </script>
     {% endif %}
-{% endblock javascripts %}
+{% endblock body_js %}

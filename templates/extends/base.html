@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {% block meta %}
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% endblock meta %}
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block head_meta %}
+    {% endblock head_meta %}
 
     <title>{{ title }} - RESERVÁ</title>
     <!-- Bootstrap 4.6 -->
@@ -28,9 +28,10 @@
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <!-- BS Custom File Input -->
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
-    {% block stylesheets %}
-        <!-- Bloque para agregar CSS desde otros templates -->
-    {% endblock stylesheets %}
+    {% block head_css %}
+    {% endblock head_css %}
+    {% block head_js %}
+    {% endblock head_js %}
 </head>
 
 <body class="sidebar-mini layout-fixed sidebar-mini-md sidebar-mini-xs control-sidebar-slide-open sidebar-collapse">
@@ -72,11 +73,9 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.33/dist/sweetalert2.all.min.js"></script>
-
 <!-- Todas los templates que extienden de base.html podran recibir los mesajes que envian las vistas -->
 {% include 'includes/message.html' %}
-{% block javascripts %}
-    <!-- Bloque para agregar JS desde otros templates -->
-{% endblock javascripts %}
+{% block body_js %}
+{% endblock body_js %}
 </body>
 </html>

@@ -1,11 +1,11 @@
 {% extends "extends/base.html" %}
 {% load static %}
 
-{% block stylesheets %}
+{% block head_css %}
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
-{% endblock %}
+{% endblock head_css %}
 
 {% block breadcrumbs %}
     <ol class="breadcrumb float-sm-right">
@@ -62,7 +62,7 @@
     </div>
 {% endblock content %}
 
-{% block javascripts %}
+{% block body_js %}
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function () {
@@ -89,4 +89,4 @@
             document.body.classList.remove('swal2-height-auto');
         </script>
     {% endif %}
-{% endblock javascripts %}
+{% endblock body_js %}
