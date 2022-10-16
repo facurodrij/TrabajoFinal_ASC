@@ -15,30 +15,6 @@ from .forms import *
 from .decorators import no_login_required
 
 
-@no_login_required
-def register(request):
-    """
-    Vista para registrar un nuevo usuario.
-    """
-    context = {
-        'title': 'Registro',
-    }
-    if request.method == 'POST':
-        user_form = CustomUserCreationForm(request.POST)
-        persona_form = PersonaCreateForm(request.POST)
-        if user_form.is_valid() and persona_form.is_valid():
-            user = user_form.save()
-            persona = persona_form.save()
-            UsuarioPersona.objects.create(user=user, persona=persona)
-            messages.success(request, 'Usuario registrado correctamente.')
-            return redirect('login')
-    else:
-        user_form = CustomUserCreationForm()
-        persona_form = PersonaCreateForm()
-    return render(request, 'registration/register.html',
-                  {'user_form': user_form, 'persona_form': persona_form, **context})
-
-
 class CustomLoginView(LoginView):
     form_class = CustomAuthenticationForm
     sucess_url = reverse_lazy('index')
@@ -60,7 +36,7 @@ class CustomLoginView(LoginView):
         try:
             # Si inicia sesión un socio con estado inactivo, se le redirige al logout.
             if not self.request.user.socioindividual.estado.is_active:
-                messages.error(self.request, 'Socio inactivo. ' + self.request.user.socioindividual.estado.description)
+                messages.error(self.request, 'Socio inactivo. ' + self.request.user.socioindividual.estado.descripcion)
                 return redirect('logout')
         except ObjectDoesNotExist:
             # Si inicia sesión un socio que no tiene relación con SocioIndividual y no es administrador,

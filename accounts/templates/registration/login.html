@@ -52,16 +52,16 @@
                         <label for="id_remember_me">{{ form.remember_me.label }}</label>
                     </div>
                 </div>
-                <div class="input-group mb-3">
-                    <button name="login" class="col-md-12 btn btn-primary" id="login">Sign in</button>
+                <div class="input-group mb-2">
+                    <button name="login" class="col-md-12 btn btn-primary" id="login">Iniciar sesión</button>
                 </div>
             </form>
-            <p class="mb-1">
+            <p class="mb-3">
                 <a href="{% url 'password_reset' %}">Olvidé mi contraseña</a>
             </p>
-            <p class="mb-0">
-                Nuevo en el sitio? <a href="{% url 'register' %}">Registrarse</a>
-            </p>
+            <div class="input-group mb-3">
+                <a href="{% url 'asociarse' %}" class="col-md-12 btn btn-warning">Asociarse</a>
+            </div>
         </div>
     </div>
 </div>
