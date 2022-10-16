@@ -14,7 +14,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Socios</h3>
+                        <h3 class="card-title">Socios Registrados</h3>
                     </div>
                     <div class="card-body">
                         <table class="table table-bordered table-striped dataTable">
@@ -28,22 +28,22 @@
                             </tr>
                             </thead>
                             <tbody>
-{#                            {% for socio in socios %}#}
-{#                                <tr>#}
-{#                                    <td>{{ socio.user.username }}</td>#}
-{#                                    <td>{{ socio.user.email }}</td>#}
-{#                                    <td>{{ socio.categoria }}</td>#}
-{#                                    <td>{{ socio.estado }}</td>#}
-{#                                    <td>#}
+                            {% for socio in socios_registrados %}
+                                <tr>
+                                    <td>{{ socio.user.username }}</td>
+                                    <td>{{ socio.user.email }}</td>
+                                    <td>{{ socio.categoria }}</td>
+                                    <td>{{ socio.estado }}</td>
+                                    <td>
 {#                                        <a href="{% url 'editar_socio' socio.id %}" class="btn btn-warning btn-sm">#}
 {#                                            <i class="fas fa-edit"></i>#}
 {#                                        </a>#}
 {#                                        <a href="{% url 'eliminar_socio' socio.id %}" class="btn btn-danger btn-sm">#}
 {#                                            <i class="fas fa-trash-alt"></i>#}
 {#                                        </a>#}
-{#                                    </td>#}
-{#                                </tr>#}
-{#                            {% endfor %}#}
+                                    </td>
+                                </tr>
+                            {% endfor %}
                             </tbody>
                             <tfoot>
                             <tr>
@@ -62,7 +62,7 @@
     </div>
 {% endblock content %}
 
-{% block javascripts %}
+{% block body_js %}
     {% include 'includes/dataTable.html' %}
 {#    {% if model_deleted %}#}
 {#        <script>#}
@@ -79,4 +79,4 @@
 {#            document.body.classList.remove('swal2-height-auto');#}
 {#        </script>#}
 {#    {% endif %}#}
-{% endblock %}
+{% endblock body_js %}

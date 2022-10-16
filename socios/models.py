@@ -139,7 +139,7 @@ class Tipo(models.Model):
     nombre = models.CharField(max_length=255, unique=True, verbose_name='Nombre')
     code = models.CharField(max_length=2, unique=True, verbose_name='Código')
     admite_miembro = models.BooleanField(default=False, verbose_name='¿Admite miembros?')
-    cant_max_miembros = models.IntegerField(default=5, verbose_name='Cantidad máxima de miembros')
+    cant_max_miembros = models.PositiveSmallIntegerField(default=5, verbose_name='Cantidad máxima de miembros')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -147,6 +147,12 @@ class Tipo(models.Model):
         if self.admite_miembro:
             return self.nombre + ' (max. ' + str(self.cant_max_miembros) + ' miembros)'
         return self.nombre
+
+    def clean(self):
+        if self.admite_miembro and self.cant_max_miembros < 2:
+            raise ValidationError('La cantidad máxima de miembros debe ser mayor o igual a 2.')
+        if not self.admite_miembro and self.cant_max_miembros > 0:
+            raise ValidationError('Si no admite miembros, la cantidad máxima de miembros debe ser 0.')
 
     class Meta:
         verbose_name = 'Tipo de socio'
@@ -161,10 +167,9 @@ class Estado(models.Model):
     #     ('FA', 'Falta aprobación'),
     #     ('AP', 'Aprobado'),
     #     ('RE', 'Rechazado'),
-    #     ('AD', 'Al día'),
-    #     ('SM', 'Socio moroso'),
     # )
-    nombre = models.CharField(max_length=255, unique=True, verbose_name='Nombre')
+    nombre = models.CharField(max_length=50, unique=True, verbose_name='Nombre')
+    descripcion = models.CharField(max_length=255, verbose_name='Descripción')
     code = models.CharField(max_length=2, unique=True, verbose_name='Código')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
