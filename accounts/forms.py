@@ -76,10 +76,12 @@ class PersonaCreateForm(forms.ModelForm):
                                 widget=forms.TextInput(attrs={'placeholder': 'Dirección',
                                                               'class': 'form-control',
                                                               }))
+    imagen = forms.ImageField(required=True,
+                              widget=AdminFileWidget(attrs={'class': 'form-control'}))
 
     class Meta:
         model = Persona
-        fields = ['dni', 'sexo', 'nombre', 'apellido', 'fecha_nacimiento', 'localidad', 'direccion']
+        fields = ['dni', 'sexo', 'nombre', 'apellido', 'fecha_nacimiento', 'localidad', 'direccion', 'imagen']
 
 
 class CustomAuthenticationForm(AuthenticationForm):
@@ -153,7 +155,7 @@ class PersonaChangeForm(forms.ModelForm):
                                 widget=forms.TextInput(attrs={'placeholder': 'Dirección',
                                                               'class': 'form-control',
                                                               }))
-    imagen = forms.ImageField(required=True,
+    imagen = forms.ImageField(required=False,
                               widget=AdminFileWidget)
 
     class Meta:
