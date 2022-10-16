@@ -1,3 +1,4 @@
+import pathlib
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
@@ -6,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core import management
 
 from .forms import *
 
@@ -26,18 +28,29 @@ def club(request):
     if not request.user.is_admin():
         messages.error(request, 'No tienes permiso para acceder a esta página')
         return redirect('index')
-    context = {
-        'title': 'Club',
-        'object': Club.objects.get(pk=1)
-    }
+
+    try:
+        club_object = Club.objects.get(pk=1)
+    except Club.DoesNotExist:
+        # Si no existe el club, ejecuta el comando loaddata para cargar los datos iniciales
+        arg = list(pathlib.Path().glob('*/fixtures/*.json'))
+        management.call_command('loaddata', *arg)
+        club_object = Club.objects.get(pk=1)
+        pass
+
     if request.method == 'POST':
-        club_form = UpdateClubForm(request.POST, request.FILES, instance=Club.objects.get(pk=1))
+        club_form = UpdateClubForm(request.POST, request.FILES, instance=club_object)
 
         if club_form.is_valid():
             club_form.save()
             messages.success(request, 'Club actualizado exitosamente')
             return redirect(to='club')
     else:
-        club_form = UpdateClubForm(instance=Club.objects.get(pk=1))
+        club_form = UpdateClubForm(instance=club_object)
 
-    return render(request, 'club.html', {'club_form': club_form, **context})
+    context = {
+        'title': 'Club',
+        'object': club_object,
+        'club_form': club_form,
+    }
+    return render(request, 'club.html', context)
