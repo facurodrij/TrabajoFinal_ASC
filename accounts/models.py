@@ -111,7 +111,7 @@ class Persona(SoftDeleteModel):
         """
         Devuelve la ruta de la imagen de perfil del usuario.
         """
-        return 'img/{0}/{1}/{2}'.format(self._meta.model_name, self.usuariopersona.user.username, filename)
+        return 'img/{0}/{1}/{2}'.format(self._meta.model_name, self.dni, filename)
 
     imagen = models.ImageField(upload_to=image_directory_path, verbose_name=_('Imagen'))
 

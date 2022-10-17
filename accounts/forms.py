@@ -65,6 +65,8 @@ class PersonaCreateForm(forms.ModelForm):
     fecha_nacimiento = forms.DateField(required=True,
                                        widget=forms.DateInput(
                                            attrs={
+                                               'autocomplete': 'off',
+                                               'placeholder': 'Fecha de nacimiento',
                                                'class': 'form-control  datetimepicker-input',
                                                'data-toggle': 'datetimepicker',
                                                'data-target': '#id_fecha_nacimiento',
@@ -77,7 +79,7 @@ class PersonaCreateForm(forms.ModelForm):
                                                               'class': 'form-control',
                                                               }))
     imagen = forms.ImageField(required=True,
-                              widget=AdminFileWidget(attrs={'class': 'form-control'}))
+                              widget=AdminFileWidget)
 
     class Meta:
         model = Persona
@@ -144,6 +146,7 @@ class PersonaChangeForm(forms.ModelForm):
                                        widget=forms.DateInput(
                                            attrs={
                                                'autocomplete': 'off',
+                                               'placeholder': 'Fecha de nacimiento',
                                                'class': 'form-control  datetimepicker-input',
                                                'data-toggle': 'datetimepicker',
                                                'data-target': '#id_fecha_nacimiento',

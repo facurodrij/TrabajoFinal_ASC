@@ -31,7 +31,7 @@
         </div>
         <div class="card-body">
             <p class="login-box-msg">Solicitud de asociación</p>
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="input-group mb-3">
                     {{ tipo_form.tipo }}
@@ -82,6 +82,10 @@
                 </div>
                 <div class="input-group mb-3">
                     {{ persona_form.direccion }}
+                </div>
+                <div class="input-group mb-3">
+                    <label for="">{{ persona_form.imagen.label }}</label>
+                    {{ persona_form.imagen }}
                 </div>
                 <div class="input-group mb-3">
                     {{ user_form.username }}

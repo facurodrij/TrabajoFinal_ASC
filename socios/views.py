@@ -39,70 +39,40 @@ def asociacion(request):
     if request.method == 'POST':
         tipo_form = ElegirTipoForm(request.POST)
         user_form = CustomUserCreationForm(request.POST)
-        persona_form = PersonaCreateForm(request.POST)
+        persona_form = PersonaCreateForm(request.POST, request.FILES)
         if tipo_form.is_valid() and user_form.is_valid() and persona_form.is_valid():
-            try:
-                user = user_form.save(commit=False)
-            except Exception as e:
-                print(e)
-                return redirect('asociarse')
-
-            try:
-                persona = persona_form.save(commit=False)
-            except Exception as e:
-                print(e)
-                return redirect('asociarse')
-
             # Crear el usuario y persona
             try:
-                user.save()
-                persona.save()
+                user = user_form.save()
+                persona = persona_form.save()
                 UsuarioPersona.objects.create(user=user, persona=persona)
             except Exception as e:
                 print(e)
+                messages.error(request, 'Ha ocurrido un error al crear el usuario y la persona')
                 return redirect('asociarse')
 
             # Establecer la categoria según el tipo y la edad del solicitante.
-            try:
-                tipo = tipo_form.cleaned_data['tipo']
-                categoria = Categoria.objects.get(tipo_id=tipo,
-                                                  # __lte -> Less than or equal
-                                                  # __gte -> Greater than or equal
-                                                  # __lt -> Less than
-                                                  # __gt -> Greater than
-                                                  edad_desde__lte=user.get_edad(),
-                                                  edad_hasta__gte=user.get_edad())
-            except Exception as e:
-                messages.error(request, 'Error al obtener la categoría. ' + str(e))
-                # Si hubo un error al obtener la categoria, se borra el usuario y la persona.
-                UsuarioPersona.objects.get(user=user, persona=persona).hard_delete()
-                user.hard_delete()
-                persona.hard_delete()
-                return redirect('asociarse')
+            tipo = tipo_form.cleaned_data['tipo']
+            categoria = Categoria.objects.get(tipo_id=tipo,
+                                              # __lte -> Less than or equal
+                                              # __gte -> Greater than or equal
+                                              # __lt -> Less than
+                                              # __gt -> Greater than
+                                              edad_desde__lte=user.get_edad(),
+                                              edad_hasta__gte=user.get_edad())
 
             # Obtener el estado 'Falta aprobación'
-            try:
-                estado = Estado.objects.get(code='FA')
-            except Exception as e:
-                messages.error(request, 'Error al obtener el estado "Falta aprobación". ' + str(e))
-                return redirect('asociarse')
+            estado = Estado.objects.get(code='FA')
 
             # Crear el socio individual
-            try:
-                SocioIndividual.objects.create(user=user,
-                                               club=Club.objects.first(),
-                                               # TODO: Obtener el club actual.
-                                               categoria=categoria,
-                                               estado=estado)
-            except Exception as e:
-                messages.error(request, 'Error al crear el socio. ' + str(e))
-                # Si hubo un error al crear el socio, se borra el usuario y la persona.
-                UsuarioPersona.objects.get(user=user, persona=persona).hard_delete()
-                user.hard_delete()
-                persona.hard_delete()
-                return redirect('asociarse')
+            SocioIndividual.objects.create(user=user,
+                                           club=Club.objects.first(),
+                                           # TODO: Obtener el club actual.
+                                           categoria=categoria,
+                                           estado=estado)
+
             messages.success(request, 'Tu solicitud de asociación ha sido enviada, espere a que sea aprobada.')
-        return redirect('index')
+            return redirect('login')
     else:
         tipo_form = ElegirTipoForm()
         user_form = CustomUserCreationForm()
