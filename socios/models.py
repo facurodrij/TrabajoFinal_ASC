@@ -123,6 +123,13 @@ class Categoria(models.Model):
             raise ValidationError('La edad "desde" debe ser menor que la edad "hasta".')
         if self.edad_desde == self.edad_hasta:
             raise ValidationError('Las edades ingresadas no deben ser iguales.')
+        # Las edades no deben solaparse con otras categorías.
+        categorias = Categoria.objects.filter(tipo=self.tipo).exclude(pk=self.pk)
+        for categoria in categorias:
+            if categoria.edad_desde <= self.edad_desde <= categoria.edad_hasta:
+                raise ValidationError('La edad "desde" ingresada se solapa con otra categoría.')
+            if categoria.edad_desde <= self.edad_hasta <= categoria.edad_hasta:
+                raise ValidationError('La edad "hasta" ingresada se solapa con otra categoría.')
 
     # TODO: Obtener todas la categorías posibles que puede elegir un socio según su edad.
 

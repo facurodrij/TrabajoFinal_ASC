@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.contrib import messages
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 
 # TODO: Crear las vistas para el listado de socios,
 #       el detalle de un socio, la creación de un socio,
@@ -85,3 +86,40 @@ def asociacion(request):
         'persona_form': persona_form,
     }
     return render(request, 'asociacion.html', context)
+
+
+class SocioIndividualDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    """ Vista para el detalle de un socio individual """
+    model = SocioIndividual
+    template_name = 'socio_detail.html'
+    permission_required = 'socios.view_socios'
+    raise_exception = True
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Detalle de socio'
+        return context
+
+
+def aprobar_socio(request, pk):
+    """ Vista para aprobar un socio individual """
+    if not request.user.is_admin():
+        messages.error(request, 'No tienes permiso para acceder a esta página')
+        return redirect('index')
+    socio = SocioIndividual.objects.get(pk=pk)
+    socio.estado = Estado.objects.get(code='AP')
+    socio.save()
+    messages.success(request, 'Socio aprobado')
+    return redirect('socios')
+
+
+def rechazar_socio(request, pk):
+    """ Vista para rechazar un socio individual """
+    if not request.user.is_admin():
+        messages.error(request, 'No tienes permiso para acceder a esta página')
+        return redirect('index')
+    socio = SocioIndividual.objects.get(pk=pk)
+    socio.estado = Estado.objects.get(code='RE')
+    socio.save()
+    messages.success(request, 'Socio rechazado')
+    return redirect('socios')
