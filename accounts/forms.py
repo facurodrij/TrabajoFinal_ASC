@@ -46,7 +46,7 @@ class PersonaCreateForm(forms.ModelForm):
     Formulario para registrar los datos personales
     de un Usuario o Miembro No Registrado.
     """
-    dni = forms.CharField(max_length=8,
+    dni = forms.CharField(max_length=9,
                           required=True,
                           widget=forms.TextInput(attrs={'placeholder': 'DNI',
                                                         'class': 'form-control',

@@ -8,6 +8,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import UnicodeUsernameValidator
 from django_softdelete.models import SoftDeleteModel
+from django.core.exceptions import ValidationError
 from PIL import Image
 
 
@@ -101,7 +102,7 @@ class Persona(SoftDeleteModel):
     Modelo para almacenar los datos personales de los Usuarios
     o Miembros No Registrados de un Grupo Familiar.
     """
-    dni = models.CharField(max_length=8, unique=True, verbose_name=_('DNI'),
+    dni = models.CharField(max_length=9, unique=True, verbose_name=_('DNI'),
                            error_messages={
                                "unique": _("DNI: Una persona con ese DNI ya existe."),
                            })
@@ -163,6 +164,16 @@ class Persona(SoftDeleteModel):
                 output_size = (300, 300)
                 img.thumbnail(output_size)
                 img.save(self.imagen.path)
+
+    def clean(self):
+        # Validar que el DNI sea correcto
+        if not self.dni.isdigit():
+            raise ValidationError(_('DNI: El DNI debe contener solo números.'))
+        if not len(self.dni) >= 7:
+            raise ValidationError(_('DNI: El DNI debe contener al menos 7 dígitos.'))
+        if self.dni[0] == '0':
+            raise ValidationError(_('DNI: El DNI no puede comenzar con 0.'))
+        return super(Persona, self).clean()
 
     class Meta:
         verbose_name = _('Persona')

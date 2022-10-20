@@ -27,6 +27,12 @@
                                 <b>Dirección: </b>{{ object.user.usuariopersona.persona.direccion }}</li>
                             <li class="list-group-item"><b>Usuario: </b>{{ object.user.username }}</li>
                             <li class="list-group-item"><b>Email: </b>{{ object.user.email }}</li>
+                            <li class="list-group-item">
+                                <b>Fecha de creación: </b>{{ object.user.socioindividual.created_at }}
+                            </li>
+                            <li class="list-group-item">
+                                <b>Última actualización: </b>{{ object.user.socioindividual.updated_at }}
+                            </li>
                         </ul>
                     </div>
                     <div class="card-footer">
