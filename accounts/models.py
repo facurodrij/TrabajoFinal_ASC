@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
@@ -79,6 +80,16 @@ class User(AbstractUser, SoftDeleteModel):
         Devuelve true si el usuario es administrador del club.
         """
         return self.user_permissions.get(codename='change_club')
+
+    def is_socio(self):
+        """
+        Devuelve true si el usuario es socio del club.
+        """
+        try:
+            if self.socioindividual:
+                return True
+        except ObjectDoesNotExist:
+            return False
 
     class Meta:
         verbose_name = _('Usuario')

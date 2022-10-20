@@ -1,3 +1,5 @@
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from django.contrib import messages
 from django.shortcuts import render, redirect, HttpResponseRedirect
@@ -17,13 +19,12 @@ from .models import SocioIndividual, MiembroNoRegistrado
 from .forms import *
 from core.models import Club
 from accounts.forms import CustomUserCreationForm, PersonaCreateForm
+from accounts.decorators import admin_required
 
 
+@admin_required
 def socios(request):
     """ Vista para el listado de socios, solo acceden superusuarios, staff y administradores del club """
-    if not request.user.is_admin():
-        messages.error(request, 'No tienes permiso para acceder a esta página')
-        return redirect('index')
     context = {
         'title': 'Socios',
         'socios_registrados': SocioIndividual.objects.all(),
@@ -32,20 +33,20 @@ def socios(request):
     return render(request, 'socio_list.html', context)
 
 
-def asociacion(request):
-    """ Vist para solicitar la asociación al club, solo acceden socios no registrados """
-    if request.user.is_authenticated:
-        messages.error(request, 'Ya estás asociado al club')
+@login_required
+def asociarse(request):
+    """ Vista para asociarse al club, solo acceden los usuarios no asociados """
+    if request.user.is_socio():
+        messages.error(request, 'No puede acceder a esta página porque ya es socio')
         return redirect('index')
     if request.method == 'POST':
         tipo_form = ElegirTipoForm(request.POST)
-        user_form = CustomUserCreationForm(request.POST)
         persona_form = PersonaCreateForm(request.POST, request.FILES)
-        if tipo_form.is_valid() and user_form.is_valid() and persona_form.is_valid():
+        if tipo_form.is_valid() and persona_form.is_valid():
             # Crear el usuario y persona
+            user = request.user
+            persona = persona_form.save()
             try:
-                user = user_form.save()
-                persona = persona_form.save()
                 UsuarioPersona.objects.create(user=user, persona=persona)
             except Exception as e:
                 print(e)
@@ -76,16 +77,14 @@ def asociacion(request):
             return redirect('login')
     else:
         tipo_form = ElegirTipoForm()
-        user_form = CustomUserCreationForm()
         persona_form = PersonaCreateForm()
 
     context = {
         'title': 'Solicitar asociación',
         'tipo_form': tipo_form,
-        'user_form': user_form,
         'persona_form': persona_form,
     }
-    return render(request, 'asociacion.html', context)
+    return render(request, 'asociarse.html', context)
 
 
 class SocioIndividualDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
@@ -101,11 +100,9 @@ class SocioIndividualDetailView(LoginRequiredMixin, PermissionRequiredMixin, Det
         return context
 
 
+@admin_required
 def aprobar_socio(request, pk):
     """ Vista para aprobar un socio individual """
-    if not request.user.is_admin():
-        messages.error(request, 'No tienes permiso para acceder a esta página')
-        return redirect('index')
     socio = SocioIndividual.objects.get(pk=pk)
     socio.estado = Estado.objects.get(code='AP')
     socio.save()
@@ -113,6 +110,7 @@ def aprobar_socio(request, pk):
     return redirect('socios')
 
 
+@admin_required
 def rechazar_socio(request, pk):
     """ Vista para rechazar un socio individual """
     if not request.user.is_admin():

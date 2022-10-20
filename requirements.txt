@@ -6,3 +6,4 @@ django-soft-delete
 django-active-link
 psycopg2-binary
 python-dateutil
+six

@@ -17,27 +17,28 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/icheck-bootstrap@3.0.1/icheck-bootstrap.min.css">
     <!-- AdminLTE 3 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
-    <!-- Google reCAPTCHA -->
-    <script type="text/javascript" async=""
-            src="https://www.gstatic.com/recaptcha/releases/vP4jQKq0YJFzU6e21-BGy3GP/recaptcha__es.js"
-            crossorigin="anonymous"
-            integrity="sha384-fue7Wv/oez0hDVDx3gMMbx/XzRLNvqlAZFVVgdRTvFaay4i8aOCR6ByTmPVsTl9U"></script>
-    <script src="https://www.google.com/recaptcha/api.js?render=6LeRS6kZAAAAAC4H_m9JiJJkG8bRF439Eb2oz1Hq"></script>
 </head>
 
-<body class="hold-transition login-page">
-
-<div class="login-box">
+<body class="hold-transition register-page">
+<div class="register-box">
     <div class="card card-outline card-primary">
         <div class="card-header text-center">
             <a href="{% url 'index' %}" class="h1">RESERVÁ</a>
         </div>
         <div class="card-body">
-            <p class="login-box-msg">Iniciar sesión</p>
-            <form method="POST">
+            <p class="login-box-msg">Para asociarse al club<br>primero debe registrarse</p>
+            <form method="post">
                 {% csrf_token %}
                 <div class="input-group mb-3">
                     {{ form.username }}
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-user"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    {{ form.email }}
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-envelope"></span>
@@ -45,7 +46,7 @@
                     </div>
                 </div>
                 <div class="input-group mb-3">
-                    {{ form.password }}
+                    {{ form.password1 }}
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-lock"></span>
@@ -53,21 +54,20 @@
                     </div>
                 </div>
                 <div class="input-group mb-3">
-                    <div class="icheck-primary">
-                        {{ form.remember_me }}
-                        <label for="id_remember_me">{{ form.remember_me.label }}</label>
+                    {{ form.password2 }}
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
                     </div>
                 </div>
-                <div class="input-group mb-2">
-                    <button name="login" class="col-md-12 btn btn-primary" id="login">Iniciar sesión</button>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
+                    </div>
                 </div>
             </form>
-            <p class="mb-3">
-                <a href="{% url 'password_reset' %}">Olvidé mi contraseña</a>
-            </p>
-            <div class="input-group mb-3">
-                <a href="{% url 'signup' %}" class="col-md-12 btn btn-success">Asociarse</a>
-            </div>
+            <a href="{% url 'login' %}" class="text-center">Ya tengo cuenta</a>
         </div>
     </div>
 </div>
@@ -88,11 +88,11 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.33/dist/sweetalert2.all.min.js"></script>
-<!-- Si se han cargado datos erróneos, se muestra un mensaje con SweetAlert. -->
+
 {% if form.errors %}
     <script>
         Swal.fire({
-            position: 'top-end',
+            position: 'center',
             icon: 'error',
             title: 'Ocurrió un error',
             {% for key, value in form.errors.items %}

@@ -93,25 +93,15 @@
                     <label for="">{{ persona_form.imagen.label }}</label>
                     {{ persona_form.imagen }}
                 </div>
-                <div class="input-group mb-3">
-                    {{ user_form.username }}
-                </div>
-                <div class="input-group mb-3">
-                    {{ user_form.email }}
-                </div>
-                <div class="input-group mb-3">
-                    {{ user_form.password1 }}
-                </div>
-                <div class="input-group mb-3">
-                    {{ user_form.password2 }}
-                </div>
-                <div class="row mb-3">
-                    <div class="col-12">
+                <div class="row mt-5">
+                    <div class="col-12 mb-3">
                         <button type="submit" class="btn btn-primary btn-block">Enviar</button>
+                    </div>
+                    <div class="col-12">
+                        <a href="{% url 'logout' %}" class="btn btn-secondary btn-block">Logout</a>
                     </div>
                 </div>
             </form>
-            <a href="{% url 'login' %}" class="text-center">Ya soy socio</a>
         </div>
     </div>
 </div>

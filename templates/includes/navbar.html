@@ -15,23 +15,31 @@
             <li class="nav-item">
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
+            {% if user.is_socio %}
+                <li class="nav-item">
+                    <span class="nav-link">Estado de socio: {{ user.socioindividual.estado }}</span>
+                </li>
+            {% endif %}
         </ul>
         <ul class="navbar-nav ml-auto">
             {% if not user.is_admin %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'persona' %}">Perfil</a>
-                </li>
-                <li class="nav-item">
-                    <a class="btn btn-outline-dark" href="{% url 'logout' %}">Logout</a>
-                </li>
+                {% if not user.is_socio %}
+                    <li class="nav-item mr-2">
+                        <a class="btn btn-success" href="{% url 'asociarse' %}">Asociarse</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'persona' %}">Perfil</a>
+                    </li>
+                {% endif %}
             {% else %}
                 <li class="nav-item mr-2">
                     <a class="btn btn-outline-warning" href="{% url 'admin:index' %}">Panel Admin</a>
                 </li>
-                <li class="nav-item">
-                    <a class="btn btn-outline-dark" href="{% url 'logout' %}">Logout</a>
-                </li>
             {% endif %}
+            <li class="nav-item">
+                <a class="btn btn-outline-dark" href="{% url 'logout' %}">Logout</a>
+            </li>
         </ul>
     </nav>
 {% endif %}
