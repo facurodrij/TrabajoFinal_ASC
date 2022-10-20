@@ -48,6 +48,7 @@ class PersonaCreateForm(forms.ModelForm):
     """
     dni = forms.CharField(max_length=9,
                           required=True,
+                          label="DNI",
                           widget=forms.TextInput(attrs={'placeholder': 'DNI',
                                                         'class': 'form-control',
                                                         }))
@@ -131,6 +132,12 @@ class PersonaChangeForm(forms.ModelForm):
     Formulario para actualizar los datos personales
     de un Usuario o Miembro No Registrado.
     """
+    dni = forms.CharField(max_length=9,
+                          required=True,
+                          label="DNI",
+                          widget=forms.TextInput(attrs={'placeholder': 'DNI',
+                                                        'class': 'form-control',
+                                                        }))
     sexo = forms.Select(attrs={'class': 'form-control select2'})
     nombre = forms.CharField(max_length=100,
                              required=True,
@@ -158,9 +165,9 @@ class PersonaChangeForm(forms.ModelForm):
                                 widget=forms.TextInput(attrs={'placeholder': 'Dirección',
                                                               'class': 'form-control',
                                                               }))
-    imagen = forms.ImageField(required=False,
+    imagen = forms.ImageField(required=True,
                               widget=AdminFileWidget)
 
     class Meta:
         model = Persona
-        fields = ['sexo', 'nombre', 'apellido', 'fecha_nacimiento', 'localidad', 'direccion', 'imagen']
+        fields = ['dni', 'sexo', 'nombre', 'apellido', 'fecha_nacimiento', 'localidad', 'direccion', 'imagen']

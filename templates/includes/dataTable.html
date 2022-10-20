@@ -1,15 +1,101 @@
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap4.min.css"/>
+{# Datatable Bootstrap4 Style #}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap4.min.css"/>
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.3.0/css/responsive.bootstrap.min.css">
+
+{# Datatable jQuery #}
 <script type="text/javascript" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+
+{# Datatable Bootstrap4 min.js #}
 <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap4.min.js"></script>
-<script src="https://cdn.datatables.net/fixedheader/3.2.4/js/dataTables.fixedHeader.min.js"></script>
+
+{# Datatable Responsive Bootstrap4 #}
+<script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.3.0/js/responsive.bootstrap4.min.js"></script>
+
+{# Datatable Buttons #}
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.colVis.min.js"></script>
+
+{# Datatable Internacionalización #}
 <script src="https://cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json"></script>
 <script>
     $(document).ready(function () {
-        let table = $('.dataTable').DataTable({
-            fixedHeader: true,
+        var table = $('#dataTable').DataTable({
+            responsive: true,
+            lengthChange: false,
+            autoWidth: false,
+            buttons: [
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excel',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'csv',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'copy',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'colvis',
+                    text: 'Columnas visibles',
+                    columns: ':gt(0)',
+                    postfixButtons: ['colvisRestore']
+                }
+            ],
             language: {
-                url: 'https://cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json'
+                search: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros por página",
+                zeroRecords: "No se encontraron registros",
+                info: "Mostrando página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros disponibles",
+                infoFiltered: "(filtrado de _MAX_ registros totales)",
+                paginate: {
+                    first: "Primero",
+                    last: "Último",
+                    next: "Siguiente",
+                    previous: "Anterior"
+                },
+                buttons: {
+                    colvis: 'Columnas',
+                    print: 'Imprimir',
+                    copy: 'Copiar',
+                    copyTitle: 'Copiado al portapapeles',
+                    copySuccess: {
+                        _: '%d líneas copiadas',
+                        1: '1 línea copiada'
+                    },
+                    colvisRestore: 'Restaurar'
+                },
             }
         });
+        table.buttons().container()
+            .appendTo('#dataTable_wrapper .col-md-6:eq(0)');
     });
 </script>
