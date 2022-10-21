@@ -1,0 +1,8 @@
+{% autoescape off %}
+    Hola {{ user.username }}!,
+
+    Su cuenta ha sido aprobada por el administrador del club. Ahora puede acceder a la web del club y disfrutar de todas
+    sus ventajas.
+
+    {{ protocol }}://{{ domain }}{% url 'login' %}
+{% endautoescape %}

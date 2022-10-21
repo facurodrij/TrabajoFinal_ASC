@@ -5,12 +5,12 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
-
-# TODO: Crear las vistas para el listado de socios,
-#       el detalle de un socio, la creación de un socio,
-#       la edición de un socio y la eliminación de un socio.
-#       Para ello, se deben crear las clases de vistas
-#       correspondientes y los templates necesarios.
+from django.utils.safestring import mark_safe
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
 
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -106,7 +106,17 @@ def aprobar_socio(request, pk):
     socio = SocioIndividual.objects.get(pk=pk)
     socio.estado = Estado.objects.get(code='AP')
     socio.save()
-    messages.success(request, 'Socio aprobado')
+    current_site = get_current_site(request)
+    mail_subject = 'Su cuenta ha sido aprobada'
+    message = render_to_string('email/approve.html', {
+        'user': socio.user,
+        'domain': current_site.domain,
+        'protocol': 'https' if request.is_secure() else 'http',
+    })
+    to_email = socio.user.email
+    email = EmailMessage(mail_subject, message, to=[to_email])
+    email.send()
+    messages.success(request, 'Socio aprobado correctamente')
     return redirect('socios')
 
 
@@ -119,5 +129,15 @@ def rechazar_socio(request, pk):
     socio = SocioIndividual.objects.get(pk=pk)
     socio.estado = Estado.objects.get(code='RE')
     socio.save()
-    messages.success(request, 'Socio rechazado')
+    current_site = get_current_site(request)
+    mail_subject = 'Su cuenta ha sido rechazada'
+    message = render_to_string('email/disapprove.html', {
+        'user': socio.user,
+        'domain': current_site.domain,
+        'protocol': 'https' if request.is_secure() else 'http',
+    })
+    to_email = socio.user.email
+    email = EmailMessage(mail_subject, message, to=[to_email])
+    email.send()
+    messages.success(request, 'Socio rechazado correctamente')
     return redirect('socios')
