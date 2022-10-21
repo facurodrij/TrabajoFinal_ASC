@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from .models import User, Persona
+from .models import User, Persona, UsuarioPersona
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 
 
@@ -57,3 +57,4 @@ class PersonaAdmin(admin.ModelAdmin):
 
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Persona, PersonaAdmin)
+admin.site.register(UsuarioPersona)
