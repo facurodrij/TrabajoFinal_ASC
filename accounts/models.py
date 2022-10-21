@@ -1,3 +1,4 @@
+import re
 import uuid
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -173,6 +174,21 @@ class Persona(SoftDeleteModel):
             raise ValidationError(_('DNI: El DNI debe contener al menos 7 dígitos.'))
         if self.dni[0] == '0':
             raise ValidationError(_('DNI: El DNI no puede comenzar con 0.'))
+
+        # El nombre y el apellido pueden contener letras y espacios
+        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$', self.nombre):
+            raise ValidationError(_('Nombre: El nombre solo puede contener letras y espacios.'))
+        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$', self.apellido):
+            raise ValidationError(_('Apellido: El apellido solo puede contener letras y espacios.'))
+
+        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]+$', self.direccion):
+            raise ValidationError(_('Dirección: La dirección solo puede contener letras, números y espacios.'))
+
+        # Quitar espacios en blanco al principio y al final del nombre, apellido y dirección
+        self.nombre = self.nombre.strip()
+        self.apellido = self.apellido.strip()
+        self.direccion = self.direccion.strip()
+
         return super(Persona, self).clean()
 
     class Meta:
