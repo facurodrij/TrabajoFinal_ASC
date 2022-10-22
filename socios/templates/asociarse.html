@@ -155,22 +155,24 @@
     });
 </script>
 {% if user_form.errors or persona_form.errors %}
-    <script>
-        Swal.fire({
-            position: 'top-end',
-            icon: 'error',
-            title: 'Ocurrió un error',
+        <script type="text/javascript">
+            let errors = []
             {% for key, value in user_form.errors.items %}
-                text: '{{ value|join:" " }}',
+                errors.push('{{ value|join:" " }}')
             {% endfor %}
             {% for key, value in persona_form.errors.items %}
-                text: '{{ value|join:" " }}',
+                errors.push('{{ value|join:" " }}')
             {% endfor %}
-            showConfirmButton: true,
-        })
-        document.body.classList.remove('swal2-height-auto');
-    </script>
-{% endif %}
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Ocurrió un error',
+                text: errors.join('\n'),
+                showConfirmButton: true,
+            })
+            document.body.classList.remove('swal2-height-auto');
+        </script>
+    {% endif %}
 <!-- Si la vista envia mensajes, se muestran con SweetAlert -->
 {% include 'includes/message.html' %}
 

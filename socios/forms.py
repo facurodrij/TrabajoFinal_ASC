@@ -15,10 +15,34 @@ from parameters.models import Sexo, Localidad
 
 class ElegirTipoForm(forms.Form):
     """
-    Formulario para el paso 2 de una solicitud de asociación.
+    Formulario para el paso 1 de una solicitud de asociación.
     """
     # Paso 1: Elegir el tipo de socio.
     tipo = forms.ModelChoiceField(required=True,
                                   queryset=Tipo.objects.filter(admite_miembro=False),
                                   widget=forms.Select(attrs={'class': 'form-control select2'}))
     # TODO: Permitir elegir el tipo de socio que admita miembros familiares.
+
+
+class ElegirEstadoForm(forms.Form):
+    """
+    Formulario para elegir un estado de socio.
+    """
+    estado = forms.ModelChoiceField(required=True,
+                                    queryset=Estado.objects.all(),
+                                    widget=forms.Select(attrs={'class': 'form-control select2'}))
+
+
+class BasicUserCreationForm(forms.Form):
+    """
+    Formulario para la creación de un Usuario sin contraseña.
+    """
+    username = forms.CharField(max_length=100,
+                               required=True,
+                               widget=forms.TextInput(attrs={'placeholder': 'Username',
+                                                             'class': 'form-control',
+                                                             }))
+    email = forms.EmailField(required=True,
+                             widget=forms.TextInput(attrs={'placeholder': 'Email',
+                                                           'class': 'form-control',
+                                                           }))

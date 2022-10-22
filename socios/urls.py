@@ -12,7 +12,9 @@ from .views import *
 urlpatterns = [
     path('socios/', socios, name='socios'),
     path('asociarse/', asociarse, name='asociarse'),
-    path('socios/<int:pk>/', SocioIndividualDetailView.as_view(), name='socio-detail'),
+    path('socios/<int:pk>/', SocioIndividualDetailView.as_view(), name='socio-detalle'),
     path('socios/<int:pk>/aprobar/', aprobar_socio, name='socio-aprobar'),
     path('socios/<int:pk>/rechazar/', rechazar_socio, name='socio-rechazar'),
+    path('socios/crear/', crear_socio, name='socio-crear'),
+    path('socios/<int:pk>/editar/', actualizar_socio, name='socio-editar'),
 ]

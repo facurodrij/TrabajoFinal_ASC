@@ -5,9 +5,11 @@
                 Swal.fire({
                     position: 'top-end',
                     icon: '{{ message.tags }}',
-                    title: '{{ message }}',
+                    title: 'Bien hecho!',
+                    text: `{{ message }}`,
                     showConfirmButton: false,
-                    timer: 5000
+                    timer: 5000,
+                    timerProgressBar: true,
                 })
                 document.body.classList.remove('swal2-height-auto');
             {% endif %}
@@ -15,7 +17,8 @@
                 Swal.fire({
                     position: 'top-end',
                     icon: '{{ message.tags }}',
-                    title: '{{ message }}',
+                    title: 'Ocurrió un error',
+                    text: `{{ message }}`,
                     showConfirmButton: true,
                 })
                 document.body.classList.remove('swal2-height-auto');

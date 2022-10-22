@@ -17,6 +17,7 @@
                         <h3 class="card-title">Socios Registrados</h3>
                     </div>
                     <div class="card-body">
+                        <a class="btn btn-primary mb-3" href="{% url 'socio-crear' %}">Crear Nuevo</a>
                         <table id="dataTable" class="table table-bordered table-striped dataTable">
                             <thead>
                             <tr>
@@ -43,8 +44,11 @@
                                         <td><span class="badge badge-danger">{{ socio.estado }}</span></td>
                                     {% endif %}
                                     <td>
-                                        <a href="{% url 'socio-detail' socio.pk %}" class="btn btn-info btn-sm">
+                                        <a href="{% url 'socio-detalle' socio.pk %}" class="btn btn-info btn-sm">
                                             <i class="fa-solid fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'socio-editar' socio.pk %}" class="btn btn-warning btn-sm">
+                                            <i class="fa-solid fa-edit"></i>
                                         </a>
                                         {#                                        <a href="{% url 'eliminar_socio' socio.id %}" class="btn btn-danger btn-sm">#}
                                         {#                                            <i class="fas fa-trash-alt"></i>#}

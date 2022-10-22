@@ -11,7 +11,6 @@ class CustomUserCreationForm(UserCreationForm):
     """
     Formulario para registrar un nuevo usuario.
     """
-
     username = forms.CharField(max_length=100,
                                required=True,
                                widget=forms.TextInput(attrs={'placeholder': 'Username',
@@ -88,6 +87,9 @@ class PersonaCreateForm(forms.ModelForm):
 
 
 class CustomAuthenticationForm(AuthenticationForm):
+    """
+    Formulario para iniciar sesión.
+    """
     username = forms.CharField(max_length=100,
                                required=True,
                                widget=forms.TextInput(attrs={'placeholder': 'Username',

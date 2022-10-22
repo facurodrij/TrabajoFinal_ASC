@@ -11,6 +11,8 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+import six
 
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -18,10 +20,49 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from .models import SocioIndividual, MiembroNoRegistrado
 from .forms import *
 from core.models import Club
-from accounts.forms import CustomUserCreationForm, PersonaCreateForm
+from accounts.forms import *
 from accounts.decorators import admin_required
 
 
+def send_evaluation_email(request, socio, mail_subject, template):
+    """
+    Función para enviar la evaluación de un socio a su correo electrónico.
+    """
+    current_site = get_current_site(request)
+    message = render_to_string(template, {
+        'user': socio.user,
+        'club': socio.club,
+        'domain': current_site.domain,
+        'protocol': 'https' if request.is_secure() else 'http',
+    })
+    to_email = socio.user.email
+    email = EmailMessage(
+        mail_subject, message, to=[to_email]
+    )
+    email.send()
+
+
+def send_creation_email(request, socio, mail_subject, template):
+    """
+    Función para enviar el correo de creación de un usuario a su correo electrónico.
+    """
+    current_site = get_current_site(request)
+    message = render_to_string(template, {
+        'user': socio.user,
+        'club': socio.club,
+        'domain': current_site.domain,
+        'uid': urlsafe_base64_encode(force_bytes(socio.user.pk)),
+        'token': PasswordResetTokenGenerator().make_token(socio.user),
+        'protocol': 'https' if request.is_secure() else 'http',
+    })
+    to_email = socio.user.email
+    email = EmailMessage(
+        mail_subject, message, to=[to_email]
+    )
+    email.send()
+
+
+@login_required
 @admin_required
 def socios(request):
     """ Vista para el listado de socios, solo acceden superusuarios, staff y administradores del club """
@@ -106,16 +147,7 @@ def aprobar_socio(request, pk):
     socio = SocioIndividual.objects.get(pk=pk)
     socio.estado = Estado.objects.get(code='AP')
     socio.save()
-    current_site = get_current_site(request)
-    mail_subject = 'Su cuenta ha sido aprobada'
-    message = render_to_string('email/approve.html', {
-        'user': socio.user,
-        'domain': current_site.domain,
-        'protocol': 'https' if request.is_secure() else 'http',
-    })
-    to_email = socio.user.email
-    email = EmailMessage(mail_subject, message, to=[to_email])
-    email.send()
+    send_evaluation_email(request, socio, 'Solicitud de asociación aprobada', 'email/socio_aprobado.html')
     messages.success(request, 'Socio aprobado correctamente')
     return redirect('socios')
 
@@ -129,15 +161,93 @@ def rechazar_socio(request, pk):
     socio = SocioIndividual.objects.get(pk=pk)
     socio.estado = Estado.objects.get(code='RE')
     socio.save()
-    current_site = get_current_site(request)
-    mail_subject = 'Su cuenta ha sido rechazada'
-    message = render_to_string('email/disapprove.html', {
-        'user': socio.user,
-        'domain': current_site.domain,
-        'protocol': 'https' if request.is_secure() else 'http',
-    })
-    to_email = socio.user.email
-    email = EmailMessage(mail_subject, message, to=[to_email])
-    email.send()
+    send_evaluation_email(request, socio, 'Solicitud de asociación rechazada', 'email/socio_rechazado.html')
     messages.success(request, 'Socio rechazado correctamente')
     return redirect('socios')
+
+
+@login_required
+@admin_required
+def crear_socio(request):
+    """ Vista para crear un socio individual """
+    if request.method == 'POST':
+        tipo_form = ElegirTipoForm(request.POST)
+        user_form = BasicUserCreationForm(request.POST)
+        persona_form = PersonaCreateForm(request.POST, request.FILES)
+        if user_form.is_valid() and persona_form.is_valid() and tipo_form.is_valid():
+            # Crear el usuario y persona
+            try:
+                username = user_form.cleaned_data['username']
+                email = user_form.cleaned_data['email']
+                password = User.objects.make_random_password()
+                user = User.objects.create_user(username=username, email=email, password=password)
+            except Exception as e:
+                # Si el usuario ya existe, se muestra un mensaje de error.
+                messages.error(request, 'Error al crear el usuario: ' + str(e))
+                return redirect('socio-crear')
+            persona = persona_form.save()
+            try:
+                UsuarioPersona.objects.create(user=user, persona=persona)
+            except Exception as e:
+                messages.error(request, 'Ha ocurrido un error al crear el usuario y la persona: ' + str(e))
+                return redirect('socio-crear')
+
+            # Establecer la categoria según el tipo y la edad del solicitante.
+            tipo = tipo_form.cleaned_data['tipo']
+            categoria = Categoria.objects.get(tipo_id=tipo,
+                                              # __lte -> Less than or equal
+                                              # __gte -> Greater than or equal
+                                              # __lt -> Less than
+                                              # __gt -> Greater than
+                                              edad_desde__lte=user.get_edad(),
+                                              edad_hasta__gte=user.get_edad())
+
+            # Obtener el estado 'Aprobado'
+            estado = Estado.objects.get(code='AP')
+
+            # Crear el socio individual
+            socio = SocioIndividual.objects.create(user=user,
+                                                   club=Club.objects.first(),
+                                                   # TODO: Obtener el club actual.
+                                                   categoria=categoria,
+                                                   estado=estado)
+            # Enviar el email de bienvenida al socio.
+            send_creation_email(request, socio, 'Bienvenido socio al club', 'email/socio_creado.html')
+            messages.success(request, 'Socio creado correctamente')
+            return redirect('socios')
+    else:
+        tipo_form = ElegirTipoForm()
+        user_form = BasicUserCreationForm()
+        persona_form = PersonaCreateForm()
+
+    context = {
+        'title': 'Crear socio',
+        'tipo_form': tipo_form,
+        'user_form': user_form,
+        'persona_form': persona_form,
+    }
+    return render(request, 'socio_create.html', context)
+
+
+def actualizar_socio(request, pk):
+    """ Vista para actualizar un socio individual """
+    socio = SocioIndividual.objects.get(pk=pk)
+    if request.method == 'POST':
+        user_form = CustomUserChangeForm(request.POST, instance=socio.user)
+        persona_form = PersonaChangeForm(request.POST, request.FILES, instance=socio.user.usuariopersona.persona)
+        if user_form.is_valid() and persona_form.is_valid():
+            # Actualizar el usuario y persona
+            user = user_form.save()
+            persona = persona_form.save()
+            messages.success(request, 'Socio actualizado correctamente')
+            return redirect('socio-detalle', pk=socio.pk)
+    else:
+        user_form = CustomUserChangeForm(instance=socio.user)
+        persona_form = PersonaChangeForm(instance=socio.user.usuariopersona.persona)
+
+    context = {
+        'title': 'Actualizar socio',
+        'user_form': user_form,
+        'persona_form': persona_form,
+    }
+    return render(request, 'socio_update.html', context)

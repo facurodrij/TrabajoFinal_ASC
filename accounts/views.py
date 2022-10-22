@@ -25,6 +25,23 @@ from socios.decorators import socio_required
 User = get_user_model()
 
 
+def send_activation_email(request, user):
+    current_site = get_current_site(request)
+    mail_subject = 'Activa tu cuenta.'
+    message = render_to_string('email/activate.html', {
+        'user': user,
+        'domain': current_site.domain,
+        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        'token': account_activation_token.make_token(user),
+        'protocol': 'https' if request.is_secure() else 'http',
+    })
+    to_email = user.email
+    email = EmailMessage(
+        mail_subject, message, to=[to_email]
+    )
+    email.send()
+
+
 @no_login_required
 def signup(request):
     """ Vista para el registro de un usuario """
@@ -37,19 +54,8 @@ def signup(request):
             user.is_active = False
             # Guardar el usuario en la base de datos
             user.save()
-            # Obtener el dominio del sitio actual
-            current_site = get_current_site(request)
-            mail_subject = 'Activa tu cuenta'
-            message = render_to_string('email/activate.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': account_activation_token.make_token(user),
-                'protocol': 'https' if request.is_secure() else 'http',
-            })
-            to_email = form.cleaned_data.get('email')
-            email = EmailMessage(mail_subject, message, to=[to_email])
-            email.send()
+            # Enviar el correo de activación
+            send_activation_email(request, user)
             messages.success(request, 'Se ha enviado un correo de activación a tu cuenta de correo.')
             return redirect('login')
     else:

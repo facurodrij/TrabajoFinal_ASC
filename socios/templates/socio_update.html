@@ -1,51 +1,29 @@
 {% extends "extends/base.html" %}
 {% load static %}
-
 {% block head_css %}
-    <!-- Select2 -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
 {% endblock head_css %}
 
-{% block breadcrumbs %}
-    <ol class="breadcrumb float-sm-right">
-        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-        <li class="breadcrumb-item active">Datos Personales</li>
-    </ol>
-{% endblock %}
-
 {% block content %}
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-4">
-                <div class="d-flex flex-column align-items-center text-center mb-3">
-                    <img class="rounded-circle mt-5"
-                         src="{{ user.get_imagen }}" alt="" style="max-width: 300px">
-                    <span class="font-weight-bold mt-3">{{ user.username }}</span>
-                    <span class="text-black-50">{{ user.email }}</span>
-                    <span class="text-black-50"><a href="{% url 'password_change' %}">Cambiar contraseña</a></span>
-                </div>
-            </div>
-            <div class="col-md-7">
+            <div class="col-12">
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="card">
                         <div class="card-header bg-primary">
-                            <h4 class="card-title">Actualizar Datos</h4>
+                            <h4 class="card-title">{{ title }}</h4>
                         </div>
                         <div class="card-body">
-                            <div class="form-group">
-                                <label class="labels">{{ user_form.email.label }}</label>
-                                {{ user_form.email }}
-                            </div>
                             <div class="form-group">
                                 <label class="labels">{{ user_form.username.label }}</label>
                                 {{ user_form.username }}
                             </div>
                             <div class="form-group">
-                                <label class="labels">{{ persona_form.dni.label }}</label>
-                                {{ persona_form.dni }}
+                                <label class="labels">{{ user_form.email.label }}</label>
+                                {{ user_form.email }}
                             </div>
                             <div class="form-group">
                                 <label class="labels">{{ persona_form.nombre.label }}</label>
@@ -54,6 +32,10 @@
                             <div class="form-group">
                                 <label class="labels">{{ persona_form.apellido.label }}</label>
                                 {{ persona_form.apellido }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ persona_form.dni.label }}</label>
+                                {{ persona_form.dni }}
                             </div>
                             <div class="form-group">
                                 <label class="labels">{{ persona_form.sexo.label }}</label>
@@ -98,13 +80,8 @@
                                 {{ persona_form.direccion }}
                             </div>
                             <div class="form-group">
-                                <label for="id_imagen">Imagen</label>
-                                <div class="input-group">
-                                    {{ persona_form.imagen }}
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                {{ persona_form.bio }}
+                                <label class="labels">{{ persona_form.imagen.label }}</label>
+                                {{ persona_form.imagen }}
                             </div>
                         </div>
                         <div class="card-footer">
@@ -117,7 +94,6 @@
         </div>
     </div>
 {% endblock content %}
-
 {% block body_js %}
     <!-- Django Tempus Dominus -->
     <link href="//cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/css/tempusdominus-bootstrap-4.min.css"

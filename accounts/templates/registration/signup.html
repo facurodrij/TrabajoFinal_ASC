@@ -88,16 +88,18 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.33/dist/sweetalert2.all.min.js"></script>
-
+<!-- Si se han cargado datos erróneos, se muestra un mensaje con SweetAlert. -->
 {% if form.errors %}
-    <script>
+    <script type="text/javascript">
+        let errors = []
+        {% for key, value in form.errors.items %}
+            errors.push('{{ value|join:" " }}')
+        {% endfor %}
         Swal.fire({
-            position: 'center',
+            position: 'top-end',
             icon: 'error',
             title: 'Ocurrió un error',
-            {% for key, value in form.errors.items %}
-                text: '{{ value|join:" " }}',
-            {% endfor %}
+            text: errors.join('\n'),
             showConfirmButton: true,
         })
         document.body.classList.remove('swal2-height-auto');
@@ -105,6 +107,5 @@
 {% endif %}
 <!-- Si la vista envía mensajes, se muestran con SweetAlert -->
 {% include 'includes/message.html' %}
-
 </body>
 </html>
