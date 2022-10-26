@@ -104,39 +104,29 @@ class CustomLoginView(LoginView):
             self.request.session.modified = True
         """Security check complete. Log the user in."""
         auth_login(self.request, form.get_user())
-        # Si inicia sesión un usuario que no es socio, se redirige a la página de asociarse
-        if not self.request.user.is_socio() and not self.request.user.is_admin():
-            return redirect('asociarse')
+        if not self.request.user.is_admin():
+            # Si inicia sesión un socio con estado inactivo, se le redirige al login
+            if self.request.user.is_socio() and not self.request.user.socio.estado.is_active:
+                messages.error(self.request,
+                               'Tu estado de socio no está activo. ' + self.request.user.socio.estado.descripcion)
+                auth_logout(self.request)
+                return redirect('login')
         return super(CustomLoginView, self).form_valid(form)
 
 
 @login_required
 @socio_required
 @permission_required('accounts.change_persona', raise_exception=True)
-def persona(request):
+def persona_detail_view(request):
     """
-    Vista para ver y actualizar los datos personales del usuario.
+    Vista para ver los datos personales del usuario.
     """
     try:
-        UsuarioPersona.objects.get(user=request.user)
-    except UsuarioPersona.DoesNotExist:
-        messages.error(request, 'Su usuario no tiene relación con la tabla persona, por ende no puede ver el sitio.')
-        return redirect('index')
-
+        persona = request.user.usuariopersona.persona
+    except ObjectDoesNotExist:
+        persona = None
     context = {
-        'title': 'Datos Personales',
+        'title': 'Datos personales',
+        'persona': persona,
     }
-    if request.method == 'POST':
-        user_form = CustomUserChangeForm(request.POST, instance=request.user)
-        persona_form = PersonaChangeForm(request.POST, request.FILES, instance=request.user.usuariopersona.persona)
-
-        if user_form.is_valid() and persona_form.is_valid():
-            user_form.save()
-            persona_form.save()
-            messages.success(request, 'Datos Personales actualizados exitosamente')
-            return redirect(to='persona')
-    else:
-        user_form = CustomUserChangeForm(instance=request.user)
-        persona_form = PersonaChangeForm(instance=request.user.usuariopersona.persona)
-
-    return render(request, 'persona.html', {'user_form': user_form, 'persona_form': persona_form, **context})
+    return render(request, 'persona_detail.html', context)

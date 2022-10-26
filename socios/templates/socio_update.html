@@ -18,6 +18,14 @@
                         </div>
                         <div class="card-body">
                             <div class="form-group">
+                                <label class="labels">{{ tipo_form.tipo.label }}</label>
+                                {{ tipo_form.tipo }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ estado_form.estado.label }}</label>
+                                {{ estado_form.estado }}
+                            </div>
+                            <div class="form-group">
                                 <label class="labels">{{ user_form.username.label }}</label>
                                 {{ user_form.username }}
                             </div>
@@ -57,7 +65,7 @@
                                                 "format": "L",
                                                 "icons": {"time": "fa fa-clock-o"},
                                                 "locale": "es-AR",
-                                                "date": "{{ user.usuariopersona.persona.fecha_nacimiento }}",
+                                                "date": "{{ persona_form.fecha_nacimiento.value }}",
                                                 "minDate": "1900-01-01",
                                                 "maxDate": Date.now(),
                                             });
@@ -112,6 +120,20 @@
                 language: 'es'
             });
             $('#id_sexo').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Seleccione un sexo',
+                allowClear: true,
+                width: '100%',
+                language: 'es'
+            });
+            $('#id_tipo').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Seleccione un sexo',
+                allowClear: true,
+                width: '100%',
+                language: 'es'
+            });
+            $('#id_estado').select2({
                 theme: 'bootstrap4',
                 placeholder: 'Seleccione un sexo',
                 allowClear: true,

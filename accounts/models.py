@@ -88,7 +88,7 @@ class User(AbstractUser, SoftDeleteModel):
         Devuelve true si el usuario es socio del club.
         """
         try:
-            if self.socioindividual:
+            if self.socio:
                 return True
         except ObjectDoesNotExist:
             return False

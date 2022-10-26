@@ -31,7 +31,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for socio in socios_registrados %}
+                            {% for socio in socios %}
                                 <tr>
                                     <td>{{ socio.user.email }}</td>
                                     <td>{{ socio.user.usuariopersona.persona.dni }}</td>
@@ -50,9 +50,6 @@
                                         <a href="{% url 'socio-editar' socio.pk %}" class="btn btn-warning btn-sm">
                                             <i class="fa-solid fa-edit"></i>
                                         </a>
-                                        {#                                        <a href="{% url 'eliminar_socio' socio.id %}" class="btn btn-danger btn-sm">#}
-                                        {#                                            <i class="fas fa-trash-alt"></i>#}
-                                        {#                                        </a>#}
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -78,19 +75,4 @@
 
 {% block body_js %}
     {% include 'includes/dataTable.html' %}
-    {#    {% if model_deleted %}#}
-    {#        <script>#}
-    {#            Swal.fire({#}
-    {#                position: 'top-end',#}
-    {#                icon: 'success',#}
-    {#                title: 'EL {{ model_name }} <strong>{{ model_deleted }}</strong> ha sido eliminado',#}
-    {#                showConfirmButton: true,#}
-    {#                showCancelButton: false,#}
-    {#                confirmButtonText: '<a class="text-white" href="{% url 'restaurar_socio' model_deleted.pk %}">Deshacer <i class="fa fa-undo" aria-hidden="true"></i></a>',#}
-    {#                timer: 5000,#}
-    {#                timerProgressBar: true,#}
-    {#            })#}
-    {#            document.body.classList.remove('swal2-height-auto');#}
-    {#        </script>#}
-    {#    {% endif %}#}
 {% endblock body_js %}

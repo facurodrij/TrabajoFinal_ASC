@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from accounts.models import User, Persona
 
 
-class SocioIndividual(SoftDeleteModel):
+class Socio(SoftDeleteModel):
     """
     Modelo de socio individual.
     """
@@ -20,57 +20,19 @@ class SocioIndividual(SoftDeleteModel):
     def __str__(self):
         return self.user.get_full_name()
 
-    def is_titular(self):
-        try:
-            if self.miembroregistrado.is_titular:
-                return True
-            else:
-                return False
-        except ObjectDoesNotExist:
-            """
-            Si no tiene relación con la tabla MiembroRegistrado,
-            es titular porque no forma parte de ningún grupo familiar.
-            """
-            return True
-
     class Meta:
         verbose_name = 'Socio individual'
         verbose_name_plural = "Socios individuales"
         ordering = ['id']
 
 
-class GrupoFamiliar(SoftDeleteModel):
+class Miembro(SoftDeleteModel):
     """
-    Modelo de grupo familiar.
+    Modelo de miembro de familia.
     """
-    nombre = models.CharField(max_length=255, verbose_name='Nombre')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.nombre
-
-    def get_estado(self):
-        """
-        Devuelve el estado del grupo familiar.
-        """
-        miembro_titular = self.miembroregistrado_set.filter(is_titular=True).first()
-        if miembro_titular:
-            return miembro_titular.socio.estado.is_active
-
-    class Meta:
-        verbose_name = 'Grupo familiar'
-        verbose_name_plural = "Grupos familiares"
-        ordering = ['id']
-
-
-class MiembroRegistrado(SoftDeleteModel):
-    """
-    Modelo de miembro registrado.
-    """
-    socio = models.OneToOneField(SocioIndividual, on_delete=models.PROTECT)
-    gp_familiar = models.ForeignKey(GrupoFamiliar, on_delete=models.PROTECT)
-    is_titular = models.BooleanField(default=False, verbose_name='¿Es titular?')
+    persona = models.ForeignKey(Persona, on_delete=models.PROTECT)
+    socio = models.ForeignKey(Socio, on_delete=models.PROTECT)
+    categoria = models.ForeignKey('socios.Categoria', on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -78,28 +40,8 @@ class MiembroRegistrado(SoftDeleteModel):
         return self.socio.user.get_full_name()
 
     class Meta:
-        unique_together = ('gp_familiar', 'is_titular')
-        verbose_name = 'Miembro registrado'
-        verbose_name_plural = "Miembros registrados"
-        ordering = ['id']
-
-
-class MiembroNoRegistrado(SoftDeleteModel):
-    """
-    El miembro no registrado es un miembro familiar que no tiene cuenta (usuario y email).
-    """
-    persona = models.OneToOneField(Persona, on_delete=models.PROTECT)
-    categoria = models.ForeignKey('socios.Categoria', on_delete=models.PROTECT)
-    gp_familiar = models.ForeignKey(GrupoFamiliar, on_delete=models.PROTECT)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.persona.get_full_name()
-
-    class Meta:
-        verbose_name = 'Miembro no registrado'
-        verbose_name_plural = "Miembros no registrados"
+        verbose_name = 'Miembro'
+        verbose_name_plural = "Miembros"
         ordering = ['id']
 
 
@@ -170,11 +112,6 @@ class Estado(models.Model):
     """
     Modelo para almacenar los estados de los socios.
     """
-    # ESTADOS = (
-    #     ('FA', 'Falta aprobación'),
-    #     ('AP', 'Aprobado'),
-    #     ('RE', 'Rechazado'),
-    # )
     nombre = models.CharField(max_length=50, unique=True, verbose_name='Nombre')
     descripcion = models.CharField(max_length=255, verbose_name='Descripción')
     code = models.CharField(max_length=2, unique=True, verbose_name='Código')

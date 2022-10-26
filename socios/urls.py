@@ -10,11 +10,9 @@ from django.views.generic import TemplateView
 from .views import *
 
 urlpatterns = [
-    path('socios/', socios, name='socios'),
-    path('asociarse/', asociarse, name='asociarse'),
-    path('socios/<int:pk>/', SocioIndividualDetailView.as_view(), name='socio-detalle'),
-    path('socios/<int:pk>/aprobar/', aprobar_socio, name='socio-aprobar'),
-    path('socios/<int:pk>/rechazar/', rechazar_socio, name='socio-rechazar'),
-    path('socios/crear/', crear_socio, name='socio-crear'),
-    path('socios/<int:pk>/editar/', actualizar_socio, name='socio-editar'),
+    path('socios/', socios_view, name='socio-listado'),
+    # path('asociarse/', asociarse_view, name='asociarse'),
+    path('socios/crear/', socio_create_view, name='socio-crear'),
+    path('socios/<int:pk>/', socio_detail_view, name='socio-detalle'),
+    path('socios/<int:pk>/editar/', socio_update_view, name='socio-editar'),
 ]

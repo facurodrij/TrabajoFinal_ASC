@@ -27,7 +27,7 @@
 <script src="https://cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json"></script>
 <script>
     $(document).ready(function () {
-        var table = $('#dataTable').DataTable({
+        let table = $('#dataTable').DataTable({
             responsive: true,
             lengthChange: false,
             autoWidth: false,
@@ -39,10 +39,33 @@
                     }
                 },
                 {
+                    // Agregar footer
                     extend: 'pdf',
                     exportOptions: {
-                        columns: ':visible'
-                    }
+                        columns: ':visible',
+                        footer: true
+                    },
+                    footer: function (currentPage, pageCount) {
+                        return currentPage.toString() + ' of ' + pageCount;
+                    },
+                    customize:
+                        function (doc) {
+                            doc['footer'] = (function (page, pages) {
+                                return {
+                                    columns: [
+                                        {
+                                            alignment: 'left',
+                                            text: ['Página ', {text: page.toString()}, ' de ', {text: pages.toString()}]
+                                        },
+                                        {
+                                            alignment: 'right',
+                                            text: ['Fecha: ', {text: new Date().toLocaleString()}]
+                                        }
+                                    ],
+                                    margin: [10, 0]
+                                }
+                            });
+                        }
                 },
                 {
                     extend: 'excel',

@@ -17,7 +17,13 @@
             </li>
             {% if user.is_socio %}
                 <li class="nav-item">
-                    <span class="nav-link">Estado de socio: {{ user.socioindividual.estado }}</span>
+                    <span class="nav-link">Estado de socio:
+                        {% if user.socio.estado.is_active %}
+                            <span class="badge badge-success">{{ user.socio.estado }}</span>
+                        {% else %}
+                            <span class="badge badge-danger">{{ user.socio.estado }}</span>
+                        {% endif %}
+                    </span>
                 </li>
             {% endif %}
         </ul>

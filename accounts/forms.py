@@ -40,7 +40,7 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ['username', 'email', 'password1', 'password2']
 
 
-class PersonaCreateForm(forms.ModelForm):
+class PersonaForm(forms.ModelForm):
     """
     Formulario para registrar los datos personales
     de un Usuario o Miembro No Registrado.
@@ -127,49 +127,3 @@ class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = User
         fields = ['username', 'email']
-
-
-class PersonaChangeForm(forms.ModelForm):
-    """
-    Formulario para actualizar los datos personales
-    de un Usuario o Miembro No Registrado.
-    """
-    dni = forms.CharField(max_length=9,
-                          required=True,
-                          label="DNI",
-                          widget=forms.TextInput(attrs={'placeholder': 'DNI',
-                                                        'class': 'form-control',
-                                                        }))
-    sexo = forms.Select(attrs={'class': 'form-control select2'})
-    nombre = forms.CharField(max_length=100,
-                             required=True,
-                             widget=forms.TextInput(attrs={'placeholder': 'Nombre',
-                                                           'class': 'form-control',
-                                                           }))
-    apellido = forms.CharField(max_length=100,
-                               required=True,
-                               widget=forms.TextInput(attrs={'placeholder': 'Apellido',
-                                                             'class': 'form-control',
-                                                             }))
-    fecha_nacimiento = forms.DateField(required=True,
-                                       widget=forms.DateInput(
-                                           attrs={
-                                               'autocomplete': 'off',
-                                               'placeholder': 'Fecha de nacimiento',
-                                               'class': 'form-control  datetimepicker-input',
-                                               'data-toggle': 'datetimepicker',
-                                               'data-target': '#id_fecha_nacimiento',
-                                           }
-                                       ))
-    localidad = forms.Select(attrs={'class': 'form-control'})
-    direccion = forms.CharField(max_length=255,
-                                required=True,
-                                widget=forms.TextInput(attrs={'placeholder': 'Dirección',
-                                                              'class': 'form-control',
-                                                              }))
-    imagen = forms.ImageField(required=True,
-                              widget=AdminFileWidget)
-
-    class Meta:
-        model = Persona
-        fields = ['dni', 'sexo', 'nombre', 'apellido', 'fecha_nacimiento', 'localidad', 'direccion', 'imagen']

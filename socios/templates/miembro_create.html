@@ -17,12 +17,6 @@
                             <h4 class="card-title">{{ title }}</h4>
                         </div>
                         <div class="card-body">
-                            <div id="div_elegir_tipo">
-                                <div class="form-group">
-                                    <label class="labels">{{ tipo_form.tipo.label }}</label>
-                                    {{ tipo_form.tipo }}
-                                </div>
-                            </div>
                             {% include 'includes/socio_form.html' %}
                         </div>
                         <div class="card-footer">
@@ -55,13 +49,6 @@
             $('#id_sexo').select2({
                 theme: 'bootstrap4',
                 placeholder: 'Seleccione un sexo',
-                allowClear: true,
-                width: '100%',
-                language: 'es'
-            });
-            $('#id_tipo').select2({
-                theme: 'bootstrap4',
-                placeholder: 'Seleccione un tipo de socio',
                 allowClear: true,
                 width: '100%',
                 language: 'es'

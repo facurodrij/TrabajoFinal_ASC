@@ -4,10 +4,10 @@ from django.contrib.auth import views
 from .views import *
 
 urlpatterns = [
-    path('signup/', signup, name='signup'),
-    path('activate/<uidb64>/<token>', activate, name='activate'),
+    # path('signup/', signup, name='signup'),
+    # path('activate/<uidb64>/<token>', activate, name='activate'),
     path('login/', CustomLoginView.as_view(), name='login'),
-    path('persona/', persona, name='persona'),
+    path('persona/', persona_detail_view, name='persona'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
 
     # Password urls

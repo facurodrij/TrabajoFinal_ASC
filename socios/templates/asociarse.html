@@ -43,6 +43,12 @@
                     {{ tipo_form.tipo }}
                 </div>
                 <div class="input-group mb-3">
+                    {{ user_form.username }}
+                </div>
+                <div class="input-group mb-3">
+                    {{ user_form.email }}
+                </div>
+                <div class="input-group mb-3">
                     {{ persona_form.nombre }}
                 </div>
                 <div class="input-group mb-3">
@@ -155,24 +161,24 @@
     });
 </script>
 {% if user_form.errors or persona_form.errors %}
-        <script type="text/javascript">
-            let errors = []
-            {% for key, value in user_form.errors.items %}
-                errors.push('{{ value|join:" " }}')
-            {% endfor %}
-            {% for key, value in persona_form.errors.items %}
-                errors.push('{{ value|join:" " }}')
-            {% endfor %}
-            Swal.fire({
-                position: 'top-end',
-                icon: 'error',
-                title: 'Ocurrió un error',
-                text: errors.join('\n'),
-                showConfirmButton: true,
-            })
-            document.body.classList.remove('swal2-height-auto');
-        </script>
-    {% endif %}
+    <script type="text/javascript">
+        let errors = []
+        {% for key, value in user_form.errors.items %}
+            errors.push('{{ value|join:" " }}')
+        {% endfor %}
+        {% for key, value in persona_form.errors.items %}
+            errors.push('{{ value|join:" " }}')
+        {% endfor %}
+        Swal.fire({
+            position: 'top-end',
+            icon: 'error',
+            title: 'Ocurrió un error',
+            text: errors.join('\n'),
+            showConfirmButton: true,
+        })
+        document.body.classList.remove('swal2-height-auto');
+    </script>
+{% endif %}
 <!-- Si la vista envia mensajes, se muestran con SweetAlert -->
 {% include 'includes/message.html' %}
 

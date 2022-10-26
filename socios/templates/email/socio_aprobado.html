@@ -1,8 +1,11 @@
 {% autoescape off %}
     Hola {{ user.username }}!,
 
+    El club {{ club.nombre }} le da la bienvenida a la plataforma.
+
     Su cuenta ha sido aprobada por el administrador del club. Ahora puede acceder a la web del club y disfrutar de todas
     sus ventajas.
 
-    {{ protocol }}://{{ domain }}{% url 'login' %}
+    Primero debe establecer su contraseña para poder acceder a la web del club. Para ello, haga click en el siguiente enlace:
+    {{ protocol }}://{{ domain }}{% url 'password_reset_confirm' uidb64=uid token=token %}
 {% endautoescape %}
