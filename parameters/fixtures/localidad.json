@@ -5,9 +5,7 @@
     "fields": {
       "nombre": "La Plata",
       "provincia": 1,
-      "pais": 1,
-      "created_at": "2022-10-01T00:00:00Z",
-      "updated_at": "2022-10-01T00:00:00Z"
+      "pais": 1
     }
   },
   {
@@ -16,9 +14,7 @@
     "fields": {
       "nombre": "Mar del Plata",
       "provincia": 1,
-      "pais": 1,
-      "created_at": "2022-10-01T00:00:00Z",
-      "updated_at": "2022-10-01T00:00:00Z"
+      "pais": 1
     }
   },
   {
@@ -27,9 +23,7 @@
     "fields": {
       "nombre": "Rosario",
       "provincia": 21,
-      "pais": 1,
-      "created_at": "2022-10-01T00:00:00Z",
-      "updated_at": "2022-10-01T00:00:00Z"
+      "pais": 1
     }
   },
   {
@@ -38,9 +32,7 @@
     "fields": {
       "nombre": "Santa Fe",
       "provincia": 21,
-      "pais": 1,
-      "created_at": "2022-10-01T00:00:00Z",
-      "updated_at": "2022-10-01T00:00:00Z"
+      "pais": 1
     }
   },
   {
@@ -49,9 +41,7 @@
     "fields": {
       "nombre": "San Miguel de Tucumán",
       "provincia": 24,
-      "pais": 1,
-      "created_at": "2022-10-01T00:00:00Z",
-      "updated_at": "2022-10-01T00:00:00Z"
+      "pais": 1
     }
   },
   {
@@ -60,9 +50,7 @@
     "fields": {
       "nombre": "San Salvador de Jujuy",
       "provincia": 10,
-      "pais": 1,
-      "created_at": "2022-10-01T00:00:00Z",
-      "updated_at": "2022-10-01T00:00:00Z"
+      "pais": 1
     }
   },
   {
@@ -71,9 +59,7 @@
     "fields": {
       "nombre": "Resistencia",
       "provincia": 4,
-      "pais": 1,
-      "created_at": "2022-10-01T00:00:00Z",
-      "updated_at": "2022-10-01T00:00:00Z"
+      "pais": 1
     }
   },
   {
@@ -82,9 +68,7 @@
     "fields": {
       "nombre": "Posadas",
       "provincia": 14,
-      "pais": 1,
-      "created_at": "2022-10-01T00:00:00Z",
-      "updated_at": "2022-10-01T00:00:00Z"
+      "pais": 1
     }
   },
   {
@@ -93,9 +77,7 @@
     "fields": {
       "nombre": "San Juan",
       "provincia": 18,
-      "pais": 1,
-      "created_at": "2022-10-01T00:00:00Z",
-      "updated_at": "2022-10-01T00:00:00Z"
+      "pais": 1
     }
   }
 ]

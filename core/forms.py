@@ -18,4 +18,4 @@ class UpdateClubForm(forms.ModelForm):
 
     class Meta:
         model = Club
-        fields = ['nombre', 'localidad', 'direccion', 'logo']
+        fields = ['nombre', 'localidad', 'direccion', 'imagen']
