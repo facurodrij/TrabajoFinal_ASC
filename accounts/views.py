@@ -1,4 +1,7 @@
-from django.shortcuts import render, redirect
+from django.views.generic import (
+    CreateView, UpdateView, DeleteView, ListView, DetailView,
+)
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -14,52 +17,57 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import EmailMessage
 
-from .models import UsuarioPersona
+
 from .forms import *
 from .decorators import *
-from .tokens import account_activation_token
-from socios.decorators import socio_required
 
 User = get_user_model()
 
 
-def send_activation_email(request, user):
-    current_site = get_current_site(request)
-    mail_subject = 'Activa tu cuenta.'
-    message = render_to_string('email/activate.html', {
-        'user': user,
-        'domain': current_site.domain,
-        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-        'token': account_activation_token.make_token(user),
-        'protocol': 'https' if request.is_secure() else 'http',
-    })
-    to_email = user.email
-    email = EmailMessage(
-        mail_subject, message, to=[to_email]
-    )
-    email.send()
-
-
 @no_login_required
 def signup(request):
-    """ Vista para el registro de un usuario """
+    """
+    Vista para que un socio sin usuario pueda registrarse.
+    Para que un socio pueda registrarse con esta vista deben estar sus datos en la
+    tabla Persona y esos datos deben estar asociados con la tabla Socio.
+    """
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            # Guardar el usuario en memoria, no en la base de datos
-            user = form.save(commit=False)
-            # Establecer el usuario como no activo
-            user.is_active = False
-            # Guardar el usuario en la base de datos
-            user.save()
-            # Enviar el correo de activación
-            send_activation_email(request, user)
-            messages.success(request, 'Se ha enviado un correo de activación a tu cuenta de correo.')
-            return redirect('login')
+        form = SignUpForm(request.POST)
+        # Obtener DNI y Email
+        dni = form.clean_dni()
+        email = form.clean_email()
+
+        # Obtener la Persona con el DNI ingresado
+        persona = Persona.objects.get(dni=dni)
+
+        # Crear el Usuario con el Email ingresado y Username igual al DNI ingresado
+        user = User.objects.create_user(username=dni,
+                                        email=email,
+                                        persona=persona,
+                                        password=User.objects.make_random_password())
+
+        # Enviar un Email al Usuario con un enlace para cambiar su contraseña
+        current_site = get_current_site(request)
+        mail_subject = 'Active su cuenta.'
+        message = render_to_string('email/activate_account.html', {
+            'user': user,
+            'domain': current_site.domain,
+            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+            'token': PasswordResetTokenGenerator().make_token(user),
+            'protocol': 'https' if request.is_secure() else 'http',
+        })
+        to_email = email
+        email = EmailMessage(
+            mail_subject, message, to=[to_email]
+        )
+        email.send()
+        messages.success(request, 'Se ha enviado un email a su casilla para que active su cuenta.')
+        return redirect('login')
     else:
-        form = CustomUserCreationForm()
+        form = SignUpForm()
     context = {
         'title': 'Registro',
         'form': form,
@@ -67,27 +75,8 @@ def signup(request):
     return render(request, 'registration/signup.html', context)
 
 
-def activate(request, uidb64, token):
-    try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
-
-    if user is not None and account_activation_token.check_token(user, token):
-        user.is_active = True
-        user.save()
-
-        messages.success(request, 'Gracias por activar tu cuenta. Ahora puedes iniciar sesión.')
-        return redirect('login')
-    else:
-        messages.error(request, 'El enlace de activación es inválido.')
-
-    return redirect('login')
-
-
 class CustomLoginView(LoginView):
-    form_class = CustomAuthenticationForm
+    form_class = LoginForm
     sucess_url = reverse_lazy('index')
 
     def get_context_data(self, **kwargs):
@@ -102,31 +91,17 @@ class CustomLoginView(LoginView):
             self.request.session.set_expiry(0)
             # Set session as modified to force data updates/cookie to be saved.
             self.request.session.modified = True
-        """Security check complete. Log the user in."""
-        auth_login(self.request, form.get_user())
-        if not self.request.user.is_admin():
-            # Si inicia sesión un socio con estado inactivo, se le redirige al login
-            if self.request.user.is_socio() and not self.request.user.socio.estado.is_active:
-                messages.error(self.request,
-                               'Tu estado de socio no está activo. ' + self.request.user.socio.estado.descripcion)
-                auth_logout(self.request)
-                return redirect('login')
         return super(CustomLoginView, self).form_valid(form)
 
 
 @login_required
-@socio_required
-@permission_required('accounts.change_persona', raise_exception=True)
-def persona_detail_view(request):
+def persona_view(request):
     """
     Vista para ver los datos personales del usuario.
     """
-    try:
-        persona = request.user.usuariopersona.persona
-    except ObjectDoesNotExist:
-        persona = None
+    persona = request.user.persona
     context = {
-        'title': 'Datos personales',
+        'title': 'Datos Personales',
         'persona': persona,
     }
-    return render(request, 'persona_detail.html', context)
+    return render(request, 'persona.html', context)

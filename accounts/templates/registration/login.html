@@ -65,6 +65,9 @@
             <p class="mb-3">
                 <a href="{% url 'password_reset' %}">Olvidé mi contraseña</a>
             </p>
+            <div class="input-group mb-3">
+                <a href="{% url 'signup' %}" class="col-md-12 btn btn-success">Registrarse</a>
+            </div>
         </div>
     </div>
 </div>
@@ -87,16 +90,14 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.33/dist/sweetalert2.all.min.js"></script>
 <!-- Si se han cargado datos erróneos, se muestra un mensaje con SweetAlert. -->
 {% if form.errors %}
-    <script type="text/javascript">
-        let errors = []
-        {% for key, value in form.errors.items %}
-            errors.push('{{ value|join:" " }}')
-        {% endfor %}
+    <script>
         Swal.fire({
             position: 'top-end',
             icon: 'error',
             title: 'Ocurrió un error',
-            text: errors.join('\n'),
+            {% for key, value in form.errors.items %}
+                text: '{{ value|join:" " }}',
+            {% endfor %}
             showConfirmButton: true,
         })
         document.body.classList.remove('swal2-height-auto');
@@ -104,5 +105,6 @@
 {% endif %}
 <!-- Si la vista envía mensajes, se muestran con SweetAlert -->
 {% include 'includes/message.html' %}
+
 </body>
 </html>

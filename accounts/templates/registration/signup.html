@@ -30,7 +30,7 @@
             <form method="post">
                 {% csrf_token %}
                 <div class="input-group mb-3">
-                    {{ form.username }}
+                    {{ form.dni }}
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-user"></span>
@@ -45,29 +45,16 @@
                         </div>
                     </div>
                 </div>
-                <div class="input-group mb-3">
-                    {{ form.password1 }}
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-lock"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="input-group mb-3">
-                    {{ form.password2 }}
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-lock"></span>
-                        </div>
-                    </div>
-                </div>
                 <div class="row mb-3">
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
                     </div>
                 </div>
             </form>
-            <a href="{% url 'login' %}" class="text-center">Ya tengo cuenta</a>
+            <a href="{% url 'login' %}" class="text-center mb-3">Ya tengo cuenta</a>
+{#            <div class="input-group mb-3">#}
+{#                <a href="{% url 'asociarse' %}" class="col-md-12 btn btn-success">Asociarse</a>#}
+{#            </div>#}
         </div>
     </div>
 </div>

@@ -1,7 +1,0 @@
-{% autoescape off %}
-    Hola {{ user.username }}!,
-
-    Por favor, confirma tu dirección de correo electrónico haciendo clic en el siguiente enlace:
-
-    {{ protocol }}://{{ domain }}{% url 'activate' uidb64=uid token=token %}
-{% endautoescape %}

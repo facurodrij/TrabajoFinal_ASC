@@ -2,5 +2,5 @@ from django.contrib import admin
 
 from .models import *
 
-for model in [Club, Cancha]:
+for model in [Club]:
     admin.site.register(model)
