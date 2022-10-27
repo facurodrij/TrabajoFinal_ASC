@@ -15,8 +15,5 @@ def add_permissions_user(sender, instance, created, **kwargs):
                 # Asignar todos los permisos al superusuario
                 for perm in Permission.objects.all():
                     instance.user_permissions.add(perm)
-            else:
-                # Asignar permiso de usuario para ver y actualizar sus datos
-                instance.user_permissions.add(Permission.objects.get(codename='change_persona'))
         except Exception as e:
             print(e)
