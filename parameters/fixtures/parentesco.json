@@ -1,0 +1,16 @@
+[
+  {
+    "model": "parameters.Parentesco",
+    "pk": 1,
+    "fields": {
+      "nombre": "Hijo/a"
+    }
+  },
+  {
+    "model": "parameters.Parentesco",
+    "pk": 2,
+    "fields": {
+      "nombre": "Conyuge"
+    }
+  }
+]
