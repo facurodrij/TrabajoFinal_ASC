@@ -6,6 +6,14 @@
           href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
 {% endblock head_css %}
 
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'socio-listado' %}">Socios</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
 {% block content %}
     <div class="container-fluid">
         <div class="row">
@@ -23,7 +31,90 @@
                                     {{ tipo_form.tipo }}
                                 </div>
                             </div>
-                            {% include 'includes/socio_form.html' %}
+                            <div id="div_socio">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="labels">{{ persona_form.dni.label }}</label>
+                                            {{ persona_form.dni }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="labels">{{ persona_form.nombre.label }}</label>
+                                            {{ persona_form.nombre }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="labels">{{ persona_form.apellido.label }}</label>
+                                            {{ persona_form.apellido }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="labels">{{ persona_form.sexo.label }}</label>
+                                            {{ persona_form.sexo }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="labels">{{ persona_form.fecha_nacimiento.label }}</label>
+                                            <div class="input-group" id="div_id_fecha_nacimiento"
+                                                 data-target-input="nearest">
+                                                <input type="text" name="fecha_nacimiento" autocomplete="off"
+                                                       placeholder="Fecha de nacimiento"
+                                                       class="form-control  datetimepicker-input"
+                                                       data-toggle="datetimepicker" data-target="#id_fecha_nacimiento"
+                                                       required=""
+                                                       id="id_fecha_nacimiento">
+                                                <div class="input-group-append" data-target="#id_fecha_nacimiento"
+                                                     data-toggle="datetimepicker">
+                                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                                </div>
+                                            </div>
+                                            <script type="text/javascript">
+                                                function deferDateTimePicker_id_fecha_nacimiento() {
+                                                    if (window.jQuery && $.fn.datetimepicker) {
+                                                        $('#id_fecha_nacimiento').datetimepicker({
+                                                            "format": "DD/MM/YYYY",
+                                                            "icons": {"time": "fa fa-clock-o"},
+                                                            "locale": "es-AR",
+                                                            "date": null,
+                                                            "minDate": "1900-01-01",
+                                                            "maxDate": Date.now(),
+                                                        });
+                                                    } else {
+                                                        setTimeout(function () {
+                                                            deferDateTimePicker_id_fecha_nacimiento()
+                                                        }, 50);
+                                                    }
+                                                }
+
+                                                deferDateTimePicker_id_fecha_nacimiento();
+                                            </script>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="labels">{{ persona_form.imagen.label }}</label>
+                                    {{ persona_form.imagen }}
+                                </div>
+                                <label for="add_user">Asignar usuario</label>
+                                {{ user_form.add_user }}
+                                <div id="div_socio_user">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="labels">{{ user_form.email.label }}</label>
+                                                {{ user_form.email }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="card-footer">
                             <button class="btn btn-primary profile-button" type="submit">Guardar Cambios</button>
@@ -45,13 +136,6 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function () {
-            $('#id_localidad').select2({
-                theme: 'bootstrap4',
-                placeholder: 'Seleccione una localidad',
-                allowClear: true,
-                width: '100%',
-                language: 'es'
-            });
             $('#id_sexo').select2({
                 theme: 'bootstrap4',
                 placeholder: 'Seleccione un sexo',
@@ -65,6 +149,20 @@
                 allowClear: true,
                 width: '100%',
                 language: 'es'
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#div_socio_user').hide();
+            $('#id_add_user').change(function () {
+                if ($(this).is(':checked')) {
+                    $('#div_socio_user').show();
+                    $('#id_email').attr('required', '');
+                } else {
+                    $('#div_socio_user').hide();
+                    $('#id_email').removeAttr('required');
+                }
             });
         });
     </script>

@@ -1,0 +1,17 @@
+{% autoescape off %}
+    Hola socio {{ user.persona.get_full_name }}!,
+
+    El club {{ club.nombre }} le da la bienvenida a la plataforma.
+
+    Su cuenta ha sido creado por el administrador del club. Ahora puede acceder a la web del club y disfrutar de todas
+    sus ventajas.
+
+    Para acceder a su cuenta, por favor, haga click en el siguiente enlace y luego establezca su contraseña:
+
+    {{ protocol }}://{{ domain }}{% url 'password_reset_confirm' uidb64=uid token=token %}
+
+    Tenga en cuenta que este enlace puede ser usado una sola vez. Si necesita un nuevo enlace, por favor, haga click en
+    el siguiente enlace:
+
+    {{ protocol }}://{{ domain }}{% url 'password_reset' %}
+{% endautoescape %}

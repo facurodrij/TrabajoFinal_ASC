@@ -6,9 +6,7 @@
       "nombre": "Al día",
       "descripcion": "Usted está al día con sus pagos.",
       "code": "AD",
-      "is_active": true,
-      "created_at": "2022-10-01T00:00:00Z",
-      "updated_at": "2022-10-01T00:00:00Z"
+      "is_active": true
     }
   },
   {
@@ -18,9 +16,7 @@
       "nombre": "Socio moroso",
       "descripcion": "Usted está adeudando el pago de varias cuotas, por favor regularice su situación en la institución.",
       "code": "SM",
-      "is_active": false,
-      "created_at": "2022-10-01T00:00:00Z",
-      "updated_at": "2022-10-01T00:00:00Z"
+      "is_active": false
     }
   }
 ]

@@ -5,8 +5,8 @@ from django.shortcuts import redirect
 def socio_required(function):
     def wrap(request, *args, **kwargs):
         try:
-            if not request.user.is_socio() and not request.user.is_admin():
-                messages.error(request, 'Primero debes rellenar la solicitud de asociación')
+            if not request.user.persona.get_socio() and not request.user.is_admin():
+                messages.error(request, 'Debes ser socio del club para acceder a esta sección.')
                 return redirect('asociarse')
         except AttributeError:
             pass

@@ -4,7 +4,7 @@
 {% block breadcrumbs %}
     <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-        <li class="breadcrumb-item active">Socios</li>
+        <li class="breadcrumb-item active">{{ title }}</li>
     </ol>
 {% endblock %}
 
@@ -21,7 +21,6 @@
                         <table id="dataTable" class="table table-bordered table-striped dataTable">
                             <thead>
                             <tr>
-                                <th scope="col" style="">Email</th>
                                 <th scope="col" style="">DNI</th>
                                 <th scope="col" style="">Nombre completo</th>
                                 <th scope="col" style="">Edad</th>
@@ -33,10 +32,9 @@
                             <tbody>
                             {% for socio in socios %}
                                 <tr>
-                                    <td>{{ socio.user.email }}</td>
-                                    <td>{{ socio.user.usuariopersona.persona.dni }}</td>
-                                    <td>{{ socio.user.get_full_name }}</td>
-                                    <td>{{ socio.user.get_edad }}</td>
+                                    <td>{{ socio.persona.dni }}</td>
+                                    <td>{{ socio.persona.get_full_name }}</td>
+                                    <td>{{ socio.persona.get_edad }}</td>
                                     <td>{{ socio.categoria }}</td>
                                     {% if socio.estado.is_active %}
                                         <td><span class="badge badge-success">{{ socio.estado }}</span></td>
@@ -56,7 +54,6 @@
                             </tbody>
                             <tfoot>
                             <tr>
-                                <th scope="col" style="">Email</th>
                                 <th scope="col" style="">DNI</th>
                                 <th scope="col" style="">Nombre completo</th>
                                 <th scope="col" style="">Edad</th>

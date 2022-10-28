@@ -19,165 +19,120 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 
 from .models import *
 from .forms import *
-from .mails import *
 from core.models import Club
 from accounts.forms import *
 from accounts.decorators import admin_required
 
 
-@login_required
-@admin_required
-def socios_view(request):
-    """ Vista para el listado de socios, solo acceden superusuarios, staff y administradores del club """
-    context = {
-        'title': 'Socios',
-        'socios': Socio.objects.all(),
-    }
-    return render(request, 'socio_list.html', context)
+class SocioListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    """ Vista para listar los socios """
+    model = Socio
+    template_name = 'socio_list.html'
+    context_object_name = 'socios'
+    permission_required = 'socios.view_socio'
 
+    def get_queryset(self):
+        return Socio.global_objects.all()
 
-def asociarse_view(request):
-    """ Vista para solicitar la asociación al club """
-    if request.method == 'POST':
-        tipo_form = ElegirTipoForm(request.POST)
-        user_form = BasicUserCreationForm(request.POST)
-        persona_form = PersonaForm(request.POST, request.FILES)
-        if user_form.is_valid() and persona_form.is_valid() and tipo_form.is_valid():
-            # Crear el usuario.
-            user = user_form.save(commit=False)
-            password = User.objects.make_random_password()
-            user.set_password(password)
-            user.save()
-
-            # Crear la persona.
-            persona = persona_form.save()
-
-            # Crear la tabla UsuarioPersona.
-            UsuarioPersona.objects.create(user=user, persona=persona)
-
-            tipo = tipo_form.cleaned_data['tipo']
-
-            # Enviar mail al administrador para que apruebe la solicitud.
-            current_site = get_current_site(request)
-            mail_subject = 'Solicitud de asociación'
-            message = render_to_string('email/solicitud_asociación.html', {
-                'user': user,
-                'tipo': tipo,
-                'domain': current_site.domain,
-                'protocol': 'https' if request.is_secure() else 'http',
-            })
-            to_email = 'administrador@cabm.com.ar'
-            email = EmailMessage(
-                mail_subject, message, to=[to_email]
-            )
-            email.send()
-            messages.success(request, 'Tu solicitud de asociación ha sido enviada, espere a que sea aprobada.')
-            return redirect('login')
-    else:
-        tipo_form = ElegirTipoForm()
-        user_form = BasicUserCreationForm()
-        persona_form = PersonaForm()
-
-    context = {
-        'title': 'Solicitar asociación',
-        'tipo_form': tipo_form,
-        'user_form': user_form,
-        'persona_form': persona_form,
-    }
-    return render(request, 'asociarse.html', context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Socios'
+        return context
 
 
 @login_required
 @admin_required
 def socio_create_view(request):
-    """ Vista para crear un socio individual """
+    """ Vista para crear un socio """
     if request.method == 'POST':
         tipo_form = ElegirTipoForm(request.POST)
-        user_form = BasicUserCreationForm(request.POST)
-        persona_form = PersonaForm(request.POST, request.FILES)
-        if user_form.is_valid() and persona_form.is_valid() and tipo_form.is_valid():
-            # Crear el usuario
-            user = user_form.save(commit=False)
-            password = User.objects.make_random_password()
-            user.set_password(password)
-            user.save()
-
+        persona_form = PersonaFormAdmin(request.POST, request.FILES)
+        # Usuario (opcional)
+        user_form = SimpleCreateUserForm(request.POST)
+        if persona_form.is_valid() and tipo_form.is_valid():
             # Crear la persona
-            persona = persona_form.save()
-
-            # Crear la tabla UsuarioPersona
-            UsuarioPersona.objects.create(user=user, persona=persona)
-
-            # Obtener el tipo de socio elegido
-            tipo = tipo_form.cleaned_data['tipo']
+            persona = persona_form.save(commit=False)
+            persona.club = Club.objects.get(pk=1)
 
             # Obtener la categoría
-            categoria = Categoria.objects.get(tipo_id=tipo,
+            categoria = Categoria.objects.get(tipo_id=tipo_form.cleaned_data['tipo'],
                                               # __lte -> Less than or equal
                                               # __gte -> Greater than or equal
                                               # __lt -> Less than
                                               # __gt -> Greater than
-                                              edad_desde__lte=user.get_edad(),
-                                              edad_hasta__gte=user.get_edad())
-
-            # Obtener el estado "Al día"
-            estado = Estado.objects.get(code='AD')
+                                              edad_desde__lte=persona.get_edad(),
+                                              edad_hasta__gte=persona.get_edad())
 
             # Crear el socio
-            socio = Socio.objects.create(user=user,
-                                         club=Club.objects.first(),
-                                         # TODO: Obtener el club actual.
-                                         categoria=categoria,
-                                         estado=estado)
+            try:
+                socio = Socio(persona=persona,
+                              categoria=categoria,
+                              estado=Estado.objects.get(code='AD'))
+            except IntegrityError:
+                messages.error(request, 'Ya existe un socio con el DNI %s' % persona.dni)
+                return redirect('socios:socio_create')
 
-            # Enviar el email de bienvenida al socio.
-            current_site = get_current_site(request)
-            mail_subject = 'Bienvenido socio al club'
-            message = render_to_string('email/socio_creado.html', {
-                'user': socio.user,
-                'club': socio.club,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(socio.user.pk)),
-                'token': PasswordResetTokenGenerator().make_token(socio.user),
-                'protocol': 'https' if request.is_secure() else 'http',
-            })
-            to_email = socio.user.email
-            email = EmailMessage(
-                mail_subject, message, to=[to_email]
-            )
-            email.send()
-            messages.success(request, 'Socio creado correctamente')
-            return redirect('socio-listado')
+            # Si se decidió crearle un usuario al socio, se lo asigna a la persona y se envía un email
+            if user_form['add_user'].value():
+                if user_form.is_valid():
+                    user = user_form.save(commit=False)
+                    user.persona = persona
+                    user.email = user_form.cleaned_data['email']
+                    user.username = persona.dni
+                    user.set_password(User.objects.make_random_password())
+                    # Enviar email con los datos de acceso
+                    current_site = get_current_site(request)
+                    mail_subject = 'Bienvenido a %s' % current_site.name
+                    message = render_to_string('email/socio_creado_email.html', {
+                        'user': user,
+                        'domain': current_site.domain,
+                        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                        'token': PasswordResetTokenGenerator().make_token(user),
+                        'protocol': 'https' if request.is_secure() else 'http',
+                    })
+                    to_email = user.email
+                    email = EmailMessage(mail_subject, message, to=[to_email])
+                    email.send()
+                    user.save()
+                    persona.save()
+                    socio.save()
+                    messages.success(request, 'Socio creado correctamente')
+                    return redirect('socios:socio_list')
+                else:
+                    messages.error(request, 'El usuario no es válido. ' + str(user_form.errors))
+                    return redirect('socios:socio_create')
+            else:  # Si no se decidió crearle un usuario al socio, se guarda la persona y el socio
+                persona.save()
+                socio.save()
+                messages.success(request, 'Socio creado correctamente')
+                return redirect('socio-listado')
     else:
         tipo_form = ElegirTipoForm()
-        user_form = BasicUserCreationForm()
-        persona_form = PersonaForm()
+        persona_form = PersonaFormAdmin()
+        user_form = SimpleCreateUserForm()
 
     context = {
         'title': 'Crear socio',
         'action': 'create',
         'tipo_form': tipo_form,
+        'persona_form': persona_form,
         'user_form': user_form,
-        'persona_form': persona_form
     }
     return render(request, 'socio_create.html', context)
 
 
 @login_required
+@admin_required
 def socio_detail_view(request, pk):
     """
-    Vista para el detalle de un socio. Solo puede acceder el socio o un administrador.
+    Vista para el detalle de un socio.
     """
     socio = get_object_or_404(Socio, pk=pk)
-    if socio.user == request.user or request.user.is_staff:
-        context = {
-            'title': 'Detalle de socio',
-            'socio': socio,
-        }
-        return render(request, 'socio_detail.html', context)
-    else:
-        messages.error(request, 'No tienes permisos para acceder a esta página')
-        return redirect('index')
+    context = {
+        'title': 'Detalle de socio',
+        'socio': socio,
+    }
+    return render(request, 'socio_detail.html', context)
 
 
 @login_required
@@ -188,38 +143,82 @@ def socio_update_view(request, pk):
     if request.method == 'POST':
         tipo_form = ElegirTipoForm(request.POST)
         estado_form = ElegirEstadoForm(request.POST)
-        user_form = CustomUserChangeForm(request.POST, instance=socio.user)
-        persona_form = PersonaForm(request.POST, request.FILES, instance=socio.user.usuariopersona.persona)
-        if user_form.is_valid() and persona_form.is_valid() and tipo_form.is_valid() and estado_form.is_valid():
-            # Actualizar el usuario y persona
-            tipo = tipo_form.cleaned_data['tipo']
-            user = user_form.save()
-            persona = persona_form.save()
-
-            # Actualizar la categoría
-            categoria = Categoria.objects.get(tipo_id=tipo,
-                                              # __lte -> Less than or equal
-                                              # __gte -> Greater than or equal
-                                              # __lt -> Less than
-                                              # __gt -> Greater than
-                                              edad_desde__lte=user.get_edad(),
-                                              edad_hasta__gte=user.get_edad())
-            socio.categoria = categoria
-
-            # Actualizar el estado
-            estado = estado_form.cleaned_data['estado']
-            socio.estado = estado
-
-            # Guardar el socio en la base de datos
-            socio.save()
-
-            messages.success(request, 'Socio actualizado correctamente')
-            return redirect('socio-detalle', pk=socio.pk)
+        persona_form = PersonaFormAdmin(request.POST, request.FILES, instance=socio.persona)
+        if socio.get_user() is not None:  # Si tiene usuario
+            user_form = UpdateUserFormAdmin(request.POST, instance=socio.persona.user)
+            if persona_form.is_valid() and tipo_form.is_valid() and estado_form.is_valid() and user_form.is_valid():
+                # Actualizar la persona
+                persona = persona_form.save()
+                # Obtener la categoría
+                categoria = Categoria.objects.get(tipo_id=tipo_form.cleaned_data['tipo'],
+                                                  # __lte -> Less than or equal
+                                                  # __gte -> Greater than or equal
+                                                  # __lt -> Less than
+                                                  # __gt -> Greater than
+                                                  edad_desde__lte=persona.get_edad(),
+                                                  edad_hasta__gte=persona.get_edad())
+                # Actualizar el socio
+                socio.categoria = categoria
+                socio.estado = Estado.objects.get(nombre=estado_form.cleaned_data['estado'])
+                socio.save()
+                # Actualizar el usuario
+                user_form.save()
+                messages.success(request, 'Socio actualizado correctamente')
+                return redirect('socio-detalle', pk=socio.pk)
+        else:  # Si no tiene usuario asociado
+            user_form = SimpleCreateUserForm(request.POST)
+            if persona_form.is_valid() and tipo_form.is_valid() and estado_form.is_valid():
+                # Actualizar la persona
+                persona = persona_form.save()
+                # Obtener la categoría
+                categoria = Categoria.objects.get(tipo_id=tipo_form.cleaned_data['tipo'],
+                                                  # __lte -> Less than or equal
+                                                  # __gte -> Greater than or equal
+                                                  # __lt -> Less than
+                                                  # __gt -> Greater than
+                                                  edad_desde__lte=persona.get_edad(),
+                                                  edad_hasta__gte=persona.get_edad())
+                # Actualizar el socio
+                socio.categoria = categoria
+                socio.estado = Estado.objects.get(nombre=estado_form.cleaned_data['estado'])
+                socio.save()
+                # Si se decidió crearle un usuario al socio, se lo asigna a la persona y se envía un email
+                if user_form['add_user'].value():
+                    if user_form.is_valid():
+                        user = user_form.save(commit=False)
+                        user.persona = persona
+                        user.email = user_form.cleaned_data['email']
+                        user.username = persona.dni
+                        user.set_password(User.objects.make_random_password())
+                        # Enviar email con los datos de acceso
+                        current_site = get_current_site(request)
+                        mail_subject = 'Bienvenido a %s' % current_site.name
+                        message = render_to_string('email/socio_creado_email.html', {
+                            'user': user,
+                            'domain': current_site.domain,
+                            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                            'token': PasswordResetTokenGenerator().make_token(user),
+                            'protocol': 'https' if request.is_secure() else 'http',
+                        })
+                        to_email = user.email
+                        email = EmailMessage(mail_subject, message, to=[to_email])
+                        email.send()
+                        user.save()
+                        messages.success(request, 'Socio actualizado correctamente y usuario creado')
+                        return redirect('socio-detalle', pk=socio.pk)
+                    else:
+                        messages.error(request, 'Error al crear el usuario' + str(user_form.errors))
+                        return redirect('socio-editar', pk=socio.pk)
+                messages.success(request, 'Socio actualizado correctamente')
+                return redirect('socio-detalle', pk=socio.pk)
     else:
         tipo_form = ElegirTipoForm(initial={'tipo': socio.categoria.tipo.pk})
         estado_form = ElegirEstadoForm(initial={'estado': socio.estado.pk})
-        user_form = CustomUserChangeForm(instance=socio.user)
-        persona_form = PersonaForm(instance=socio.user.usuariopersona.persona)
+        persona_form = PersonaFormAdmin(instance=socio.persona)
+        if socio.get_user() is not None:
+            user_form = UpdateUserFormAdmin(instance=socio.get_user())
+        else:
+            user_form = SimpleCreateUserForm()
 
     context = {
         'title': 'Actualizar socio',
@@ -228,5 +227,6 @@ def socio_update_view(request, pk):
         'estado_form': estado_form,
         'user_form': user_form,
         'persona_form': persona_form,
+        'socio': socio,
     }
     return render(request, 'socio_update.html', context)

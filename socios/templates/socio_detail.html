@@ -4,7 +4,8 @@
 {% block breadcrumbs %}
     <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-        <li class="breadcrumb-item active">Datos Personales</li>
+        <li class="breadcrumb-item"><a href="{% url 'socio-listado' %}">Socios</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
     </ol>
 {% endblock %}
 
@@ -14,7 +15,7 @@
             <div class="col-md-4">
                 <div class="d-flex flex-column align-items-center text-center mb-3">
                     <img class="rounded-circle mt-5"
-                         src="{{ socio.user.get_imagen }}" alt="" style="max-width: 300px">
+                         src="{{ socio.persona.get_imagen }}" alt="" style="max-width: 300px">
                 </div>
             </div>
             <div class="col-7">
@@ -25,30 +26,29 @@
                     <div class="card-body">
                         <ul class="list-group">
                             <li class="list-group-item"><b>Categoria: </b>{{ socio.categoria }}</li>
-                            <li class="list-group-item"><b>DNI: </b>{{ socio.user.usuariopersona.persona.dni }}</li>
-                            <li class="list-group-item"><b>Nombre completo: </b>{{ socio.user.get_full_name }}</li>
-                            <li class="list-group-item"><b>Sexo: </b>{{ socio.user.usuariopersona.persona.sexo }}</li>
-                            <li class="list-group-item"><b>Edad: </b>{{ socio.user.get_edad }}</li>
+                            <li class="list-group-item"><b>DNI: </b>{{ socio.persona.dni }}</li>
+                            <li class="list-group-item"><b>Nombre completo: </b>{{ socio.persona.get_full_name }}</li>
+                            <li class="list-group-item"><b>Sexo: </b>{{ socio.persona.sexo }}</li>
+                            <li class="list-group-item"><b>Edad: </b>{{ socio.persona.get_edad }}</li>
+                            <li class="list-group-item"><b>Usuario: </b>{{ socio.persona.user.username }}</li>
+                            <li class="list-group-item"><b>Email: </b>{{ socio.persona.user.email }}</li>
                             <li class="list-group-item">
-                                <b>Localidad: </b>{{ socio.user.usuariopersona.persona.localidad }}</li>
-                            <li class="list-group-item">
-                                <b>Dirección: </b>{{ socio.user.usuariopersona.persona.direccion }}</li>
-                            <li class="list-group-item"><b>Usuario: </b>{{ socio.user.username }}</li>
-                            <li class="list-group-item"><b>Email: </b>{{ socio.user.email }}</li>
-                            <li class="list-group-item">
-                                <b>Fecha de creación: </b>{{ socio.user.date_joined }}
+                                <b>Fecha de creación: </b>{{ socio.persona.user.date_joined }}
                             </li>
                             <li class="list-group-item">
                                 <b>Último inicio de sesión: </b>
-                                {% if not socio.user.last_login %}
+                                {% if not socio.persona.user.last_login %}
                                     <span>Aún no ha iniciado sesión</span>
                                 {% else %}
-                                    {{ socio.user.last_login }}
+                                    {{ socio.persona.user.last_login }}
                                 {% endif %}
                             </li>
                         </ul>
                     </div>
                     <div class="card-footer">
+                        <a href="{% url 'socio-editar' socio.pk %}" class="btn btn-warning mr-2">
+                            <i class="fa-solid fa-edit"></i> Editar
+                        </a>
                         <a href="{% url 'socio-listado' %}" class="btn btn-secondary">
                             <i class="fa-solid fa-rotate-left"></i> Volver
                         </a>
