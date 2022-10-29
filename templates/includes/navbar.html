@@ -15,7 +15,7 @@
             <li class="nav-item">
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
-            {% if user.get_socio %}
+            {% if user.persona.get_socio %}
                 <li class="nav-item">
                     <span class="nav-link">Estado de socio: {{ user.persona.socio.estado }}</span>
                 </li>
@@ -23,7 +23,7 @@
         </ul>
         <ul class="navbar-nav ml-auto">
             {% if not user.is_admin %}
-                {% if not user.is_socio %}
+                {% if not user.persona.get_socio %}
                     <li class="nav-item mr-2">
                         <a class="btn btn-success" href="{% url 'asociarse' %}">Asociarse</a>
                     </li>
