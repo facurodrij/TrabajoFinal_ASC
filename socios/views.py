@@ -64,13 +64,9 @@ def socio_create_view(request):
                                               edad_hasta__gte=persona.get_edad())
 
             # Crear el socio
-            try:
-                socio = Socio(persona=persona,
-                              categoria=categoria,
-                              estado=Estado.objects.get(code='AD'))
-            except IntegrityError:
-                messages.error(request, 'Ya existe un socio con el DNI %s' % persona.dni)
-                return redirect('socios:socio_create')
+            socio = Socio(persona=persona,
+                          categoria=categoria,
+                          estado=Estado.objects.get(code='AD'))
 
             # Si se decidió crearle un usuario al socio, se lo asigna a la persona y se envía un email
             if user_form['add_user'].value():
@@ -97,10 +93,10 @@ def socio_create_view(request):
                     persona.save()
                     socio.save()
                     messages.success(request, 'Socio creado correctamente')
-                    return redirect('socios:socio_list')
+                    return redirect('socio-listado')
                 else:
                     messages.error(request, 'El usuario no es válido. ' + str(user_form.errors))
-                    return redirect('socios:socio_create')
+                    return redirect('socio-crear')
             else:  # Si no se decidió crearle un usuario al socio, se guarda la persona y el socio
                 persona.save()
                 socio.save()
@@ -110,6 +106,7 @@ def socio_create_view(request):
         tipo_form = ElegirTipoForm()
         persona_form = PersonaFormAdmin()
         user_form = SimpleCreateUserForm()
+        miembro_formset = MiembroFormSet(queryset=Miembro.objects.none())
 
     context = {
         'title': 'Crear socio',
