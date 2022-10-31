@@ -25,12 +25,6 @@
                             <h4 class="card-title">{{ title }}</h4>
                         </div>
                         <div class="card-body">
-                            <div id="div_elegir_tipo">
-                                <div class="form-group">
-                                    <label class="labels">{{ tipo_form.tipo.label }}</label>
-                                    {{ tipo_form.tipo }}
-                                </div>
-                            </div>
                             <div id="div_socio">
                                 <div class="row">
                                     <div class="col-md-12">
@@ -63,12 +57,6 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label class="labels">{{ persona_form.sexo.label }}</label>
-                                            {{ persona_form.sexo }}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
                                             <label class="labels">{{ persona_form.fecha_nacimiento.label }}</label>
                                             <div class="input-group" id="div_id_fecha_nacimiento"
                                                  data-target-input="nearest">
@@ -83,32 +71,28 @@
                                                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                                 </div>
                                             </div>
-                                            <script type="text/javascript">
-                                                function deferDateTimePicker_id_fecha_nacimiento() {
-                                                    if (window.jQuery && $.fn.datetimepicker) {
-                                                        $('#id_fecha_nacimiento').datetimepicker({
-                                                            "format": "DD/MM/YYYY",
-                                                            "icons": {"time": "fa fa-clock-o"},
-                                                            "locale": "es-AR",
-                                                            "date": "{{ persona_form.fecha_nacimiento.value }}",
-                                                            "minDate": "1900-01-01",
-                                                            "maxDate": Date.now(),
-                                                        });
-                                                    } else {
-                                                        setTimeout(function () {
-                                                            deferDateTimePicker_id_fecha_nacimiento()
-                                                        }, 50);
-                                                    }
-                                                }
-
-                                                deferDateTimePicker_id_fecha_nacimiento();
-                                            </script>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="labels">{{ categoria_form.categoria.label }}</label>
+                                            {{ categoria_form.categoria }}
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label class="labels">{{ persona_form.imagen.label }}</label>
-                                    {{ persona_form.imagen }}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="labels">{{ persona_form.sexo.label }}</label>
+                                            {{ persona_form.sexo }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="labels">{{ persona_form.imagen.label }}</label>
+                                            {{ persona_form.imagen }}
+                                        </div>
+                                    </div>
                                 </div>
                                 {% if socio.get_user is None %}
                                     <label for="add_user">Asignar usuario</label>
@@ -161,37 +145,116 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js"></script>
     <!-- Select2 -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
+
+    <script type="text/javascript">
+        $('#id_fecha_nacimiento').datetimepicker({
+            "format": "DD/MM/YYYY",
+            "icons": {"time": "fa fa-clock-o"},
+            "locale": "es-AR",
+            "date": "{{ socio.persona.get_fecha_nacimiento }}",
+            "minDate": "1900-01-01",
+            "maxDate": Date.now(),
+        });
+        $('#id_localidad').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione una localidad',
+            allowClear: true,
+            width: '100%',
+            language: 'es'
+        });
+        $('#id_sexo').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione un sexo',
+            allowClear: true,
+            width: '100%',
+            language: 'es'
+        });
+        $('#id_estado').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione un estado',
+            allowClear: true,
+            width: '100%',
+            language: 'es'
+        });
+        $('#id_categoria').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione una categoria',
+            allowClear: true,
+            width: '100%',
+            language: 'es'
+        });
         $(document).ready(function () {
-            $('#id_localidad').select2({
-                theme: 'bootstrap4',
-                placeholder: 'Seleccione una localidad',
-                allowClear: true,
-                width: '100%',
-                language: 'es'
+            // Obtener con ajax las catergorias de socio según la fecha de nacimiento que ya viene cargada
+            let fecha_nacimiento = $('#id_fecha_nacimiento').datetimepicker('date');
+            let datos = {
+                'edad': getAge(fecha_nacimiento),
+            }
+            $.ajax({
+                // Pasar una edad por GET para filtrar las categorias en la vista
+                url: "{% url 'categoria-listado' %}",
+                type: 'GET',
+                data: datos,
+                dataType: 'json',
+                success: function (data) {
+                    // Actilet el campo de categoria
+                    let select_categoria = $('#id_categoria');
+                    // Guardar la categoria que estaba seleccionada
+                    let select_categoria_value = select_categoria.val();
+                    // Limpiar las categorias
+                    select_categoria.empty();
+                    // Agregar las categorias que vienen del ajax
+                    select_categoria.append('<option value="">---------</option>');
+                    $.each(data, function (key, value) {
+                        $('#id_categoria').append('<option value="' + value.id + '">' + value.nombre + ' $' + value.cuota + '</option>');
+                    });
+                    // Selecionar la categoria que ya estaba seleccionada
+                    select_categoria.val(select_categoria_value);
+                },
             });
-            $('#id_sexo').select2({
-                theme: 'bootstrap4',
-                placeholder: 'Seleccione un sexo',
-                allowClear: true,
-                width: '100%',
-                language: 'es'
-            });
-            $('#id_tipo').select2({
-                theme: 'bootstrap4',
-                placeholder: 'Seleccione un sexo',
-                allowClear: true,
-                width: '100%',
-                language: 'es'
-            });
-            $('#id_estado').select2({
-                theme: 'bootstrap4',
-                placeholder: 'Seleccione un estado',
-                allowClear: true,
-                width: '100%',
-                language: 'es'
+
+            // Obtener con ajax las categorias de socio según la edad
+            $('#id_fecha_nacimiento').on('change.datetimepicker', function (e) {
+                // Verificar que el input no esté vacío
+                if ($(this).val()) {
+                    let fecha_nacimiento = (e.date)
+                    let datos = {
+                        'edad': getAge(fecha_nacimiento),
+                    }
+                    $.ajax({
+                        // Pasar una edad por GET para filtrar las categorias en la vista
+                        url: "{% url 'categoria-listado' %}",
+                        type: 'GET',
+                        data: datos,
+                        dataType: 'json',
+                        success: function (data) {
+                            // Actilet el campo de categoria
+                            let select_categoria = $('#id_categoria');
+                            // Quitar el atributo disabled
+                            select_categoria.prop('disabled', false);
+                            // Limpiar las categorias
+                            select_categoria.empty();
+                            // Agregar las categorias que vienen del ajax
+                            select_categoria.append('<option value="">---------</option>');
+                            $.each(data, function (key, value) {
+                                $('#id_categoria').append('<option value="' + value.id + '">' + value.nombre + ' $' + value.cuota + '</option>');
+                            });
+                        },
+                    });
+                }
             });
         });
+
+        // Función para obtener la edad a partir de la fecha de nacimiento
+        function getAge(dateString) {
+            let today = new Date();
+            let birthDate = new Date(dateString);
+            let age = today.getFullYear() - birthDate.getFullYear();
+            let m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
+        }
     </script>
     {% if socio.get_user is None %}
         <script>

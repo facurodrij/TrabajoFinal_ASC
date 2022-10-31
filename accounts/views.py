@@ -20,7 +20,6 @@ from django.template.loader import render_to_string
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import EmailMessage
 
-
 from .forms import *
 from .decorators import *
 
@@ -92,6 +91,12 @@ class CustomLoginView(LoginView):
             # Set session as modified to force data updates/cookie to be saved.
             self.request.session.modified = True
         return super(CustomLoginView, self).form_valid(form)
+        # TODO: Validar que el usuario no esté asociado a Persona que:
+        # 1. No esté asociada a Socio
+        # 2. Esté asociada a Socio pero que esté eliminado
+        # 3. No esté asociada a Personal
+        # 4. Esté asociada a Personal pero que esté eliminado
+        # Aclaración: Si el usuario es admin no se debe validar nada.
 
 
 @login_required
@@ -99,9 +104,7 @@ def persona_view(request):
     """
     Vista para ver los datos personales del usuario.
     """
-    persona = request.user.persona
     context = {
         'title': 'Datos Personales',
-        'persona': persona,
     }
-    return render(request, 'persona.html', context)
+    return render(request, 'persona_detail.html', context)

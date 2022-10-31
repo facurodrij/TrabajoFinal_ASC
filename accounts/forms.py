@@ -39,6 +39,25 @@ class CreateUserFormAdmin(UserCreationForm):
         fields = ['username', 'email', 'password1', 'password2']
 
 
+class SimpleCreateUserForm(forms.Form):
+    """
+    Formulario para registrar un nuevo usuario. Solamente con el Email es sufiiciente.
+    El resto de datos obligatorios se completan en la vista que lo utiliza.
+    """
+    add_user = forms.BooleanField(required=False)
+    email = forms.EmailField(required=False,
+                             widget=forms.TextInput(attrs={'placeholder': 'Email',
+                                                           'class': 'form-control',
+                                                           }))
+
+    # Validad el campo email, que sea unico.
+    def clean_email(self):
+        email = self['email'].value()
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError('El email ya existe.')
+        return email
+
+
 class UpdateUserFormAdmin(UserChangeForm):
     """
     Formulario para actualizar los datos del modelo usuario. Se utiliza en el panel de administrador.
@@ -80,6 +99,7 @@ class PersonaFormAdmin(forms.ModelForm):
                                                              }))
     fecha_nacimiento = forms.DateField(required=True,
                                        widget=forms.DateInput(
+                                           format='%d/%m/%Y',
                                            attrs={
                                                'autocomplete': 'off',
                                                'placeholder': 'Fecha de nacimiento',
@@ -88,12 +108,11 @@ class PersonaFormAdmin(forms.ModelForm):
                                                'data-target': '#id_fecha_nacimiento',
                                            }
                                        ))
-    imagen = forms.ImageField(required=True,
-                              widget=AdminFileWidget)
+    imagen = forms.ImageField(required=True, widget=AdminFileWidget)
 
     class Meta:
         model = Persona
-        fields = ['dni', 'sexo', 'nombre', 'apellido', 'fecha_nacimiento', 'imagen']
+        exclude = ['club']
 
 
 class LoginForm(AuthenticationForm):

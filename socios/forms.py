@@ -3,20 +3,10 @@ from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 from django.contrib.admin.widgets import AdminFileWidget
 
-from .models import Tipo, Estado
+from .models import Estado, Categoria
 
 
-class ElegirTipoForm(forms.Form):
-    """
-    Formulario para el paso 1 de una solicitud de asociación.
-    """
-    # Paso 1: Elegir el tipo de socio.
-    tipo = forms.ModelChoiceField(required=True,
-                                  queryset=Tipo.objects.all(),
-                                  widget=forms.Select(attrs={'class': 'form-control select2'}))
-
-
-class ElegirEstadoForm(forms.Form):
+class SelectEstadoForm(forms.Form):
     """
     Formulario para elegir un estado de socio.
     """
@@ -25,3 +15,10 @@ class ElegirEstadoForm(forms.Form):
                                     widget=forms.Select(attrs={'class': 'form-control select2'}))
 
 
+class SelectCategoriaForm(forms.Form):
+    """
+    Formulario para elegir una categoria de socio.
+    """
+    categoria = forms.ModelChoiceField(required=True,
+                                       queryset=Categoria.objects.all(),
+                                       widget=forms.Select(attrs={'class': 'form-control select2'}))

@@ -14,6 +14,9 @@ urlpatterns = [
     path('socios/crear/', socio_create_view, name='socio-crear'),
     path('socios/<int:pk>/', socio_detail_view, name='socio-detalle'),
     path('socios/<int:pk>/editar/', socio_update_view, name='socio-editar'),
-    # path('socios/<int:pk>/eliminar/', socio_delete_view, name='socio-eliminar'),
-    # path('socios/<int:pk>/restaurar/', socio_activate_view, name='socio-restaurar'),
+    path('socios/<int:pk>/eliminar/', socio_delete, name='socio-eliminar'),
+    path('socios/<int:pk>/restaurar/', socio_restore, name='socio-restaurar'),
+
+    # Obtener categorias
+    path('socios/categorias/', obtener_categorias, name='categoria-listado'),
 ]

@@ -18,9 +18,7 @@ class User(AbstractUser, SoftDeleteModel):
     Modelos de usuario personalizado.
     """
     username_validator = UnicodeUsernameValidator()
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    persona = models.OneToOneField('accounts.Persona', on_delete=models.PROTECT)
+    persona = models.OneToOneField('accounts.Persona', on_delete=models.PROTECT, null=True, blank=True)
     email = models.EmailField(
         unique=True,
         verbose_name=_('Email'),
@@ -45,6 +43,8 @@ class User(AbstractUser, SoftDeleteModel):
     first_name = None
     last_name = None
 
+    REQUIRED_FIELDS = ['email']
+
     def __str__(self):
         return self.username
 
@@ -53,6 +53,12 @@ class User(AbstractUser, SoftDeleteModel):
         Devuelve true si el usuario es superusuario o staff del proyecto.
         """
         return self.is_superuser or self.is_staff
+
+    def clean(self):
+        super(User, self).clean()
+        if not self.is_admin():
+            if not self.persona:
+                raise ValidationError('El usuario debe tener una persona asociada.')
 
     class Meta:
         verbose_name = _('Usuario')
@@ -122,6 +128,18 @@ class Persona(SoftDeleteModel):
             return self.socio
         except ObjectDoesNotExist:
             return None
+
+    def get_fecha_nacimiento(self):
+        """
+        Devuelve la fecha de nacimiento de la persona.
+        """
+        return self.fecha_nacimiento.strftime('%d/%m/%Y')
+
+    def get_related_objects(self):
+        """
+        Devuelve una lista de objetos relacionados con la persona.
+        """
+        return [self.socio, self.user]
 
     def save(self, *args, **kwargs):
         """Método save() sobrescrito para redimensionar la imagen."""

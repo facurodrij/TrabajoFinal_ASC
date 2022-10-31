@@ -30,19 +30,21 @@
                             <li class="list-group-item"><b>Nombre completo: </b>{{ socio.persona.get_full_name }}</li>
                             <li class="list-group-item"><b>Sexo: </b>{{ socio.persona.sexo }}</li>
                             <li class="list-group-item"><b>Edad: </b>{{ socio.persona.get_edad }}</li>
-                            <li class="list-group-item"><b>Usuario: </b>{{ socio.persona.user.username }}</li>
-                            <li class="list-group-item"><b>Email: </b>{{ socio.persona.user.email }}</li>
-                            <li class="list-group-item">
-                                <b>Fecha de creación: </b>{{ socio.persona.user.date_joined }}
-                            </li>
-                            <li class="list-group-item">
-                                <b>Último inicio de sesión: </b>
-                                {% if not socio.persona.user.last_login %}
-                                    <span>Aún no ha iniciado sesión</span>
-                                {% else %}
-                                    {{ socio.persona.user.last_login }}
-                                {% endif %}
-                            </li>
+                            {% if socio.get_user %}
+                                <li class="list-group-item"><b>Usuario: </b>{{ socio.persona.user.username }}</li>
+                                <li class="list-group-item"><b>Email: </b>{{ socio.persona.user.email }}</li>
+                                <li class="list-group-item">
+                                    <b>Fecha de creación: </b>{{ socio.persona.user.date_joined }}
+                                </li>
+                                <li class="list-group-item">
+                                    <b>Último inicio de sesión: </b>
+                                    {% if not socio.persona.user.last_login %}
+                                        <span>Aún no ha iniciado sesión</span>
+                                    {% else %}
+                                        {{ socio.persona.user.last_login }}
+                                    {% endif %}
+                                </li>
+                            {% endif %}
                         </ul>
                     </div>
                     <div class="card-footer">

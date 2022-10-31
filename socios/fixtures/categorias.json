@@ -3,9 +3,8 @@
     "model": "socios.Categoria",
     "pk": 1,
     "fields": {
-      "nombre": "Infantil",
-      "tipo": 1,
-      "cuota": 2500.00,
+      "nombre": "Infantil Básico",
+      "cuota": 2200.00,
       "edad_desde": 0,
       "edad_hasta": 12
     }
@@ -14,9 +13,8 @@
     "model": "socios.Categoria",
     "pk": 2,
     "fields": {
-      "nombre": "Infantil",
-      "tipo": 2,
-      "cuota": 2200.00,
+      "nombre": "Infantil Premium",
+      "cuota": 2500.00,
       "edad_desde": 0,
       "edad_hasta": 12
     }
@@ -25,9 +23,8 @@
     "model": "socios.Categoria",
     "pk": 3,
     "fields": {
-      "nombre": "Adolescente",
-      "tipo": 1,
-      "cuota": 3000.00,
+      "nombre": "Adolescente Básico",
+      "cuota": 2600.00,
       "edad_desde": 13,
       "edad_hasta": 17
     }
@@ -36,9 +33,8 @@
     "model": "socios.Categoria",
     "pk": 4,
     "fields": {
-      "nombre": "Adolescente",
-      "tipo": 2,
-      "cuota": 2700.00,
+      "nombre": "Adolescente Premium",
+      "cuota": 3000.00,
       "edad_desde": 13,
       "edad_hasta": 17
     }
@@ -47,9 +43,8 @@
     "model": "socios.Categoria",
     "pk": 5,
     "fields": {
-      "nombre": "Adulto",
-      "tipo": 1,
-      "cuota": 4000.00,
+      "nombre": "Adulto Básico",
+      "cuota": 3500.00,
       "edad_desde": 18,
       "edad_hasta": 150
     }
@@ -58,9 +53,8 @@
     "model": "socios.Categoria",
     "pk": 6,
     "fields": {
-      "nombre": "Adulto",
-      "tipo": 2,
-      "cuota": 3500.00,
+      "nombre": "Adulto Premium",
+      "cuota": 4000.00,
       "edad_desde": 18,
       "edad_hasta": 150
     }

@@ -25,12 +25,6 @@
                             <h4 class="card-title">{{ title }}</h4>
                         </div>
                         <div class="card-body">
-                            <div id="div_elegir_tipo">
-                                <div class="form-group">
-                                    <label class="labels">{{ tipo_form.tipo.label }}</label>
-                                    {{ tipo_form.tipo }}
-                                </div>
-                            </div>
                             <div id="div_socio">
                                 <div class="row">
                                     <div class="col-md-4">
@@ -55,12 +49,6 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label class="labels">{{ persona_form.sexo.label }}</label>
-                                            {{ persona_form.sexo }}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
                                             <label class="labels">{{ persona_form.fecha_nacimiento.label }}</label>
                                             <div class="input-group" id="div_id_fecha_nacimiento"
                                                  data-target-input="nearest">
@@ -75,42 +63,38 @@
                                                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                                 </div>
                                             </div>
-                                            <script type="text/javascript">
-                                                function deferDateTimePicker_id_fecha_nacimiento() {
-                                                    if (window.jQuery && $.fn.datetimepicker) {
-                                                        $('#id_fecha_nacimiento').datetimepicker({
-                                                            "format": "DD/MM/YYYY",
-                                                            "icons": {"time": "fa fa-clock-o"},
-                                                            "locale": "es-AR",
-                                                            "date": null,
-                                                            "minDate": "1900-01-01",
-                                                            "maxDate": Date.now(),
-                                                        });
-                                                    } else {
-                                                        setTimeout(function () {
-                                                            deferDateTimePicker_id_fecha_nacimiento()
-                                                        }, 50);
-                                                    }
-                                                }
-
-                                                deferDateTimePicker_id_fecha_nacimiento();
-                                            </script>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="labels">{{ categoria_form.categoria.label }}</label>
+                                            {{ categoria_form.categoria }}
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label class="labels">{{ persona_form.imagen.label }}</label>
-                                    {{ persona_form.imagen }}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="labels">{{ persona_form.sexo.label }}</label>
+                                            {{ persona_form.sexo }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="labels">{{ persona_form.imagen.label }}</label><br>
+                                            {{ persona_form.imagen }}
+                                        </div>
+                                    </div>
                                 </div>
-                                <label for="add_user">Asignar usuario</label>
-                                {{ user_form.add_user }}
-                                <div id="div_socio_user">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label class="labels">{{ user_form.email.label }}</label>
-                                                {{ user_form.email }}
-                                            </div>
+                            </div>
+                            <label for="add_user">Asignar usuario</label>
+                            {{ user_form.add_user }}
+                            <div id="div_socio_user">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="labels">{{ user_form.email.label }}</label>
+                                            {{ user_form.email }}
                                         </div>
                                     </div>
                                 </div>
@@ -135,40 +119,84 @@
     <!-- Select2 -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        $(document).ready(function () {
-            $('#id_sexo').select2({
-                theme: 'bootstrap4',
-                placeholder: 'Seleccione un sexo',
-                allowClear: true,
-                width: '100%',
-                language: 'es'
-            });
-            $('#id_tipo').select2({
-                theme: 'bootstrap4',
-                placeholder: 'Seleccione un tipo de socio',
-                allowClear: true,
-                width: '100%',
-                language: 'es'
-            });
+        $('#id_fecha_nacimiento').datetimepicker({
+            "format": "DD/MM/YYYY",
+            "icons": {"time": "fa fa-clock-o"},
+            "locale": "es-AR",
+            "date": null,
+            "minDate": "1900-01-01",
+            "maxDate": Date.now(),
         });
-    </script>
-    <script>
+        $('#id_sexo').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione un sexo',
+            allowClear: true,
+            width: '100%',
+            language: 'es'
+        });
+        $('#id_categoria').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione una categoria',
+            allowClear: true,
+            width: '100%',
+            language: 'es'
+        }).prop('disabled', true);
+        $('#div_socio_user').hide();
+        $('#id_add_user').change(function () {
+            if ($(this).is(':checked')) {
+                $('#div_socio_user').show();
+                $('#id_email').attr('required', '');
+            } else {
+                $('#div_socio_user').hide();
+                $('#id_email').removeAttr('required');
+            }
+        });
+
         $(document).ready(function () {
-            $('#div_socio_user').hide();
-            $('#id_add_user').change(function () {
-                if ($(this).is(':checked')) {
-                    $('#div_socio_user').show();
-                    $('#id_email').attr('required', '');
-                } else {
-                    $('#div_socio_user').hide();
-                    $('#id_email').removeAttr('required');
+            // Obtener con ajax las categorias de socio según la edad
+            $('#id_fecha_nacimiento').on('change.datetimepicker', function (e) {
+                // Verificar que el input no esté vacío
+                if ($(this).val()) {
+                    var fecha_nacimiento = (e.date)
+                    var edad = getAge(fecha_nacimiento);
+                    var datos = {
+                        'edad': edad,
+                    }
+                    $.ajax({
+                        // Pasar una edad por GET para filtrar las categorias en la vista
+                        url: "{% url 'categoria-listado' %}",
+                        type: 'GET',
+                        data: datos,
+                        dataType: 'json',
+                        success: function (data) {
+                            // Activar el campo de categoria
+                            var select_categoria = $('#id_categoria');
+                            select_categoria.prop('disabled', false);
+                            select_categoria.empty();
+                            select_categoria.append('<option value="">---------</option>');
+                            $.each(data, function (key, value) {
+                                $('#id_categoria').append('<option value="' + value.id + '">' + value.nombre + ' $' + value.cuota + '</option>');
+                            });
+                        },
+                    });
                 }
             });
         });
+        // Función para obtener la edad a partir de la fecha de nacimiento
+        function getAge(dateString) {
+            var today = new Date();
+            var birthDate = new Date(dateString);
+            var age = today.getFullYear() - birthDate.getFullYear();
+            var m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
+        }
     </script>
     {% if user_form.errors or persona_form.errors %}
         <script type="text/javascript">
-            let errors = []
+            var errors = []
             {% for key, value in user_form.errors.items %}
                 errors.push('{{ value|join:" " }}')
             {% endfor %}

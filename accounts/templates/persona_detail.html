@@ -14,7 +14,7 @@
             <div class="col-md-4">
                 <div class="d-flex flex-column align-items-center text-center mb-3">
                     <img class="rounded-circle mt-5"
-                         src="{{ persona.usuariopersona.user.get_imagen }}" alt="" style="max-width: 300px">
+                         src="{{ user.persona.get_imagen }}" alt="" style="max-width: 300px">
                     <span class="font-weight-bold mt-3">{{ user.username }}</span>
                     <span class="text-black-50">{{ user.email }}</span>
                     <span class="text-black-50"><a href="{% url 'password_change' %}">Cambiar contraseña</a></span>
@@ -28,23 +28,19 @@
                     <div class="card-body">
                         <ul class="list-group">
                             <li class="list-group-item">
-                                <b>Categoria: </b>{{ persona.usuariopersona.user.socio.categoria }}</li>
-                            <li class="list-group-item"><b>DNI: </b>{{ persona.dni }}</li>
+                                <b>Categoria: </b>{{ user.persona.socio.categoria }}</li>
+                            <li class="list-group-item"><b>DNI: </b>{{ user.persona.dni }}</li>
                             <li class="list-group-item"><b>Nombre
-                                completo: </b>{{ persona.usuariopersona.user.get_full_name }}</li>
-                            <li class="list-group-item"><b>Sexo: </b>{{ persona.sexo }}</li>
-                            <li class="list-group-item"><b>Edad: </b>{{ persona.usuariopersona.user.get_edad }}</li>
+                                completo: </b>{{ user.persona.get_full_name }}</li>
+                            <li class="list-group-item"><b>Sexo: </b>{{ user.persona.sexo }}</li>
+                            <li class="list-group-item"><b>Edad: </b>{{ user.persona.get_edad }}</li>
+                            <li class="list-group-item"><b>Usuario: </b>{{ user.persona.user.username }}</li>
+                            <li class="list-group-item"><b>Email: </b>{{ user.persona.user.email }}</li>
                             <li class="list-group-item">
-                                <b>Localidad: </b>{{ persona.localidad }}</li>
-                            <li class="list-group-item">
-                                <b>Dirección: </b>{{ persona.direccion }}</li>
-                            <li class="list-group-item"><b>Usuario: </b>{{ persona.usuariopersona.user.username }}</li>
-                            <li class="list-group-item"><b>Email: </b>{{ persona.usuariopersona.user.email }}</li>
-                            <li class="list-group-item">
-                                <b>Fecha de creación: </b>{{ persona.usuariopersona.user.date_joined }}
+                                <b>Fecha de creación: </b>{{ user.persona.user.date_joined }}
                             </li>
                             <li class="list-group-item">
-                                <b>Último inicio de sesión: </b>{{ persona.usuariopersona.user.last_login }}
+                                <b>Último inicio de sesión: </b>{{ user.persona.user.last_login }}
                             </li>
                         </ul>
                     </div>
