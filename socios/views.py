@@ -33,12 +33,11 @@ class SocioListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     permission_required = 'socios.view_socio'
 
     def get_queryset(self):
-        return Socio.objects.all()
+        return Socio.global_objects.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Socios'
-        context['socios_eliminados'] = Socio.deleted_objects.all()
         # TODO: Agregar lista de Miembros
         return context
 
@@ -130,6 +129,7 @@ def socio_detail_view(request, pk):
     context = {
         'title': 'Detalle de socio',
         'socio': socio,
+        'miembros': socio.miembro_set.all(),
     }
     return render(request, 'socio_detail.html', context)
 
@@ -137,7 +137,9 @@ def socio_detail_view(request, pk):
 @login_required
 @admin_required
 def socio_update_view(request, pk):
-    """ Vista para actualizar un socio individual """
+    """
+    Vista para actualizar un socio
+    """
     socio = get_object_or_404(Socio, pk=pk)
     if request.method == 'POST':
         estado_form = SelectEstadoForm(request.POST)
@@ -219,7 +221,9 @@ def socio_update_view(request, pk):
 @login_required
 @admin_required
 def socio_delete(request, pk):
-    """ Vista para eliminar un socio """
+    """
+    Eliminar un socio
+    """
     socio = get_object_or_404(Socio, pk=pk)
     socio.delete(cascade=True)
     messages.success(request, 'Socio eliminado correctamente')
@@ -229,7 +233,9 @@ def socio_delete(request, pk):
 @login_required
 @admin_required
 def socio_restore(request, pk):
-    """ Restaurar un socio eliminado """
+    """
+    Restaurar un socio eliminado
+    """
     socio = Socio.deleted_objects.get(pk=pk)
     socio.restore(cascade=True)
     messages.success(request, 'Socio restaurado correctamente')
@@ -239,22 +245,88 @@ def socio_restore(request, pk):
 @login_required
 @admin_required
 def miembro_create_view(request, pk):
-    """ Vista para crear un miembro """
+    """
+    Vista para crear un miembro
+    """
     socio = get_object_or_404(Socio, pk=pk)
     if request.method == 'POST':
-        persona = PersonaFormAdmin(request.POST, request.FILES)
-        if persona.is_valid():
-            miembro = persona.save(commit=False)
-            miembro.socio = socio
+        persona_form = PersonaFormAdmin(request.POST, request.FILES)
+        categoria_form = SelectCategoriaForm(request.POST)
+        parentesco_form = SelectParentescoForm(request.POST)
+        if persona_form.is_valid() and categoria_form.is_valid() and parentesco_form.is_valid():
+            # Crear la persona
+            persona = persona_form.save(commit=False)
+            persona.club = socio.persona.club
+            miembro = Miembro(persona=persona, socio=socio)
+            miembro.parentesco_id = parentesco_form['parentesco'].value()
+            miembro.categoria_id = categoria_form['categoria'].value()
+            persona.save()
             miembro.save()
             messages.success(request, 'Miembro creado correctamente')
-            return redirect('socio-detalle', pk=socio.pk)
+            # Redirigir a la vista de detalle del socio con el pk del socio y el miembro
+            return redirect('miembro-detalle', miembro_pk=miembro.pk)
     else:
-        miembro_form = MiembroForm()
+        persona_form = PersonaFormAdmin()
+        categoria_form = SelectCategoriaForm()
+        parentesco_form = SelectParentescoForm()
     context = {
         'title': 'Crear miembro',
         'action': 'create',
-        'miembro_form': miembro_form,
-        'socio': socio,
+        'persona_form': persona_form,
+        'categoria_form': categoria_form,
+        'parentesco_form': parentesco_form,
     }
     return render(request, 'miembro_create.html', context)
+
+
+@login_required
+@admin_required
+def miembro_detail_view(request, miembro_pk):
+    """
+    Vista para ver los detalles de un miembro
+    """
+    miembro = get_object_or_404(Miembro, pk=miembro_pk)
+    socio = miembro.socio
+    context = {
+        'title': 'Miembro',
+        'socio': socio,
+        'miembro': miembro,
+    }
+    return render(request, 'miembro_detail.html', context)
+
+
+@login_required
+@admin_required
+def miembro_update_view(request, miembro_pk):
+    """
+    Vista para actualizar un miembro
+    """
+    miembro = get_object_or_404(Miembro, pk=miembro_pk)
+    socio = miembro.socio
+    if request.method == 'POST':
+        persona_form = PersonaFormAdmin(request.POST, request.FILES, instance=miembro.persona)
+        categoria_form = SelectCategoriaForm(request.POST)
+        parentesco_form = SelectParentescoForm(request.POST)
+        if persona_form.is_valid() and categoria_form.is_valid() and parentesco_form.is_valid():
+            # Actualizar la persona
+            persona = persona_form.save()
+            # Actualizar el miembro
+            miembro.parentesco_id = parentesco_form['parentesco'].value()
+            miembro.categoria_id = categoria_form['categoria'].value()
+            miembro.save()
+            messages.success(request, 'Miembro actualizado correctamente')
+            return redirect('miembro-detalle', miembro_pk=miembro.pk)
+    else:
+        persona_form = PersonaFormAdmin(instance=miembro.persona)
+        categoria_form = SelectCategoriaForm(initial={'categoria': miembro.categoria.pk})
+        parentesco_form = SelectParentescoForm(initial={'parentesco': miembro.parentesco.pk})
+    context = {
+        'title': 'Actualizar miembro',
+        'action': 'update',
+        'persona_form': persona_form,
+        'categoria_form': categoria_form,
+        'parentesco_form': parentesco_form,
+        'socio': socio,
+        'miembro': miembro,
+    }
+    return render(request, 'miembro_update.html', context)

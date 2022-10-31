@@ -23,26 +23,27 @@ class Socio(SoftDeleteModel):
         except ObjectDoesNotExist:
             return None
 
+    def get_related_objects(self):
+        miembros = Miembro.global_objects.get(socio_id=self.id)
+        return [miembros]
+
     def restore(self, cascade=None):
         # Si el socio tiene Persona eliminada, no puede ser restaurado
         persona = Persona.global_objects.get(pk=self.persona.pk)
         if persona.is_deleted:
-            raise ValidationError(
-                'La persona que intentó restaurar está eliminada. '
-                'Solicite que sea restaurada.')
-        super(Socio, self).restore(cascade=cascade)
+            raise ValidationError('EL socio que intentó restaurar tiene su tabla Persona eliminada.')
 
-    # TODO: Si el socio tiene deudas pendientes, no puede ser eliminado
-
-    def restore(self, cascade=None):
         # Si el socio es miembro de un grupo familiar, no puede ser restaurado
         try:
             if not self.persona.miembro.is_deleted:
                 raise ValidationError(
-                    'La persona que intentó restaurar ya es miembro de un grupo familiar. '
+                    'La persona que intentó restaurar ya es miembro de otro socio. '
                     'Solicite que sea eliminado como miembro.')
         except ObjectDoesNotExist:
-            super(Socio, self).restore(cascade=cascade)
+            pass
+        super(Socio, self).restore(cascade=cascade)
+
+    # TODO: Si el socio tiene deudas pendientes, no puede ser eliminado
 
     def clean(self):
         # Socio no puede ser miembro

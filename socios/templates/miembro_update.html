@@ -27,14 +27,6 @@
                         <div class="card-body">
                             <div id="div_socio">
                                 <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label class="labels">{{ estado_form.estado.label }}</label>
-                                            {{ estado_form.estado }}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label class="labels">{{ persona_form.dni.label }}</label>
@@ -55,7 +47,7 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="form-group">
                                             <label class="labels">{{ persona_form.fecha_nacimiento.label }}</label>
                                             <div class="input-group" id="div_id_fecha_nacimiento"
@@ -73,10 +65,16 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="form-group">
                                             <label class="labels">{{ categoria_form.categoria.label }}</label>
                                             {{ categoria_form.categoria }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="labels">{{ parentesco_form.parentesco.label }}</label>
+                                            {{ parentesco_form.parentesco }}
                                         </div>
                                     </div>
                                 </div>
@@ -94,37 +92,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                {% if socio.get_user is None %}
-                                    <label for="add_user">Asignar usuario</label>
-                                    {{ user_form.add_user }}
-                                    <div id="div_socio_user">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label class="labels">{{ user_form.email.label }}</label>
-                                                    {{ user_form.email }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% else %}
-                                    <div id="div_socio_user">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label class="labels">{{ user_form.username.label }}</label>
-                                                    {{ user_form.username }}
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label class="labels">{{ user_form.email.label }}</label>
-                                                    {{ user_form.email }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endif %}
                             </div>
                         </div>
                         <div class="card-footer">
@@ -151,7 +118,7 @@
             "format": "DD/MM/YYYY",
             "icons": {"time": "fa fa-clock-o"},
             "locale": "es-AR",
-            "date": "{{ socio.persona.get_fecha_nacimiento }}",
+            "date": "{{ miembro.persona.get_fecha_nacimiento }}",
             "minDate": "1900-01-01",
             "maxDate": Date.now(),
         });
@@ -169,13 +136,6 @@
             width: '100%',
             language: 'es'
         });
-        $('#id_estado').select2({
-            theme: 'bootstrap4',
-            placeholder: 'Seleccione un estado',
-            allowClear: true,
-            width: '100%',
-            language: 'es'
-        });
         $('#id_categoria').select2({
             theme: 'bootstrap4',
             placeholder: 'Seleccione una categoria',
@@ -183,6 +143,14 @@
             width: '100%',
             language: 'es'
         });
+        $('#id_parentesco').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione un parentesco',
+            allowClear: true,
+            width: '100%',
+            language: 'es'
+        });
+
         $(document).ready(function () {
             // Obtener con ajax las catergorias de socio según la fecha de nacimiento que ya viene cargada
             let fecha_nacimiento = $('#id_fecha_nacimiento').datetimepicker('date');
@@ -255,28 +223,9 @@
             return age;
         }
     </script>
-    {% if socio.get_user is None %}
-        <script>
-            $(document).ready(function () {
-                $('#div_socio_user').hide();
-                $('#id_add_user').change(function () {
-                    if ($(this).is(':checked')) {
-                        $('#div_socio_user').show();
-                        $('#id_email').attr('required', '');
-                    } else {
-                        $('#div_socio_user').hide();
-                        $('#id_email').removeAttr('required');
-                    }
-                });
-            });
-        </script>
-    {% endif %}
-    {% if user_form.errors or persona_form.errors %}
+    {% if persona_form.errors %}
         <script type="text/javascript">
             let errors = []
-            {% for key, value in user_form.errors.items %}
-                errors.push('{{ value|join:" " }}')
-            {% endfor %}
             {% for key, value in persona_form.errors.items %}
                 errors.push('{{ value|join:" " }}')
             {% endfor %}

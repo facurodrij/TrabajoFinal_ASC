@@ -58,8 +58,63 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Miembros Asignados</h3>
+                    </div>
+                    <div class="card-body">
+                        <a class="btn btn-primary mb-3" href="{% url 'miembro-crear' socio.pk %}">Agregar Nuevo</a>
+                        <table id="dataTable" class="table table-bordered table-striped dataTable">
+                            <thead>
+                            <tr>
+                                <th scope="col" style="">DNI</th>
+                                <th scope="col" style="">Nombre completo</th>
+                                <th scope="col" style="">Edad</th>
+                                <th scope="col" style="">Categoría</th>
+                                <th scope="col" style="">Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for miembro in miembros %}
+                                <tr>
+                                    <td>{{ miembro.persona.dni }}</td>
+                                    <td>{{ miembro.persona.get_full_name }}</td>
+                                    <td>{{ miembro.persona.get_edad }}</td>
+                                    <td>{{ miembro.categoria }}</td>
+                                    <td>
+                                        <a href="{% url 'miembro-detalle' miembro.pk %}" class="btn btn-info btn-sm">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'miembro-editar' miembro.pk %}" class="btn btn-warning btn-sm">
+                                            <i class="fa-solid fa-edit"></i>
+                                        </a>
+{#                                        TODO: #}
+{#                                        <a href="{% url 'miembro-eliminar' socio.pk %}" class="btn btn-danger btn-sm">#}
+{#                                            <i class="fa-solid fa-trash"></i>#}
+{#                                        </a>#}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th scope="col" style="">DNI</th>
+                                <th scope="col" style="">Nombre completo</th>
+                                <th scope="col" style="">Edad</th>
+                                <th scope="col" style="">Categoría</th>
+                                <th scope="col" style="">Acciones</th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock content %}
 
 {% block body_js %}
+    {% include 'includes/dataTable.html' %}
 {% endblock body_js %}
