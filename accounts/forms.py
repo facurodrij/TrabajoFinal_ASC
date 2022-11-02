@@ -3,7 +3,7 @@ from django.contrib.admin.widgets import AdminFileWidget
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm, ReadOnlyPasswordHashField
 from django.utils.translation import gettext_lazy as _
 
-from .models import User, Persona
+from accounts.models import User, Persona
 
 
 class CreateUserFormAdmin(UserCreationForm):

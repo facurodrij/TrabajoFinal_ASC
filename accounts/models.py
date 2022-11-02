@@ -1,16 +1,20 @@
 import re
 import uuid
+
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
+from django.forms import model_to_dict
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import UnicodeUsernameValidator
 from django_softdelete.models import SoftDeleteModel
 from django.core.exceptions import ValidationError
 from PIL import Image
+
+from core.models import Club
 
 
 class User(AbstractUser, SoftDeleteModel):
@@ -92,7 +96,19 @@ class Persona(SoftDeleteModel):
     imagen = models.ImageField(upload_to=image_directory_path, verbose_name=_('Imagen'))
 
     def __str__(self):
-        return self.dni
+        return self.get_full_name() + ' - ' + self.dni
+
+    def toJSON(self):
+        """
+        Devuelve un diccionario con los datos de la persona.
+        """
+        item = model_to_dict(self, exclude=['imagen'])
+        item['imagen'] = self.get_imagen()
+        item['edad'] = self.get_edad()
+        item['fecha_nacimiento'] = self.get_fecha_nacimiento()
+        item['socio'] = self.get_socio()
+        item['__str__'] = self.__str__()
+        return item
 
     def get_full_name(self):
         """
@@ -144,7 +160,6 @@ class Persona(SoftDeleteModel):
     def save(self, *args, **kwargs):
         """Método save() sobrescrito para redimensionar la imagen."""
         super().save(*args, **kwargs)
-
         try:
             img = Image.open(self.imagen.path)
             if img.height > 300 or img.width > 300:
@@ -155,6 +170,7 @@ class Persona(SoftDeleteModel):
             pass
 
     def clean(self):
+        super(Persona, self).clean()
         # Validar que el DNI sea correcto
         if not self.dni.isdigit():
             raise ValidationError(_('DNI: El DNI debe contener solo números.'))
@@ -172,8 +188,6 @@ class Persona(SoftDeleteModel):
         # Quitar espacios en blanco al principio y al final del nombre y apellido.
         self.nombre = self.nombre.strip()
         self.apellido = self.apellido.strip()
-
-        return super(Persona, self).clean()
 
     class Meta:
         verbose_name = _('Persona')

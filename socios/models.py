@@ -1,7 +1,8 @@
-from django.db import models
-from django_softdelete.models import SoftDeleteModel, SoftDeleteManager
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db import models
+from django.forms import model_to_dict
+from django_softdelete.models import SoftDeleteModel, SoftDeleteManager
 
 from accounts.models import Persona
 
@@ -31,14 +32,14 @@ class Socio(SoftDeleteModel):
         # Si el socio tiene Persona eliminada, no puede ser restaurado
         persona = Persona.global_objects.get(pk=self.persona.pk)
         if persona.is_deleted:
-            raise ValidationError('EL socio que intentó restaurar tiene su tabla Persona eliminada.')
+            raise ValidationError('No se puede restaurar el socio porque la persona está eliminada.')
 
         # Si el socio es miembro de un grupo familiar, no puede ser restaurado
         try:
             if not self.persona.miembro.is_deleted:
                 raise ValidationError(
-                    'La persona que intentó restaurar ya es miembro de otro socio. '
-                    'Solicite que sea eliminado como miembro.')
+                    'No es posible restaurar el socio: '
+                    '{} ya es miembro de otro socio.'.format(self.persona.get_full_name()))
         except ObjectDoesNotExist:
             pass
         super(Socio, self).restore(cascade=cascade)
@@ -46,12 +47,12 @@ class Socio(SoftDeleteModel):
     # TODO: Si el socio tiene deudas pendientes, no puede ser eliminado
 
     def clean(self):
+        super(Socio, self).clean()
         # Socio no puede ser miembro
         try:
             if not self.persona.miembro.is_deleted:
                 raise ValidationError(
-                    'La persona que intentó ya es miembro de un grupo familiar. '
-                    'Solicite que sea eliminado como miembro.')
+                    'La persona {} ya es miembro de otro socio.'.format(self.persona.get_full_name()))
         except ObjectDoesNotExist:
             pass
 
@@ -75,8 +76,8 @@ class Miembro(SoftDeleteModel):
         try:
             if not self.persona.socio.is_deleted:
                 raise ValidationError(
-                    'La persona que intentó restaurar ya es socio. '
-                    'Solicite que sea eliminado como socio.')
+                    'No es posible restaurar el miembro: '
+                    '{} ya es socio.'.format(self.persona.get_full_name()))
         except ObjectDoesNotExist:
             super(Miembro, self).restore(cascade=cascade)
 
@@ -84,7 +85,7 @@ class Miembro(SoftDeleteModel):
         # Miembro no puede ser socio
         try:
             if not self.persona.socio.is_deleted():
-                raise ValidationError('La persona ya es socio. Solicite la baja del socio.')
+                raise ValidationError('La persona {} ya es socio.'.format(self.persona.get_full_name()))
         except ObjectDoesNotExist:
             pass
 
@@ -110,6 +111,10 @@ class Categoria(models.Model):
             raise ValidationError('La edad "desde" debe ser menor que la edad "hasta".')
         if self.edad_desde == self.edad_hasta:
             raise ValidationError('Las edades ingresadas no deben ser iguales.')
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        return item
 
     class Meta:
         verbose_name = 'Categoría de socio'

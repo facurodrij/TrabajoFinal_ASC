@@ -1,25 +1,28 @@
-from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import render, get_object_or_404
+import json
+import six
+import os
+
+from django.conf import settings
 from django.contrib import messages
-from django.shortcuts import render, redirect, HttpResponseRedirect
-from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
-from django.utils.safestring import mark_safe
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import EmailMessage
+from django.db import transaction, IntegrityError
+from django.db.models import Q
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, redirect, HttpResponseRedirect, get_object_or_404
+from django.template.loader import render_to_string, get_template
+from django.urls import reverse_lazy, reverse
+from django.utils.safestring import mark_safe
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.template.loader import render_to_string
-from django.core.mail import EmailMessage
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.http import JsonResponse
-import six
-
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
-from .models import *
-from .forms import *
+from socios.models import Socio, Miembro, Categoria, Estado
+from socios.forms import SocioForm, SelectCategoriaForm, SelectEstadoForm, SelectParentescoForm
 from core.models import Club
 from accounts.forms import *
 from accounts.decorators import admin_required
@@ -28,7 +31,7 @@ from accounts.decorators import admin_required
 class SocioListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """ Vista para listar los socios """
     model = Socio
-    template_name = 'socio_list.html'
+    template_name = 'socio/list.html'
     context_object_name = 'socios'
     permission_required = 'socios.view_socio'
 
@@ -42,81 +45,69 @@ class SocioListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         return context
 
 
-def obtener_categorias(request):
-    """ Retonar un json con las categorias de un socio segun la edad """
-    if request.method == 'GET':
-        edad = request.GET.get('edad', None)
-        categorias = Categoria.objects.filter(edad_desde__lte=edad,
-                                              edad_hasta__gte=edad)
-        return JsonResponse(list(categorias.values()), safe=False)
-    return HttpResponseBadRequest()
-
-
-@login_required
-@admin_required
-def socio_create_view(request):
+class SocioCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """ Vista para crear un socio """
-    if request.method == 'POST':
-        persona_form = PersonaFormAdmin(request.POST, request.FILES)
-        categoria_form = SelectCategoriaForm(request.POST)
-        # Usuario (opcional)
-        user_form = SimpleCreateUserForm(request.POST)
-        if persona_form.is_valid():
-            # Crear la persona
-            persona = persona_form.save(commit=False)
-            persona.club = Club.objects.get(pk=1)
+    model = Socio
+    form_class = SocioForm
+    template_name = 'socio/create.html'
+    permission_required = 'socios.add_socio'
+    success_url = reverse_lazy('socio-listado')
 
-            # Obtener la categoría
-            categoria = categoria_form['categoria'].value()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Crear Socio'
+        context['action'] = 'add'
+        context['persona_form'] = PersonaFormAdmin()
+        return context
 
-            # Crear el socio
-            socio = Socio(persona=persona,
-                          categoria_id=categoria,
-                          estado=Estado.objects.get(code='AD'))
-
-            # Si se decidió crearle un usuario al socio, se lo asigna a la persona y se envía un email
-            if user_form['add_user'].value():
-                if user_form.is_valid():
-                    user = User()
-                    user.persona = persona
-                    user.email = user_form.clean_email()
-                    user.username = persona.dni
-                    user.set_password(User.objects.make_random_password())
-                    # Enviar email con los datos de acceso
-                    current_site = get_current_site(request)
-                    mail_subject = 'Bienvenido a %s' % current_site.name
-                    message = render_to_string('email/socio_creado_email.html', {
-                        'user': user,
-                        'domain': current_site.domain,
-                        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                        'token': PasswordResetTokenGenerator().make_token(user),
-                        'protocol': 'https' if request.is_secure() else 'http',
-                    })
-                    to_email = user.email
-                    email = EmailMessage(mail_subject, message, to=[to_email])
-                    email.send()
-                    persona.save()
-                    user.save()
-                    socio.save()
-                    messages.success(request, 'Socio creado correctamente')
-                    return redirect('socio-detalle', pk=socio.pk)
-            else:  # Si no se decidió crearle un usuario al socio, se guarda la persona y el socio
-                persona.save()
-                socio.save()
-                messages.success(request, 'Socio creado correctamente')
-                return redirect('socio-detalle', pk=socio.pk)
-    else:
-        persona_form = PersonaFormAdmin()
-        user_form = SimpleCreateUserForm()
-        categoria_form = SelectCategoriaForm()
-    context = {
-        'title': 'Crear socio',
-        'action': 'create',
-        'persona_form': persona_form,
-        'user_form': user_form,
-        'categoria_form': categoria_form,
-    }
-    return render(request, 'socio_create.html', context)
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'add':
+                # Si la accion es agregar, se crea un nuevo socio
+                form = self.form_class(request.POST)
+                if form.is_valid():
+                    with transaction.atomic():
+                        socio = Socio()
+                        socio.persona = form.cleaned_data['persona']
+                        socio.categoria = form.cleaned_data['categoria']
+                        socio.estado = form.cleaned_data['estado']
+                        socio.save()
+                        messages.success(request, 'Socio creado correctamente')
+                else:
+                    data['error'] = form.errors
+            elif action == 'get_categoria':
+                # Si la accion es get_categoria, se obtiene las categorias que puede tener el socio
+                data = []
+                # Obtener la edad de la Persona
+                persona_id = request.POST['persona']
+                edad = Persona.objects.get(pk=persona_id).get_edad()
+                # Obtener las categorias que corresponden a la edad
+                categorias = Categoria.objects.filter(edad_desde__lte=edad,
+                                                      edad_hasta__gte=edad)
+                for categoria in categorias:
+                    item = categoria.toJSON()
+                    data.append(item)
+            elif action == 'create_persona':
+                # Si la accion es create_persona, se crea una nueva persona
+                persona_form = PersonaFormAdmin(request.POST, request.FILES)
+                if persona_form.is_valid():
+                    with transaction.atomic():
+                        persona = persona_form.save(commit=False)
+                        persona.club = Club.objects.get(pk=1)
+                        persona.save()
+                        data = persona.toJSON()
+                        # Agregar mensaje de exito a data
+                        data['tags'] = 'success'
+                        data['message'] = 'Persona creada correctamente'
+                else:
+                    data['error'] = persona_form.errors
+            else:
+                data['error'] = 'Ha ocurrido un error, intente nuevamente'
+        except Exception as e:
+            data['error'] = str(e)
+        return JsonResponse(data, safe=False)
 
 
 @login_required
