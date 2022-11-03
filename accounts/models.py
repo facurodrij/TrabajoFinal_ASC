@@ -106,7 +106,7 @@ class Persona(SoftDeleteModel):
         item['imagen'] = self.get_imagen()
         item['edad'] = self.get_edad()
         item['fecha_nacimiento'] = self.get_fecha_nacimiento()
-        item['socio'] = self.get_socio()
+        item['socio'] = self.get_socio().id
         item['__str__'] = self.__str__()
         return item
 
@@ -149,7 +149,7 @@ class Persona(SoftDeleteModel):
         """
         Devuelve la fecha de nacimiento de la persona.
         """
-        return self.fecha_nacimiento.strftime('%d/%m/%Y')
+        return self.fecha_nacimiento.strftime('%Y/%m/%d')
 
     def get_related_objects(self):
         """

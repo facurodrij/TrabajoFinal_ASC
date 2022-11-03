@@ -39,10 +39,6 @@ class SocioForm(forms.ModelForm):
     Formulario para crear un socio.
     """
 
-    def __init__(self, *args, **kwargs):
-        super(SocioForm, self).__init__(*args, **kwargs)
-        self.fields['persona'].queryset = self.fields['persona'].queryset.filter(socio=None, miembro=None)
-
     # Validar si el socio que se quiere crear ya existe y está eliminado
     def clean(self):
         super(SocioForm, self).clean()

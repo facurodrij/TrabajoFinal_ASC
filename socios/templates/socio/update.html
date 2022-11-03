@@ -23,7 +23,7 @@
                     <div class="card">
                         <div class="card-header bg-primary">
                             <h4 class="card-title">
-                                <i class="fas fa-plus"></i>
+                                <i class="fas fa-edit"></i>
                                 {{ title }}
                             </h4>
                         </div>
@@ -35,8 +35,8 @@
                                         <div class="input-group">
                                             {{ form.persona }}
                                             <div class="input-group-append">
-                                                <button class="btn btn-success" type="button" name="btnAddPersona">
-                                                    <i class="fas fa-user-plus"></i>
+                                                <button class="btn btn-warning" type="button" name="btnAddPersona">
+                                                    <i class="fas fa-user-pen"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -144,19 +144,6 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         // Script para activar los select2 del formulario de socio
-        $('#id_persona').select2({
-            theme: 'bootstrap4',
-            placeholder: 'Seleccione una persona',
-            allowClear: true,
-            language: 'es'
-        });
-        $('#id_categoria').select2({
-            theme: 'bootstrap4',
-            allowClear: true,
-            placeholder: 'Seleccione una categoria',
-            width: '100%',
-            language: 'es'
-        }).prop('disabled', true);
         $('#id_estado').select2({
             theme: 'bootstrap4',
             placeholder: 'Seleccione un estado',
@@ -164,48 +151,22 @@
             width: '100%',
             language: 'es'
         });
-    </script>
-    <script>
-        $(document).ready(function () {
-            let select_categoria = $('#id_categoria');
-            // Obtener con ajax las categorias de socio según la edad
-            $('#id_persona').on('change', function (e) {
-                // Verificar que el input no esté vacío
-                if ($(this).val()) {
-                    $.ajax({
-                        // Pasar una edad por GET para filtrar las categorias en la vista
-                        url: window.location.pathname,
-                        type: 'POST',
-                        data: {
-                            'action': 'get_categoria',
-                            'persona': $(this).val(),
-                            'csrfmiddlewaretoken': '{{ csrf_token }}'
-                        },
-                        dataType: 'json',
-                        success: function (data) {
-                            {% if action == 'add' %}
-                                // Limpiar el select
-                                select_categoria.empty();
-                                // Habilitar el select
-                                select_categoria.prop('disabled', false);
-                                // Agregar las categorias al select
-                                $.each(data, function (key, value) {
-                                    select_categoria.append('<option value="' + value.id + '">' + value.nombre + ' $' + value.cuota + '</option>');
-                                });
-                            {% elif action == 'edit' %}
-
-                            {% endif %}
-                        },
-                    });
-                } else {
-                    // Limpiar el select
-                    select_categoria.empty();
-                    // Deshabilitar el select
-                    select_categoria.prop('disabled', true);
-                }
-            });
+        let select_persona = $('#id_persona');
+        let persona_siendo_editada = select_persona.val()
+        select_persona.select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione una persona',
+            allowClear: true,
+            language: 'es'
+        }).prop('disabled', true);
+        let select_categoria = $('#id_categoria');
+        select_categoria.select2({
+            theme: 'bootstrap4',
+            allowClear: true,
+            placeholder: 'Seleccione una categoria',
+            width: '100%',
+            language: 'es'
         });
-
         // Función para obtener la edad a partir de la fecha de nacimiento
         function getAge(dateString) {
             let today = new Date();
@@ -222,7 +183,10 @@
         // Script para el formulario de socio
         $('#formSocio').on('submit', function (e) {
             e.preventDefault();
+            select_persona.prop('disabled', false); // Al momento de enviar el formulario, se habilita el select de persona
+                                                    // para que se envíe el valor, ya que si no se habilita, no se envía.
             let form = new FormData(this);
+            select_persona.prop('disabled', true); // Vuelvo a deshabilitar el select de persona para evitar que el usuario lo modifique
             form.append('csrfmiddlewaretoken', '{{ csrf_token }}');
             form.append('action', '{{ action }}');
             $.ajax({
@@ -277,7 +241,7 @@
                 "format": "DD/MM/YYYY",
                 "icons": {"time": "fa fa-clock-o"},
                 "locale": "es-AR",
-                "date": null,
+                "date": new Date('{{ socio.persona.get_fecha_nacimiento }}'),
                 "minDate": "1900-01-01",
                 "maxDate": Date.now(),
             });
@@ -290,12 +254,41 @@
             });
             $('#ModalAddPersona').modal('show');
         });
-
+        $.ajax({
+            url: window.location.pathname,
+            type: 'POST',
+            data: {
+                'action': 'get_categoria',
+                'persona': select_persona.val(),
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            dataType: 'json',
+            success: function (data) {
+                // Guardar la categoria actual
+                let categoria_actual = select_categoria.val();
+                // Limpiar el select
+                select_categoria.empty();
+                // Habilitar el select
+                select_categoria.prop('disabled', false);
+                // Agregar las categorias al select
+                $.each(data, function (key, value) {
+                    select_categoria.append('<option value="' + value.id + '">' + value.nombre + ' $' + value.cuota + '</option>');
+                });
+                // Recorrer las categorias del select
+                select_categoria.find('option').each(function () {
+                    // Si la categoria actual es igual a la categoria del select
+                    if ($(this).val() === categoria_actual) {
+                        // Seleccionar la categoria actual
+                        $(this).prop('selected', true);
+                    }
+                });
+            }
+        });
         $('#formPersona').on('submit', function (e) {
             e.preventDefault();
             let form = new FormData(this);
             form.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-            form.append('action', 'create_persona');
+            form.append('action', 'update_persona');
             $.ajax({
                 url: window.location.pathname,
                 type: 'POST',
@@ -305,8 +298,6 @@
                 processData: false,
                 success: function (data) {
                     if (!data.hasOwnProperty('error')) {
-                        let newOption = new Option(data.__str__, data.id, false, true);
-                        $('#id_persona').append(newOption).trigger('change');
                         $('#ModalAddPersona').modal('hide');
                         Swal.fire({
                             position: 'top-end',
@@ -318,6 +309,37 @@
                             timerProgressBar: true,
                         })
                         document.body.classList.remove('swal2-height-auto');
+                        // Actualizar el select de Categoria
+                        $.ajax({
+                            url: window.location.pathname,
+                            type: 'POST',
+                            data: {
+                                'action': 'get_categoria',
+                                'persona': select_persona.val(),
+                                'csrfmiddlewaretoken': '{{ csrf_token }}'
+                            },
+                            dataType: 'json',
+                            success: function (data) {
+                                // Guardar la categoria actual
+                                let categoria_actual = select_categoria.val();
+                                // Limpiar el select
+                                select_categoria.empty();
+                                // Habilitar el select
+                                select_categoria.prop('disabled', false);
+                                // Agregar las categorias al select
+                                $.each(data, function (key, value) {
+                                    select_categoria.append('<option value="' + value.id + '">' + value.nombre + ' $' + value.cuota + '</option>');
+                                });
+                                // Recorrer las categorias del select
+                                select_categoria.find('option').each(function () {
+                                    // Si la categoria actual es igual a la categoria del select
+                                    if ($(this).val() === categoria_actual) {
+                                        // Seleccionar la categoria actual
+                                        $(this).prop('selected', true);
+                                    }
+                                });
+                            }
+                        });
                     } else {
                         let errors = []
                         $.each(data.error, function (key, value) {

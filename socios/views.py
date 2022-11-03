@@ -124,88 +124,64 @@ class SocioDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
         return context
 
 
-@login_required
-@admin_required
-def socio_update_view(request, pk):
-    """
-    Vista para actualizar un socio
-    """
-    socio = get_object_or_404(Socio, pk=pk)
-    if request.method == 'POST':
-        estado_form = SelectEstadoForm(request.POST)
-        categoria_form = SelectCategoriaForm(request.POST)
-        persona_form = PersonaFormAdmin(request.POST, request.FILES, instance=socio.persona)
-        if socio.get_user() is not None:  # Si tiene usuario
-            user_form = UpdateUserFormAdmin(request.POST, instance=socio.persona.user)
-            if persona_form.is_valid() and estado_form.is_valid() and user_form.is_valid() and categoria_form.is_valid():
-                # Actualizar la persona
-                persona_form.save()
-                # Actualizar el socio
-                socio.categoria_id = categoria_form['categoria'].value()
-                socio.estado_id = estado_form['estado'].value()
-                socio.save()
-                # Actualizar el usuario
-                user_form.save()
-                # TODO: Enviar email de actualización de datos
+class SocioUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """ Vista para editar un socio """
+    model = Socio
+    form_class = SocioForm
+    template_name = 'socio/update.html'
+    permission_required = 'socios.change_socio'
+    context_object_name = 'socio'
+    success_url = reverse_lazy('socio-listado')
 
-                messages.success(request, 'Socio actualizado correctamente')
-                return redirect('socio-detalle', pk=socio.pk)
-        else:  # Si no tiene usuario asociado
-            user_form = SimpleCreateUserForm(request.POST)
-            if persona_form.is_valid() and estado_form.is_valid() and categoria_form.is_valid():
-                # Actualizar la persona
-                persona = persona_form.save()
-                # Obtener la categoría
-                categoria = categoria_form['categoria'].value()
-                # Actualizar el socio
-                socio.categoria_id = categoria
-                socio.estado_id = estado_form['estado'].value()
-                socio.save()
-                # Si se decidió crearle un usuario al socio, se lo asigna a la persona y se envía un email
-                if user_form['add_user'].value():
-                    if user_form.is_valid():
-                        user = User()
-                        user.persona = persona
-                        user.email = user_form.clean_email()
-                        user.username = persona.dni
-                        user.set_password(User.objects.make_random_password())
-                        # Enviar email con los datos de acceso
-                        current_site = get_current_site(request)
-                        mail_subject = 'Bienvenido a %s' % current_site.name
-                        message = render_to_string('email/socio_creado_email.html', {
-                            'user': user,
-                            'domain': current_site.domain,
-                            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                            'token': PasswordResetTokenGenerator().make_token(user),
-                            'protocol': 'https' if request.is_secure() else 'http',
-                        })
-                        to_email = user.email
-                        email = EmailMessage(mail_subject, message, to=[to_email])
-                        email.send()
-                        user.save()
-                        messages.success(request, 'Socio y Usuario actualizado correctamente')
-                        return redirect('socio-detalle', pk=socio.pk)
-                messages.success(request, 'Socio actualizado correctamente')
-                return redirect('socio-detalle', pk=socio.pk)
-    else:
-        estado_form = SelectEstadoForm(initial={'estado': socio.estado.pk})
-        persona_form = PersonaFormAdmin(instance=socio.persona)
-        categoria_form = SelectCategoriaForm(initial={'categoria': socio.categoria.pk})
-        if socio.get_user() is not None:
-            user_form = UpdateUserFormAdmin(instance=socio.get_user())
-        else:
-            user_form = SimpleCreateUserForm()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Editar Socio'
+        context['action'] = 'edit'
+        context['persona_form'] = PersonaFormAdmin(instance=self.get_object().persona)
+        return context
 
-    context = {
-        'title': 'Actualizar socio',
-        'action': 'update',
-        'estado_form': estado_form,
-        'user_form': user_form,
-        'persona_form': persona_form,
-        'categoria_form': categoria_form,
-        'socio': socio,
-    }
-    return render(request, 'socio_update.html', context)
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'edit':
+                # Si la accion es editar, se edita el socio
+                form = self.form_class(request.POST, instance=self.get_object())
+                if form.is_valid():
+                    with transaction.atomic():
+                        form.save()
+                        messages.success(request, 'Socio editado correctamente')
+                else:
+                    data['error'] = form.errors
+            elif action == 'get_categoria':
+                # Si la accion es get_categoria, se obtiene las categorias que puede tener el socio
+                data = []
+                # Obtener la edad de la Persona
+                persona_id = request.POST['persona']
+                edad = Persona.objects.get(pk=persona_id).get_edad()
+                # Obtener las categorias que corresponden a la edad
+                categorias = Categoria.objects.filter(edad_desde__lte=edad,
+                                                      edad_hasta__gte=edad)
+                for categoria in categorias:
+                    item = categoria.toJSON()
+                    data.append(item)
+            elif action == 'update_persona':
+                # Si la accion es update_persona, se edita la persona
+                persona_form = PersonaFormAdmin(request.POST, request.FILES, instance=self.get_object().persona)
+                if persona_form.is_valid():
+                    with transaction.atomic():
+                        persona = persona_form.save()
+                        data = persona.toJSON()
+                        # Agregar mensaje de exito a data
+                        data['tags'] = 'success'
+                        data['message'] = 'Persona editada correctamente'
+                else:
+                    data['error'] = persona_form.errors
+            else:
+                data['error'] = 'Ha ocurrido un error, intente nuevamente'
+        except Exception as e:
+            data['error'] = str(e)
+        return JsonResponse(data, safe=False)
 
 
 @login_required
