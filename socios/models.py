@@ -25,8 +25,16 @@ class Socio(SoftDeleteModel):
             return None
 
     def get_related_objects(self):
-        miembros = Miembro.global_objects.get(socio_id=self.id)
-        return [miembros]
+        """
+        Devuelve una lista de objetos relacionados con el socio.
+        """
+        try:
+            miembro = Miembro.global_objects.filter(socio=self)
+            # Queryset to list
+            miembro = list(miembro)
+            return miembro
+        except ObjectDoesNotExist:
+            return []
 
     def restore(self, cascade=None):
         # Si el socio tiene Persona eliminada, no puede ser restaurado
@@ -71,6 +79,9 @@ class Miembro(SoftDeleteModel):
     parentesco = models.ForeignKey('parameters.Parentesco', on_delete=models.PROTECT)
     categoria = models.ForeignKey('socios.Categoria', on_delete=models.PROTECT)
 
+    def __str__(self):
+        return self.persona.get_full_name()
+
     def restore(self, cascade=None):
         # Si el miembro es socio, no puede ser restaurado
         try:
@@ -84,10 +95,11 @@ class Miembro(SoftDeleteModel):
     def clean(self):
         # Miembro no puede ser socio
         try:
-            if not self.persona.socio.is_deleted():
+            if not self.persona.socio.is_deleted:
                 raise ValidationError('La persona {} ya es socio.'.format(self.persona.get_full_name()))
         except ObjectDoesNotExist:
             pass
+        # Socio y Persona no pueden ser iguales
 
     class Meta:
         verbose_name = 'Miembro'

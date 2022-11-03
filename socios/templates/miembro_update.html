@@ -159,7 +159,7 @@
             }
             $.ajax({
                 // Pasar una edad por GET para filtrar las categorias en la vista
-                url: "{% url 'categoria-listado' %}",
+                {#url: "{% url 'categoria-listado' %}",#}
                 type: 'GET',
                 data: datos,
                 dataType: 'json',
@@ -189,7 +189,7 @@
                     }
                     $.ajax({
                         // Pasar una edad por GET para filtrar las categorias en la vista
-                        url: "{% url 'categoria-listado' %}",
+                        {#url: "{% url 'categoria-listado' %}",#}
                         type: 'GET',
                         data: datos,
                         dataType: 'json',

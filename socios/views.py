@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.mail import EmailMessage
 from django.db import transaction, IntegrityError
 from django.db.models import Q
@@ -110,19 +110,18 @@ class SocioCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         return JsonResponse(data, safe=False)
 
 
-@login_required
-@admin_required
-def socio_detail_view(request, pk):
-    """
-    Vista para el detalle de un socio.
-    """
-    socio = get_object_or_404(Socio, pk=pk)
-    context = {
-        'title': 'Detalle de socio',
-        'socio': socio,
-        'miembros': socio.miembro_set.all(),
-    }
-    return render(request, 'socio_detail.html', context)
+class SocioDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    """ Vista para mostrar un socio """
+    model = Socio
+    template_name = 'socio/detail.html'
+    context_object_name = 'socio'
+    permission_required = 'socios.view_socio'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Detalle de Socio'
+        context['miembros'] = Miembro.objects.filter(socio=self.get_object())
+        return context
 
 
 @login_required
@@ -228,8 +227,16 @@ def socio_restore(request, pk):
     Restaurar un socio eliminado
     """
     socio = Socio.deleted_objects.get(pk=pk)
-    socio.restore(cascade=True)
-    messages.success(request, 'Socio restaurado correctamente')
+    try:
+        if not socio.get_related_objects():
+            socio.restore()
+            messages.success(request, 'Socio restaurado correctamente')
+        else:
+            socio.restore(cascade=True)
+            messages.success(request, 'Socio y miembros restaurado correctamente')
+    # Capturar el ValidationError si el socio ya existe
+    except ValidationError as e:
+        messages.error(request, e.message)
     return redirect('socio-listado')
 
 
