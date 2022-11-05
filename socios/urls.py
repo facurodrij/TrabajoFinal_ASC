@@ -16,10 +16,11 @@ urlpatterns = [
     path('miembros/', MiembroListView.as_view(), name='miembro-listado'),
     path('miembros/crear/', MiembroCreateView.as_view(), name='miembro-crear'),
     path('miembros/<int:pk>', MiembroDetailView.as_view(), name='miembro-detalle'),
+    path('miembros/<int:pk>/editar/', MiembroUpdateView.as_view(), name='miembro-editar'),
     path('miembros/<int:pk>/eliminar/', miembro_delete, name='miembro-eliminar'),
     path('miembros/<int:pk>/restaurar/', miembro_restore, name='miembro-restaurar'),
 
     # Miembros
     path('socios/<int:pk>/crear-miembro/', miembro_create_view, name='socio-miembro-crear'),
-    path('socios/miembro/<int:miembro_pk>/editar/', miembro_update_view, name='miembro-editar'),
+    path('socios/miembro/<int:miembro_pk>/editar/', miembro_update_view, name='socio-miembro-editar'),
 ]

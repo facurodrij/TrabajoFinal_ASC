@@ -121,6 +121,76 @@ class MiembroDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView)
         context['title'] = 'Detalle de Miembro'
         return context
 
+    # TODO:
+    #  -Mostrar carnet de miembro
+
+
+class MiembroUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """ Vista para editar un miembro """
+    model = Miembro
+    form_class = MiembroForm
+    template_name = 'miembro/update.html'
+    permission_required = 'socios.change_miembro'
+    context_object_name = 'miembro'
+    success_url = reverse_lazy('miembro-listado')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Editar Miembro'
+        context['action'] = 'edit'
+        context['persona_form'] = PersonaFormAdmin(instance=self.get_object().persona)
+        return context
+
+    def get_form(self, form_class=None):
+        # El select de persona debe mostrar solo la persona del miembro y deshabilitar el campo
+        form = super().get_form(form_class)
+        form.fields['persona'].queryset = Persona.objects.filter(pk=self.get_object().persona.pk)
+        form.fields['persona'].widget.attrs['disabled'] = True
+        return form
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'edit':
+                # Si la accion es editar, se edita el miembro
+                form = self.form_class(request.POST, instance=self.get_object())
+                if form.is_valid():
+                    with transaction.atomic():
+                        form.save()
+                        messages.success(request, 'Miembro editado correctamente')
+                else:
+                    data['error'] = form.errors
+            elif action == 'get_categoria':
+                # Si la accion es get_categoria, se obtiene las categorias que puede tener el miembro
+                data = []
+                # Obtener la edad de la Persona
+                persona_id = request.POST['persona']
+                edad = Persona.objects.get(pk=persona_id).get_edad()
+                # Obtener las categorias que corresponden a la edad
+                categorias = Categoria.objects.filter(edad_desde__lte=edad,
+                                                      edad_hasta__gte=edad)
+                for categoria in categorias:
+                    item = categoria.toJSON()
+                    data.append(item)
+            elif action == 'update_persona':
+                # Si la accion es update_persona, se edita la persona
+                persona_form = PersonaFormAdmin(request.POST, request.FILES, instance=self.get_object().persona)
+                if persona_form.is_valid():
+                    with transaction.atomic():
+                        persona = persona_form.save()
+                        data = persona.toJSON()
+                        # Agregar mensaje de exito a data
+                        data['tags'] = 'success'
+                        data['message'] = 'Persona editada correctamente'
+                else:
+                    data['error'] = persona_form.errors
+            else:
+                data['error'] = 'Ha ocurrido un error, intente nuevamente'
+        except Exception as e:
+            data['error'] = str(e)
+        return JsonResponse(data, safe=False)
+
 
 @login_required
 @admin_required

@@ -18,7 +18,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <form method="post" enctype="multipart/form-data" id="formSocio">
+                <form method="post" enctype="multipart/form-data" id="formMiembro">
                     {% csrf_token %}
                     <div class="card">
                         <div class="card-header bg-primary">
@@ -42,8 +42,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="labels">{{ form.categoria.label }}</label>
@@ -54,8 +52,14 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="labels">{{ form.estado.label }}</label>
-                                        {{ form.estado }}
+                                        <label class="labels">{{ form.socio.label }}</label>
+                                        {{ form.socio }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="labels">{{ form.parentesco.label }}</label>
+                                        {{ form.parentesco }}
                                     </div>
                                 </div>
                             </div>
@@ -144,13 +148,6 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         // Script para activar los select2 del formulario de socio
-        $('#id_estado').select2({
-            theme: 'bootstrap4',
-            placeholder: 'Seleccione un estado',
-            allowClear: true,
-            width: '100%',
-            language: 'es'
-        });
         let select_persona = $('#id_persona');
         let persona_siendo_editada = select_persona.val()
         select_persona.select2({
@@ -164,6 +161,20 @@
             theme: 'bootstrap4',
             allowClear: true,
             placeholder: 'Seleccione una categoria',
+            width: '100%',
+            language: 'es'
+        });
+        $('#id_socio').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione un socio',
+            allowClear: true,
+            width: '100%',
+            language: 'es'
+        });
+        $('#id_parentesco').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione un parentesco',
+            allowClear: true,
             width: '100%',
             language: 'es'
         });
@@ -181,7 +192,7 @@
     </script>
     <script>
         // Script para el formulario de socio
-        $('#formSocio').on('submit', function (e) {
+        $('#formMiembro').on('submit', function (e) {
             e.preventDefault();
             select_persona.prop('disabled', false); // Al momento de enviar el formulario, se habilita el select de persona
                                                     // para que se envíe el valor, ya que si no se habilita, no se envía.
@@ -198,7 +209,7 @@
                 processData: false,
                 success: function (data) {
                     if (!data.hasOwnProperty('error')) {
-                        window.location.pathname = '{% url 'socio-listado' %}';
+                        window.location.pathname = '{% url 'miembro-listado' %}';
                     } else {
                         let errors = []
                         // Si data error es un objeto pushear los errores al array
@@ -220,7 +231,7 @@
                     }
                 },
                 error: function (data) {
-                    alert('Error al guardar el socio');
+                    alert('Error al guardar el miembro');
                 }
             });
         });
@@ -241,7 +252,7 @@
                 "format": "DD/MM/YYYY",
                 "icons": {"time": "fa fa-clock-o"},
                 "locale": "es-AR",
-                "date": new Date('{{ socio.persona.get_fecha_nacimiento }}'),
+                "date": new Date('{{ miembro.persona.get_fecha_nacimiento }}'),
                 "minDate": "1900-01-01",
                 "maxDate": Date.now(),
             });

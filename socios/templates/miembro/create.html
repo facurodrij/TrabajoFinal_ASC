@@ -63,14 +63,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="labels">{{ form.estado.label }}</label>
-                                        {{ form.estado }}
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                         <div class="card-footer">
                             <button class="btn btn-primary profile-button" type="submit">Guardar Cambios</button>
@@ -169,13 +161,6 @@
             width: '100%',
             language: 'es'
         }).prop('disabled', true);
-        $('#id_estado').select2({
-            theme: 'bootstrap4',
-            placeholder: 'Seleccione un estado',
-            allowClear: true,
-            width: '100%',
-            language: 'es'
-        });
         $('#id_socio').select2({
             theme: 'bootstrap4',
             placeholder: 'Seleccione un socio',

@@ -40,7 +40,7 @@ class SocioListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Socios'
+        context['title'] = 'Listado de socios'
         return context
 
 
@@ -122,6 +122,13 @@ class SocioDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
         context['miembros'] = Miembro.objects.filter(socio=self.get_object())
         return context
 
+    # TODO:
+    #  -Mostrar carnet de socio
+    #  -Agregar miembros con ajax
+    #  -Editar miembros con ajax
+    #  -Eliminar miembros con ajax
+    #  -Restaurar miembros con ajax
+
 
 class SocioUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """ Vista para editar un socio """
@@ -140,9 +147,10 @@ class SocioUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         return context
 
     def get_form(self, form_class=None):
-        # El select de persona debe mostrar solo la persona del socio
+        # El select de persona debe mostrar solo la persona del socio y deshabilitar el campo
         form = super().get_form(form_class)
         form.fields['persona'].queryset = Persona.objects.filter(pk=self.get_object().persona.pk)
+        form.fields['persona'].widget.attrs['disabled'] = True
         return form
 
     def post(self, request, *args, **kwargs):
