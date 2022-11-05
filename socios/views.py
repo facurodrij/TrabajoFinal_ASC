@@ -22,7 +22,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from socios.models import Socio, Miembro, Categoria, Estado
-from socios.forms import SocioForm, SelectCategoriaForm, SelectEstadoForm, SelectParentescoForm
+from socios.forms import SocioForm, SelectCategoriaForm, SelectEstadoForm, SelectParentescoForm, MiembroForm
 from core.models import Club
 from accounts.forms import *
 from accounts.decorators import admin_required
@@ -41,7 +41,6 @@ class SocioListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Socios'
-        # TODO: Agregar lista de Miembros
         return context
 
 
@@ -140,6 +139,12 @@ class SocioUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         context['persona_form'] = PersonaFormAdmin(instance=self.get_object().persona)
         return context
 
+    def get_form(self, form_class=None):
+        # El select de persona debe mostrar solo la persona del socio
+        form = super().get_form(form_class)
+        form.fields['persona'].queryset = Persona.objects.filter(pk=self.get_object().persona.pk)
+        return form
+
     def post(self, request, *args, **kwargs):
         data = {}
         try:
@@ -214,6 +219,87 @@ def socio_restore(request, pk):
     except ValidationError as e:
         messages.error(request, e.message)
     return redirect('socio-listado')
+
+
+class MiembroListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    """ Vista para listar los miembros """
+    model = Miembro
+    template_name = 'miembro/list.html'
+    context_object_name = 'miembros'
+    permission_required = 'socios.view_miembro'
+
+    def get_queryset(self):
+        return Miembro.global_objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Listado de Miembros'
+        context['socios'] = Socio.objects.all()
+        return context
+
+
+class MiembroCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """ Vista para crear un miembro """
+    model = Miembro
+    form_class = MiembroForm
+    template_name = 'miembro/create.html'
+    permission_required = 'socios.add_miembro'
+    context_object_name = 'miembro'
+    success_url = reverse_lazy('socio-listado')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Agregar Miembro'
+        context['action'] = 'add'
+        context['persona_form'] = PersonaFormAdmin()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'add':
+                # Si la accion es agregar, se crea el miembro
+                form = self.form_class(request.POST)
+                if form.is_valid():
+                    with transaction.atomic():
+                        miembro = form.save(commit=False)
+                        miembro.socio = Socio.objects.get(pk=self.kwargs['pk'])
+                        miembro.save()
+                        messages.success(request, 'Miembro agregado correctamente')
+                else:
+                    data['error'] = form.errors
+            elif action == 'get_categoria':
+                # Si la accion es get_categoria, se obtiene las categorias que puede tener el miembro
+                data = []
+                # Obtener la edad de la Persona
+                persona_id = request.POST['persona']
+                edad = Persona.objects.get(pk=persona_id).get_edad()
+                # Obtener las categorias que corresponden a la edad
+                categorias = Categoria.objects.filter(edad_desde__lte=edad,
+                                                      edad_hasta__gte=edad)
+                for categoria in categorias:
+                    item = categoria.toJSON()
+                    data.append(item)
+            elif action == 'create_persona':
+                # Si la accion es create_persona, se crea una nueva persona
+                persona_form = PersonaFormAdmin(request.POST, request.FILES)
+                if persona_form.is_valid():
+                    with transaction.atomic():
+                        persona = persona_form.save(commit=False)
+                        persona.club = Club.objects.get(pk=1)
+                        persona.save()
+                        data = persona.toJSON()
+                        # Agregar mensaje de exito a data
+                        data['tags'] = 'success'
+                        data['message'] = 'Persona creada correctamente'
+                else:
+                    data['error'] = persona_form.errors
+            else:
+                data['error'] = 'Ha ocurrido un error, intente nuevamente'
+        except Exception as e:
+            data['error'] = str(e)
+        return JsonResponse(data, safe=False)
 
 
 @login_required

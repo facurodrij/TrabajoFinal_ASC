@@ -14,10 +14,10 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header bg-primary">
-                        <h3 class="card-title">Socios Registrados</h3>
+                        <h3 class="card-title">Miembros Registrados</h3>
                     </div>
                     <div class="card-body">
-                        <a class="btn btn-success mb-3" href="{% url 'socio-crear' %}">Crear Nuevo</a>
+                        <a class="btn btn-success mb-3" href="{% url 'miembro-crear' %}">Crear Nuevo</a>
                         <table id="dataTable" class="table table-bordered table-striped dataTable">
                             <thead>
                             <tr>
@@ -26,41 +26,39 @@
                                 <th scope="col" style="">Nombre completo</th>
                                 <th scope="col" style="">Edad</th>
                                 <th scope="col" style="">Categoría</th>
-                                <th scope="col" style="">Estado</th>
+                                <th scope="col" style="">Socio a cargo</th>
                                 <th scope="col" style="">Acciones</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {% for socio in socios %}
+                            {% for miembro in miembros %}
                                 <tr>
-                                    <td>{{ socio.pk }}</td>
-                                    <td>{{ socio.persona.dni }}</td>
-                                    <td>{{ socio.persona.get_full_name }}</td>
-                                    <td>{{ socio.persona.get_edad }}</td>
-                                    <td>{{ socio.categoria }}</td>
-                                    {% if not socio.is_deleted %}
-                                        {% if socio.estado.is_active %}
-                                            <td><span class="badge badge-success">{{ socio.estado }}</span></td>
-                                        {% else %}
-                                            <td><span class="badge badge-danger">{{ socio.estado }}</span></td>
-                                        {% endif %}
+                                    <td>{{ miembro.pk }}</td>
+                                    <td>{{ miembro.persona.dni }}</td>
+                                    <td>{{ miembro.persona.get_full_name }}</td>
+                                    <td>{{ miembro.persona.get_edad }}</td>
+                                    <td>{{ miembro.categoria }}</td>
+                                    <td>{{ miembro.socio }}</td>
+                                    {% if not miembro.is_deleted %}
                                         <td>
-                                            <a href="{% url 'socio-detalle' socio.pk %}" class="btn btn-info btn-sm">
+                                            <a href="{% url 'miembro-detalle' miembro.pk %}"
+                                               class="btn btn-info btn-sm">
                                                 <i class="fa-solid fa-eye"></i>
                                             </a>
-                                            <a href="{% url 'socio-editar' socio.pk %}" class="btn btn-warning btn-sm">
+                                            <a href="{% url 'miembro-editar' miembro.pk %}"
+                                               class="btn btn-warning btn-sm">
                                                 <i class="fa-solid fa-edit"></i>
                                             </a>
-                                            <a href="{% url 'socio-eliminar' socio.pk %}" class="btn btn-danger btn-sm">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </a>
+{#                                            <a href="{% url 'miembro-eliminar' miembro.pk %}"#}
+{#                                               class="btn btn-danger btn-sm">#}
+{#                                                <i class="fa-solid fa-trash"></i>#}
+{#                                            </a>#}
                                         </td>
                                     {% else %}
-                                        <td><span class="badge badge-danger">Eliminado</span></td>
                                         <td>
-                                            <a href="{% url 'socio-restaurar' socio.pk %}" class="btn btn-success btn-sm">
-                                                <i class="fa-solid fa-rotate-left"></i>
-                                            </a>
+                                            {#                                            <a href="{% url 'miembro-restaurar' miembro.pk %}" class="btn btn-success btn-sm">#}
+                                            {#                                                <i class="fa-solid fa-rotate-left"></i>#}
+                                            {#                                            </a>#}
                                         </td>
                                     {% endif %}
                                 </tr>
@@ -73,7 +71,7 @@
                                 <th scope="col" style="">Nombre completo</th>
                                 <th scope="col" style="">Edad</th>
                                 <th scope="col" style="">Categoría</th>
-                                <th scope="col" style="">Estado</th>
+                                <th scope="col" style="">Socio a cargo</th>
                                 <th scope="col" style="">Acciones</th>
                             </tr>
                             </tfoot>

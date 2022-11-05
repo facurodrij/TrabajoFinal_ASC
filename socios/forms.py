@@ -3,7 +3,7 @@ from django.db import IntegrityError
 from django.contrib.admin.widgets import AdminFileWidget
 from django.core.exceptions import ValidationError
 
-from socios.models import Estado, Categoria, Socio
+from socios.models import Estado, Categoria, Socio, Miembro
 from parameters.models import Parentesco
 
 
@@ -38,7 +38,6 @@ class SocioForm(forms.ModelForm):
     """
     Formulario para crear un socio.
     """
-
     # Validar si el socio que se quiere crear ya existe y está eliminado
     def clean(self):
         super(SocioForm, self).clean()
@@ -56,4 +55,29 @@ class SocioForm(forms.ModelForm):
             'persona': forms.Select(attrs={'class': 'form-control select2'}),
             'categoria': forms.Select(attrs={'class': 'form-control select2'}),
             'estado': forms.Select(attrs={'class': 'form-control select2'}),
+        }
+
+
+class MiembroForm(forms.ModelForm):
+    """
+    Formulario para crear un miembro.
+    """
+    # Validar si el miembro que se quiere crear ya existe y está eliminado
+    def clean(self):
+        super(MiembroForm, self).clean()
+        try:
+            miembro = Miembro.global_objects.get(persona_id=self.cleaned_data['persona'])
+            if miembro.is_deleted:
+                raise ValidationError('El miembro {} ya existe. Pero se encuentra eliminado.'.format(miembro))
+        except Miembro.DoesNotExist:
+            pass
+
+    class Meta:
+        model = Miembro
+        fields = ['socio', 'persona', 'parentesco', 'categoria']
+        widgets = {
+            'socio': forms.Select(attrs={'class': 'form-control select2'}),
+            'persona': forms.Select(attrs={'class': 'form-control select2'}),
+            'parentesco': forms.Select(attrs={'class': 'form-control select2'}),
+            'categoria': forms.Select(attrs={'class': 'form-control select2'}),
         }

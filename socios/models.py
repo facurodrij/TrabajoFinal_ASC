@@ -16,7 +16,7 @@ class Socio(SoftDeleteModel):
     estado = models.ForeignKey('socios.Estado', on_delete=models.PROTECT)
 
     def __str__(self):
-        return self.persona.get_full_name()
+        return self.persona.__str__()
 
     def get_user(self):
         try:
@@ -80,7 +80,7 @@ class Miembro(SoftDeleteModel):
     categoria = models.ForeignKey('socios.Categoria', on_delete=models.PROTECT)
 
     def __str__(self):
-        return self.persona.get_full_name()
+        return self.persona.__str__()
 
     def restore(self, cascade=None):
         # Si el miembro es socio, no puede ser restaurado

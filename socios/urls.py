@@ -19,7 +19,11 @@ urlpatterns = [
     path('socios/<int:pk>/restaurar/', socio_restore, name='socio-restaurar'),
 
     # Miembros
-    path('socios/<int:pk>/crear-miembro/', miembro_create_view, name='miembro-crear'),
+    path('miembros/', MiembroListView.as_view(), name='miembro-listado'),
+    path('miembros/crear/', MiembroCreateView.as_view(), name='miembro-crear'),
     path('socios/miembro/<int:miembro_pk>', miembro_detail_view, name='miembro-detalle'),
+
+    # Miembros
+    path('socios/<int:pk>/crear-miembro/', miembro_create_view, name='socio-miembro-crear'),
     path('socios/miembro/<int:miembro_pk>/editar/', miembro_update_view, name='miembro-editar'),
 ]
