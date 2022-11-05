@@ -1,13 +1,7 @@
 from django.urls import path
 
-# TODO: Importar las vistas de socios que se van a utilizar en las URLs
-#       Crear las urls para la creación de un socio, la edición de un socio,
-#       la eliminación de un socio y el listado de socios.
-
-from django.urls import path
-from django.views.generic import TemplateView
-
-from .views import *
+from socios.views.socio.views import *
+from socios.views.miembro.views import *
 
 urlpatterns = [
     # Socios
@@ -21,7 +15,9 @@ urlpatterns = [
     # Miembros
     path('miembros/', MiembroListView.as_view(), name='miembro-listado'),
     path('miembros/crear/', MiembroCreateView.as_view(), name='miembro-crear'),
-    path('socios/miembro/<int:miembro_pk>', miembro_detail_view, name='miembro-detalle'),
+    path('miembros/<int:pk>', MiembroDetailView.as_view(), name='miembro-detalle'),
+    path('miembros/<int:pk>/eliminar/', miembro_delete, name='miembro-eliminar'),
+    path('miembros/<int:pk>/restaurar/', miembro_restore, name='miembro-restaurar'),
 
     # Miembros
     path('socios/<int:pk>/crear-miembro/', miembro_create_view, name='socio-miembro-crear'),

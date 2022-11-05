@@ -49,16 +49,17 @@
                                                class="btn btn-warning btn-sm">
                                                 <i class="fa-solid fa-edit"></i>
                                             </a>
-{#                                            <a href="{% url 'miembro-eliminar' miembro.pk %}"#}
-{#                                               class="btn btn-danger btn-sm">#}
-{#                                                <i class="fa-solid fa-trash"></i>#}
-{#                                            </a>#}
+                                            <a href="{% url 'miembro-eliminar' miembro.pk %}"
+                                               class="btn btn-danger btn-sm">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </a>
                                         </td>
                                     {% else %}
                                         <td>
-                                            {#                                            <a href="{% url 'miembro-restaurar' miembro.pk %}" class="btn btn-success btn-sm">#}
-                                            {#                                                <i class="fa-solid fa-rotate-left"></i>#}
-                                            {#                                            </a>#}
+                                            <a href="{% url 'miembro-restaurar' miembro.pk %}"
+                                               class="btn btn-success btn-sm">
+                                                <i class="fa-solid fa-rotate-left"></i>
+                                            </a>
                                         </td>
                                     {% endif %}
                                 </tr>

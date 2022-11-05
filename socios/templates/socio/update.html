@@ -284,6 +284,7 @@
                 });
             }
         });
+
         $('#formPersona').on('submit', function (e) {
             e.preventDefault();
             let form = new FormData(this);
@@ -342,14 +343,19 @@
                         });
                     } else {
                         let errors = []
-                        $.each(data.error, function (key, value) {
-                            errors.push(value);
-                        });
+                        // Si data error es un objeto pushear los errores al array
+                        if (typeof data.error === 'object') {
+                            $.each(data.error, function (key, value) {
+                                errors.push(value);
+                            });
+                        } else {
+                            errors = data.error
+                        }
                         Swal.fire({
                             position: 'top-end',
                             icon: 'error',
                             title: 'Ocurrió un error',
-                            text: errors.join('\n'),
+                            text: errors,
                             showConfirmButton: true,
                         })
                         document.body.classList.remove('swal2-height-auto');

@@ -65,7 +65,7 @@
                         <h3 class="card-title">Miembros Asignados</h3>
                     </div>
                     <div class="card-body">
-                        <a class="btn btn-success mb-3" href="{% url 'miembro-crear' socio.pk %}">Agregar Nuevo</a>
+                        <a class="btn btn-success mb-3" href="{% url 'socio-miembro-crear' socio.pk %}">Agregar Nuevo</a>
                         <table id="dataTable" class="table table-bordered table-striped dataTable">
                             <thead>
                             <tr>
@@ -90,10 +90,10 @@
                                         <a href="{% url 'miembro-editar' miembro.pk %}" class="btn btn-warning btn-sm">
                                             <i class="fa-solid fa-edit"></i>
                                         </a>
-{#                                        TODO: #}
-{#                                        <a href="{% url 'miembro-eliminar' socio.pk %}" class="btn btn-danger btn-sm">#}
-{#                                            <i class="fa-solid fa-trash"></i>#}
-{#                                        </a>#}
+{# TODO: Implementar la eliminacion de miembros con ajax, para que no se redirija a la vista del listado de miebros #}
+                                        <a href="{% url 'miembro-eliminar' miembro.pk %}" class="btn btn-danger btn-sm">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             {% endfor %}

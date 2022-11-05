@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
+from django.db.models import Q, F
 from django.forms import model_to_dict
 from django_softdelete.models import SoftDeleteModel, SoftDeleteManager
 
@@ -47,7 +48,7 @@ class Socio(SoftDeleteModel):
             if not self.persona.miembro.is_deleted:
                 raise ValidationError(
                     'No es posible restaurar el socio: '
-                    '{} ya es miembro de otro socio.'.format(self.persona.get_full_name()))
+                    '{}, porque ya es miembro de otro socio.'.format(self.persona.get_full_name()))
         except ObjectDoesNotExist:
             pass
         super(Socio, self).restore(cascade=cascade)
@@ -83,14 +84,20 @@ class Miembro(SoftDeleteModel):
         return self.persona.__str__()
 
     def restore(self, cascade=None):
+        # Si el miembro tiene Persona eliminada, no puede ser restaurado
+        persona = Persona.global_objects.get(pk=self.persona.pk)
+        if persona.is_deleted:
+            raise ValidationError('No se puede restaurar el miembro porque la persona está eliminada.')
+
         # Si el miembro es socio, no puede ser restaurado
         try:
             if not self.persona.socio.is_deleted:
                 raise ValidationError(
                     'No es posible restaurar el miembro: '
-                    '{} ya es socio.'.format(self.persona.get_full_name()))
+                    '{}, porque ya es socio.'.format(self.persona.get_full_name()))
         except ObjectDoesNotExist:
-            super(Miembro, self).restore(cascade=cascade)
+            pass
+        super(Miembro, self).restore(cascade=cascade)
 
     def clean(self):
         # Miembro no puede ser socio
@@ -99,7 +106,6 @@ class Miembro(SoftDeleteModel):
                 raise ValidationError('La persona {} ya es socio.'.format(self.persona.get_full_name()))
         except ObjectDoesNotExist:
             pass
-        # Socio y Persona no pueden ser iguales
 
     class Meta:
         verbose_name = 'Miembro'

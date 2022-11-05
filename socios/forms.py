@@ -44,7 +44,7 @@ class SocioForm(forms.ModelForm):
         try:
             socio = Socio.global_objects.get(persona_id=self.cleaned_data['persona'])
             if socio.is_deleted:
-                raise ValidationError('El socio {} ya existe. Pero se encuentra eliminado.'.format(socio))
+                raise ValidationError('El socio {} ya existe, pero se encuentra eliminado.'.format(socio))
         except Socio.DoesNotExist:
             pass
 
@@ -68,7 +68,7 @@ class MiembroForm(forms.ModelForm):
         try:
             miembro = Miembro.global_objects.get(persona_id=self.cleaned_data['persona'])
             if miembro.is_deleted:
-                raise ValidationError('El miembro {} ya existe. Pero se encuentra eliminado.'.format(miembro))
+                raise ValidationError('El miembro {} ya existe, pero se encuentra eliminado.'.format(miembro))
         except Miembro.DoesNotExist:
             pass
 
