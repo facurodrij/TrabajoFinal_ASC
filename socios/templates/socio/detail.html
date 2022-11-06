@@ -12,13 +12,42 @@
 {% block content %}
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-4">
-                <div class="d-flex flex-column align-items-center text-center mb-3">
+            <div class="col-lg-4 col-md-12">
+                <div class="d-flex flex-column align-items-center mb-3">
                     <img class="rounded-circle mt-5"
                          src="{{ socio.persona.get_imagen }}" alt="" style="max-width: 300px">
                 </div>
+                <div class="d-flex flex-column align-items-center mb-3">
+                    <div class="card" style="width: 8.56cm; height: 5.398cm; background: rgb(254,255,0);
+background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rgba(9,39,121,1) 100%);">
+                        <div class="card-body">
+                            <div class="row" style="height: 40%">
+                                <h4 style="color: yellow">Club Atletico Bartolome Mitre</h4>
+                                <h5 style="color: white">
+                                    <strong>{{ socio.persona.apellido }}, {{ socio.persona.nombre }}</strong>
+                                </h5>
+                            </div>
+                            <div class="row">
+                                <div class="col-3">
+                                    <img src="{{ socio.persona.get_imagen }}" alt="" style="max-width: 85px">
+                                </div>
+                                <div class="col-9 p-0">
+                                    <ul style="list-style: none;">
+                                        <li style="color: white"><strong>Socio N°: {{ socio.pk }}</strong></li>
+                                        <li>DNI: {{ socio.persona.dni }}</li>
+                                        <li class="text-right"><img
+                                                src="https://es.qr-code-generator.com/wp-content/themes/qr/new_structure/markets/core_market/generator/dist/generator/assets/images/websiteQRCode_noFrame.png"
+                                                alt=""
+                                                style="max-width: 60px">
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-8">
+            <div class="col-lg-8 col-md-12">
                 <div class="card">
                     <div class="card-header bg-primary">
                         <h4 class="card-title">{{ title }}</h4>
@@ -65,7 +94,8 @@
                         <h3 class="card-title">Miembros Asignados</h3>
                     </div>
                     <div class="card-body">
-                        <a class="btn btn-success mb-3" href="{% url 'socio-miembro-crear' socio.pk %}">Agregar Nuevo</a>
+                        <a class="btn btn-success mb-3" href="{% url 'socio-miembro-crear' socio.pk %}">Agregar
+                            Nuevo</a>
                         <table id="dataTable" class="table table-bordered table-striped dataTable">
                             <thead>
                             <tr>
@@ -90,7 +120,7 @@
                                         <a href="{% url 'miembro-editar' miembro.pk %}" class="btn btn-warning btn-sm">
                                             <i class="fa-solid fa-edit"></i>
                                         </a>
-{# TODO: Implementar la eliminacion de miembros con ajax, para que no se redirija a la vista del listado de miebros #}
+                                        {# TODO: Implementar la eliminacion de miembros con ajax, para que no se redirija a la vista del listado de miebros #}
                                         <a href="{% url 'miembro-eliminar' miembro.pk %}" class="btn btn-danger btn-sm">
                                             <i class="fa-solid fa-trash"></i>
                                         </a>
