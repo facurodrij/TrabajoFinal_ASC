@@ -96,7 +96,7 @@ class Persona(SoftDeleteModel):
     imagen = models.ImageField(upload_to=image_directory_path, verbose_name=_('Imagen'))
 
     def __str__(self):
-        return self.get_full_name() + ' - ' + self.dni
+        return self.get_full_name() + ' DNI: ' + self.dni
 
     def toJSON(self):
         """
@@ -171,24 +171,37 @@ class Persona(SoftDeleteModel):
 
     def clean(self):
         super(Persona, self).clean()
-        # Validar que el DNI sea correcto
-        if not self.dni.isdigit():
-            raise ValidationError(_('DNI: El DNI debe contener solo números.'))
-        if not len(self.dni) >= 7:
-            raise ValidationError(_('DNI: El DNI debe contener al menos 7 dígitos.'))
-        if self.dni[0] == '0':
-            raise ValidationError(_('DNI: El DNI no puede comenzar con 0.'))
-
-        # El nombre y el apellido pueden contener letras y espacios
-        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$', self.nombre):
-            raise ValidationError(_('Nombre: El nombre solo puede contener letras y espacios.'))
-        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$', self.apellido):
-            raise ValidationError(_('Apellido: El apellido solo puede contener letras y espacios.'))
-
         # Quitar espacios en blanco al principio y al final del nombre y apellido.
         self.nombre = self.nombre.strip()
         self.apellido = self.apellido.strip()
 
+        # Cada palabra del nombre y apellido debe comenzar con mayúscula.
+        self.nombre = self.nombre.title()
+        self.apellido = self.apellido.title()
+
     class Meta:
         verbose_name = _('Persona')
         verbose_name_plural = _('Personas')
+        constraints = [
+            # Validar que el DNI solo contenga números, tenga al menos 7 dígitos y no comience con 0.
+            models.CheckConstraint(check=models.Q(dni__regex=r'^[1-9][0-9]{6,}$'),
+                                   name='dni_valido',
+                                   violation_error_message=_(
+                                       'DNI: El DNI debe contener solo números, '
+                                       'tener al menos 7 dígitos y no comenzar con 0.')),
+            # Validar que el nombre y el apellido solo contengan letras y espacios.
+            models.CheckConstraint(check=models.Q(nombre__regex=r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$'),
+                                   name='nombre_valido',
+                                   violation_error_message=_(
+                                       'Nombre: El nombre solo puede contener letras y espacios.')),
+            models.CheckConstraint(check=models.Q(apellido__regex=r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$'),
+                                   name='apellido_valido',
+                                   violation_error_message=_(
+                                       'Apellido: El apellido solo puede contener letras y espacios.')),
+            # Validar que la fecha de nacimiento no sea mayor a la fecha actual.
+            models.CheckConstraint(check=models.Q(fecha_nacimiento__lte=datetime.now().date()),
+                                   name='fecha_nacimiento_valida',
+                                   violation_error_message=_(
+                                       'Fecha de nacimiento: La fecha de nacimiento no puede ser '
+                                       'mayor a la fecha actual.')),
+        ]

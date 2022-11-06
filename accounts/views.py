@@ -36,9 +36,12 @@ def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         # Obtener DNI y Email
-        dni = form.clean_dni()
-        email = form.clean_email()
-
+        try:
+            dni = form.clean_dni()
+            email = form.clean_email()
+        except forms.ValidationError as e:
+            messages.error(request, e.message)
+            return redirect('signup')
         # Obtener la Persona con el DNI ingresado
         persona = Persona.objects.get(dni=dni)
 

@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, User
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import User, Persona
+from socios.models import Socio
 
 
 class CreateUserFormAdmin(UserCreationForm):
@@ -156,7 +157,7 @@ class SignUpForm(forms.Form):
         """
         Validar que el Email no exista en otro Usuario.
         """
-        email = self['email']
+        email = self['email'].value()
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError('El Email ingresado ya está registrado.')
         return email
@@ -165,8 +166,11 @@ class SignUpForm(forms.Form):
         """
         Validar que el DNI exista en la tabla Persona y esté asociado con la tabla Socio.
         """
-        dni = self['dni']
+        dni = self['dni'].value()
         if not Socio.objects.filter(persona__dni=dni).exists():
             raise forms.ValidationError('El DNI ingresado no pertenece a un socio del Club. '
                                         'Para registrarse debe ser socio.')
+        # Validar que el dni no este asociado a un usuario.
+        if User.objects.filter(persona__dni=dni).exists():
+            raise forms.ValidationError('El DNI ingresado ya está registrado.')
         return dni
