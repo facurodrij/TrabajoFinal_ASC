@@ -33,8 +33,8 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                 </div>
                                 <div class="col-9 p-0">
                                     <ul style="list-style: none;">
-                                        <li style="color: white"><strong>Socio N°: {{ socio.pk }}</strong></li>
-                                        <li>DNI: {{ socio.persona.dni }}</li>
+                                        <li style="color: yellow"><strong>Socio N°: {{ socio.pk }}</strong></li>
+                                        <li style="color: white"><strong>DNI: {{ socio.persona.dni }}</strong></li>
                                         <li class="text-right"><img
                                                 src="https://es.qr-code-generator.com/wp-content/themes/qr/new_structure/markets/core_market/generator/dist/generator/assets/images/websiteQRCode_noFrame.png"
                                                 alt=""
@@ -94,8 +94,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                         <h3 class="card-title">Miembros Asignados</h3>
                     </div>
                     <div class="card-body">
-                        <a class="btn btn-success mb-3" href="{% url 'socio-miembro-crear' socio.pk %}">Agregar
-                            Nuevo</a>
+                        <a class="btn btn-success mb-3" href="#">Agregar Nuevo</a>
                         <table id="dataTable" class="table table-bordered table-striped dataTable">
                             <thead>
                             <tr>

@@ -2,6 +2,7 @@ from django.urls import path
 
 from socios.views.socio.views import *
 from socios.views.miembro.views import *
+from socios.views.solicitud.views import *
 
 urlpatterns = [
     # Socios
@@ -20,7 +21,7 @@ urlpatterns = [
     path('miembros/<int:pk>/eliminar/', miembro_delete, name='miembro-eliminar'),
     path('miembros/<int:pk>/restaurar/', miembro_restore, name='miembro-restaurar'),
 
-    # Miembros
-    path('socios/<int:pk>/crear-miembro/', miembro_create_view, name='socio-miembro-crear'),
-    path('socios/miembro/<int:miembro_pk>/editar/', miembro_update_view, name='socio-miembro-editar'),
+    # Solicitud de asociación
+    path('solicitud/', SolicitudView.as_view(), name='solicitud-crear'),
+    path('solicitud/listado/', SolicitudListView.as_view(), name='solicitud-listado'),
 ]

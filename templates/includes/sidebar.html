@@ -55,6 +55,15 @@
                                 </p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{% url 'solicitud-listado' %}" class="nav-link {% active_link 'solicitud-listado' %}">
+                                <img src="{% static 'icons/icons8-socio.svg' %}" class="nav-icon" alt="icon">
+                                <p>
+                                    Solicitudes
+                                    <span class="right badge badge-danger">New</span>
+                                </p>
+                            </a>
+                        </li>
                     {% endif %}
                     <li class="nav-item">
                         <a href="#" class="nav-link">

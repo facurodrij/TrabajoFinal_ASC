@@ -69,7 +69,7 @@ class User(AbstractUser, SoftDeleteModel):
         verbose_name_plural = _('Usuarios')
 
 
-class Persona(SoftDeleteModel):
+class PersonaAbstract(SoftDeleteModel):
     """
     Modelo para almacenar los datos personales de los Usuarios
     o Miembros No Registrados de un Grupo Familiar.
@@ -170,7 +170,7 @@ class Persona(SoftDeleteModel):
             pass
 
     def clean(self):
-        super(Persona, self).clean()
+        super(PersonaAbstract, self).clean()
         # Quitar espacios en blanco al principio y al final del nombre y apellido.
         self.nombre = self.nombre.strip()
         self.apellido = self.apellido.strip()
@@ -180,27 +180,32 @@ class Persona(SoftDeleteModel):
         self.apellido = self.apellido.title()
 
     class Meta:
+        abstract = True
+
+
+class Persona(PersonaAbstract):
+    class Meta:
         verbose_name = _('Persona')
         verbose_name_plural = _('Personas')
         constraints = [
             # Validar que el DNI solo contenga números, tenga al menos 7 dígitos y no comience con 0.
             models.CheckConstraint(check=models.Q(dni__regex=r'^[1-9][0-9]{6,}$'),
-                                   name='dni_valido',
+                                   name='persona_dni_valido',
                                    violation_error_message=_(
                                        'DNI: El DNI debe contener solo números, '
                                        'tener al menos 7 dígitos y no comenzar con 0.')),
             # Validar que el nombre y el apellido solo contengan letras y espacios.
             models.CheckConstraint(check=models.Q(nombre__regex=r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$'),
-                                   name='nombre_valido',
+                                   name='persona_nombre_valido',
                                    violation_error_message=_(
                                        'Nombre: El nombre solo puede contener letras y espacios.')),
             models.CheckConstraint(check=models.Q(apellido__regex=r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$'),
-                                   name='apellido_valido',
+                                   name='persona_apellido_valido',
                                    violation_error_message=_(
                                        'Apellido: El apellido solo puede contener letras y espacios.')),
             # Validar que la fecha de nacimiento no sea mayor a la fecha actual.
             models.CheckConstraint(check=models.Q(fecha_nacimiento__lte=datetime.now().date()),
-                                   name='fecha_nacimiento_valida',
+                                   name='persona_fecha_nacimiento_valida',
                                    violation_error_message=_(
                                        'Fecha de nacimiento: La fecha de nacimiento no puede ser '
                                        'mayor a la fecha actual.')),
