@@ -26,7 +26,7 @@
             <a href="{% url 'index' %}" class="h1">RESERVÁ</a>
         </div>
         <div class="card-body">
-            <p class="login-box-msg">Para asociarse al club<br>primero debe registrarse</p>
+            <p class="login-box-msg">Para registrarse en el sitio<br>primero debe ser socio</p>
             <form method="post">
                 {% csrf_token %}
                 <div class="input-group mb-3">
@@ -52,9 +52,9 @@
                 </div>
             </form>
             <a href="{% url 'login' %}" class="text-center mb-3">Ya tengo cuenta</a>
-{#            <div class="input-group mb-3">#}
-{#                <a href="{% url 'asociarse' %}" class="col-md-12 btn btn-success">Asociarse</a>#}
-{#            </div>#}
+            <div class="input-group mb-3">
+                <a href="{% url 'solicitud-crear' %}" class="col-md-12 btn btn-success">Asociarse</a>
+            </div>
         </div>
     </div>
 </div>

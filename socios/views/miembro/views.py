@@ -71,7 +71,7 @@ class MiembroCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
                 if form.is_valid():
                     with transaction.atomic():
                         miembro = form.save(commit=False)
-                        miembro.socio = Socio.objects.get(pk=self.kwargs['pk'])
+                        miembro.socio = Socio.objects.get(pk=request.POST['socio'])
                         miembro.save()
                         messages.success(request, 'Miembro agregado correctamente')
                 else:

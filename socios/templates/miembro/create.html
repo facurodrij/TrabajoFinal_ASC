@@ -18,7 +18,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <form method="post" enctype="multipart/form-data" id="formSocio">
+                <form method="post" enctype="multipart/form-data" id="formMiembro">
                     {% csrf_token %}
                     <div class="card">
                         <div class="card-header bg-primary">
@@ -229,8 +229,8 @@
         }
     </script>
     <script>
-        // Script para el formulario de socio
-        $('#formSocio').on('submit', function (e) {
+        // Script para el formulario de miembro
+        $('#formMiembro').on('submit', function (e) {
             e.preventDefault();
             let form = new FormData(this);
             form.append('csrfmiddlewaretoken', '{{ csrf_token }}');
@@ -244,7 +244,7 @@
                 processData: false,
                 success: function (data) {
                     if (!data.hasOwnProperty('error')) {
-                        window.location.pathname = '{% url 'socio-listado' %}';
+                        window.location.pathname = '{% url 'miembro-listado' %}';
                     } else {
                         let errors = []
                         // Si data error es un objeto pushear los errores al array
@@ -266,7 +266,7 @@
                     }
                 },
                 error: function (data) {
-                    alert('Error al guardar el socio');
+                    alert('Error al guardar el miembro');
                 }
             });
         });

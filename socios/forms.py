@@ -134,13 +134,14 @@ class SolicitudForm(forms.ModelForm):
             pass
         try:
             Socio.global_objects.get(persona__dni=dni)
-            raise ValidationError('Ya existe un socio con el DNI ingresado. Por favor, contactese con el club.')
+            raise ValidationError('Ya existe un socio con el DNI ingresado. Por favor, verifique los datos ingresados.')
         except Socio.DoesNotExist:
             pass
         email = self.cleaned_data['email']
         try:
             User.global_objects.get(email=email)
-            raise ValidationError('Ya existe un usuario con el email ingresado.')
+            raise ValidationError('Ya existe un usuario con el email ingresado. '
+                                  'Por favor, verifique los datos ingresados.')
         except User.DoesNotExist:
             pass
 

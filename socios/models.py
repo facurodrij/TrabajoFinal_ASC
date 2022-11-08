@@ -77,9 +77,9 @@ class Miembro(SoftDeleteModel):
     """
     Modelo de miembro de familia.
     """
-    persona = models.OneToOneField(Persona, on_delete=models.PROTECT)
-    socio = models.ForeignKey(Socio, on_delete=models.PROTECT)
-    parentesco = models.ForeignKey('parameters.Parentesco', on_delete=models.PROTECT)
+    persona = models.OneToOneField(Persona, on_delete=models.PROTECT, verbose_name='Datos del miembro')
+    socio = models.ForeignKey(Socio, on_delete=models.PROTECT, verbose_name='Socio a cargo')
+    parentesco = models.ForeignKey('parameters.Parentesco', on_delete=models.PROTECT, verbose_name='Parentesco con socio')
     categoria = models.ForeignKey('socios.Categoria', on_delete=models.PROTECT)
 
     def __str__(self):

@@ -106,7 +106,10 @@ class PersonaAbstract(SoftDeleteModel):
         item['imagen'] = self.get_imagen()
         item['edad'] = self.get_edad()
         item['fecha_nacimiento'] = self.get_fecha_nacimiento()
-        item['socio'] = self.get_socio().id
+        try:
+            item['socio'] = self.socio.id
+        except ObjectDoesNotExist:
+            item['socio'] = None
         item['__str__'] = self.__str__()
         return item
 
