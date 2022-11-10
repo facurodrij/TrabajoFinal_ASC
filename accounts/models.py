@@ -71,8 +71,8 @@ class User(AbstractUser, SoftDeleteModel):
 
 class PersonaAbstract(SoftDeleteModel):
     """
-    Modelo para almacenar los datos personales de los Usuarios
-    o Miembros No Registrados de un Grupo Familiar.
+    Modelo abstracto de persona.
+    Usado por Persona y SolicitudSocio.
     """
     dni = models.CharField(max_length=8, unique=True, verbose_name=_('DNI'),
                            error_messages={
@@ -97,21 +97,6 @@ class PersonaAbstract(SoftDeleteModel):
 
     def __str__(self):
         return self.get_full_name() + ' DNI: ' + self.dni
-
-    def toJSON(self):
-        """
-        Devuelve un diccionario con los datos de la persona.
-        """
-        item = model_to_dict(self, exclude=['imagen'])
-        item['imagen'] = self.get_imagen()
-        item['edad'] = self.get_edad()
-        item['fecha_nacimiento'] = self.get_fecha_nacimiento()
-        try:
-            item['socio'] = self.socio.id
-        except ObjectDoesNotExist:
-            item['socio'] = None
-        item['__str__'] = self.__str__()
-        return item
 
     def get_full_name(self):
         """
@@ -138,15 +123,6 @@ class PersonaAbstract(SoftDeleteModel):
         except Exception as e:
             print(e)
             return settings.STATIC_URL + 'img/empty.svg'
-
-    def get_socio(self):
-        """
-        Devuelve el socio de la persona.
-        """
-        try:
-            return self.socio
-        except ObjectDoesNotExist:
-            return None
 
     def get_fecha_nacimiento(self):
         """
@@ -187,6 +163,31 @@ class PersonaAbstract(SoftDeleteModel):
 
 
 class Persona(PersonaAbstract):
+    """
+    Modelo para almacenar los datos personales de los Usuarios
+    """
+
+    def get_socio(self):
+        """
+        Devuelve el socio de la persona.
+        """
+        try:
+            return self.socio
+        except ObjectDoesNotExist:
+            return None
+
+    def toJSON(self):
+        """
+        Devuelve un diccionario con los datos de la persona.
+        """
+        item = model_to_dict(self, exclude=['imagen'])
+        item['imagen'] = self.get_imagen()
+        item['edad'] = self.get_edad()
+        item['fecha_nacimiento'] = self.get_fecha_nacimiento()
+        item['socio'] = self.get_socio()
+        item['__str__'] = self.__str__()
+        return item
+
     class Meta:
         verbose_name = _('Persona')
         verbose_name_plural = _('Personas')

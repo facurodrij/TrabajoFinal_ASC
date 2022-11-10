@@ -61,12 +61,20 @@ class MiembroCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
         context['persona_form'] = PersonaFormAdmin()
         return context
 
+    def get_form(self, form_class=None):
+        form = super(MiembroCreateView, self).get_form()
+        # Deshabilitar el campo socio, categoria y parentesco
+        form.fields['socio'].disabled = True
+        form.fields['categoria'].disabled = True
+        form.fields['parentesco'].disabled = True
+        return form
+
     def post(self, request, *args, **kwargs):
         data = {}
         try:
             action = request.POST['action']
             if action == 'add':
-                # Si la accion es agregar, se crea el miembro
+                # Si la acción es agregar, se crea el miembro
                 form = self.form_class(request.POST)
                 if form.is_valid():
                     with transaction.atomic():
@@ -77,7 +85,7 @@ class MiembroCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
                 else:
                     data['error'] = form.errors
             elif action == 'get_categoria':
-                # Si la accion es get_categoria, se obtiene las categorias que puede tener el miembro
+                # Si la acción es get_categoria, se obtiene las categorias que puede tener el miembro
                 data = []
                 # Obtener la edad de la Persona
                 persona_id = request.POST['persona']
@@ -88,8 +96,17 @@ class MiembroCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
                 for categoria in categorias:
                     item = categoria.toJSON()
                     data.append(item)
+            elif action == 'get_socio':
+                # Si la acción es get_socio, se obtiene los socios que puede tener el miembro
+                data = []
+                # Obtener el pk de la Persona
+                persona_id = request.POST['persona']
+                socios = Socio.objects.exclude(persona__pk=persona_id)
+                for socio in socios:
+                    item = socio.toJSON()
+                    data.append(item)
             elif action == 'create_persona':
-                # Si la accion es create_persona, se crea una nueva persona
+                # Si la acción es create_persona, se crea una nueva persona
                 persona_form = PersonaFormAdmin(request.POST, request.FILES)
                 if persona_form.is_valid():
                     with transaction.atomic():
@@ -153,7 +170,7 @@ class MiembroUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
         try:
             action = request.POST['action']
             if action == 'edit':
-                # Si la accion es editar, se edita el miembro
+                # Si la acción es editar, se edita el miembro
                 form = self.form_class(request.POST, instance=self.get_object())
                 if form.is_valid():
                     with transaction.atomic():
@@ -162,7 +179,7 @@ class MiembroUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
                 else:
                     data['error'] = form.errors
             elif action == 'get_categoria':
-                # Si la accion es get_categoria, se obtiene las categorias que puede tener el miembro
+                # Si la acción es get_categoria, se obtiene las categorias que puede tener el miembro
                 data = []
                 # Obtener la edad de la Persona
                 persona_id = request.POST['persona']
@@ -174,13 +191,13 @@ class MiembroUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
                     item = categoria.toJSON()
                     data.append(item)
             elif action == 'update_persona':
-                # Si la accion es update_persona, se edita la persona
+                # Si la acción es update_persona, se edita la persona
                 persona_form = PersonaFormAdmin(request.POST, request.FILES, instance=self.get_object().persona)
                 if persona_form.is_valid():
                     with transaction.atomic():
                         persona = persona_form.save()
                         data = persona.toJSON()
-                        # Agregar mensaje de exito a data
+                        # Agregar mensaje de éxito a data
                         data['tags'] = 'success'
                         data['message'] = 'Persona editada correctamente'
                 else:

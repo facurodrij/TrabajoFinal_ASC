@@ -146,7 +146,7 @@
     <!-- Select2 -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        // Script para activar los select2 del formulario de socio
+        // Script para activar los select2 del formulario de miembro
         $('#id_persona').select2({
             theme: 'bootstrap4',
             placeholder: 'Seleccione una persona',
@@ -159,7 +159,7 @@
             placeholder: 'Seleccione una categoria',
             width: '100%',
             language: 'es'
-        }).prop('disabled', true);
+        });
         $('#id_socio').select2({
             theme: 'bootstrap4',
             placeholder: 'Seleccione un socio',
@@ -178,46 +178,64 @@
     <script>
         $(document).ready(function () {
             let select_categoria = $('#id_categoria');
-            // Obtener con ajax las categorias de socio según la edad
-            $('#id_persona').on('change', function (e) {
-                // Verificar que el input no esté vacío
-                if ($(this).val()) {
-                    $.ajax({
-                        // Pasar una edad por GET para filtrar las categorias en la vista
+            let select_socio = $('#id_socio');
+            let select_parentesco = $('#id_parentesco');
+            $('#id_persona').on('change', function (e) { // El evento se activa cuando select Persona cambia
+                if ($(this).val()) { // Verificar que el input Persona no este vacío
+                    $.ajax({ // Realizar una petición AJAX para obtener las categorias que puede tener la persona
                         url: window.location.pathname,
                         type: 'POST',
                         data: {
-                            'action': 'get_categoria',
-                            'persona': $(this).val(),
+                            'action': 'get_categoria', // Acción que se va a ejecutar en el backend
+                            'persona': $(this).val(), // Pasar el valor pk de la Persona
                             'csrfmiddlewaretoken': '{{ csrf_token }}'
                         },
                         dataType: 'json',
                         success: function (data) {
-                            {% if action == 'add' %}
-                                // Limpiar el select
-                                select_categoria.empty();
-                                // Habilitar el select
-                                select_categoria.prop('disabled', false);
-                                // Agregar las categorias al select
-                                $.each(data, function (key, value) {
-                                    select_categoria.append('<option value="' + value.id + '">' + value.nombre + ' $' + value.cuota + '</option>');
+                            if (!data.hasOwnProperty('error')) {
+                                select_categoria.empty(); // Limpiar el select de categorias
+                                select_categoria.prop('disabled', false); // Habilitar el select de categorias
+                                $.each(data, function (key, value) { // Agregar las categorias traídas del backend al select
+                                    select_categoria.append('<option value="' + value.id + '">' + value.__str__ + '</option>');
                                 });
-                            {% elif action == 'edit' %}
-
-                            {% endif %}
-                        },
+                            } else {
+                                alert('Error al obtener las categorias: ' + data.error)
+                            }
+                        }
                     });
-                } else {
-                    // Limpiar el select
-                    select_categoria.empty();
-                    // Deshabilitar el select
-                    select_categoria.prop('disabled', true);
+                    $.ajax({ // Realizar una petición AJAX para obtener los socios que puede tener la persona
+                        url: window.location.pathname,
+                        type: 'POST',
+                        data: {
+                            'action': 'get_socio', // Acción que se va a ejecutar en el backend
+                            'persona': $(this).val(), // Pasar el valor pk de la Persona
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+                            if (!data.hasOwnProperty('error')) {
+                                select_socio.empty(); // Limpiar el select de socios
+                                select_socio.prop('disabled', false); // Habilitar el select de socios
+                                select_parentesco.prop('disabled', false); // Habilitar el select de parentesco
+                                $.each(data, function (key, value) { // Agregar los socios traídos del backend al select
+                                    select_socio.append('<option value="' + value.id + '">' + value.__str__ + '</option>');
+                                });
+                            } else {
+                                alert('Error al obtener los socios: ' + data.error)
+                            }
+                        }
+                    });
+                } else { // Si el input Persona esta vacío
+                    select_categoria.empty(); // Limpiar el select de categorias
+                    select_categoria.prop('disabled', true); // Deshabilitar el select de categorias
+                    select_socio.empty(); // Limpiar el select de socios
+                    select_socio.prop('disabled', true); // Deshabilitar el select de socios
+                    select_parentesco.prop('disabled', true); // Deshabilitar el select de parentesco
                 }
             });
         });
 
-        // Función para obtener la edad a partir de la fecha de nacimiento
-        function getAge(dateString) {
+        function getAge(dateString) { // Función para obtener la edad a partir de la fecha de nacimiento
             let today = new Date();
             let birthDate = new Date(dateString);
             let age = today.getFullYear() - birthDate.getFullYear();
@@ -229,8 +247,7 @@
         }
     </script>
     <script>
-        // Script para el formulario de miembro
-        $('#formMiembro').on('submit', function (e) {
+        $('#formMiembro').on('submit', function (e) { // Evento submit del formulario de miembro
             e.preventDefault();
             let form = new FormData(this);
             form.append('csrfmiddlewaretoken', '{{ csrf_token }}');
@@ -247,8 +264,7 @@
                         window.location.pathname = '{% url 'miembro-listado' %}';
                     } else {
                         let errors = []
-                        // Si data error es un objeto pushear los errores al array
-                        if (typeof data.error === 'object') {
+                        if (typeof data.error === 'object') { // Si 'data.error' es un objeto cargar los errores al array
                             $.each(data.error, function (key, value) {
                                 errors.push(value);
                             });
@@ -271,12 +287,9 @@
             });
         });
 
-        // Función para resetear todos los valores del formulario
-        function resetForm() {
-            // Limpiar el formulario
+        function resetForm() { // Función para resetear todos los valores del formulario
             $('#id_persona').val(null).trigger('change');
             $('#id_estado').val(null).trigger('change');
-            // Limpiar el select de categorias y deshabilitarlo
             $('#id_categoria').empty().prop('disabled', true);
         }
     </script>

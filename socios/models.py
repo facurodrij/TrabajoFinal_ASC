@@ -21,6 +21,11 @@ class Socio(SoftDeleteModel):
     def __str__(self):
         return self.persona.__str__()
 
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['__str__'] = self.__str__()
+        return item
+
     def get_user(self):
         try:
             return self.persona.user
@@ -139,6 +144,7 @@ class Categoria(models.Model):
 
     def toJSON(self):
         item = model_to_dict(self)
+        item['__str__'] = self.__str__()
         return item
 
     class Meta:
