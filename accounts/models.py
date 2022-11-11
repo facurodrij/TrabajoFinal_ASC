@@ -130,12 +130,6 @@ class PersonaAbstract(SoftDeleteModel):
         """
         return self.fecha_nacimiento.strftime('%Y/%m/%d')
 
-    def get_related_objects(self):
-        """
-        Devuelve una lista de objetos relacionados con la persona.
-        """
-        return [self.socio, self.user]
-
     def save(self, *args, **kwargs):
         """Método save() sobrescrito para redimensionar la imagen."""
         super().save(*args, **kwargs)
@@ -167,12 +161,33 @@ class Persona(PersonaAbstract):
     Modelo para almacenar los datos personales de los Usuarios
     """
 
-    def get_socio(self):
+    def get_socio(self, global_objects=False):
         """
         Devuelve el socio de la persona.
         """
+        from socios.models import Socio
+        if global_objects:
+            try:
+                return Socio.global_objects.get(persona=self)
+            except ObjectDoesNotExist:
+                return None
         try:
             return self.socio
+        except ObjectDoesNotExist:
+            return None
+
+    def get_miembro(self, global_objects=False):
+        """
+        Devuelve el miembro de la persona.
+        """
+        from socios.models import Miembro
+        if global_objects:
+            try:
+                return Miembro.global_objects.get(persona=self)
+            except ObjectDoesNotExist:
+                return None
+        try:
+            return self.miembro
         except ObjectDoesNotExist:
             return None
 
@@ -185,8 +200,15 @@ class Persona(PersonaAbstract):
         item['edad'] = self.get_edad()
         item['fecha_nacimiento'] = self.get_fecha_nacimiento()
         item['socio'] = self.get_socio()
+        item['miembro'] = self.get_miembro()
         item['__str__'] = self.__str__()
         return item
+
+    def get_related_objects(self):
+        """
+        Devuelve una lista de objetos relacionados con la persona.
+        """
+        return [self.socio, self.user]
 
     class Meta:
         verbose_name = _('Persona')
