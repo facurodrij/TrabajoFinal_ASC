@@ -209,7 +209,11 @@
                 processData: false,
                 success: function (data) {
                     if (!data.hasOwnProperty('error')) {
-                        window.location.pathname = '{% url 'miembro-listado' %}';
+                        if ('referrer' in document) {
+                            window.location = document.referrer;
+                        } else {
+                            window.history.back();
+                        }
                     } else {
                         let errors = []
                         // Si data error es un objeto pushear los errores al array

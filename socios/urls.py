@@ -1,7 +1,7 @@
 from django.urls import path
 
-from socios.views.socio.views import *
 from socios.views.miembro.views import *
+from socios.views.socio.views import *
 from socios.views.solicitud.views import *
 
 urlpatterns = [
@@ -15,7 +15,6 @@ urlpatterns = [
 
     # Miembros
     path('miembros/', MiembroListView.as_view(), name='miembro-listado'),
-    path('miembros/crear/', MiembroCreateView.as_view(), name='miembro-crear'),
     path('miembros/<int:pk>', MiembroDetailView.as_view(), name='miembro-detalle'),
     path('miembros/<int:pk>/editar/', MiembroUpdateView.as_view(), name='miembro-editar'),
     path('miembros/<int:pk>/eliminar/', miembro_delete, name='miembro-eliminar'),

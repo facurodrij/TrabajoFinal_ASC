@@ -1,31 +1,18 @@
-import json
-import six
-import os
-
-from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.contrib.sites.shortcuts import get_current_site
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.mail import EmailMessage
-from django.db import transaction, IntegrityError
-from django.db.models import Q
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect, HttpResponseRedirect, get_object_or_404
-from django.template.loader import render_to_string, get_template
-from django.urls import reverse_lazy, reverse
-from django.utils.safestring import mark_safe
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.db import transaction
+from django.http import JsonResponse
+from django.shortcuts import redirect, get_object_or_404
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 
-from socios.models import Socio, Miembro, Categoria, Estado
-from socios.forms import SocioForm, SelectCategoriaForm, SelectEstadoForm, SelectParentescoForm, MiembroForm
-from core.models import Club
-from accounts.forms import *
 from accounts.decorators import admin_required
+from accounts.forms import *
+from core.models import Club
+from parameters.models import Parentesco
+from socios.forms import SocioForm, MiembroForm
+from socios.models import Miembro, Categoria
 
 
 class SocioListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -97,7 +84,7 @@ class SocioCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
                         persona.club = Club.objects.get(pk=1)
                         persona.save()
                         data = persona.toJSON()
-                        # Agregar mensaje de exito a data
+                        # Agregar mensaje de éxito a data
                         data['tags'] = 'success'
                         data['message'] = 'Persona creada correctamente'
                 else:
@@ -118,9 +105,83 @@ class SocioDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        miembro_form = MiembroForm()
+        miembro_form.fields['categoria'].disabled = True
+        miembro_form.fields['socio'].queryset = Socio.objects.filter(pk=self.get_object().pk)
+        miembro_form.fields['socio'].initial = self.get_object()
+        miembro_form.fields['socio'].widget.attrs['hidden'] = True
+        # Excluir a las personas que ya son miembros del socio (incluyendo eliminados) y el socio mismo
+        miembro_form.fields['persona'].queryset = Persona.objects.exclude(
+            pk__in=Miembro.global_objects.filter(socio=self.get_object()).values_list('persona', flat=True)).exclude(
+            pk=self.get_object().persona.pk)
         context['title'] = 'Detalle de Socio'
-        context['miembros'] = Miembro.objects.filter(socio=self.get_object())
+        context['miembros'] = Miembro.global_objects.filter(socio=self.get_object())
+        context['miembro_form'] = miembro_form
+        context['persona_form'] = PersonaFormAdmin()
         return context
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'add_miembro':
+                # Si la acción es add_miembro, se agrega un nuevo miembro al socio
+                miembro_form = MiembroForm(request.POST)
+                if miembro_form.is_valid():
+                    with transaction.atomic():
+                        miembro_form.save()
+                        messages.success(request, 'Miembro agregado correctamente')
+                else:
+                    data['error'] = miembro_form.errors
+                    # Obtener el atributo code del ValidationError
+                    try:
+                        data['code'] = miembro_form.errors.as_data()['__all__'][0].code
+                    except KeyError:
+                        pass
+            elif action == 'restore_miembro':
+                # Si la acción es restore_miembro, se restaura un miembro eliminado
+                with transaction.atomic():
+                    miembro_id = request.POST['miembro']
+                    categoria_id = request.POST['categoria']
+                    parentesco_id = request.POST['parentesco']
+                    miembro = Miembro.global_objects.get(pk=miembro_id)
+                    miembro.restore()
+                    miembro.socio = Socio.objects.get(pk=self.get_object().pk)
+                    miembro.categoria = Categoria.objects.get(pk=categoria_id)
+                    miembro.parentesco = Parentesco.objects.get(pk=parentesco_id)
+                    miembro.save()
+                messages.success(request, 'Miembro restaurado correctamente y agregado al socio')
+            elif action == 'get_categoria':
+                # Si la accion es get_categoria, se obtiene las categorias que puede tener el socio
+                data = []
+                # Obtener la edad de la Persona
+                persona_id = request.POST['persona']
+                edad = Persona.objects.get(pk=persona_id).get_edad()
+                # Obtener las categorias que corresponden a la edad
+                categorias = Categoria.objects.filter(edad_desde__lte=edad,
+                                                      edad_hasta__gte=edad)
+                for categoria in categorias:
+                    item = categoria.toJSON()
+                    data.append(item)
+            elif action == 'create_persona':
+                # Si la accion es create_persona, se crea una nueva persona
+                persona_form = PersonaFormAdmin(request.POST, request.FILES)
+                if persona_form.is_valid():
+                    with transaction.atomic():
+                        persona = persona_form.save(commit=False)
+                        persona.club = Club.objects.get(pk=1)
+                        persona.save()
+                        data = persona.toJSON()
+                        # Agregar mensaje de éxito a data
+                        data['tags'] = 'success'
+                        data['message'] = 'Persona creada correctamente'
+                else:
+                    data['error'] = persona_form.errors
+            else:
+                data['error'] = 'Ha ocurrido un error, intente nuevamente'
+        except Exception as e:
+            data['error'] = str(e)
+        return JsonResponse(data, safe=False)
 
     # TODO:
     #  -Mostrar carnet de socio

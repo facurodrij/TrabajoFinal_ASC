@@ -1,11 +1,10 @@
 from datetime import datetime
-from django.conf import settings
+
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
-from django.db.models import Q, F
 from django.forms import model_to_dict
-from django_softdelete.models import SoftDeleteModel, SoftDeleteManager
 from django.utils.translation import gettext_lazy as _
+from django_softdelete.models import SoftDeleteModel
 
 from accounts.models import Persona, PersonaAbstract
 
@@ -82,7 +81,7 @@ class Miembro(SoftDeleteModel):
     """
     Modelo de miembro de familia.
     """
-    persona = models.OneToOneField(Persona, on_delete=models.PROTECT, verbose_name='Datos del miembro')
+    persona = models.OneToOneField(Persona, on_delete=models.PROTECT, verbose_name='Datos personales')
     socio = models.ForeignKey(Socio, on_delete=models.PROTECT, verbose_name='Socio a cargo')
     parentesco = models.ForeignKey('parameters.Parentesco', on_delete=models.PROTECT, verbose_name='Parentesco con socio')
     categoria = models.ForeignKey('socios.Categoria', on_delete=models.PROTECT)

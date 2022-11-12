@@ -1,11 +1,10 @@
 from django import forms
-from django.db import IntegrityError
 from django.contrib.admin.widgets import AdminFileWidget
 from django.core.exceptions import ValidationError
 
-from socios.models import Estado, Categoria, Socio, Miembro, SolicitudSocio
-from parameters.models import Parentesco
 from accounts.models import User
+from parameters.models import Parentesco
+from socios.models import Estado, Categoria, Socio, Miembro, SolicitudSocio
 
 
 class SelectEstadoForm(forms.Form):
@@ -71,7 +70,8 @@ class MiembroForm(forms.ModelForm):
         try:
             miembro = Miembro.global_objects.get(persona_id=self.cleaned_data['persona'])
             if miembro.is_deleted:
-                raise ValidationError('El miembro {} ya existe, pero se encuentra eliminado.'.format(miembro))
+                raise ValidationError('El miembro {} ya existe, pero se encuentra eliminado.'.format(miembro),
+                                      code='miembro_exists_deleted')
         except Miembro.DoesNotExist:
             pass
 

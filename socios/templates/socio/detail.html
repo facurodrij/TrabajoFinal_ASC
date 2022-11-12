@@ -1,6 +1,12 @@
 {% extends "extends/base.html" %}
 {% load static %}
 
+{% block head_css %}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+{% endblock head_css %}
+
 {% block breadcrumbs %}
     <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
@@ -94,10 +100,11 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                         <h3 class="card-title">Miembros Asignados</h3>
                     </div>
                     <div class="card-body">
-                        <a class="btn btn-success mb-3" href="#">Agregar Nuevo</a>
+                        <button id="btn-add-miembro" class="btn btn-success mb-3">Agregar Nuevo</button>
                         <table id="dataTable" class="table table-bordered table-striped dataTable">
                             <thead>
                             <tr>
+                                <th scope="col" style="">#</th>
                                 <th scope="col" style="">DNI</th>
                                 <th scope="col" style="">Nombre completo</th>
                                 <th scope="col" style="">Edad</th>
@@ -108,27 +115,40 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                             <tbody>
                             {% for miembro in miembros %}
                                 <tr>
+                                    <td>{{ miembro.pk }}</td>
                                     <td>{{ miembro.persona.dni }}</td>
                                     <td>{{ miembro.persona.get_full_name }}</td>
                                     <td>{{ miembro.persona.get_edad }}</td>
                                     <td>{{ miembro.categoria }}</td>
-                                    <td>
-                                        <a href="{% url 'miembro-detalle' miembro.pk %}" class="btn btn-info btn-sm">
-                                            <i class="fa-solid fa-eye"></i>
-                                        </a>
-                                        <a href="{% url 'miembro-editar' miembro.pk %}" class="btn btn-warning btn-sm">
-                                            <i class="fa-solid fa-edit"></i>
-                                        </a>
-                                        {# TODO: Implementar la eliminacion de miembros con ajax, para que no se redirija a la vista del listado de miebros #}
-                                        <a href="{% url 'miembro-eliminar' miembro.pk %}" class="btn btn-danger btn-sm">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </a>
-                                    </td>
+                                    {% if not miembro.is_deleted %}
+                                        <td>
+                                            <a href="{% url 'miembro-detalle' miembro.pk %}"
+                                               class="btn btn-info btn-sm">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'miembro-editar' miembro.pk %}"
+                                               class="btn btn-warning btn-sm">
+                                                <i class="fa-solid fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'miembro-eliminar' miembro.pk %}"
+                                               class="btn btn-danger btn-sm">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    {% else %}
+                                        <td>
+                                            <a href="{% url 'miembro-restaurar' miembro.pk %}"
+                                               class="btn btn-success btn-sm">
+                                                <i class="fa-solid fa-rotate-left"></i>
+                                            </a>
+                                        </td>
+                                    {% endif %}
                                 </tr>
                             {% endfor %}
                             </tbody>
                             <tfoot>
                             <tr>
+                                <th scope="col" style="">#</th>
                                 <th scope="col" style="">DNI</th>
                                 <th scope="col" style="">Nombre completo</th>
                                 <th scope="col" style="">Edad</th>
@@ -142,8 +162,316 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
             </div>
         </div>
     </div>
+    <!-- Modals -->
+    <div class="modal fade" id="ModalAddMiembro" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+         aria-hidden="true">
+        <form id="formMiembro" method="post" enctype="multipart/form-data">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">
+                            <b><i class="fas fa-user-plus"></i> Nuevo registro de un Miembro</b>
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        {% csrf_token %}
+                        {{ miembro_form.socio }}
+                        <div class="form-group">
+                            <label class="labels">{{ miembro_form.persona.label }}</label>
+                            <div class="input-group">
+                                {{ miembro_form.persona }}
+                                <div class="input-group-append">
+                                    <button id="btn-add-persona" class="btn btn-success" type="button">
+                                        <i class="fas fa-user-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="labels">{{ miembro_form.parentesco.label }}</label>
+                            {{ miembro_form.parentesco }}
+                        </div>
+                        <div class="form-group">
+                            <label class="labels">{{ miembro_form.categoria.label }}</label>
+                            {{ miembro_form.categoria }}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal fade" id="ModalAddPersona" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+         aria-hidden="true">
+        <form id="formPersona" method="post" enctype="multipart/form-data">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">
+                            <b><i class="fas fa-user-plus"></i> Nuevo registro de una persona</b>
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="{{ value }}">
+                        <div class="form-group">
+                            <label class="labels">{{ persona_form.dni.label }}</label>
+                            {{ persona_form.dni }}
+                        </div>
+                        <div class="form-group">
+                            <label class="labels">{{ persona_form.nombre.label }}</label>
+                            {{ persona_form.nombre }}
+                        </div>
+                        <div class="form-group">
+                            <label class="labels">{{ persona_form.apellido.label }}</label>
+                            {{ persona_form.apellido }}
+                        </div>
+                        <div class="form-group">
+                            <label class="labels">{{ persona_form.fecha_nacimiento.label }}</label>
+                            <div class="input-group" id="div_id_fecha_nacimiento"
+                                 data-target-input="nearest">
+                                <input type="text" name="fecha_nacimiento" autocomplete="off"
+                                       placeholder="Fecha de nacimiento"
+                                       class="form-control  datetimepicker-input"
+                                       data-toggle="datetimepicker" data-target="#id_fecha_nacimiento"
+                                       required=""
+                                       id="id_fecha_nacimiento">
+                                <div class="input-group-append" data-target="#id_fecha_nacimiento"
+                                     data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="labels">{{ persona_form.sexo.label }}</label>
+                            {{ persona_form.sexo }}
+                        </div>
+                        <div class="form-group">
+                            <label class="labels">{{ persona_form.imagen.label }}</label><br>
+                            {{ persona_form.imagen }}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 {% endblock content %}
 
 {% block body_js %}
+    <!-- Django Tempus Dominus -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/css/tempusdominus-bootstrap-4.min.css"
+          media="all" rel="stylesheet">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment-with-locales.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js"></script>
+    <!-- Select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     {% include 'includes/dataTable.html' %}
+    <script>
+        $('#btn-add-miembro').click(function () { // Evento para mostrar el modal de agregar miembro
+            $('#id_persona').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Seleccione una persona',
+                allowClear: true,
+                language: 'es'
+            });
+            $('#id_categoria').select2({
+                theme: 'bootstrap4',
+                allowClear: true,
+                placeholder: 'Seleccione una categoria',
+                width: '100%',
+                language: 'es'
+            });
+            $('#id_parentesco').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Seleccione un parentesco',
+                allowClear: true,
+                width: '100%',
+                language: 'es'
+            });
+            $('#ModalAddMiembro').modal('show');
+        });
+        let select_categoria = $('#id_categoria');
+        $('#id_persona').on('change', function (e) { // El evento se activa cuando select Persona cambia
+            if ($(this).val()) { // Verificar que el input Persona no este vacío
+                $.ajax({ // Realizar una petición AJAX para obtener las categorias que puede tener la persona
+                    url: window.location.pathname,
+                    type: 'POST',
+                    data: {
+                        'action': 'get_categoria', // Acción que se va a ejecutar en el backend
+                        'persona': $(this).val(), // Pasar el valor pk de la Persona
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        if (!data.hasOwnProperty('error')) {
+                            select_categoria.empty(); // Limpiar el select de categorias
+                            select_categoria.prop('disabled', false); // Habilitar el select de categorias
+                            $.each(data, function (key, value) { // Agregar las categorias traídas del backend al select
+                                select_categoria.append('<option value="' + value.id + '">' + value.__str__ + '</option>');
+                            });
+                        } else {
+                            alert('Error al obtener las categorias: ' + data.error)
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+    <script>
+        $('#formMiembro').on('submit', function (e) { // Evento submit del formulario de miembro
+            e.preventDefault();
+            let form = new FormData(this);
+            form.append('action', 'add_miembro'); // Acción que se va a ejecutar en el backend
+            $.ajax({ // Realizar una petición AJAX para agregar un miembro
+                url: window.location.pathname,
+                type: 'POST',
+                data: form,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (!data.hasOwnProperty('error')) {
+                        location.reload();
+                    } else {
+                        let errors = []
+                        let code = data.code;
+                        if (typeof data.error === 'object') { // Si 'data.error' es un objeto cargar los errores al array
+                            $.each(data.error, function (key, value) {
+                                errors.push(value);
+                            });
+                        } else {
+                            errors = data.error
+                        }
+                        if (code === 'miembro_exists_deleted') {
+                            Swal.fire({
+                                title: 'Miembro ya existe',
+                                text: 'El miembro ya existe pero se encuentra eliminado, ¿Desea restaurarlo?',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Restaurar',
+                                cancelButtonText: 'Cancelar'
+                            }).then((result) => {
+                                if (result.value) {
+                                    $.ajax({ // Realizar una petición AJAX para restaurar un miembro
+                                        url: window.location.pathname,
+                                        type: 'POST',
+                                        data: {
+                                            'action': 'restore_miembro', // Acción que se va a ejecutar en el backend
+                                            'miembro': $('#id_persona').val(), // Pasar el valor pk del miembro
+                                            'categoria': $('#id_categoria').val(), // Pasar el valor pk de la categoria
+                                            'parentesco': $('#id_parentesco').val(), // Pasar el valor pk del parentesco
+                                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                                        },
+                                        dataType: 'json',
+                                        success: function (data) {
+                                            if (!data.hasOwnProperty('error')) {
+                                                location.reload();
+                                            } else {
+                                                alert('Error al restaurar el miembro: ' + data.error)
+                                            }
+                                        }
+                                    });
+                                }
+                            })
+                        } else {
+                            Swal.fire({
+                                position: 'top-end',
+                                icon: 'error',
+                                title: 'Ocurrió un error',
+                                text: errors,
+                                showConfirmButton: true,
+                            })
+                        }
+                        document.body.classList.remove('swal2-height-auto');
+                    }
+                },
+                error: function (data) {
+                    alert('Error al guardar el miembro');
+                }
+            });
+        });
+    </script>
+    <script>
+        $('#btn-add-persona').on('click', function () { // Evento para mostrar el modal de agregar persona
+            $('#id_fecha_nacimiento').datetimepicker({
+                "format": "DD/MM/YYYY",
+                "icons": {"time": "fa fa-clock-o"},
+                "locale": "es-AR",
+                "date": null,
+                "minDate": "1900-01-01",
+                "maxDate": Date.now(),
+            });
+            $('#id_sexo').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Seleccione un sexo',
+                allowClear: true,
+                width: '100%',
+                language: 'es'
+            });
+            $('#ModalAddPersona').modal('show');
+        });
+        $('#formPersona').on('submit', function (e) { // Evento submit del formulario de persona
+            e.preventDefault();
+            let form = new FormData(this);
+            form.append('action', 'create_persona');
+            $.ajax({
+                url: window.location.pathname,
+                type: 'POST',
+                data: form,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (!data.hasOwnProperty('error')) {
+                        let newOption = new Option(data.__str__, data.id, false, true);
+                        $('#id_persona').append(newOption).trigger('change');
+                        $('#ModalAddPersona').modal('hide');
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: data.tags,
+                            title: 'Bien hecho!',
+                            text: data.message,
+                            showConfirmButton: false,
+                            timer: 5000,
+                            timerProgressBar: true,
+                        })
+                        document.body.classList.remove('swal2-height-auto');
+                    } else {
+                        let errors = []
+                        $.each(data.error, function (key, value) {
+                            errors.push(value);
+                        });
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: errors.join('\n'),
+                            showConfirmButton: true,
+                        })
+                        document.body.classList.remove('swal2-height-auto');
+                    }
+                },
+                error: function (data) {
+                    alert('Error al guardar la persona');
+                }
+            });
+        });
+    </script>
 {% endblock body_js %}
