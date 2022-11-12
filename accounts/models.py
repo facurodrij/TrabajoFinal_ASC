@@ -1,18 +1,16 @@
-import re
-import uuid
-
 from datetime import datetime
+
+from PIL import Image
 from dateutil.relativedelta import relativedelta
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
-from django.contrib.auth.models import AbstractUser
 from django.conf import settings
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import UnicodeUsernameValidator
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ValidationError
+from django.db import models
 from django.forms import model_to_dict
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.models import UnicodeUsernameValidator
 from django_softdelete.models import SoftDeleteModel
-from django.core.exceptions import ValidationError
-from PIL import Image
 
 from core.models import Club
 
