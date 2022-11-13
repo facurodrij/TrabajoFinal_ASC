@@ -65,6 +65,9 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                             <li class="list-group-item"><b>Nombre completo: </b>{{ socio.persona.get_full_name }}</li>
                             <li class="list-group-item"><b>Sexo: </b>{{ socio.persona.sexo }}</li>
                             <li class="list-group-item"><b>Edad: </b>{{ socio.persona.get_edad }}</li>
+                            {% if socio.es_miembro %}
+                                <li class="list-group-item"><b>Socio Titular: </b>{{ socio.socio_titular }}</li>
+                            {% endif %}
                             {% if socio.get_user %}
                                 <li class="list-group-item"><b>Usuario: </b>{{ socio.persona.user.username }}</li>
                                 <li class="list-group-item"><b>Email: </b>{{ socio.persona.user.email }}</li>
