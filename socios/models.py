@@ -6,19 +6,40 @@ from django.forms import model_to_dict
 from django.utils.translation import gettext_lazy as _
 from django_softdelete.models import SoftDeleteModel
 
-from accounts.models import Persona, PersonaAbstract
+from accounts.models import PersonaAbstract
 
 
 class Socio(SoftDeleteModel):
     """
     Modelo de socio.
     """
-    persona = models.OneToOneField(Persona, on_delete=models.PROTECT)
+    persona = models.OneToOneField('accounts.Persona', on_delete=models.PROTECT)
     categoria = models.ForeignKey('socios.Categoria', on_delete=models.PROTECT)
     estado = models.ForeignKey('socios.Estado', on_delete=models.PROTECT)
+    fecha_ingreso = models.DateField(default=datetime.now)
+    socio_titular = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True)
+    parentesco = models.ForeignKey('parameters.Parentesco', on_delete=models.PROTECT, null=True, blank=True)
+
+    def clean(self):
+        if self.socio_titular_id is not None and self.socio_titular.socio_titular_id is not None:
+            raise ValidationError(_('El socio no puede ser miembro de otro socio.'))
+        if self.socio_titular_id is not None:
+            self.estado = self.socio_titular.estado
 
     def __str__(self):
         return self.persona.__str__()
+
+    def es_titular(self):
+        return True if self.socio_titular_id is None else False
+
+    def get_miembros(self):
+        return Socio.objects.filter(socio_titular=self)
+
+    def es_miembro(self):
+        return True if self.socio_titular_id is not None else False
+
+    def get_tipo(self):
+        return 'Titular' if self.es_titular() else 'Miembro'
 
     def toJSON(self):
         item = model_to_dict(self)
@@ -31,96 +52,25 @@ class Socio(SoftDeleteModel):
         except ObjectDoesNotExist:
             return None
 
-    def get_related_objects(self):
-        """
-        Devuelve una lista de objetos relacionados con el socio.
-        """
-        try:
-            miembro = Miembro.global_objects.filter(socio=self)
-            # Queryset to list
-            miembro = list(miembro)
-            return miembro
-        except ObjectDoesNotExist:
-            return []
-
-    def restore(self, cascade=None):
-        # Si el socio tiene Persona eliminada, no puede ser restaurado
-        persona = Persona.global_objects.get(pk=self.persona.pk)
-        if persona.is_deleted:
-            raise ValidationError('No se puede restaurar el socio porque la persona está eliminada.')
-
-        # Si el socio es miembro de un grupo familiar, no puede ser restaurado
-        try:
-            if not self.persona.miembro.is_deleted:
-                raise ValidationError(
-                    'No es posible restaurar el socio: '
-                    '{}, porque ya es miembro de otro socio.'.format(self.persona.get_full_name()))
-        except ObjectDoesNotExist:
-            pass
-        super(Socio, self).restore(cascade=cascade)
-
     # TODO: Si el socio tiene deudas pendientes, no puede ser eliminado
-
-    def clean(self):
-        super(Socio, self).clean()
-        # Socio no puede ser miembro
-        try:
-            if not self.persona.miembro.is_deleted:
-                raise ValidationError(
-                    'La persona {} ya es miembro de otro socio.'.format(self.persona.get_full_name()))
-        except ObjectDoesNotExist:
-            pass
 
     class Meta:
         verbose_name = 'Socio'
         verbose_name_plural = "Socios"
         ordering = ['id']
-
-
-class Miembro(SoftDeleteModel):
-    """
-    Modelo de miembro de familia.
-    """
-    persona = models.OneToOneField(Persona, on_delete=models.PROTECT, verbose_name='Datos personales')
-    socio = models.ForeignKey(Socio, on_delete=models.PROTECT, verbose_name='Socio a cargo')
-    parentesco = models.ForeignKey('parameters.Parentesco', on_delete=models.PROTECT, verbose_name='Parentesco con socio')
-    categoria = models.ForeignKey('socios.Categoria', on_delete=models.PROTECT)
-
-    def __str__(self):
-        return self.persona.__str__()
-
-    def restore(self, cascade=None):
-        # Si el miembro tiene Persona eliminada, no puede ser restaurado
-        persona = Persona.global_objects.get(pk=self.persona.pk)
-        if persona.is_deleted:
-            raise ValidationError('No se puede restaurar el miembro porque la persona está eliminada.')
-
-        # Si el miembro es socio, no puede ser restaurado
-        try:
-            if not self.persona.socio.is_deleted:
-                raise ValidationError(
-                    'No es posible restaurar el miembro: '
-                    '{}, porque ya es socio.'.format(self.persona.get_full_name()))
-        except ObjectDoesNotExist:
-            pass
-        super(Miembro, self).restore(cascade=cascade)
-
-    def clean(self):
-        # Miembro no puede ser socio
-        try:
-            if not self.persona.socio.is_deleted:
-                raise ValidationError('La persona {} ya es socio.'.format(self.persona.get_full_name()))
-        except ObjectDoesNotExist:
-            pass
-
-    # Miembro hereda el atributo estado de su socio
-    @property
-    def estado(self):
-        return self.socio.estado
-
-    class Meta:
-        verbose_name = 'Miembro'
-        verbose_name_plural = "Miembros"
+        constraints = [
+            # Validar que el socio titular no sea el mismo socio
+            models.CheckConstraint(
+                check=~models.Q(socio_titular=models.F('id')),
+                name='socio_titular_distinto_socio'
+            ),
+            # Validar si socio_titular es nulo, parentesco también lo es y viceversa
+            models.CheckConstraint(
+                check=((models.Q(socio_titular__isnull=True) & models.Q(parentesco__isnull=True))
+                       | (models.Q(socio_titular__isnull=False) & models.Q(parentesco__isnull=False))),
+                name='socio_titular_parentesco'
+            ),
+        ]
 
 
 class Categoria(models.Model):

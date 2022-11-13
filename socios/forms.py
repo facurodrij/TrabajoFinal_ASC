@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 
 from accounts.models import User
 from parameters.models import Parentesco
-from socios.models import Estado, Categoria, Socio, Miembro, SolicitudSocio
+from socios.models import Estado, Categoria, Socio, SolicitudSocio
 
 
 class SelectEstadoForm(forms.Form):
@@ -39,16 +39,6 @@ class SocioForm(forms.ModelForm):
     Formulario para crear un socio.
     """
 
-    # Validar si el socio que se quiere crear ya existe y está eliminado
-    def clean(self):
-        super(SocioForm, self).clean()
-        try:
-            socio = Socio.global_objects.get(persona_id=self.cleaned_data['persona'])
-            if socio.is_deleted:
-                raise ValidationError('El socio {} ya existe, pero se encuentra eliminado.'.format(socio))
-        except Socio.DoesNotExist:
-            pass
-
     class Meta:
         model = Socio
         fields = ['persona', 'categoria', 'estado']
@@ -61,28 +51,17 @@ class SocioForm(forms.ModelForm):
 
 class MiembroForm(forms.ModelForm):
     """
-    Formulario para crear un miembro.
+    Formulario para crear un socio.
     """
 
-    # Validar si el miembro que se quiere crear ya existe y está eliminado
-    def clean(self):
-        super(MiembroForm, self).clean()
-        try:
-            miembro = Miembro.global_objects.get(persona_id=self.cleaned_data['persona'])
-            if miembro.is_deleted:
-                raise ValidationError('El miembro {} ya existe, pero se encuentra eliminado.'.format(miembro),
-                                      code='miembro_exists_deleted')
-        except Miembro.DoesNotExist:
-            pass
-
     class Meta:
-        model = Miembro
-        fields = ['socio', 'persona', 'parentesco', 'categoria']
+        model = Socio
+        fields = ['persona', 'categoria', 'socio_titular', 'parentesco']
         widgets = {
-            'socio': forms.Select(attrs={'class': 'form-control select2'}),
             'persona': forms.Select(attrs={'class': 'form-control select2'}),
-            'parentesco': forms.Select(attrs={'class': 'form-control select2'}),
             'categoria': forms.Select(attrs={'class': 'form-control select2'}),
+            'socio_titular': forms.Select(attrs={'class': 'form-control select2'}),
+            'parentesco': forms.Select(attrs={'class': 'form-control select2'}),
         }
 
 

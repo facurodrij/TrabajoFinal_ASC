@@ -1,32 +1,24 @@
-import json
-import six
-import os
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
 
-from django.conf import settings
+from dateutil.relativedelta import relativedelta
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.mail import EmailMessage
 from django.db import transaction, IntegrityError
-from django.db.models import Q
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect, HttpResponseRedirect, get_object_or_404
-from django.template.loader import render_to_string, get_template
-from django.urls import reverse_lazy, reverse
-from django.utils.safestring import mark_safe
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.http import JsonResponse
+from django.shortcuts import redirect
+from django.template.loader import render_to_string
+from django.urls import reverse_lazy
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+from django.views.generic import ListView, CreateView
 
-from socios.models import SolicitudSocio, Categoria, Estado, Socio
-from socios.forms import SolicitudForm
-from core.models import Club
 from accounts.models import User, Persona
+from core.models import Club
+from socios.forms import SolicitudForm
+from socios.models import SolicitudSocio, Categoria, Estado, Socio
 
 
 class SolicitudView(CreateView):
@@ -154,7 +146,9 @@ class SolicitudListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                         mail_subject, message, to=[to_email]
                     )
                     email.send()
-                    messages.success(request, 'Solicitud aprobada correctamente. Se ha enviado un email al usuario para que cambie su contraseña')
+                    messages.success(request,
+                                     'Solicitud aprobada correctamente. '
+                                     'Se ha enviado un email al usuario para que cambie su contraseña')
                 except IntegrityError as e:
                     messages.error(request, 'Error al aprobar la solicitud. {}'.format(e))
             else:

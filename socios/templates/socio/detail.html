@@ -93,74 +93,76 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header bg-primary">
-                        <h3 class="card-title">Miembros Asignados</h3>
-                    </div>
-                    <div class="card-body">
-                        <button id="btn-add-miembro" class="btn btn-success mb-3">Agregar Nuevo</button>
-                        <table id="dataTable" class="table table-bordered table-striped dataTable">
-                            <thead>
-                            <tr>
-                                <th scope="col" style="">#</th>
-                                <th scope="col" style="">DNI</th>
-                                <th scope="col" style="">Nombre completo</th>
-                                <th scope="col" style="">Edad</th>
-                                <th scope="col" style="">Categoría</th>
-                                <th scope="col" style="">Acciones</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for miembro in miembros %}
+        {% if socio.es_titular %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-primary">
+                            <h3 class="card-title">Miembros Asignados</h3>
+                        </div>
+                        <div class="card-body">
+                            <button id="btn-add-miembro" class="btn btn-success mb-3">Agregar Nuevo</button>
+                            <table id="dataTable" class="table table-bordered table-striped dataTable">
+                                <thead>
                                 <tr>
-                                    <td>{{ miembro.pk }}</td>
-                                    <td>{{ miembro.persona.dni }}</td>
-                                    <td>{{ miembro.persona.get_full_name }}</td>
-                                    <td>{{ miembro.persona.get_edad }}</td>
-                                    <td>{{ miembro.categoria }}</td>
-                                    {% if not miembro.is_deleted %}
-                                        <td>
-                                            <a href="{% url 'miembro-detalle' miembro.pk %}"
-                                               class="btn btn-info btn-sm">
-                                                <i class="fa-solid fa-eye"></i>
-                                            </a>
-                                            <a href="{% url 'miembro-editar' miembro.pk %}"
-                                               class="btn btn-warning btn-sm">
-                                                <i class="fa-solid fa-edit"></i>
-                                            </a>
-                                            <a href="{% url 'miembro-eliminar' miembro.pk %}"
-                                               class="btn btn-danger btn-sm">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </a>
-                                        </td>
-                                    {% else %}
-                                        <td>
-                                            <a href="{% url 'miembro-restaurar' miembro.pk %}"
-                                               class="btn btn-success btn-sm">
-                                                <i class="fa-solid fa-rotate-left"></i>
-                                            </a>
-                                        </td>
-                                    {% endif %}
+                                    <th scope="col" style="">#</th>
+                                    <th scope="col" style="">DNI</th>
+                                    <th scope="col" style="">Nombre completo</th>
+                                    <th scope="col" style="">Edad</th>
+                                    <th scope="col" style="">Categoría</th>
+                                    <th scope="col" style="">Acciones</th>
                                 </tr>
-                            {% endfor %}
-                            </tbody>
-                            <tfoot>
-                            <tr>
-                                <th scope="col" style="">#</th>
-                                <th scope="col" style="">DNI</th>
-                                <th scope="col" style="">Nombre completo</th>
-                                <th scope="col" style="">Edad</th>
-                                <th scope="col" style="">Categoría</th>
-                                <th scope="col" style="">Acciones</th>
-                            </tr>
-                            </tfoot>
-                        </table>
+                                </thead>
+                                <tbody>
+                                {% for miembro in miembros %}
+                                    <tr>
+                                        <td>{{ miembro.pk }}</td>
+                                        <td>{{ miembro.persona.dni }}</td>
+                                        <td>{{ miembro.persona.get_full_name }}</td>
+                                        <td>{{ miembro.persona.get_edad }}</td>
+                                        <td>{{ miembro.categoria }}</td>
+                                        {% if not miembro.is_deleted %}
+                                            <td>
+                                                <a href="{% url 'socio-detalle' miembro.pk %}"
+                                                   class="btn btn-info btn-sm">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </a>
+                                                <a href="{% url 'socio-editar' miembro.pk %}"
+                                                   class="btn btn-warning btn-sm">
+                                                    <i class="fa-solid fa-edit"></i>
+                                                </a>
+                                                <a href="{% url 'socio-eliminar' miembro.pk %}"
+                                                   class="btn btn-danger btn-sm">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        {% else %}
+                                            <td>
+                                                <a href="{% url 'socio-restaurar' miembro.pk %}"
+                                                   class="btn btn-success btn-sm">
+                                                    <i class="fa-solid fa-rotate-left"></i>
+                                                </a>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    <th scope="col" style="">#</th>
+                                    <th scope="col" style="">DNI</th>
+                                    <th scope="col" style="">Nombre completo</th>
+                                    <th scope="col" style="">Edad</th>
+                                    <th scope="col" style="">Categoría</th>
+                                    <th scope="col" style="">Acciones</th>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        {% endif %}
     </div>
     <!-- Modals -->
     <div class="modal fade" id="ModalAddMiembro" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
@@ -178,7 +180,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                     </div>
                     <div class="modal-body">
                         {% csrf_token %}
-                        {{ miembro_form.socio }}
+                        {{ miembro_form.socio_titular }}
                         <div class="form-group">
                             <label class="labels">{{ miembro_form.persona.label }}</label>
                             <div class="input-group">
@@ -357,15 +359,16 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                         } else {
                             errors = data.error
                         }
-                        if (code === 'miembro_exists_deleted') {
+                        if (code === 'socio_exists') { // Si el código es 'socio_exists' mostrar un mensaje de error
                             Swal.fire({
-                                title: 'Miembro ya existe',
-                                text: 'El miembro ya existe pero se encuentra eliminado, ¿Desea restaurarlo?',
+                                title: 'Socio ya existe',
+                                position: 'top-end',
+                                text: data.message,
                                 icon: 'warning',
                                 showCancelButton: true,
                                 confirmButtonColor: '#3085d6',
                                 cancelButtonColor: '#d33',
-                                confirmButtonText: 'Restaurar',
+                                confirmButtonText: 'Agregar de todas formas',
                                 cancelButtonText: 'Cancelar'
                             }).then((result) => {
                                 if (result.value) {
@@ -373,10 +376,10 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                         url: window.location.pathname,
                                         type: 'POST',
                                         data: {
-                                            'action': 'restore_miembro', // Acción que se va a ejecutar en el backend
-                                            'miembro': $('#id_persona').val(), // Pasar el valor pk del miembro
-                                            'categoria': $('#id_categoria').val(), // Pasar el valor pk de la categoria
-                                            'parentesco': $('#id_parentesco').val(), // Pasar el valor pk del parentesco
+                                            'action': 'add_socio_as_miembro', // Acción que se va a ejecutar en el backend
+                                            'persona': $('#id_persona').val(), // Pasar el valor pk de la Persona
+                                            'categoria': $('#id_categoria').val(), // Pasar el valor pk de la Categoria
+                                            'parentesco': $('#id_parentesco').val(), // Pasar el valor pk del Parentesco
                                             'csrfmiddlewaretoken': '{{ csrf_token }}'
                                         },
                                         dataType: 'json',
@@ -384,12 +387,46 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                             if (!data.hasOwnProperty('error')) {
                                                 location.reload();
                                             } else {
-                                                alert('Error al restaurar el miembro: ' + data.error)
+                                                alert('Error al agregar el socio como miembro: ' + data.error)
                                             }
                                         }
                                     });
                                 }
-                            })
+                            });
+                        } else if (code === 'socio_deleted_exists') {
+                            Swal.fire({
+                                title: 'Socio ya existe',
+                                position: 'top-end',
+                                text: data.message,
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Restaurar y agregar miembro',
+                                cancelButtonText: 'Cancelar'
+                            }).then((result) => {
+                                if (result.value) {
+                                    $.ajax({ // Realizar una petición AJAX para restaurar un miembro
+                                        url: window.location.pathname,
+                                        type: 'POST',
+                                        data: {
+                                            'action': 'restore_socio_as_miembro', // Acción que se va a ejecutar en el backend
+                                            'persona': $('#id_persona').val(), // Pasar el valor pk de la Persona
+                                            'categoria': $('#id_categoria').val(), // Pasar el valor pk de la Categoria
+                                            'parentesco': $('#id_parentesco').val(), // Pasar el valor pk del Parentesco
+                                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                                        },
+                                        dataType: 'json',
+                                        success: function (data) {
+                                            if (!data.hasOwnProperty('error')) {
+                                                location.reload();
+                                            } else {
+                                                alert('Error al restaurar el socio: ' + data.error)
+                                            }
+                                        }
+                                    });
+                                }
+                            });
                         } else {
                             Swal.fire({
                                 position: 'top-end',
@@ -430,7 +467,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
         $('#formPersona').on('submit', function (e) { // Evento submit del formulario de persona
             e.preventDefault();
             let form = new FormData(this);
-            form.append('action', 'create_persona');
+            form.append('action', 'add_persona'); // Agregar la acción que se va a ejecutar en el backend
             $.ajax({
                 url: window.location.pathname,
                 type: 'POST',
@@ -445,9 +482,9 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                         $('#ModalAddPersona').modal('hide');
                         Swal.fire({
                             position: 'top-end',
-                            icon: data.tags,
+                            icon: 'success',
                             title: 'Bien hecho!',
-                            text: data.message,
+                            text: 'Persona agregada correctamente',
                             showConfirmButton: false,
                             timer: 5000,
                             timerProgressBar: true,

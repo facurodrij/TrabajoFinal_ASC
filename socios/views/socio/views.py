@@ -5,14 +5,13 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.generic import ListView, DetailView, UpdateView
 
 from accounts.decorators import admin_required
 from accounts.forms import *
 from core.models import Club
-from parameters.models import Parentesco
 from socios.forms import SocioForm, MiembroForm
-from socios.models import Miembro, Categoria
+from socios.models import Socio, Categoria
 
 
 class SocioListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -28,21 +27,9 @@ class SocioListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Listado de socios'
-        return context
-
-
-class SocioCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    """ Vista para crear un socio """
-    model = Socio
-    form_class = SocioForm
-    template_name = 'socio/create.html'
-    permission_required = 'socios.add_socio'
-    success_url = reverse_lazy('socio-listado')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Crear Socio'
-        context['action'] = 'add'
+        socio_form = SocioForm()
+        socio_form.fields['categoria'].disabled = True
+        context['socio_form'] = socio_form
         context['persona_form'] = PersonaFormAdmin()
         return context
 
@@ -50,21 +37,34 @@ class SocioCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         data = {}
         try:
             action = request.POST['action']
-            if action == 'add':
-                # Si la accion es agregar, se crea un nuevo socio
-                form = self.form_class(request.POST)
+            if action == 'add_socio':
+                # Si la acción es add_socio, se crea un nuevo socio
+                form = SocioForm(request.POST)
                 if form.is_valid():
                     with transaction.atomic():
-                        socio = Socio()
-                        socio.persona = form.cleaned_data['persona']
-                        socio.categoria = form.cleaned_data['categoria']
-                        socio.estado = form.cleaned_data['estado']
-                        socio.save()
-                        messages.success(request, 'Socio creado correctamente')
+                        # Si la persona seleccionada es socio, pero está eliminado
+                        persona = form.cleaned_data['persona']
+                        if Socio.deleted_objects.filter(persona=persona).exists():
+                            data['code'] = 'socio_deleted_exists'
+                            data['message'] = 'La persona seleccionada es un socio pero está eliminado,' \
+                                              ' ¿Desea restaurarlo y convertirlo en socio titular?'
+                        form.save()
+                        messages.success(request, 'Se ha agregado un nuevo socio')
+                else:
+                    data['error'] = form.errors
+            elif action == 'add_persona':
+                # Si la acción es add_persona, se crea una nueva persona
+                form = PersonaFormAdmin(request.POST, request.FILES)
+                if form.is_valid():
+                    with transaction.atomic():
+                        persona = form.save(commit=False)
+                        persona.club = Club.objects.get(pk=1)
+                        persona.save()
+                        data = persona.toJSON()
                 else:
                     data['error'] = form.errors
             elif action == 'get_categoria':
-                # Si la accion es get_categoria, se obtiene las categorias que puede tener el socio
+                # Si la acción es get_categoria, se obtiene las categorias que puede tener el socio
                 data = []
                 # Obtener la edad de la Persona
                 persona_id = request.POST['persona']
@@ -75,20 +75,32 @@ class SocioCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
                 for categoria in categorias:
                     item = categoria.toJSON()
                     data.append(item)
-            elif action == 'create_persona':
-                # Si la accion es create_persona, se crea una nueva persona
-                persona_form = PersonaFormAdmin(request.POST, request.FILES)
-                if persona_form.is_valid():
+            elif action == 'edit_socio':
+                # Si la acción es edit_socio, se edita un socio
+                pk = request.POST['id']
+                socio = Socio.objects.get(pk=pk)
+                form = SocioForm(request.POST, instance=socio)
+                if form.is_valid():
                     with transaction.atomic():
-                        persona = persona_form.save(commit=False)
-                        persona.club = Club.objects.get(pk=1)
-                        persona.save()
-                        data = persona.toJSON()
-                        # Agregar mensaje de éxito a data
-                        data['tags'] = 'success'
-                        data['message'] = 'Persona creada correctamente'
+                        form.save()
+                        data = socio.toJSON()
                 else:
-                    data['error'] = persona_form.errors
+                    data['error'] = form.errors
+            elif action == 'restore_socio_as_titular':
+                # Si la acción es restore_socio_as_socio_titular, se restaura un socio como socio titular
+                persona = request.POST['persona']
+                categoria = request.POST['categoria']
+                estado = request.POST['estado']
+                with transaction.atomic():
+                    socio = Socio.deleted_objects.get(persona_id=persona)
+                    socio.restore()
+                    socio.categoria_id = categoria
+                    socio.estado_id = estado
+                    socio.socio_titular_id = None
+                    socio.parentesco_id = None
+                    socio.save()
+                    data = socio.toJSON()
+                    messages.success(request, 'Se ha restaurado el socio como socio titular')
             else:
                 data['error'] = 'Ha ocurrido un error, intente nuevamente'
         except Exception as e:
@@ -107,15 +119,14 @@ class SocioDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         miembro_form = MiembroForm()
         miembro_form.fields['categoria'].disabled = True
-        miembro_form.fields['socio'].queryset = Socio.objects.filter(pk=self.get_object().pk)
-        miembro_form.fields['socio'].initial = self.get_object()
-        miembro_form.fields['socio'].widget.attrs['hidden'] = True
-        # Excluir a las personas que ya son miembros del socio (incluyendo eliminados) y el socio mismo
-        miembro_form.fields['persona'].queryset = Persona.objects.exclude(
-            pk__in=Miembro.global_objects.filter(socio=self.get_object()).values_list('persona', flat=True)).exclude(
-            pk=self.get_object().persona.pk)
+        miembro_form.fields['socio_titular'].queryset = Socio.objects.filter(pk=self.get_object().pk)
+        miembro_form.fields['socio_titular'].initial = self.get_object()
+        miembro_form.fields['socio_titular'].widget.attrs['hidden'] = True
+        # Filtrar las personas que no sean miembros del socio
+        miembro_form.fields['persona'].queryset = Persona.objects.exclude(pk=self.get_object().persona.pk).exclude(
+            socio__socio_titular=self.get_object())
         context['title'] = 'Detalle de Socio'
-        context['miembros'] = Miembro.global_objects.filter(socio=self.get_object())
+        context['miembros'] = Socio.global_objects.filter(socio_titular=self.get_object())
         context['miembro_form'] = miembro_form
         context['persona_form'] = PersonaFormAdmin()
         return context
@@ -129,30 +140,44 @@ class SocioDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
                 miembro_form = MiembroForm(request.POST)
                 if miembro_form.is_valid():
                     with transaction.atomic():
+                        # Si la persona seleccionada es socio titular, pero está eliminado
+                        persona = miembro_form.cleaned_data['persona']
+                        if Socio.deleted_objects.filter(persona=persona).exists():
+                            data['code'] = 'socio_deleted_exists'
+                            data['message'] = 'La persona seleccionada es un socio pero está eliminado,' \
+                                              ' ¿Desea restaurarlo y agregarlo como miembro?'
                         miembro_form.save()
                         messages.success(request, 'Miembro agregado correctamente')
                 else:
-                    data['error'] = miembro_form.errors
-                    # Obtener el atributo code del ValidationError
                     try:
-                        data['code'] = miembro_form.errors.as_data()['__all__'][0].code
-                    except KeyError:
-                        pass
-            elif action == 'restore_miembro':
-                # Si la acción es restore_miembro, se restaura un miembro eliminado
-                with transaction.atomic():
-                    miembro_id = request.POST['miembro']
-                    categoria_id = request.POST['categoria']
-                    parentesco_id = request.POST['parentesco']
-                    miembro = Miembro.global_objects.get(pk=miembro_id)
-                    miembro.restore()
-                    miembro.socio = Socio.objects.get(pk=self.get_object().pk)
-                    miembro.categoria = Categoria.objects.get(pk=categoria_id)
-                    miembro.parentesco = Parentesco.objects.get(pk=parentesco_id)
-                    miembro.save()
-                messages.success(request, 'Miembro restaurado correctamente y agregado al socio')
+                        # Si el error es por la persona
+                        data['error'] = miembro_form.errors['persona'][0]
+                        if Socio.objects.filter(persona_id=request.POST['persona']).exists():
+                            socio = Socio.objects.get(persona_id=request.POST['persona'])
+                            # Si la persona seleccionada es socio titular y tiene socios agregados, no se puede agregar
+                            if socio.get_miembros().exists():
+                                data['error'] = 'La persona seleccionada es socio titular y' \
+                                                ' tiene miembros agregados, no se puede agregar como miembro'
+                            else:
+                                data['code'] = 'socio_exists'
+                                data['message'] = 'La persona seleccionada es un socio,' \
+                                                  ' ¿Seguro desea agregarlo como miembro?'
+                    except Exception as e:
+                        print(e)
+                        data['error'] = miembro_form.errors
+            elif action == 'add_persona':
+                # Si la acción es create_persona, se crea una nueva persona
+                persona_form = PersonaFormAdmin(request.POST, request.FILES)
+                if persona_form.is_valid():
+                    with transaction.atomic():
+                        persona = persona_form.save(commit=False)
+                        persona.club = Club.objects.get(pk=1)
+                        persona.save()
+                        data = persona.toJSON()
+                else:
+                    data['error'] = persona_form.errors
             elif action == 'get_categoria':
-                # Si la accion es get_categoria, se obtiene las categorias que puede tener el socio
+                # Si la acción es get_categoria, se obtiene las categorias que puede tener el socio
                 data = []
                 # Obtener la edad de la Persona
                 persona_id = request.POST['persona']
@@ -163,20 +188,34 @@ class SocioDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
                 for categoria in categorias:
                     item = categoria.toJSON()
                     data.append(item)
-            elif action == 'create_persona':
-                # Si la accion es create_persona, se crea una nueva persona
-                persona_form = PersonaFormAdmin(request.POST, request.FILES)
-                if persona_form.is_valid():
-                    with transaction.atomic():
-                        persona = persona_form.save(commit=False)
-                        persona.club = Club.objects.get(pk=1)
-                        persona.save()
-                        data = persona.toJSON()
-                        # Agregar mensaje de éxito a data
-                        data['tags'] = 'success'
-                        data['message'] = 'Persona creada correctamente'
-                else:
-                    data['error'] = persona_form.errors
+            elif action == 'restore_socio_as_miembro':
+                # Si la acción es restore_socio, se restaura un socio eliminado
+                persona = request.POST['persona']
+                categoria = request.POST['categoria']
+                parentesco = request.POST['parentesco']
+                with transaction.atomic():
+                    socio = Socio.deleted_objects.get(persona_id=persona)
+                    socio.restore()
+                    socio.socio_titular_id = self.get_object().pk
+                    socio.categoria_id = categoria
+                    socio.parentesco_id = parentesco
+                    socio.save()
+                    data = socio.toJSON()
+                    messages.success(request, 'Socio restaurado y agregado como miembro correctamente')
+            elif action == 'add_socio_as_miembro':
+                # Si la acción es add_socio_as_miembro, se agrega un socio como miembro
+                persona = request.POST['persona']
+                categoria = request.POST['categoria']
+                parentesco = request.POST['parentesco']
+                with transaction.atomic():
+                    socio = Socio.objects.get(persona_id=persona)
+                    socio.socio_titular_id = self.get_object().pk
+                    socio.estado = self.get_object().estado
+                    socio.categoria_id = categoria
+                    socio.parentesco_id = parentesco
+                    socio.save()
+                    data = socio.toJSON()
+                    messages.success(request, 'Socio agregado como miembro correctamente')
             else:
                 data['error'] = 'Ha ocurrido un error, intente nuevamente'
         except Exception as e:
@@ -203,32 +242,52 @@ class SocioUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Editar Socio'
-        context['action'] = 'edit'
+        context['action'] = 'edit_socio'
         context['persona_form'] = PersonaFormAdmin(instance=self.get_object().persona)
         return context
+
+    # Si el socio no es titular, cambiar form_class a MiembroForm
+    def get_form_class(self):
+        if self.get_object().es_titular():
+            return SocioForm
+        else:
+            self.form_class = MiembroForm
+        return MiembroForm
 
     def get_form(self, form_class=None):
         # El select de persona debe mostrar solo la persona del socio y deshabilitar el campo
         form = super().get_form(form_class)
         form.fields['persona'].queryset = Persona.objects.filter(pk=self.get_object().persona.pk)
         form.fields['persona'].widget.attrs['disabled'] = True
+        if not self.get_object().es_titular():
+            form.fields['socio_titular'].queryset = Socio.objects.filter(pk=self.get_object().socio_titular.pk)
+            form.fields['socio_titular'].widget.attrs['disabled'] = True
         return form
 
     def post(self, request, *args, **kwargs):
         data = {}
         try:
             action = request.POST['action']
-            if action == 'edit':
-                # Si la accion es editar, se edita el socio
-                form = self.form_class(request.POST, instance=self.get_object())
+            if action == 'edit_socio':
+                # Si la acción es editar, se edita el socio
+                form = self.get_form_class()(request.POST, instance=self.get_object())
                 if form.is_valid():
                     with transaction.atomic():
                         form.save()
                         messages.success(request, 'Socio editado correctamente')
                 else:
                     data['error'] = form.errors
+            elif action == 'edit_persona':
+                # Si la acción es update_persona, se edita la persona
+                persona_form = PersonaFormAdmin(request.POST, request.FILES, instance=self.get_object().persona)
+                if persona_form.is_valid():
+                    with transaction.atomic():
+                        persona = persona_form.save()
+                        data = persona.toJSON()
+                else:
+                    data['error'] = persona_form.errors
             elif action == 'get_categoria':
-                # Si la accion es get_categoria, se obtiene las categorias que puede tener el socio
+                # Si la acción es get_categoria, se obtiene las categorias que puede tener el socio
                 data = []
                 # Obtener la edad de la Persona
                 persona_id = request.POST['persona']
@@ -239,18 +298,6 @@ class SocioUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
                 for categoria in categorias:
                     item = categoria.toJSON()
                     data.append(item)
-            elif action == 'update_persona':
-                # Si la accion es update_persona, se edita la persona
-                persona_form = PersonaFormAdmin(request.POST, request.FILES, instance=self.get_object().persona)
-                if persona_form.is_valid():
-                    with transaction.atomic():
-                        persona = persona_form.save()
-                        data = persona.toJSON()
-                        # Agregar mensaje de exito a data
-                        data['tags'] = 'success'
-                        data['message'] = 'Persona editada correctamente'
-                else:
-                    data['error'] = persona_form.errors
             else:
                 data['error'] = 'Ha ocurrido un error, intente nuevamente'
         except Exception as e:

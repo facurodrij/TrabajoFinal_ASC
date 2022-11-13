@@ -42,12 +42,24 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="labels">{{ form.socio_titular.label }}</label>
+                                        {{ form.socio_titular }}
+                                    </div>
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="labels">{{ form.categoria.label }}</label>
                                         {{ form.categoria }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="labels">{{ form.parentesco.label }}</label>
+                                        {{ form.parentesco }}
                                     </div>
                                 </div>
                             </div>
@@ -70,7 +82,7 @@
         </div>
     </div>
     <!-- Modals -->
-    <div class="modal fade" id="ModalAddPersona" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+    <div class="modal fade" id="ModalEditPersona" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
          aria-hidden="true">
         <form id="formPersona" method="post" enctype="multipart/form-data">
             <div class="modal-dialog" role="document">
@@ -166,18 +178,21 @@
             width: '100%',
             language: 'es'
         });
-
-        // Función para obtener la edad a partir de la fecha de nacimiento
-        function getAge(dateString) {
-            let today = new Date();
-            let birthDate = new Date(dateString);
-            let age = today.getFullYear() - birthDate.getFullYear();
-            let m = today.getMonth() - birthDate.getMonth();
-            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-            return age;
-        }
+        let select_socio_titular = $('#id_socio_titular');
+        select_socio_titular.select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione un socio titular',
+            allowClear: true,
+            width: '100%',
+            language: 'es'
+        });
+        $('#id_parentesco').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione un parentesco',
+            allowClear: true,
+            width: '100%',
+            language: 'es'
+        });
     </script>
     <script>
         // Script para el formulario de socio
@@ -185,8 +200,12 @@
             e.preventDefault();
             select_persona.prop('disabled', false); // Al momento de enviar el formulario, se habilita el select de persona
                                                     // para que se envíe el valor, ya que si no se habilita, no se envía.
+            select_socio_titular.prop('disabled', false); // Al momento de enviar el formulario, se habilita el select de socio
+                                                         // titular para que se envíe el valor, ya que si no se habilita, no se
+                                                         // envía.
             let form = new FormData(this);
             select_persona.prop('disabled', true); // Vuelvo a deshabilitar el select de persona para evitar que el usuario lo modifique
+            select_socio_titular.prop('disabled', true); // Vuelvo a deshabilitar el select de socio titular para evitar que el usuario lo modifique
             form.append('csrfmiddlewaretoken', '{{ csrf_token }}');
             form.append('action', '{{ action }}');
             $.ajax({
@@ -252,7 +271,7 @@
                 width: '100%',
                 language: 'es'
             });
-            $('#ModalAddPersona').modal('show');
+            $('#ModalEditPersona').modal('show');
         });
         $.ajax({
             url: window.location.pathname,
@@ -289,7 +308,7 @@
             e.preventDefault();
             let form = new FormData(this);
             form.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-            form.append('action', 'update_persona');
+            form.append('action', 'edit_persona');
             $.ajax({
                 url: window.location.pathname,
                 type: 'POST',
@@ -299,12 +318,12 @@
                 processData: false,
                 success: function (data) {
                     if (!data.hasOwnProperty('error')) {
-                        $('#ModalAddPersona').modal('hide');
+                        $('#ModalEditPersona').modal('hide');
                         Swal.fire({
                             position: 'top-end',
-                            icon: data.tags,
+                            icon: 'success',
                             title: 'Bien hecho!',
-                            text: data.message,
+                            text: 'Se ha modificado la persona correctamente',
                             showConfirmButton: false,
                             timer: 5000,
                             timerProgressBar: true,

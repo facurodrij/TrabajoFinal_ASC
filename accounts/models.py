@@ -174,21 +174,6 @@ class Persona(PersonaAbstract):
         except ObjectDoesNotExist:
             return None
 
-    def get_miembro(self, global_objects=False):
-        """
-        Devuelve el miembro de la persona.
-        """
-        from socios.models import Miembro
-        if global_objects:
-            try:
-                return Miembro.global_objects.get(persona=self)
-            except ObjectDoesNotExist:
-                return None
-        try:
-            return self.miembro
-        except ObjectDoesNotExist:
-            return None
-
     def toJSON(self):
         """
         Devuelve un diccionario con los datos de la persona.
@@ -197,8 +182,7 @@ class Persona(PersonaAbstract):
         item['imagen'] = self.get_imagen()
         item['edad'] = self.get_edad()
         item['fecha_nacimiento'] = self.get_fecha_nacimiento()
-        item['socio'] = self.get_socio()
-        item['miembro'] = self.get_miembro()
+        item['socio'] = self.get_socio().__str__()
         item['__str__'] = self.__str__()
         return item
 
