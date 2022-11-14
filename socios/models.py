@@ -33,7 +33,7 @@ class Socio(SoftDeleteModel):
         return True if self.socio_titular_id is None else False
 
     def get_miembros(self):
-        return Socio.objects.filter(socio_titular=self)
+        return Socio.global_objects.filter(socio_titular=self)
 
     def es_miembro(self):
         return True if self.socio_titular_id is not None else False
@@ -51,6 +51,9 @@ class Socio(SoftDeleteModel):
             return self.persona.user
         except ObjectDoesNotExist:
             return None
+
+    def get_related_objects(self):
+        return self.get_miembros()
 
     # TODO: Si el socio tiene deudas pendientes, no puede ser eliminado
 
