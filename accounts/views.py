@@ -1,5 +1,5 @@
 from django.contrib.auth import (
-    logout, get_user_model, )
+    logout, get_user_model, login)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.contrib.sites.shortcuts import get_current_site
@@ -95,13 +95,18 @@ class CustomLoginView(LoginView):
             self.request.session.set_expiry(0)
             # Set session as modified to force data updates/cookie to be saved.
             self.request.session.modified = True
-        return super(CustomLoginView, self).form_valid(form)
-        # TODO: Validar que el usuario no esté asociado a Persona que:
-        # 1. No esté asociada a Socio
-        # 2. Esté asociada a Socio pero que esté eliminado
-        # 3. No esté asociada a Personal
-        # 4. Esté asociada a Personal pero que esté eliminado
-        # Aclaración: Si el usuario es admin no se debe validar nada.
+        # User validate after login
+        user = form.get_user()
+        login(self.request, user)
+        if not user.is_admin():
+            if user.persona.get_socio() is None:
+                messages.error(self.request, 'Su cuenta no está asociada a un socio de la institución.')
+                return redirect('logout')
+            if not user.persona.get_socio().estado.is_active:
+                messages.error(self.request, 'Su cuenta estado de socio está inactivo. Descripción: {}'.format(
+                    user.persona.get_socio().estado.descripcion))
+                return redirect('logout')
+        return super().form_valid(form)
 
 
 @login_required

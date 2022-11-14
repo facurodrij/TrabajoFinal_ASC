@@ -23,15 +23,9 @@
         </ul>
         <ul class="navbar-nav ml-auto">
             {% if not user.is_admin %}
-                {% if not user.persona.get_socio %}
-                    <li class="nav-item mr-2">
-                        <a class="btn btn-success" href="{% url 'asociarse' %}">Asociarse</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'persona' %}">Perfil</a>
-                    </li>
-                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'persona' %}">Perfil</a>
+                </li>
             {% else %}
                 <li class="nav-item mr-2">
                     <a class="btn btn-outline-warning" href="{% url 'admin:index' %}">Panel Admin</a>

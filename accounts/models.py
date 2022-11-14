@@ -170,7 +170,7 @@ class Persona(PersonaAbstract):
             except ObjectDoesNotExist:
                 return None
         try:
-            return self.socio
+            return Socio.objects.get(persona=self)
         except ObjectDoesNotExist:
             return None
 
