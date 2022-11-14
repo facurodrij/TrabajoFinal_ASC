@@ -172,6 +172,8 @@ class SignUpForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': 'Email',
                                       'class': 'form-control',
                                       }))
+    socio_id = forms.IntegerField(required=True,
+                                  widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Socio ID'}))
     error_messages = {
         "password_mismatch": _("The two password fields didn’t match."),
     }
@@ -214,6 +216,16 @@ class SignUpForm(forms.Form):
         if User.objects.filter(persona__dni=dni).exists():
             raise forms.ValidationError('El DNI ingresado ya está registrado.')
         return dni
+
+    def clean_socio_id(self):
+        """
+        Validar que el socio_id exista en la tabla Socio y coincida con el DNI ingresado.
+        """
+        socio_id = self['socio_id'].value()
+        dni = self['dni'].value()
+        if not Socio.objects.filter(id=socio_id, persona__dni=dni).exists():
+            raise forms.ValidationError('El número de Socio ingresado no coincide con el DNI ingresado.')
+        return socio_id
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")

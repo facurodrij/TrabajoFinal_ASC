@@ -41,14 +41,10 @@ class SignUpView(FormView):
         return context
 
     def form_valid(self, form):
-        # Obtener DNI y Email
-        try:
-            dni = form.clean_dni()
-            email = form.clean_email()
-        except ValidationError as e:
-            form.add_error('dni', e)
-            form.add_error('email', e)
-            return self.form_invalid(form)
+        # Obtener DNI, Email y SocioID
+        dni = form.clean_dni()
+        email = form.clean_email()
+        socio_id = form.clean_socio_id()
         # Obtener la Persona con el DNI ingresado
         persona = Persona.objects.get(dni=dni)
         # Crear el Usuario con el Email ingresado y Username igual al DNI ingresado
