@@ -103,38 +103,34 @@ class SolicitudListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 messages.success(request, 'Solicitud rechazada correctamente')
             elif action == 'aprobar':
                 solicitud = SolicitudSocio.objects.get(pk=request.GET['id'])
-                solicitud.is_aprobado = True
                 try:
-                    persona = Persona(dni=solicitud.dni,
-                                      sexo=solicitud.sexo,
-                                      club=solicitud.club,
-                                      nombre=solicitud.nombre,
-                                      apellido=solicitud.apellido,
-                                      fecha_nacimiento=solicitud.fecha_nacimiento,
-                                      imagen=solicitud.imagen)
-                    estado = Estado.objects.get(code='AD')
-                    socio = Socio(persona=persona,
-                                  categoria=solicitud.categoria,
-                                  estado=estado)
-                    password = User.objects.make_random_password()
-                    user = User(persona=persona,
-                                username=solicitud.dni,
-                                email=solicitud.email,
-                                password=password)
+                    with transaction.atomic():
+                        persona = Persona.objects.create(dni=solicitud.dni,
+                                                         sexo=solicitud.sexo,
+                                                         club=solicitud.club,
+                                                         nombre=solicitud.nombre,
+                                                         apellido=solicitud.apellido,
+                                                         fecha_nacimiento=solicitud.fecha_nacimiento,
+                                                         imagen=solicitud.imagen)
+                        estado = Estado.objects.get(code='AD')
+                        socio = Socio.objects.create(persona=persona,
+                                                     categoria=solicitud.categoria,
+                                                     estado=estado)
+                        password = User.objects.make_random_password()
+                        user = User.objects.create_user(persona=persona,
+                                                        username=solicitud.dni,
+                                                        email=solicitud.email,
+                                                        password=password)
+                        solicitud.is_aprobado = True
+                        solicitud.save()
                 except Exception as e:
                     messages.error(request, 'Error al crear usuario. {}'.format(e))
                     return redirect('solicitud_list')
-                # Guardar los datos, si hay error, deshacer la transacción
                 try:
-                    with transaction.atomic():
-                        persona.save()
-                        socio.save()
-                        user.save()
-                        solicitud.save()
                     # Enviar un Email al Usuario con un enlace para cambiar su contraseña
                     current_site = get_current_site(request)
                     mail_subject = 'Active su cuenta.'
-                    message = render_to_string('email/activate_account.html', {
+                    message = render_to_string('email/change_password.html', {
                         'user': user,
                         'domain': current_site.domain,
                         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
