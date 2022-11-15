@@ -1,0 +1,114 @@
+{% extends "extends/base.html" %}
+{% load static %}
+{% block head_css %}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+{% endblock head_css %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-4 col-md-12">
+                <div class="d-flex flex-column align-items-center mb-3">
+                    <a id="btn-print" href="">
+                        <div id="socio_carnet" class="card" style="width: 8.56cm; height: 5.398cm; background: rgb(254,255,0);
+background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rgba(9,39,121,1) 100%);">
+                            <div class="card-body">
+                                <div class="row" style="height: 40%">
+                                    <h4 style="color: yellow">Club Atlético Bartolomé Mitre</h4>
+                                    <h5 style="color: white">
+                                        <strong>{{ user.persona.apellido }}, {{ user.persona.nombre }}</strong>
+                                    </h5>
+                                </div>
+                                <div class="row">
+                                    <div class="col-3">
+                                        <img src="{{ user.persona.get_imagen }}" alt=""
+                                             style="max-width: 85px; max-height: 85px">
+                                    </div>
+                                    <div class="col-9 p-0">
+                                        <ul style="list-style: none;">
+                                            <li style="color: yellow"><strong>Socio
+                                                N°: {{ user.persona.socio.pk }}</strong>
+                                            </li>
+                                            <li style="color: white"><strong>DNI: {{ user.persona.dni }}</strong>
+                                            </li>
+                                            <li class="text-right"><img
+                                                    src="https://es.qr-code-generator.com/wp-content/themes/qr/new_structure/markets/core_market/generator/dist/generator/assets/images/websiteQRCode_noFrame.png"
+                                                    alt=""
+                                                    style="max-width: 60px">
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-8 col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h4 class="card-title">{{ title }}</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <li class="list-group-item"><b>Categoria: </b>{{ user.persona.socio.categoria }}
+                                <button class="btn btn-sm btn-warning" disabled>
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                            </li>
+                            <li class="list-group-item"><b>Tipo de socio: </b>{{ user.persona.socio.get_tipo }}<br>
+                                {% if user.persona.socio.get_tipo == 'Miembro' %}
+                                    <b>Titular del grupo:</b> {{ user.persona.socio.socio_titular }}<br>
+                                    <b>Parentesco:</b> {{ user.persona.socio.parentesco }}
+                                {% endif %}
+                            </li>
+                            <li class="list-group-item"><b>Antigüedad: </b>{{ user.persona.socio.get_antiguedad }}
+                                ({{ user.persona.socio.fecha_ingreso }})
+                            </li>
+                            <li class="list-group-item"><b>Estado: </b>{{ user.persona.socio.estado }}</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'persona' %}" class="btn btn-primary">
+                            <i class="fa-solid fa-user"></i> Ver información personal
+                        </a>
+                        <a href="{% url 'index' %}" class="btn btn-secondary">
+                            <i class="fa-solid fa-rotate-left"></i> Volver
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        $('#btn-print').on('click', function (e) {
+            e.preventDefault();
+            html2canvas(document.querySelector("#socio_carnet"), {allowTaint: true}).then(canvas => {
+                // Abrir una nueva ventana con el canvas
+                let win = window.open();
+                // Cambiar el fondo de win a negro
+                win.document.body.style.backgroundColor = "black";
+                win.document.body.appendChild(canvas);
+                // Canvas con posición absoluta, top: 50% y left: 50% para centrarlo
+                canvas.style.position = "absolute";
+                canvas.style.top = "50%";
+                canvas.style.left = "50%";
+                // Transformar el canvas para centrarlo
+                canvas.style.transform = "translate(-50%, -50%)";
+            });
+        });
+    </script>
+{% endblock body_js %}

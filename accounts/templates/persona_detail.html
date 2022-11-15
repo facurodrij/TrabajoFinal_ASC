@@ -27,17 +27,17 @@
                     </div>
                     <div class="card-body">
                         <ul class="list-group">
-                            <li class="list-group-item">
-                                <b>Categoria: </b>{{ user.persona.socio.categoria }}</li>
                             <li class="list-group-item"><b>DNI: </b>{{ user.persona.dni }}</li>
                             <li class="list-group-item"><b>Nombre
                                 completo: </b>{{ user.persona.get_full_name }}</li>
                             <li class="list-group-item"><b>Sexo: </b>{{ user.persona.sexo }}</li>
-                            <li class="list-group-item"><b>Edad: </b>{{ user.persona.get_edad }}</li>
+                            <li class="list-group-item"><b>Edad: </b>{{ user.persona.get_edad }}
+                                ({{ user.persona.fecha_nacimiento }})
+                            </li>
                             <li class="list-group-item"><b>Usuario: </b>{{ user.persona.user.username }}</li>
                             <li class="list-group-item"><b>Email: </b>{{ user.persona.user.email }}</li>
                             <li class="list-group-item">
-                                <b>Fecha de creación: </b>{{ user.persona.user.date_joined }}
+                                <b>Fecha de creación de usuario: </b>{{ user.persona.user.date_joined }}
                             </li>
                             <li class="list-group-item">
                                 <b>Último inicio de sesión: </b>{{ user.persona.user.last_login }}
@@ -45,6 +45,9 @@
                         </ul>
                     </div>
                     <div class="card-footer">
+                        <a href="{% url 'socio-info' %}" class="btn btn-primary">
+                            <i class="fa-solid fa-id-card"></i> Ver información de socio
+                        </a>
                         <a href="{% url 'index' %}" class="btn btn-secondary">
                             <i class="fa-solid fa-rotate-left"></i> Volver
                         </a>

@@ -23,8 +23,12 @@ class Socio(SoftDeleteModel):
     def clean(self):
         if self.socio_titular_id is not None and self.socio_titular.socio_titular_id is not None:
             raise ValidationError(_('El socio no puede ser miembro de otro socio.'))
-        if self.socio_titular_id is not None:
-            self.estado = self.socio_titular.estado
+        # Si tuviera miembros, asignarle el mismo estado
+        if self.es_titular():
+            if self.get_miembros().exists():
+                for miembro in self.get_miembros():
+                    miembro.estado = self.estado
+                    miembro.save()
 
     def __str__(self):
         return self.persona.__str__()
@@ -54,6 +58,13 @@ class Socio(SoftDeleteModel):
 
     def get_related_objects(self):
         return self.get_miembros()
+
+    def get_antiguedad(self):
+        # Si supera el año, mostrar en años, sino en meses
+        if (datetime.now().year - self.fecha_ingreso.year) > 0:
+            return '{} años'.format(datetime.now().year - self.fecha_ingreso.year)
+        else:
+            return '{} meses'.format(datetime.now().month - self.fecha_ingreso.month)
 
     # TODO: Si el socio tiene deudas pendientes, no puede ser eliminado
 

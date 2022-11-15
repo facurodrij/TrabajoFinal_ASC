@@ -100,7 +100,7 @@ class SolicitudForm(forms.ModelForm):
                                                'data-target': '#id_fecha_nacimiento',
                                            }
                                        ))
-    imagen = forms.ImageField(required=True, widget=AdminFileWidget)
+    imagen = forms.ImageField(required=True, widget=AdminFileWidget, label='Foto carnet')
 
     def clean(self):
         super(SolicitudForm, self).clean()
