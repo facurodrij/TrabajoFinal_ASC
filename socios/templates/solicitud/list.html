@@ -79,8 +79,8 @@
                     </ul>
                 </div>
                 <div class="modal-footer">
-                    <button id="btn-rechazar" type="button" class="btn btn-danger">Rechazar</button>
-                    <button id="btn-aprobar" type="button" class="btn btn-success">Aprobar</button>
+                    <button type="button" class="btn btn-danger btn-rechazar">Rechazar</button>
+                    <button type="button" class="btn btn-success btn-aprobar">Aprobar</button>
                 </div>
             </div>
         </div>
@@ -92,11 +92,12 @@
         // Cuando el button detail se presiona
         $(document).on('click', '.detail', function () {
             let id = $(this).val();
+            console.log(id);
             $.ajax({
                 url: window.location.pathname,
                 type: "GET",
                 data: {
-                    'id': id,
+                    'solicitud_id': id,
                     'action': 'get_detail'
                 },
                 success: function (data) {
@@ -121,14 +122,14 @@
                         // ocultar los botones del modal footer y limpiar el modal footer
                         // y mostrar el mensaje de aprobado
                         if (values[i].estado === 'Aprobado') {
-                            $('#btn-rechazar').hide();
-                            $('#btn-aprobar').hide();
+                            $('.btn-rechazar').hide();
+                            $('.btn-aprobar').hide();
                             $('div .alert').remove();
                             mensaje = '<div class="alert alert-success" role="alert">La solicitud ha sido aprobada</div>';
                         }
                         if (values[i].estado === 'Rechazado') {
-                            $('#btn-rechazar').hide();
-                            $('#btn-aprobar').hide();
+                            $('.btn-rechazar').hide();
+                            $('.btn-aprobar').hide();
                             $('div .alert').remove();
                             mensaje = '<div class="alert alert-danger" role="alert">La solicitud ha sido rechazada</div>';
                         }
@@ -159,13 +160,13 @@
                 });
             });
             // Cuando el button aprobar se presiona
-            $(document).on('click', '#btn-aprobar', function () {
-                let id = $('.detail').val();
+            $(document).on('click', '.btn-aprobar', function () {
+                console.log(id);
                 $.ajax({
                     url: window.location.pathname,
                     type: "GET",
                     data: {
-                        'id': id,
+                        'pk': id,
                         'action': 'aprobar'
                     },
                     success: function (data) {

@@ -93,7 +93,7 @@ class SolicitudListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             if action == 'get_detail':
                 # Enviar los datos de la solicitud en formato json
                 data = []
-                solicitud = SolicitudSocio.global_objects.get(pk=request.GET['id'])
+                solicitud = SolicitudSocio.global_objects.get(pk=request.GET['solicitud_id'])
                 item = solicitud.toJSON()
                 data.append(item)
             elif action == 'rechazar':
@@ -102,7 +102,7 @@ class SolicitudListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 solicitud.delete()
                 messages.success(request, 'Solicitud rechazada correctamente')
             elif action == 'aprobar':
-                solicitud = SolicitudSocio.objects.get(pk=request.GET['id'])
+                solicitud = SolicitudSocio.objects.get(pk=request.GET['pk'])
                 try:
                     with transaction.atomic():
                         persona = Persona.objects.create(dni=solicitud.dni,
