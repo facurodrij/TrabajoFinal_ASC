@@ -20,16 +20,6 @@ class Socio(SoftDeleteModel):
     socio_titular = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True)
     parentesco = models.ForeignKey('parameters.Parentesco', on_delete=models.PROTECT, null=True, blank=True)
 
-    def clean(self):
-        if self.socio_titular_id is not None and self.socio_titular.socio_titular_id is not None:
-            raise ValidationError(_('El socio no puede ser miembro de otro socio.'))
-        # Si tuviera miembros, asignarle el mismo estado
-        if self.es_titular():
-            if self.get_miembros().exists():
-                for miembro in self.get_miembros():
-                    miembro.estado = self.estado
-                    miembro.save()
-
     def __str__(self):
         return self.persona.__str__()
 
@@ -39,16 +29,11 @@ class Socio(SoftDeleteModel):
     def get_miembros(self):
         return Socio.global_objects.filter(socio_titular=self)
 
-    def es_miembro(self):
-        return True if self.socio_titular_id is not None else False
+    def get_parentesco(self):
+        return 'Titular' if self.es_titular() else self.parentesco
 
     def get_tipo(self):
         return 'Titular' if self.es_titular() else 'Miembro'
-
-    def toJSON(self):
-        item = model_to_dict(self)
-        item['__str__'] = self.__str__()
-        return item
 
     def get_user(self):
         try:
@@ -57,16 +42,36 @@ class Socio(SoftDeleteModel):
             return None
 
     def get_related_objects(self):
-        return self.get_miembros()
+        if self.es_titular():
+            return self.get_miembros()
+        return []
 
     def get_antiguedad(self):
-        # Si supera el año, mostrar en años, sino en meses
+        # Si supera el año, mostrar en años, si no en meses
         if (datetime.now().year - self.fecha_ingreso.year) > 0:
             return '{} años'.format(datetime.now().year - self.fecha_ingreso.year)
         else:
             return '{} meses'.format(datetime.now().month - self.fecha_ingreso.month)
 
-    # TODO: Si el socio tiene deudas pendientes, no puede ser eliminado
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['__str__'] = self.__str__()
+        return item
+
+    def clean(self):
+        # Si tuviera miembros, asignarle el mismo estado
+        if self.es_titular():
+            if self.get_miembros().exists():
+                for miembro in self.get_miembros():
+                    miembro.estado = self.estado
+                    miembro.save()
+
+        # Un socio no puede ser miembro de otro miembro
+        if not self.es_titular():
+            if not self.socio_titular.es_titular():
+                raise ValidationError(_('Un socio no puede ser miembro de otro miembro.'))
+
+        # TODO: Si el socio tiene deudas pendientes, no puede ser eliminado
 
     class Meta:
         verbose_name = 'Socio'

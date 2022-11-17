@@ -77,7 +77,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                 ({{ socio.persona.fecha_nacimiento }})
                             </li>
                             {% if socio.es_miembro %}
-                                 <li class="list-group-item"><b>Titular del grupo:</b> {{ socio.socio_titular }}<br>
+                                <li class="list-group-item"><b>Titular del grupo:</b> {{ socio.socio_titular }}<br>
                                     <b>Parentesco:</b> {{ socio.parentesco }}
                                 </li>
                             {% endif %}
@@ -117,7 +117,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header bg-primary">
-                            <h3 class="card-title">Miembros Asignados</h3>
+                            <h3 class="card-title">Grupo Familiar</h3>
                         </div>
                         <div class="card-body">
                             <button id="btn-add-miembro" class="btn btn-success mb-3">Agregar Nuevo</button>
@@ -129,6 +129,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                     <th scope="col" style="">Nombre completo</th>
                                     <th scope="col" style="">Edad</th>
                                     <th scope="col" style="">Categoría</th>
+                                    <th scope="col" style="">Parentesco</th>
                                     <th scope="col" style="">Acciones</th>
                                 </tr>
                                 </thead>
@@ -140,6 +141,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                         <td>{{ miembro.persona.get_full_name }}</td>
                                         <td>{{ miembro.persona.get_edad }}</td>
                                         <td>{{ miembro.categoria }}</td>
+                                        <td>{{ miembro.get_parentesco }}</td>
                                         {% if not miembro.is_deleted %}
                                             <td>
                                                 <a href="{% url 'socio-detalle' miembro.pk %}"
@@ -173,6 +175,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                     <th scope="col" style="">Nombre completo</th>
                                     <th scope="col" style="">Edad</th>
                                     <th scope="col" style="">Categoría</th>
+                                    <th scope="col" style="">Parentesco</th>
                                     <th scope="col" style="">Acciones</th>
                                 </tr>
                                 </tfoot>

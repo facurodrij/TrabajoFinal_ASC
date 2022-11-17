@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db import transaction
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
@@ -126,7 +127,9 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
         miembro_form.fields['persona'].queryset = Persona.objects.exclude(pk=self.get_object().persona.pk).exclude(
             socio__socio_titular=self.get_object())
         context['title'] = 'Detalle de Socio'
-        context['miembros'] = Socio.global_objects.filter(socio_titular=self.get_object())
+        # Obtener los miembros del socio y el socio titular
+        context['miembros'] = Socio.global_objects.filter(
+            Q(socio_titular=self.get_object()) | Q(pk=self.get_object().pk))
         context['miembro_form'] = miembro_form
         context['persona_form'] = PersonaFormAdmin()
         return context
@@ -311,7 +314,9 @@ def socio_delete(request, pk):
     socio = get_object_or_404(Socio, pk=pk)
     socio.delete(cascade=True)
     messages.success(request, 'Socio eliminado correctamente')
-    return redirect('socio-listado')
+    if socio.es_titular():
+        return redirect('socio-listado')
+    return redirect(request.META.get('HTTP_REFERER'))
 
 
 @login_required
@@ -331,4 +336,5 @@ def socio_restore(request, pk):
     # Capturar el ValidationError si el socio ya existe
     except ValidationError as e:
         messages.error(request, e.message)
-    return redirect('socio-listado')
+    # Recargar la página actual
+    return redirect(request.META.get('HTTP_REFERER'))
