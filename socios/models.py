@@ -71,6 +71,11 @@ class Socio(SoftDeleteModel):
             if not self.socio_titular.es_titular():
                 raise ValidationError(_('Un socio no puede ser miembro de otro miembro.'))
 
+        # Un socio titular no puede ser menor de 16 años
+        if self.es_titular():
+            if self.persona.get_edad() < 16:
+                raise ValidationError(_('Un socio titular no puede ser menor de 16 años.'))
+
         # TODO: Si el socio tiene deudas pendientes, no puede ser eliminado
 
     class Meta:

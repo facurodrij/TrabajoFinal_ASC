@@ -128,6 +128,14 @@
                             <label class="labels">{{ socio_form.estado.label }}</label>
                             {{ socio_form.estado }}
                         </div>
+                        <div class="form-group">
+                            <label class="labels">{{ socio_form.socio_titular.label }}</label>
+                            {{ socio_form.socio_titular }}
+                        </div>
+                        <div class="form-group">
+                            <label class="labels">{{ socio_form.parentesco.label }}</label>
+                            {{ socio_form.parentesco }}
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">
@@ -211,30 +219,56 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     {% include 'includes/dataTable.html' %}
     <script>
+        let ModalAddSocio = $('#ModalAddSocio');
+        let select_categoria = $('#id_categoria');
+        let select_socio_titular = $('#id_socio_titular');
+        let select_parentesco = $('#id_parentesco');
+        let select_estado = $('#id_estado');
         $('#btn-add-socio').click(function () { // Evento para mostrar el modal de agregar socio
             $('#id_persona').select2({
                 theme: 'bootstrap4',
                 placeholder: 'Seleccione una persona',
                 allowClear: true,
-                language: 'es'
+                language: 'es',
+                dropdownParent: ModalAddSocio
             });
-            $('#id_categoria').select2({
+            select_categoria.select2({
                 theme: 'bootstrap4',
                 allowClear: true,
                 placeholder: 'Seleccione una categoria',
                 width: '100%',
-                language: 'es'
+                language: 'es',
+                dropdownParent: ModalAddSocio
             });
             $('#id_estado').select2({
                 theme: 'bootstrap4',
                 placeholder: 'Seleccione un estado',
                 allowClear: true,
                 width: '100%',
-                language: 'es'
+                language: 'es',
+                dropdownParent: ModalAddSocio
             });
-            $('#ModalAddSocio').modal('show');
+            select_socio_titular.select2({
+                theme: 'bootstrap4',
+                placeholder: 'Seleccione un tutor',
+                allowClear: true,
+                width: '100%',
+                language: 'es',
+                dropdownParent: ModalAddSocio
+            });
+            select_parentesco.select2({
+                theme: 'bootstrap4',
+                placeholder: 'Seleccione un estado',
+                allowClear: true,
+                width: '100%',
+                language: 'es',
+                dropdownParent: ModalAddSocio
+            });
+            // Ocultar el div.form-group de socio_titular y parentesco
+            select_socio_titular.parent().hide();
+            select_parentesco.parent().hide();
+            ModalAddSocio.modal('show');
         });
-        let select_categoria = $('#id_categoria');
         $('#id_persona').on('change', function (e) { // El evento se activa cuando select Persona cambia
             if ($(this).val()) { // Verificar que el input Persona no este vacío
                 $.ajax({ // Realizar una petición AJAX para obtener las categorias que puede tener la persona
@@ -253,6 +287,15 @@
                             $.each(data, function (key, value) { // Agregar las categorias traídas del backend al select
                                 select_categoria.append('<option value="' + value.id + '">' + value.__str__ + '</option>');
                             });
+                            // Obtener el valor de tutor_required del data
+                            let tutor_required = data[2].tutor_required;
+                            if (tutor_required) { // Si el valor es true
+                                select_socio_titular.parent().show();
+                                select_parentesco.parent().show();
+                            } else {
+                                select_socio_titular.parent().hide();
+                                select_parentesco.parent().hide();
+                            }
                         } else {
                             alert('Error al obtener las categorias: ' + data.error)
                         }
@@ -303,10 +346,12 @@
                                         url: window.location.pathname,
                                         type: 'POST',
                                         data: {
-                                            'action': 'restore_socio_as_titular', // Acción que se va a ejecutar en el backend
+                                            'action': 'restore_socio', // Acción que se va a ejecutar en el backend
                                             'persona': $('#id_persona').val(), // Pasar el valor pk de la Persona
                                             'categoria': $('#id_categoria').val(), // Pasar el valor pk de la Categoria
-                                            'estado': $('#id_estado').val(), // Pasar el valor pk del Parentesco
+                                            'estado': $('#id_estado').val(),
+                                            'socio_titular': $('#id_socio_titular').val(),
+                                            'parentesco': $('#id_parentesco').val(),
                                             'csrfmiddlewaretoken': '{{ csrf_token }}'
                                         },
                                         dataType: 'json',

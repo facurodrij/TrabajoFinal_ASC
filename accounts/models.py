@@ -150,6 +150,13 @@ class PersonaAbstract(SoftDeleteModel):
         self.nombre = self.nombre.title()
         self.apellido = self.apellido.title()
 
+        # Si persona es socio_titular no puede ser menor a 16 años.
+        try:
+            if self.socio.es_titular() and self.get_edad() < 16:
+                raise ValidationError('La persona debe ser mayor de 16 años.')
+        except AttributeError:
+            pass
+
     class Meta:
         abstract = True
 

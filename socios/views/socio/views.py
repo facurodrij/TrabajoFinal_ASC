@@ -4,13 +4,13 @@ from django.shortcuts import redirect
 from django.views.generic import FormView
 
 from core.models import Club
-from socios.forms import SocioForm
+from socios.forms import SocioTitularForm
 from socios.models import Socio
 
 
 class SocioFormView(LoginRequiredMixin, FormView):
     model = Socio
-    form_class = SocioForm
+    form_class = SocioTitularForm
     template_name = 'socio/form.html'
 
     def dispatch(self, request, *args, **kwargs):
