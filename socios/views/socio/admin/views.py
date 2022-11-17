@@ -11,7 +11,7 @@ from django.views.generic import ListView, DetailView, UpdateView
 from accounts.decorators import admin_required
 from accounts.forms import *
 from core.models import Club
-from socios.forms import SocioTitularForm, SocioMiembroForm
+from socios.forms import SocioForm
 from socios.models import Socio, Categoria
 
 
@@ -28,7 +28,7 @@ class SocioListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Listado de socios'
-        socio_form = SocioTitularForm()
+        socio_form = SocioForm()
         socio_form.fields['categoria'].disabled = True
         context['socio_form'] = socio_form
         context['persona_form'] = PersonaFormAdmin()
@@ -40,7 +40,7 @@ class SocioListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             action = request.POST['action']
             if action == 'add_socio':
                 # Si la acción es add_socio, se crea un nuevo socio
-                form = SocioTitularForm(request.POST)
+                form = SocioForm(request.POST)
                 if form.is_valid():
                     with transaction.atomic():
                         # Si la persona seleccionada es socio, pero está eliminado
@@ -73,35 +73,30 @@ class SocioListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 # Obtener las categorias que corresponden a la edad
                 categorias = Categoria.objects.filter(edad_desde__lte=edad,
                                                       edad_hasta__gte=edad)
+                print(categorias)
                 for categoria in categorias:
                     item = categoria.toJSON()
                     data.append(item)
+                # Si la persona es menor de 16, mandar una variable
+                # tutor_required para que el front-end sepa que debe pedir
                 tutor_required = True if edad < 16 else False
                 data.append({'tutor_required': tutor_required})
-            elif action == 'edit_socio':
-                # Si la acción es edit_socio, se edita un socio
-                pk = request.POST['id']
-                socio = Socio.objects.get(pk=pk)
-                form = SocioTitularForm(request.POST, instance=socio)
-                if form.is_valid():
-                    with transaction.atomic():
-                        form.save()
-                        data = socio.toJSON()
-                else:
-                    data['error'] = form.errors
             elif action == 'restore_socio':
-                # Si la acción es restore_socio_as_socio_titular, se restaura un socio como socio titular
+                # Si la acción es restore_socio, si el socio es mayor de 16 años
+                # se lo restaura como titular, si no se lo restaura como miembro
                 persona = request.POST['persona']
                 categoria = request.POST['categoria']
                 estado = request.POST['estado']
+                socio_titular = request.POST['socio_titular']
+                parentesco = request.POST['parentesco']
+                socio = Socio.deleted_objects.get(persona_id=persona)
                 with transaction.atomic():
-                    socio = Socio.deleted_objects.get(persona_id=persona)
                     socio.restore()
                     socio.categoria_id = categoria
                     if socio.persona.get_edad() < 16:
-                        socio.socio_titular_id = request.POST['socio_titular']
-                        socio.parentesco_id = request.POST['parentesco']
-                        socio.estado = socio.socio_titular.estado
+                        socio.socio_titular_id = socio_titular
+                        socio.parentesco_id = parentesco
+                        socio.estado_id = estado
                         socio.save()
                         data = socio.toJSON()
                         messages.success(request, 'Se ha restaurado el socio como socio miembro')
@@ -128,7 +123,7 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        miembro_form = SocioMiembroForm()
+        miembro_form = SocioForm()
         miembro_form.fields['categoria'].disabled = True
         miembro_form.fields['socio_titular'].queryset = Socio.objects.filter(pk=self.get_object().pk)
         miembro_form.fields['socio_titular'].initial = self.get_object()
@@ -150,7 +145,7 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
             action = request.POST['action']
             if action == 'add_miembro':
                 # Si la acción es add_miembro, se agrega un nuevo miembro al socio
-                miembro_form = SocioMiembroForm(request.POST)
+                miembro_form = SocioForm(request.POST)
                 if miembro_form.is_valid():
                     with transaction.atomic():
                         # Si la persona seleccionada es socio titular, pero está eliminado
@@ -243,7 +238,7 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
 class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """ Vista para editar un socio, solo para administradores """
     model = Socio
-    form_class = SocioTitularForm
+    form_class = SocioForm
     template_name = 'socio/admin/update.html'
     permission_required = 'socios.change_socio'
     context_object_name = 'socio'
@@ -254,21 +249,19 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
         context['title'] = 'Editar Socio'
         context['action'] = 'edit_socio'
         context['persona_form'] = PersonaFormAdmin(instance=self.get_object().persona)
+        context['socio_titular_id'] = self.get_object().socio_titular_id
         return context
-
-    # Si el socio no es titular, cambiar form_class a MiembroForm
-    def get_form_class(self):
-        if self.get_object().es_titular():
-            return SocioTitularForm
-        else:
-            self.form_class = SocioMiembroForm
-        return SocioMiembroForm
 
     def get_form(self, form_class=None):
         # El select de persona debe mostrar solo la persona del socio y deshabilitar el campo
         form = super().get_form(form_class)
         form.fields['persona'].queryset = Persona.objects.filter(pk=self.get_object().persona.pk)
         form.fields['persona'].widget.attrs['disabled'] = True
+        if self.get_object().es_titular():
+            # Quitar el campo socio_titular y parentesco
+            del form.fields['socio_titular']
+            del form.fields['parentesco']
+        # Si el socio no es titular, el select de socio_titular debe mostrar solo su socio titular
         if not self.get_object().es_titular():
             form.fields['socio_titular'].queryset = Socio.objects.filter(pk=self.get_object().socio_titular.pk)
             form.fields['socio_titular'].widget.attrs['disabled'] = True

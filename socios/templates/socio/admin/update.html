@@ -29,9 +29,10 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-lg-6">
+                                    <h5>Datos del socio</h5>
+                                    <hr>
                                     <div class="form-group">
-                                        <label class="labels">{{ form.persona.label }}</label>
                                         <div class="input-group">
                                             {{ form.persona }}
                                             <div class="input-group-append">
@@ -41,34 +42,34 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="labels">{{ form.socio_titular.label }}</label>
-                                        {{ form.socio_titular }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="labels">{{ form.categoria.label }}</label>
                                         {{ form.categoria }}
                                     </div>
-                                </div>
-                                <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="labels">{{ form.parentesco.label }}</label>
-                                        {{ form.parentesco }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="labels">{{ form.estado.label }}</label>
                                         {{ form.estado }}
                                     </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    {% if form.socio_titular %}
+                                        <h5>Datos del titular</h5>
+                                        <hr>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                {{ form.socio_titular }}
+                                                <div class="input-group-append">
+                                                    <a href="{% url 'socio-detalle' socio_titular_id %}" class="btn btn-info">
+                                                        <i class="fa-solid fa-eye"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            {{ form.parentesco }}
+                                            <small class="form-text text-muted">
+                                                El socio es [...] del titular
+                                            </small>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -183,7 +184,6 @@
             theme: 'bootstrap4',
             placeholder: 'Seleccione un socio titular',
             allowClear: true,
-            width: '100%',
             language: 'es'
         });
         $('#id_parentesco').select2({
@@ -201,8 +201,8 @@
             select_persona.prop('disabled', false); // Al momento de enviar el formulario, se habilita el select de persona
                                                     // para que se envíe el valor, ya que si no se habilita, no se envía.
             select_socio_titular.prop('disabled', false); // Al momento de enviar el formulario, se habilita el select de socio
-                                                         // titular para que se envíe el valor, ya que si no se habilita, no se
-                                                         // envía.
+            // titular para que se envíe el valor, ya que si no se habilita, no se
+            // envía.
             let form = new FormData(this);
             select_persona.prop('disabled', true); // Vuelvo a deshabilitar el select de persona para evitar que el usuario lo modifique
             select_socio_titular.prop('disabled', true); // Vuelvo a deshabilitar el select de socio titular para evitar que el usuario lo modifique

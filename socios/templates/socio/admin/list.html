@@ -130,7 +130,15 @@
                         </div>
                         <div class="form-group">
                             <label class="labels">{{ socio_form.socio_titular.label }}</label>
-                            {{ socio_form.socio_titular }}
+                            <div class="input-group">
+                                {{ socio_form.socio_titular }}
+                                <div class="input-group-append">
+                                    <button id="btn-add-tutor" class="btn btn-success" type="button">
+                                        <i class="fas fa-user-plus"></i>
+                                    </button>
+                                    {# TODO: Darle funcionalidad al boton de agregar tutor #}
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="labels">{{ socio_form.parentesco.label }}</label>
@@ -252,7 +260,6 @@
                 theme: 'bootstrap4',
                 placeholder: 'Seleccione un tutor',
                 allowClear: true,
-                width: '100%',
                 language: 'es',
                 dropdownParent: ModalAddSocio
             });
@@ -285,7 +292,9 @@
                             select_categoria.empty(); // Limpiar el select de categorias
                             select_categoria.prop('disabled', false); // Habilitar el select de categorias
                             $.each(data, function (key, value) { // Agregar las categorias traídas del backend al select
-                                select_categoria.append('<option value="' + value.id + '">' + value.__str__ + '</option>');
+                                if (value.id) {
+                                    select_categoria.append('<option value="' + value.id + '">' + value.__str__ + '</option>');
+                                }
                             });
                             // Obtener el valor de tutor_required del data
                             let tutor_required = data[2].tutor_required;
@@ -349,9 +358,9 @@
                                             'action': 'restore_socio', // Acción que se va a ejecutar en el backend
                                             'persona': $('#id_persona').val(), // Pasar el valor pk de la Persona
                                             'categoria': $('#id_categoria').val(), // Pasar el valor pk de la Categoria
-                                            'estado': $('#id_estado').val(),
-                                            'socio_titular': $('#id_socio_titular').val(),
-                                            'parentesco': $('#id_parentesco').val(),
+                                            'estado': $('#id_estado').val(), // Pasar el valor pk de la Estado
+                                            'socio_titular': $('#id_socio_titular').val(), // Pasar el valor pk de la Socio_titular
+                                            'parentesco': $('#id_parentesco').val(), // Pasar el valor pk de la Parentesco
                                             'csrfmiddlewaretoken': '{{ csrf_token }}'
                                         },
                                         dataType: 'json',
@@ -359,7 +368,7 @@
                                             if (!data.hasOwnProperty('error')) {
                                                 location.reload();
                                             } else {
-                                                alert('Error al agregar el socio como titular: ' + data.error)
+                                                alert('Error al restaurar el socio: ' + data.error)
                                             }
                                         }
                                     });
@@ -384,6 +393,7 @@
         });
     </script>
     <script>
+        let ModalAddPersona = $('#ModalAddPersona');
         $('#btn-add-persona').on('click', function () { // Evento para mostrar el modal de agregar persona
             $('#id_fecha_nacimiento').datetimepicker({
                 "format": "DD/MM/YYYY",
@@ -398,9 +408,10 @@
                 placeholder: 'Seleccione un sexo',
                 allowClear: true,
                 width: '100%',
-                language: 'es'
+                language: 'es',
+                dropdownParent: ModalAddPersona
             });
-            $('#ModalAddPersona').modal('show');
+            ModalAddPersona.modal('show');
         });
         $('#formPersona').on('submit', function (e) { // Evento submit del formulario de persona
             e.preventDefault();
@@ -418,7 +429,7 @@
                         let newOption = new Option(data.__str__, data.id, false, true);
                         $('#id_persona').append(newOption).trigger('change');
                         $('#formPersona')[0].reset();
-                        $('#ModalAddPersona').modal('hide');
+                        ModalAddPersona.modal('hide');
                         Swal.fire({
                             position: 'top-end',
                             icon: 'success',

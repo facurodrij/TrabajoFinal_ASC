@@ -34,7 +34,7 @@ class SelectParentescoForm(forms.Form):
                                         widget=forms.Select(attrs={'class': 'form-control select2'}))
 
 
-class SocioTitularForm(forms.ModelForm):
+class SocioForm(forms.ModelForm):
     """
     Formulario para crear un socio.
     """
@@ -46,30 +46,9 @@ class SocioTitularForm(forms.ModelForm):
             'persona': forms.Select(attrs={'class': 'form-control select2'}),
             'categoria': forms.Select(attrs={'class': 'form-control select2'}),
             'estado': forms.Select(attrs={'class': 'form-control select2'}),
-            # Socio titular se utilizará en caso de que el socio que quiera crearse sea
-            # menor de 16 años.
             'socio_titular': forms.Select(attrs={'class': 'form-control select2'}),
             'parentesco': forms.Select(attrs={'class': 'form-control select2'})
         }
-
-
-class SocioMiembroForm(forms.ModelForm):
-    """
-    Formulario para crear un socio miembro.
-    """
-
-    class Meta:
-        model = Socio
-        fields = ['persona', 'categoria', 'socio_titular', 'parentesco']
-        widgets = {
-            'persona': forms.Select(attrs={'class': 'form-control select2'}),
-            'categoria': forms.Select(attrs={'class': 'form-control select2'}),
-            'socio_titular': forms.Select(attrs={'class': 'form-control select2'}),
-            'parentesco': forms.Select(attrs={'class': 'form-control select2'}),
-        }
-
-
-# TODO: Unificar en uno solo los formularios de Socios Titular y Miembro
 
 
 class SolicitudForm(forms.ModelForm):
