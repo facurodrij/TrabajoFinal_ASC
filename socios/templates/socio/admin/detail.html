@@ -68,38 +68,53 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                         <h4 class="card-title">{{ title }}</h4>
                     </div>
                     <div class="card-body">
-                        <ul class="list-group">
-                            <li class="list-group-item"><b>Categoria: </b>{{ socio.categoria }}</li>
-                            <li class="list-group-item"><b>DNI: </b>{{ socio.persona.dni }}</li>
-                            <li class="list-group-item"><b>Nombre completo: </b>{{ socio.persona.get_full_name }}</li>
-                            <li class="list-group-item"><b>Sexo: </b>{{ socio.persona.sexo }}</li>
-                            <li class="list-group-item"><b>Edad: </b>{{ socio.persona.get_edad }}
-                                ({{ socio.persona.fecha_nacimiento }})
-                            </li>
-                            {% if socio.es_miembro %}
-                                <li class="list-group-item"><b>Titular del grupo:</b> {{ socio.socio_titular }}<br>
-                                    <b>Parentesco:</b> {{ socio.parentesco }}
-                                </li>
-                            {% endif %}
-                            <li class="list-group-item"><b>Antigüedad: </b>{{ socio.get_antiguedad }}
-                                ({{ socio.fecha_ingreso }})
-                            </li>
-                            {% if socio.get_user %}
-                                <li class="list-group-item"><b>Usuario: </b>{{ socio.persona.user.username }}</li>
-                                <li class="list-group-item"><b>Email: </b>{{ socio.persona.user.email }}</li>
-                                <li class="list-group-item">
-                                    <b>Fecha de creación de usuario: </b>{{ socio.persona.user.date_joined }}
-                                </li>
-                                <li class="list-group-item">
-                                    <b>Último inicio de sesión: </b>
-                                    {% if not socio.persona.user.last_login %}
-                                        <span>Aún no ha iniciado sesión</span>
-                                    {% else %}
-                                        {{ socio.persona.user.last_login }}
+                        <div class="row">
+                            <div class="col">
+                                <h5>Información Personal</h5>
+                                <ul class="list-group">
+                                    <li class="list-group-item"><b>DNI: </b>{{ socio.persona.dni }}</li>
+                                    <li class="list-group-item"><b>Nombre
+                                        completo: </b>{{ socio.persona.get_full_name }}</li>
+                                    <li class="list-group-item"><b>Sexo: </b>{{ socio.persona.sexo }}</li>
+                                    <li class="list-group-item"><b>Edad: </b>{{ socio.persona.get_edad }}
+                                        ({{ socio.persona.fecha_nacimiento }})
+                                    </li>
+                                    {% if socio.es_miembro %}
+                                        <li class="list-group-item"><b>Titular del
+                                            grupo:</b> {{ socio.socio_titular }}<br>
+                                            <b>Parentesco:</b> {{ socio.parentesco }}
+                                        </li>
                                     {% endif %}
-                                </li>
-                            {% endif %}
-                        </ul>
+                                    {% if socio.get_user %}
+                                        <li class="list-group-item"><b>Usuario: </b>{{ socio.persona.user.username }}
+                                        </li>
+                                        <li class="list-group-item"><b>Email: </b>{{ socio.persona.user.email }}</li>
+                                        <li class="list-group-item">
+                                            <b>Fecha de creación de usuario: </b>{{ socio.persona.user.date_joined }}
+                                        </li>
+                                        <li class="list-group-item">
+                                            <b>Último inicio de sesión: </b>
+                                            {% if not socio.persona.user.last_login %}
+                                                <span>Aún no ha iniciado sesión</span>
+                                            {% else %}
+                                                {{ socio.persona.user.last_login }}
+                                            {% endif %}
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <div class="col">
+                                <h5>Información de Socio</h5>
+                                <ul class="list-group">
+                                    <li class="list-group-item"><b>Tipo de socio: </b>{{ socio.get_tipo }}</li>
+                                    <li class="list-group-item"><b>Categoria: </b>{{ socio.categoria }}</li>
+                                    <li class="list-group-item"><b>Antigüedad: </b>{{ socio.get_antiguedad }}
+                                        ({{ socio.fecha_ingreso }})
+                                    </li>
+                                    <li class="list-group-item"><b>Estado: </b>{{ socio.estado }}</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-footer">
                         <a href="{% url 'socio-editar' socio.pk %}" class="btn btn-warning mr-2">

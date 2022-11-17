@@ -53,23 +53,23 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                     </a>
                 </div>
             </div>
-            <div class="col-lg-8 col-md-12">
+            <div class="col-lg-7 col-md-12">
                 <div class="card">
                     <div class="card-header bg-primary">
                         <h4 class="card-title">{{ title }}</h4>
                     </div>
                     <div class="card-body">
                         <ul class="list-group">
-                            <li class="list-group-item"><b>Categoria: </b>{{ user.persona.socio.categoria }}
-                                <button class="btn btn-sm btn-warning" disabled>
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                            </li>
                             <li class="list-group-item"><b>Tipo de socio: </b>{{ user.persona.socio.get_tipo }}<br>
                                 {% if user.persona.socio.get_tipo == 'Miembro' %}
                                     <b>Titular del grupo:</b> {{ user.persona.socio.socio_titular }}<br>
                                     <b>Parentesco:</b> {{ user.persona.socio.parentesco }}
                                 {% endif %}
+                            </li>
+                            <li class="list-group-item"><b>Categoria: </b>{{ user.persona.socio.categoria }}
+                                <button class="btn btn-sm btn-warning" disabled>
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
                             </li>
                             <li class="list-group-item"><b>Antigüedad: </b>{{ user.persona.socio.get_antiguedad }}
                                 ({{ user.persona.socio.fecha_ingreso }})
