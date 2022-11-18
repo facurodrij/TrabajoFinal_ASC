@@ -86,13 +86,15 @@ class Socio(SoftDeleteModel):
             # Validar que el socio titular no sea el mismo socio
             models.CheckConstraint(
                 check=~models.Q(socio_titular=models.F('id')),
-                name='socio_titular_distinto_socio'
+                name='socio_titular_distinto_socio',
+                violation_error_message='Un socio no puede ser su propio titular.'
             ),
             # Validar si socio_titular es nulo, parentesco también lo es y viceversa
             models.CheckConstraint(
                 check=((models.Q(socio_titular__isnull=True) & models.Q(parentesco__isnull=True))
                        | (models.Q(socio_titular__isnull=False) & models.Q(parentesco__isnull=False))),
-                name='socio_titular_parentesco'
+                name='socio_titular_parentesco',
+                violation_error_message='Si socio_titular es nulo, parentesco también debe serlo y viceversa.'
             ),
         ]
 

@@ -130,15 +130,7 @@
                         </div>
                         <div class="form-group">
                             <label class="labels">{{ socio_form.socio_titular.label }}</label>
-                            <div class="input-group">
-                                {{ socio_form.socio_titular }}
-                                <div class="input-group-append">
-                                    <button id="btn-add-tutor" class="btn btn-success" type="button">
-                                        <i class="fas fa-user-plus"></i>
-                                    </button>
-                                    {# TODO: Darle funcionalidad al boton de agregar tutor #}
-                                </div>
-                            </div>
+                            {{ socio_form.socio_titular }}
                         </div>
                         <div class="form-group">
                             <label class="labels">{{ socio_form.parentesco.label }}</label>
@@ -294,17 +286,17 @@
                             $.each(data, function (key, value) { // Agregar las categorias traídas del backend al select
                                 if (value.id) {
                                     select_categoria.append('<option value="' + value.id + '">' + value.__str__ + '</option>');
+                                } else {
+                                    let tutor_required = value.tutor_required;
+                                    if (tutor_required) { // Si el valor es true
+                                        select_socio_titular.parent().show();
+                                        select_parentesco.parent().show();
+                                    } else {
+                                        select_socio_titular.parent().hide();
+                                        select_parentesco.parent().hide();
+                                    }
                                 }
                             });
-                            // Obtener el valor de tutor_required del data
-                            let tutor_required = data[2].tutor_required;
-                            if (tutor_required) { // Si el valor es true
-                                select_socio_titular.parent().show();
-                                select_parentesco.parent().show();
-                            } else {
-                                select_socio_titular.parent().hide();
-                                select_parentesco.parent().hide();
-                            }
                         } else {
                             alert('Error al obtener las categorias: ' + data.error)
                         }

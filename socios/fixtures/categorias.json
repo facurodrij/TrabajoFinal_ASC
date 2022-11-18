@@ -3,6 +3,16 @@
     "model": "socios.Categoria",
     "pk": 1,
     "fields": {
+      "nombre": "Sin categoria",
+      "cuota": 0.00,
+      "edad_desde": 0,
+      "edad_hasta": 0
+    }
+  },
+  {
+    "model": "socios.Categoria",
+    "pk": 2,
+    "fields": {
       "nombre": "Infantil Básico",
       "cuota": 2200.00,
       "edad_desde": 0,
@@ -11,7 +21,7 @@
   },
   {
     "model": "socios.Categoria",
-    "pk": 2,
+    "pk": 3,
     "fields": {
       "nombre": "Infantil Premium",
       "cuota": 2500.00,
@@ -21,7 +31,7 @@
   },
   {
     "model": "socios.Categoria",
-    "pk": 3,
+    "pk": 4,
     "fields": {
       "nombre": "Adolescente Básico",
       "cuota": 2600.00,
@@ -31,7 +41,7 @@
   },
   {
     "model": "socios.Categoria",
-    "pk": 4,
+    "pk": 5,
     "fields": {
       "nombre": "Adolescente Premium",
       "cuota": 3000.00,
@@ -41,7 +51,7 @@
   },
   {
     "model": "socios.Categoria",
-    "pk": 5,
+    "pk": 6,
     "fields": {
       "nombre": "Adulto Básico",
       "cuota": 3500.00,
@@ -51,7 +61,7 @@
   },
   {
     "model": "socios.Categoria",
-    "pk": 6,
+    "pk": 7,
     "fields": {
       "nombre": "Adulto Premium",
       "cuota": 4000.00,

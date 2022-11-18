@@ -70,9 +70,8 @@ class SocioListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 # Obtener la edad de la Persona
                 persona_id = request.POST['persona']
                 edad = Persona.objects.get(pk=persona_id).get_edad()
-                # Obtener las categorias que corresponden a la edad
-                categorias = Categoria.objects.filter(edad_desde__lte=edad,
-                                                      edad_hasta__gte=edad)
+                # Obtener las categorias que corresponden a la edad, incluyendo la primera categoria
+                categorias = Categoria.objects.filter((Q(edad_desde__lte=edad) & Q(edad_hasta__gte=edad)) | Q(pk=1))
                 print(categorias)
                 for categoria in categorias:
                     item = categoria.toJSON()
@@ -190,9 +189,8 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                 # Obtener la edad de la Persona
                 persona_id = request.POST['persona']
                 edad = Persona.objects.get(pk=persona_id).get_edad()
-                # Obtener las categorias que corresponden a la edad
-                categorias = Categoria.objects.filter(edad_desde__lte=edad,
-                                                      edad_hasta__gte=edad)
+                # Obtener las categorias que corresponden a la edad, incluyendo la primera categoria
+                categorias = Categoria.objects.filter((Q(edad_desde__lte=edad) & Q(edad_hasta__gte=edad)) | Q(pk=1))
                 for categoria in categorias:
                     item = categoria.toJSON()
                     data.append(item)
@@ -295,9 +293,8 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
                 # Obtener la edad de la Persona
                 persona_id = request.POST['persona']
                 edad = Persona.objects.get(pk=persona_id).get_edad()
-                # Obtener las categorias que corresponden a la edad
-                categorias = Categoria.objects.filter(edad_desde__lte=edad,
-                                                      edad_hasta__gte=edad)
+                # Obtener las categorias que corresponden a la edad, incluyendo la primera categoria
+                categorias = Categoria.objects.filter((Q(edad_desde__lte=edad) & Q(edad_hasta__gte=edad)) | Q(pk=1))
                 for categoria in categorias:
                     item = categoria.toJSON()
                     data.append(item)
