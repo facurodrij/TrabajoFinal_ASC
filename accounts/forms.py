@@ -124,7 +124,7 @@ class PersonaFormAdmin(forms.ModelForm):
             }
         ))
     imagen = forms.ImageField(
-        required=True, widget=AdminFileWidget)
+        required=True, widget=AdminFileWidget, label='Foto Carnet')
 
     class Meta:
         model = Persona
