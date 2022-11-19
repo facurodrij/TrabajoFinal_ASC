@@ -117,9 +117,10 @@ class PersonaAbstract(SoftDeleteModel):
         Devuelve la imagen de la persona.
         """
         try:
+            # Si existe una imagen en self.imagen.url, la devuelve.
+            Image.open(self.imagen.path)
             return self.imagen.url
-        except Exception as e:
-            print(e)
+        except FileNotFoundError:
             return settings.STATIC_URL + 'img/empty.svg'
 
     def get_fecha_nacimiento(self):

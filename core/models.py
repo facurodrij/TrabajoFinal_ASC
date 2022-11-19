@@ -39,9 +39,10 @@ class Club(SoftDeleteModel):
     def get_imagen(self):
         """Método para obtener la imagen de perfil del usuario."""
         try:
+            # Si existe una imagen en self.imagen.url, la devuelve.
+            Image.open(self.imagen.path)
             return self.imagen.url
-        except Exception as e:
-            print(e)
+        except FileNotFoundError:
             return settings.STATIC_URL + 'img/empty.svg'
 
     class Meta:
