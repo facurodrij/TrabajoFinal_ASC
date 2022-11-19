@@ -16,4 +16,7 @@ urlpatterns = [
     # Solicitud de asociación
     path('solicitud/', SolicitudView.as_view(), name='solicitud-crear'),
     path('solicitud/listado/', SolicitudListView.as_view(), name='solicitud-listado'),
+
+    # Cuotas sociales
+    path('cuotas/<int:pk>/eliminar/', cuota_delete, name='cuota-eliminar'),
 ]

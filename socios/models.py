@@ -238,6 +238,9 @@ class CuotaSocial(SoftDeleteModel):
             return 'Anulada'
         return 'Pendiente'
 
+    def get_related_objects(self):
+        return self.detallecuotasocial_set.all()
+
     def toJSON(self):
         item = model_to_dict(self)
         item['persona'] = self.persona.toJSON()

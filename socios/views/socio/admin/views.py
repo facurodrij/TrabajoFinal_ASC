@@ -256,6 +256,13 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                         messages.success(request, 'Cuota social agregada correctamente')
                 else:
                     data['error'] = cuota_social_form.errors
+            elif action == 'mark_as_paid':
+                # Si la acción es mark_as_paid, se marca una cuota social como pagada
+                cuota_social_id = request.POST['id']
+                cuota_social = CuotaSocial.objects.get(pk=cuota_social_id)
+                cuota_social.fecha_pago = datetime.now()
+                cuota_social.save()
+                messages.success(request, 'Cuota social marcada como pagada correctamente')
             else:
                 data['error'] = 'Ha ocurrido un error, intente nuevamente'
         except Exception as e:
@@ -342,8 +349,9 @@ def socio_delete(request, pk):
     Eliminar un socio
     """
     socio = get_object_or_404(Socio, pk=pk)
-    socio.delete(cascade=True)
-    messages.success(request, 'Socio eliminado correctamente')
+    with transaction.atomic():
+        socio.delete(cascade=True)
+        messages.success(request, 'Socio eliminado correctamente')
     if socio.es_titular():
         return redirect('socio-listado')
     return redirect(request.META.get('HTTP_REFERER'))
@@ -358,13 +366,28 @@ def socio_restore(request, pk):
     socio = Socio.deleted_objects.get(pk=pk)
     try:
         if not socio.get_related_objects():
-            socio.restore()
-            messages.success(request, 'Socio restaurado correctamente')
+            with transaction.atomic():
+                socio.restore()
+                messages.success(request, 'Socio restaurado correctamente')
         else:
-            socio.restore(cascade=True)
-            messages.success(request, 'Socio y miembros restaurado correctamente')
+            with transaction.atomic():
+                socio.restore(cascade=True)
+                messages.success(request, 'Socio y miembros restaurado correctamente')
     # Capturar el ValidationError si el socio ya existe
     except ValidationError as e:
         messages.error(request, e.message)
     # Recargar la página actual
+    return redirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
+@admin_required
+def cuota_delete(request, pk):
+    """
+    Eliminar una cuota social
+    """
+    cuota = get_object_or_404(CuotaSocial, pk=pk)
+    with transaction.atomic():
+        cuota.delete(cascade=True)
+        messages.success(request, 'Cuota social eliminada correctamente')
     return redirect(request.META.get('HTTP_REFERER'))
