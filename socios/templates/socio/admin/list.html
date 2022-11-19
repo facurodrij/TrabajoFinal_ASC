@@ -55,20 +55,20 @@
                                             <td><span class="badge badge-danger">{{ socio.estado }}</span></td>
                                         {% endif %}
                                         <td>
-                                            <a href="{% url 'socio-detalle' socio.pk %}" class="btn btn-info btn-sm">
+                                            <a href="{% url 'admin-socio-detalle' socio.pk %}" class="btn btn-info btn-sm">
                                                 <i class="fa-solid fa-eye"></i>
                                             </a>
-                                            <a href="{% url 'socio-editar' socio.pk %}" class="btn btn-warning btn-sm">
+                                            <a href="{% url 'admin-socio-editar' socio.pk %}" class="btn btn-warning btn-sm">
                                                 <i class="fa-solid fa-edit"></i>
                                             </a>
-                                            <a href="{% url 'socio-eliminar' socio.pk %}" class="btn btn-danger btn-sm">
+                                            <a href="{% url 'admin-socio-eliminar' socio.pk %}" class="btn btn-danger btn-sm">
                                                 <i class="fa-solid fa-trash"></i>
                                             </a>
                                         </td>
                                     {% else %}
                                         <td><span class="badge badge-danger">Eliminado</span></td>
                                         <td>
-                                            <a href="{% url 'socio-restaurar' socio.pk %}"
+                                            <a href="{% url 'admin-socio-restaurar' socio.pk %}"
                                                class="btn btn-success btn-sm">
                                                 <i class="fa-solid fa-rotate-left"></i>
                                             </a>

@@ -68,7 +68,7 @@ class SolicitudView(CreateView):
         return JsonResponse(data, safe=False)
 
 
-class SolicitudListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class SolicitudAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """
     Vista que lista las solicitudes de asociación.
     """
@@ -81,7 +81,7 @@ class SolicitudListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         return SolicitudSocio.global_objects.all()
 
     def get_context_data(self, **kwargs):
-        context = super(SolicitudListView, self).get_context_data(**kwargs)
+        context = super(SolicitudAdminListView, self).get_context_data(**kwargs)
         context['title'] = 'Listado de solicitudes de asociación'
         return context
 
@@ -151,5 +151,5 @@ class SolicitudListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 data['error'] = 'No ha ingresado a ninguna opción'
         except Exception as e:
             data['error'] = str(e)
-            return super(SolicitudListView, self).get(request, *args, **kwargs)
+            return super(SolicitudAdminListView, self).get(request, *args, **kwargs)
         return JsonResponse(data, safe=False)

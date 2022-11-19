@@ -16,7 +16,7 @@
 {% block breadcrumbs %}
     <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'socio-listado' %}">Socios</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin-socio-listado' %}">Socios</a></li>
         <li class="breadcrumb-item active">{{ title }}</li>
     </ol>
 {% endblock %}
@@ -117,10 +117,10 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                         </div>
                     </div>
                     <div class="card-footer">
-                        <a href="{% url 'socio-editar' socio.pk %}" class="btn btn-warning mr-2">
+                        <a href="{% url 'admin-socio-editar' socio.pk %}" class="btn btn-warning mr-2">
                             <i class="fa-solid fa-edit"></i> Editar
                         </a>
-                        <a href="{% url 'socio-listado' %}" class="btn btn-secondary">
+                        <a href="{% url 'admin-socio-listado' %}" class="btn btn-secondary">
                             <i class="fa-solid fa-rotate-left"></i> Volver
                         </a>
                     </div>
@@ -166,22 +166,22 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                         <td>{{ miembro.get_parentesco }}</td>
                                         {% if not miembro.is_deleted %}
                                             <td>
-                                                <a href="{% url 'socio-detalle' miembro.pk %}"
+                                                <a href="{% url 'admin-socio-detalle' miembro.pk %}"
                                                    class="btn btn-info btn-sm">
                                                     <i class="fa-solid fa-eye"></i>
                                                 </a>
-                                                <a href="{% url 'socio-editar' miembro.pk %}"
+                                                <a href="{% url 'admin-socio-editar' miembro.pk %}"
                                                    class="btn btn-warning btn-sm">
                                                     <i class="fa-solid fa-edit"></i>
                                                 </a>
-                                                <a href="{% url 'socio-eliminar' miembro.pk %}"
+                                                <a href="{% url 'admin-socio-eliminar' miembro.pk %}"
                                                    class="btn btn-danger btn-sm">
                                                     <i class="fa-solid fa-trash"></i>
                                                 </a>
                                             </td>
                                         {% else %}
                                             <td>
-                                                <a href="{% url 'socio-restaurar' miembro.pk %}"
+                                                <a href="{% url 'admin-socio-restaurar' miembro.pk %}"
                                                    class="btn btn-success btn-sm">
                                                     <i class="fa-solid fa-rotate-left"></i>
                                                 </a>
@@ -251,7 +251,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                             <button class="btn btn-info btn-sm">
                                                 <i class="fa-solid fa-file-pdf"></i>
                                             </button>
-                                            <a href="{% url 'cuota-eliminar' cuota.pk %}"
+                                            <a href="{% url 'admin-cuota-eliminar' cuota.pk %}"
                                                class="btn btn-danger btn-sm">
                                                 <i class="fa-solid fa-ban"></i>
                                             </a>

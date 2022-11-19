@@ -5,18 +5,22 @@ from socios.views.socio.views import SocioFormView
 from socios.views.solicitud.views import *
 
 urlpatterns = [
-    # Socios
-    path('socios/', SocioListView.as_view(), name='socio-listado'),
-    path('socios/<int:pk>/', SocioAdminDetailView.as_view(), name='socio-detalle'),
-    path('socios/<int:pk>/editar/', SocioAdminUpdateView.as_view(), name='socio-editar'),
-    path('socios/<int:pk>/eliminar/', socio_delete, name='socio-eliminar'),
-    path('socios/<int:pk>/restaurar/', socio_restore, name='socio-restaurar'),
-    path('socio/info/', SocioFormView.as_view(), name='socio-info'),
+    # Socios, URLs de administración
+    path('admin/socios/', SocioAdminListView.as_view(), name='admin-socio-listado'),
+    path('admin/socios/<int:pk>/', SocioAdminDetailView.as_view(), name='admin-socio-detalle'),
+    path('admin/socios/<int:pk>/editar/', SocioAdminUpdateView.as_view(), name='admin-socio-editar'),
+    path('admin/socios/<int:pk>/eliminar/', socio_delete, name='admin-socio-eliminar'),
+    path('admin/socios/<int:pk>/restaurar/', socio_restore, name='admin-socio-restaurar'),
 
-    # Solicitud de asociación
+    # Socios, URLs de usuario
+    path('socio/', SocioFormView.as_view(), name='socio'),
+
+    # Solicitud de asociación, URLs de administración
+    path('admin/solicitud_socios/', SolicitudAdminListView.as_view(), name='admin-solicitud-listado'),
+
+    # Solicitud de asociación, URLs de usuario
     path('solicitud/', SolicitudView.as_view(), name='solicitud-crear'),
-    path('solicitud/listado/', SolicitudListView.as_view(), name='solicitud-listado'),
 
-    # Cuotas sociales
-    path('cuotas/<int:pk>/eliminar/', cuota_delete, name='cuota-eliminar'),
+    # Cuotas sociales, URLs de administración
+    path('admin/cuotas/<int:pk>/eliminar/', cuota_delete, name='admin-cuota-eliminar'),
 ]

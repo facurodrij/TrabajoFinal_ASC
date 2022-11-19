@@ -17,7 +17,7 @@ from socios.forms import SocioForm, CuotaSocialForm
 from socios.models import Socio, Categoria, CuotaSocial, DetalleCuotaSocial
 
 
-class SocioListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """ Vista para listar los socios """
     model = Socio
     template_name = 'socio/admin/list.html'
@@ -277,7 +277,7 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
     template_name = 'socio/admin/update.html'
     permission_required = 'socios.change_socio'
     context_object_name = 'socio'
-    success_url = reverse_lazy('socio-listado')
+    success_url = reverse_lazy('admin-socio-listado')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -353,7 +353,7 @@ def socio_delete(request, pk):
         socio.delete(cascade=True)
         messages.success(request, 'Socio eliminado correctamente')
     if socio.es_titular():
-        return redirect('socio-listado')
+        return redirect('admin-socio-listado')
     return redirect(request.META.get('HTTP_REFERER'))
 
 

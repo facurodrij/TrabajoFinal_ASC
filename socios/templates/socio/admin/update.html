@@ -9,7 +9,7 @@
 {% block breadcrumbs %}
     <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'socio-listado' %}">Socios</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin-socio-listado' %}">Socios</a></li>
         <li class="breadcrumb-item active">{{ title }}</li>
     </ol>
 {% endblock %}
@@ -62,7 +62,7 @@
                                             <div class="input-group">
                                                 {{ form.socio_titular }}
                                                 <div class="input-group-append">
-                                                    <a href="{% url 'socio-detalle' socio_titular_id %}"
+                                                    <a href="{% url 'admin-socio-detalle' socio_titular_id %}"
                                                        class="btn btn-info">
                                                         <i class="fa-solid fa-eye"></i>
                                                     </a>
@@ -223,7 +223,7 @@
                 processData: false,
                 success: function (data) {
                     if (!data.hasOwnProperty('error')) {
-                        window.location.pathname = '{% url 'socio-listado' %}';
+                        window.location.pathname = '{% url 'admin-socio-listado' %}';
                     } else {
                         let errors = []
                         // Si data error es un objeto pushear los errores al array

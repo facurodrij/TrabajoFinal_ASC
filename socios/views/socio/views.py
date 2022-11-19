@@ -6,20 +6,13 @@ from django.views.generic import FormView
 from core.models import Club
 from socios.forms import SocioForm
 from socios.models import Socio
+from socios.mixins import SocioRequiredMixin
 
 
-class SocioFormView(LoginRequiredMixin, FormView):
+class SocioFormView(LoginRequiredMixin, SocioRequiredMixin, FormView):
     model = Socio
     form_class = SocioForm
     template_name = 'socio/form.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_admin():
-            return redirect('socio-listado')
-        if request.user.persona.get_socio() is None:
-            messages.error(request, 'No tiene permisos para acceder a esta página.')
-            return redirect('index')
-        return super(SocioFormView, self).dispatch(request, *args, **kwargs)
 
     # Obtener la categoria del socio
     def get_initial(self):
