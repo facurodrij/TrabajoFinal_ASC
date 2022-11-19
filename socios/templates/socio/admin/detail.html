@@ -133,12 +133,17 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                     <div class="card">
                         <div class="card-header bg-primary">
                             <h3 class="card-title">Grupo Familiar</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="card-body">
                             <button id="btn-add-miembro" class="btn btn-success mb-3">
-                               <i class="fas fa-plus pr-1"></i> Agregar Miembro
+                                <i class="fas fa-plus pr-1"></i> Agregar Miembro
                             </button>
-                            <table id="dataTable" class="table table-bordered table-striped dataTable">
+                            <table id="miembro-table" class="table table-bordered table-striped dataTable">
                                 <thead>
                                 <tr>
                                     <th scope="col" style="">#</th>
@@ -202,6 +207,83 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                 </div>
             </div>
         {% endif %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">Cuotas Sociales</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if socio.es_titular %}
+                            <button id="btn-add-cuota" class="btn btn-success mb-3">
+                                <i class="fas fa-plus pr-1"></i> Agregar Cuota
+                            </button>
+                        {% endif %}
+                        <table id="cuota-table" class="table table-bordered table-striped dataTable">
+                            <thead>
+                            <tr>
+                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">Total</th>
+                                <th scope="col" style="">Fecha de emisión</th>
+                                <th scope="col" style="">Fecha de vencimiento</th>
+                                <th scope="col" style="">Estado</th>
+                                <th scope="col" style="">Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for cuota in cuotas_sociales %}
+                                <tr>
+                                    <td>{{ cuota.pk }}</td>
+                                    <td>${{ cuota.total }}</td>
+                                    <td>{{ cuota.fecha_emision }}</td>
+                                    <td>{{ cuota.fecha_vencimiento }}</td>
+                                    <td>{{ cuota.get_estado }}</td>
+                                    {% if cuota.get_estado == 'Pendiente' %}
+                                        <td>
+                                            <a href="#"
+                                               class="btn btn-info btn-sm">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </a>
+                                            <a href="#"
+                                               class="btn btn-warning btn-sm">
+                                                <i class="fa-solid fa-edit"></i>
+                                            </a>
+                                            <a href="#"
+                                               class="btn btn-danger btn-sm">
+                                                <i class="fa-solid fa-ban"></i>
+                                            </a>
+                                        </td>
+                                    {% elif cuota.get_estado == 'Pagada' %}
+                                        <td>
+                                            <a href="#"
+                                               class="btn btn-info btn-sm">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">Total</th>
+                                <th scope="col" style="">Fecha de emisión</th>
+                                <th scope="col" style="">Fecha de vencimiento</th>
+                                <th scope="col" style="">Estado</th>
+                                <th scope="col" style="">Acciones</th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- Modals -->
     <div class="modal fade" id="ModalAddMiembro" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
@@ -311,8 +393,66 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
             </div>
         </form>
     </div>
-    <div class="modal fade" id="ModalCarnet" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+    <div class="modal fade" id="ModalAddCuota" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
          aria-hidden="true">
+        <form id="formCuota" method="post" enctype="multipart/form-data">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">
+                            <b><i class="fas fa-user-plus"></i> Nuevo registro de una Cuota</b>
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="labels">{{ cuota_social_form.fecha_emision.label }}</label>
+                            <div class="input-group" id="div_id_fecha_emision"
+                                 data-target-input="nearest">
+                                <input type="text" name="fecha_emision" autocomplete="off"
+                                       placeholder="Fecha de emisión"
+                                       class="form-control  datetimepicker-input"
+                                       data-toggle="datetimepicker" data-target="#id_fecha_emision"
+                                       required=""
+                                       id="id_fecha_emision">
+                                <div class="input-group-append" data-target="#id_fecha_emision"
+                                     data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="labels">{{ cuota_social_form.fecha_vencimiento.label }}</label>
+                            <div class="input-group" id="div_id_fecha_vencimiento"
+                                 data-target-input="nearest">
+                                <input type="text" name="fecha_vencimiento" autocomplete="off"
+                                       placeholder="Fecha de vencimiento"
+                                       class="form-control  datetimepicker-input"
+                                       data-toggle="datetimepicker" data-target="#id_fecha_vencimiento"
+                                       required=""
+                                       id="id_fecha_vencimiento">
+                                <div class="input-group-append" data-target="#id_fecha_vencimiento"
+                                     data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="labels">{{ cuota_social_form.cargo_extra.label }}</label>
+                            {{ cuota_social_form.cargo_extra }}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 {% endblock content %}
 
@@ -575,6 +715,61 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                 canvas.style.left = "50%";
                 // Transformar el canvas para centrarlo
                 canvas.style.transform = "translate(-50%, -50%)";
+            });
+        });
+    </script>
+    <script>
+        $('#btn-add-cuota').on('click', function () {
+            $('#id_fecha_emision').datetimepicker({
+                "format": "DD/MM/YYYY",
+                "icons": {"time": "fa fa-clock-o"},
+                "locale": "es-AR",
+                "date": null,
+                "minDate": "1900-01-01",
+                "maxDate": Date.now(),
+            });
+            $('#id_fecha_vencimiento').datetimepicker({
+                "format": "DD/MM/YYYY",
+                "icons": {"time": "fa fa-clock-o"},
+                "locale": "es-AR",
+                "date": null,
+                "minDate": "1900-01-01",
+            });
+            $('#ModalAddCuota').modal('show');
+        });
+        $('#formCuota').on('submit', function (e) { // Evento submit del formulario de una cuota
+            e.preventDefault();
+            let form = new FormData(this);
+            console.log(form);
+            form.append('action', 'add_cuota_social'); // Agregar la acción que se va a ejecutar en el backend
+            $.ajax({
+                url: window.location.pathname,
+                type: 'POST',
+                data: form,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (!data.hasOwnProperty('error')) {
+                        location.reload();
+                    } else {
+                        let errors = []
+                        $.each(data.error, function (key, value) {
+                            errors.push(value);
+                        });
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: errors.join('\n'),
+                            showConfirmButton: true,
+                        })
+                        document.body.classList.remove('swal2-height-auto');
+                    }
+                },
+                error: function (data) {
+                    alert('Error al guardar la cuota social');
+                }
             });
         });
     </script>

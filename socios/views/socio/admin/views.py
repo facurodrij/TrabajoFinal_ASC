@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -11,8 +13,8 @@ from django.views.generic import ListView, DetailView, UpdateView
 from accounts.decorators import admin_required
 from accounts.forms import *
 from core.models import Club
-from socios.forms import SocioForm
-from socios.models import Socio, Categoria
+from socios.forms import SocioForm, CuotaSocialForm
+from socios.models import Socio, Categoria, CuotaSocial, DetalleCuotaSocial
 
 
 class SocioListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -136,6 +138,8 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
             Q(socio_titular=self.get_object()) | Q(pk=self.get_object().pk))
         context['miembro_form'] = miembro_form
         context['persona_form'] = PersonaFormAdmin()
+        context['cuota_social_form'] = CuotaSocialForm()
+        context['cuotas_sociales'] = CuotaSocial.global_objects.filter(detallecuotasocial__socio=self.get_object())
         return context
 
     def post(self, request, *args, **kwargs):
@@ -222,15 +226,41 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                     socio.save()
                     data = socio.toJSON()
                     messages.success(request, 'Socio agregado como miembro correctamente')
+            elif action == 'add_cuota_social':
+                # Si la acción es add_cuota_social, se agrega una cuota social
+                cuota_social_form = CuotaSocialForm(request.POST)
+                if cuota_social_form.is_valid():
+                    with transaction.atomic():
+                        cuota_social = cuota_social_form.save(commit=False)
+                        cuota_social.persona = self.get_object().persona
+                        # Generar el ID de referencia de pago.
+                        cuota_social.id_referencia_pago = str(int(datetime.now().strftime('%Y%m%d%H%M%S%f')) + int(
+                            self.get_object().persona.id))
+                        cuota_social.save()
+                        # Agregar el detalle de la cuota social
+                        detalle = DetalleCuotaSocial()
+                        detalle.cuota_social = cuota_social
+                        detalle.socio = self.get_object()
+                        detalle.save()
+                        for miembro in self.get_object().get_miembros():
+                            detalle_miembro = DetalleCuotaSocial()
+                            detalle_miembro.cuota_social = cuota_social
+                            detalle_miembro.socio = miembro
+                            detalle_miembro.save()
+                        # Generar el total, sumando los totales parciales de los detalles relacionados.
+                        total = cuota_social.cargo_extra
+                        for detalle in cuota_social.detallecuotasocial_set.all():
+                            total += detalle.total_parcial
+                        cuota_social.total = total
+                        cuota_social.save()
+                        messages.success(request, 'Cuota social agregada correctamente')
+                else:
+                    data['error'] = cuota_social_form.errors
             else:
                 data['error'] = 'Ha ocurrido un error, intente nuevamente'
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data, safe=False)
-
-    # TODO:
-    #  -Eliminar miembros con ajax
-    #  -Restaurar miembros con ajax
 
 
 class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):

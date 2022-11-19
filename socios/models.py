@@ -188,6 +188,12 @@ class SolicitudSocio(PersonaAbstract):
         item['imagen'] = self.get_imagen()
         return item
 
+    def clean(self):
+        super(SolicitudSocio, self).clean()
+        # Fecha de nacimiento no puede ser mayor a la fecha actual
+        if self.fecha_nacimiento > datetime.now().date():
+            raise ValidationError('La fecha de nacimiento no puede ser mayor a la fecha actual.')
+
     class Meta:
         verbose_name = 'Solicitud de socio'
         verbose_name_plural = 'Solicitudes de socios'
@@ -207,12 +213,6 @@ class SolicitudSocio(PersonaAbstract):
                                    name='solicitud_apellido_valido',
                                    violation_error_message=_(
                                        'Apellido: El apellido solo puede contener letras y espacios.')),
-            # Validar que la fecha de nacimiento no sea mayor a la fecha actual.
-            models.CheckConstraint(check=models.Q(fecha_nacimiento__lte=datetime.now().date()),
-                                   name='solicitud_fecha_nacimiento_valida',
-                                   violation_error_message=_(
-                                       'Fecha de nacimiento: La fecha de nacimiento no puede ser '
-                                       'mayor a la fecha actual.')),
         ]
 
 
@@ -220,16 +220,23 @@ class CuotaSocial(SoftDeleteModel):
     """
     Modelo para almacenar las cuotas sociales.
     """
-    id_referencia_pago = models.BigIntegerField(unique=True, verbose_name='ID de referencia de pago')
+    id_referencia_pago = models.CharField(max_length=255, unique=True, verbose_name='ID de referencia de pago')
     persona = models.ForeignKey('accounts.Persona', on_delete=models.PROTECT, verbose_name='Persona')
     fecha_emision = models.DateField(default=datetime.now, verbose_name='Fecha de emisión')
     fecha_vencimiento = models.DateField(verbose_name='Fecha de vencimiento')
     fecha_pago = models.DateField(verbose_name='Fecha de pago', null=True, blank=True)
-    total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total')
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Total')
     cargo_extra = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Cargo extra')
 
     def is_pagada(self):
         return True if self.fecha_pago else False
+
+    def get_estado(self):
+        if self.is_pagada():
+            return 'Pagada'
+        elif self.is_deleted:
+            return 'Anulada'
+        return 'Pendiente'
 
     def toJSON(self):
         item = model_to_dict(self)
@@ -241,29 +248,21 @@ class CuotaSocial(SoftDeleteModel):
 
     def clean(self):
         super(CuotaSocial, self).clean()
-        # Generar el ID de referencia de pago.
-        self.id_referencia_pago = int(datetime.now().strftime('%Y%m%d%H%M%S%f')) + int(self.persona.id)
-        # Generar el total, sumando los totales parciales de los detalles relacionados.
-        self.total = self.cargo_extra
-        for detalle in self.detalle_cuota_social_set.all():
-            self.total += detalle.total_parcial
+        # Fecha de emisión no puede ser mayor a la fecha actual.
+        if self.fecha_emision > datetime.now().date():
+            raise ValidationError({'fecha_emision': _('La fecha de emisión no puede ser mayor a la fecha actual.')})
+        # Fecha de vencimiento no puede ser menor a la fecha de emisión.
+        if self.fecha_vencimiento < self.fecha_emision:
+            raise ValidationError(
+                {'fecha_vencimiento': _('La fecha de vencimiento no puede ser menor a la fecha de emisión.')})
+        # Fecha de pago no puede ser menor a la fecha de emisión.
+        if self.fecha_pago and self.fecha_pago < self.fecha_emision:
+            raise ValidationError({'fecha_pago': _('La fecha de pago no puede ser menor a la fecha de emisión.')})
 
     class Meta:
         verbose_name = 'Cuota social'
         verbose_name_plural = 'Cuotas sociales'
         constraints = [
-            # Validar que la fecha de emisión no sea mayor a la fecha actual.
-            models.CheckConstraint(check=models.Q(fecha_emision__lte=datetime.now().date()),
-                                   name='cuota_social_fecha_emision_valida',
-                                   violation_error_message=_(
-                                       'Fecha de emisión: La fecha de emisión no puede ser '
-                                       'mayor a la fecha actual.')),
-            # Validar que la fecha de vencimiento no sea menor a la fecha de emisión.
-            models.CheckConstraint(check=models.Q(fecha_vencimiento__gte=models.F('fecha_emision')),
-                                   name='cuota_social_fecha_vencimiento_valida',
-                                   violation_error_message=_(
-                                       'Fecha de vencimiento: La fecha de vencimiento no puede ser '
-                                       'menor a la fecha de emisión.')),
             # Validar que el total sea mayor o igual a 0.
             models.CheckConstraint(check=models.Q(total__gte=0),
                                    name='cuota_social_total_valido',
@@ -297,8 +296,11 @@ class DetalleCuotaSocial(SoftDeleteModel):
         super(DetalleCuotaSocial, self).clean()
         if self.cuota_social.fecha_pago:
             raise ValidationError('No se puede modificar un detalle de cuota social que ya ha sido pagada.')
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.cuota = self.socio.categoria.cuota
         self.total_parcial = self.cuota + self.cargo_extra
+        super(DetalleCuotaSocial, self).save(force_insert, force_update, using, update_fields)
 
     class Meta:
         verbose_name = 'Detalle de cuota social'

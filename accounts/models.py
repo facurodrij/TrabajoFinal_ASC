@@ -151,6 +151,10 @@ class PersonaAbstract(SoftDeleteModel):
         self.nombre = self.nombre.title()
         self.apellido = self.apellido.title()
 
+        # Fecha de nacimiento no puede ser mayor a la fecha actual.
+        if self.fecha_nacimiento > datetime.now().date():
+            raise ValidationError('Fecha de nacimiento: La fecha de nacimiento no puede ser mayor a la fecha actual.')
+
         # Si persona es socio_titular no puede ser menor a 16 años.
         try:
             if self.socio.es_titular() and self.get_edad() < 16:
@@ -219,10 +223,4 @@ class Persona(PersonaAbstract):
                                    name='persona_apellido_valido',
                                    violation_error_message=_(
                                        'Apellido: El apellido solo puede contener letras y espacios.')),
-            # Validar que la fecha de nacimiento no sea mayor a la fecha actual.
-            models.CheckConstraint(check=models.Q(fecha_nacimiento__lte=datetime.now().date()),
-                                   name='persona_fecha_nacimiento_valida',
-                                   violation_error_message=_(
-                                       'Fecha de nacimiento: La fecha de nacimiento no puede ser '
-                                       'mayor a la fecha actual.')),
         ]
