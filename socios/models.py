@@ -104,12 +104,16 @@ class Categoria(models.Model):
     Modelo para almacenar las categorías de los socios.
     """
     nombre = models.CharField(max_length=255, verbose_name='Nombre')
-    cuota = models.DecimalField(max_digits=10, default=0.10, decimal_places=2, verbose_name='Cuota')
+    cuota = models.DecimalField(max_digits=10, default=0, decimal_places=2, verbose_name='Cuota')
     edad_desde = models.PositiveSmallIntegerField(default=0, verbose_name='Edad desde')
     edad_hasta = models.PositiveSmallIntegerField(default=0, verbose_name='Edad hasta')
+    se_factura = models.BooleanField(default=True, verbose_name='¿Se factura?')
 
     def __str__(self):
         return self.nombre + ' $' + str(self.cuota)
+
+    def sin_categoria(self):
+        return self.objects.get(cuota=0, edad_desde=0, edad_hasta=0, se_factura=False)
 
     def clean(self):
         if self.edad_desde > self.edad_hasta:
@@ -125,6 +129,21 @@ class Categoria(models.Model):
     class Meta:
         verbose_name = 'Categoría'
         verbose_name_plural = 'Categorías'
+        constraints = [
+            # Cuota debe ser mayor o igual a 0
+            models.CheckConstraint(
+                check=models.Q(cuota__gte=0),
+                name='cuota_mayor_igual_cero',
+                violation_error_message='La cuota debe ser mayor o igual a 0.'
+            ),
+            # Si cuota es 0, se_factura debe ser False
+            models.CheckConstraint(
+                check=~(models.Q(cuota=0) & models.Q(se_factura=True)),
+                name='cuota_se_factura',
+                violation_error_message='Si el precio de la cuota es $0, no se debe incluir en el '
+                                        'detalle de la facturación.'
+            ),
+        ]
 
 
 class Estado(models.Model):
@@ -194,4 +213,110 @@ class SolicitudSocio(PersonaAbstract):
                                    violation_error_message=_(
                                        'Fecha de nacimiento: La fecha de nacimiento no puede ser '
                                        'mayor a la fecha actual.')),
+        ]
+
+
+class CuotaSocial(SoftDeleteModel):
+    """
+    Modelo para almacenar las cuotas sociales.
+    """
+    id_referencia_pago = models.BigIntegerField(unique=True, verbose_name='ID de referencia de pago')
+    persona = models.ForeignKey('accounts.Persona', on_delete=models.PROTECT, verbose_name='Persona')
+    fecha_emision = models.DateField(default=datetime.now, verbose_name='Fecha de emisión')
+    fecha_vencimiento = models.DateField(verbose_name='Fecha de vencimiento')
+    fecha_pago = models.DateField(verbose_name='Fecha de pago', null=True, blank=True)
+    total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total')
+    cargo_extra = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Cargo extra')
+
+    def is_pagada(self):
+        return True if self.fecha_pago else False
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['persona'] = self.persona.toJSON()
+        item['fecha_emision'] = self.fecha_emision.strftime('%d/%m/%Y')
+        item['fecha_vencimiento'] = self.fecha_vencimiento.strftime('%d/%m/%Y')
+        item['fecha_pago'] = self.fecha_pago.strftime('%d/%m/%Y') if self.fecha_pago else None
+        return item
+
+    def clean(self):
+        super(CuotaSocial, self).clean()
+        # Generar el ID de referencia de pago.
+        self.id_referencia_pago = int(datetime.now().strftime('%Y%m%d%H%M%S%f')) + int(self.persona.id)
+        # Generar el total, sumando los totales parciales de los detalles relacionados.
+        self.total = self.cargo_extra
+        for detalle in self.detalle_cuota_social_set.all():
+            self.total += detalle.total_parcial
+
+    class Meta:
+        verbose_name = 'Cuota social'
+        verbose_name_plural = 'Cuotas sociales'
+        constraints = [
+            # Validar que la fecha de emisión no sea mayor a la fecha actual.
+            models.CheckConstraint(check=models.Q(fecha_emision__lte=datetime.now().date()),
+                                   name='cuota_social_fecha_emision_valida',
+                                   violation_error_message=_(
+                                       'Fecha de emisión: La fecha de emisión no puede ser '
+                                       'mayor a la fecha actual.')),
+            # Validar que la fecha de vencimiento no sea menor a la fecha de emisión.
+            models.CheckConstraint(check=models.Q(fecha_vencimiento__gte=models.F('fecha_emision')),
+                                   name='cuota_social_fecha_vencimiento_valida',
+                                   violation_error_message=_(
+                                       'Fecha de vencimiento: La fecha de vencimiento no puede ser '
+                                       'menor a la fecha de emisión.')),
+            # Validar que el total sea mayor o igual a 0.
+            models.CheckConstraint(check=models.Q(total__gte=0),
+                                   name='cuota_social_total_valido',
+                                   violation_error_message=_(
+                                       'Total: El total debe ser mayor o igual a 0.')),
+            # Validar que el cargo extra sea mayor o igual a 0.
+            models.CheckConstraint(check=models.Q(cargo_extra__gte=0),
+                                   name='cuota_social_cargo_extra_valido',
+                                   violation_error_message=_(
+                                       'Cargo extra: El cargo extra debe ser mayor o igual a 0.')),
+        ]
+
+
+class DetalleCuotaSocial(SoftDeleteModel):
+    """
+    Modelo para almacenar los detalles de las cuotas sociales.
+    """
+    cuota_social = models.ForeignKey('socios.CuotaSocial', on_delete=models.PROTECT, verbose_name='Cuota social')
+    socio = models.ForeignKey('socios.Socio', on_delete=models.PROTECT, verbose_name='Socio')
+    cuota = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Cuota')
+    cargo_extra = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Cargo extra')
+    total_parcial = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total parcial')
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['cuota_social'] = self.cuota_social.toJSON()
+        item['socio'] = self.socio.toJSON()
+        return item
+
+    def clean(self):
+        super(DetalleCuotaSocial, self).clean()
+        if self.cuota_social.fecha_pago:
+            raise ValidationError('No se puede modificar un detalle de cuota social que ya ha sido pagada.')
+        self.cuota = self.socio.categoria.cuota
+        self.total_parcial = self.cuota + self.cargo_extra
+
+    class Meta:
+        verbose_name = 'Detalle de cuota social'
+        verbose_name_plural = 'Detalles de cuotas sociales'
+        constraints = [
+            # Validar que la cuota sea mayor o igual a 0.
+            models.CheckConstraint(check=models.Q(cuota__gte=0),
+                                   name='detalle_cuota_social_cuota_valida',
+                                   violation_error_message=_(
+                                       'Cuota: La cuota debe ser mayor o igual a 0.')),
+            # Validar que el cargo extra sea mayor o igual a 0.
+            models.CheckConstraint(check=models.Q(cargo_extra__gte=0),
+                                   name='detalle_cuota_social_cargo_extra_valido',
+                                   violation_error_message=_(
+                                       'Cargo extra: El cargo extra debe ser mayor o igual a 0.')),
+            # Validar que el total parcial sea mayor o igual a 0.
+            models.CheckConstraint(check=models.Q(total_parcial__gte=0),
+                                   name='detalle_cuota_social_total_parcial_valido',
+                                   violation_error_message=_(
+                                       'Total parcial: El total parcial debe ser mayor o igual a 0.')),
         ]
