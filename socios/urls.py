@@ -12,9 +12,7 @@ urlpatterns = [
     path('admin/socios/', lambda request: redirect('admin-socio-listado', permanent=True), name='admin-socio'),
     path('admin/socios/listado/', SocioAdminListView.as_view(), name='admin-socio-listado'),
     path('admin/socios/solicitudes/', SolicitudAdminListView.as_view(), name='admin-socio-solicitudes'),
-    # TODO: Agregar la vista del listado de cuotas sociales
-    path('admin/socios/cuotas/', lambda request: redirect('admin-socio-listado', permanent=True),
-         name='admin-socio-cuotas'),
+    path('admin/socios/cuotas/', CuotaSocialAdminListView.as_view(), name='admin-socio-cuotas'),
     # TODO: Agregar la vista de parámetros socios
     path('admin/socios/parametros/', lambda request: redirect('admin-socio-listado', permanent=True),
          name='admin-socio-parametros'),

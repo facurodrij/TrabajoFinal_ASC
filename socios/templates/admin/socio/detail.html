@@ -779,7 +779,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Si, marcar como pagada',
+                confirmButtonText: 'Sí, marcar como pagada',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -814,6 +814,24 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                             alert('Error al guardar la cuota social');
                         }
                     });
+                }
+            })
+        });
+        $('.anular-cuota').on('click', function (e) {
+            e.preventDefault();
+            Swal.fire({
+                title: '¿Está seguro?',
+                text: "Seguro que desea anular la cuota social? Esta acción es irreversible.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, anular',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redireccionar al href del tag <a>
+                    window.location.href = $(this).attr('href');
                 }
             })
         });

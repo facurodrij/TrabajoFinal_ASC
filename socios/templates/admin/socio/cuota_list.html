@@ -1,0 +1,178 @@
+{% extends "extends/base.html" %}
+{% load static %}
+
+{% block head_css %}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+{% endblock head_css %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin-socio-listado' %}">Socios</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">Cuotas Sociales</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table id="cuota-table" class="table table-bordered table-striped dataTable">
+                            <thead>
+                            <tr>
+                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">Persona</th>
+                                <th scope="col" style="">Total</th>
+                                <th scope="col" style="">Fecha de emisión</th>
+                                <th scope="col" style="">Fecha de vencimiento</th>
+                                <th scope="col" style="">ID referencia de pago</th>
+                                <th scope="col" style="">Estado</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for cuota in cuotas_sociales %}
+                                <tr>
+                                    <td>{{ cuota.pk }}</td>
+                                    <td>{{ cuota.persona }}</td>
+                                    <td>${{ cuota.total }}</td>
+                                    <td>{{ cuota.fecha_emision }}</td>
+                                    <td>{{ cuota.fecha_vencimiento }}</td>
+                                    <td>{{ cuota.id_referencia_pago }}</td>
+                                    {% if cuota.get_estado == 'Pendiente' %}
+                                        <td><span class="badge badge-warning">{{ cuota.get_estado }}</span></td>
+                                        <td>
+                                            <button class="btn btn-success btn-sm mark-as-paid" value="{{ cuota.pk }}">
+                                                <i class="fa-solid fa-check-double"></i>
+                                            </button>
+                                            <button class="btn btn-info btn-sm">
+                                                <i class="fa-solid fa-file-pdf"></i>
+                                            </button>
+                                            <a href="{% url 'admin-cuota-eliminar' cuota.pk %}"
+                                               class="btn btn-danger btn-sm anular-cuota">
+                                                <i class="fa-solid fa-ban"></i>
+                                            </a>
+                                        </td>
+                                    {% elif cuota.get_estado == 'Pagada' %}
+                                        <td><span class="badge badge-success">{{ cuota.get_estado }}</span></td>
+                                        <td>
+                                            <button class="btn btn-info btn-sm">
+                                                <i class="fa-solid fa-file-pdf"></i>
+                                            </button>
+                                        </td>
+                                    {% elif cuota.get_estado == 'Anulada' %}
+                                        <td><span class="badge badge-danger">{{ cuota.get_estado }}</span></td>
+                                        <td>
+                                            <button class="btn btn-info btn-sm">
+                                                <i class="fa-solid fa-file-pdf"></i>
+                                            </button>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">Persona</th>
+                                <th scope="col" style="">Total</th>
+                                <th scope="col" style="">Fecha de emisión</th>
+                                <th scope="col" style="">Fecha de vencimiento</th>
+                                <th scope="col" style="">ID referencia de pago</th>
+                                <th scope="col" style="">Estado</th>
+                                <th></th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+    <!-- Select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    {% include 'includes/dataTable.html' %}
+    <script>
+        $('.mark-as-paid').on('click', function (e) {
+            e.preventDefault();
+            let cuota_id = $(this).val();
+            Swal.fire({
+                title: '¿Está seguro?',
+                text: "Seguro que desea marcar la cuota como pagada? Esta acción es irreversible.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, marcar como pagada',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: window.location.pathname,
+                        type: 'POST',
+                        data: {
+                            'action': 'mark_as_paid',
+                            'id': cuota_id,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+                            if (!data.hasOwnProperty('error')) {
+                                location.reload();
+                            } else {
+                                let errors = []
+                                $.each(data.error, function (key, value) {
+                                    errors.push(value);
+                                });
+                                Swal.fire({
+                                    position: 'top-end',
+                                    icon: 'error',
+                                    title: 'Ocurrió un error',
+                                    text: errors.join('\n'),
+                                    showConfirmButton: true,
+                                })
+                                document.body.classList.remove('swal2-height-auto');
+                            }
+                        },
+                        error: function (data) {
+                            alert('Error al guardar la cuota social');
+                        }
+                    });
+                }
+            })
+        });
+        $('.anular-cuota').on('click', function (e) {
+            e.preventDefault();
+            Swal.fire({
+                title: '¿Está seguro?',
+                text: "Seguro que desea anular la cuota social? Esta acción es irreversible.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, anular',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redireccionar al href del tag <a>
+                    window.location.href = $(this).attr('href');
+                }
+            })
+        });
+    </script>
+{% endblock body_js %}
