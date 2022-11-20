@@ -12,7 +12,7 @@ from socios.mixins import SocioRequiredMixin
 class SocioFormView(LoginRequiredMixin, SocioRequiredMixin, FormView):
     model = Socio
     form_class = SocioForm
-    template_name = 'socio/form.html'
+    template_name = 'socio/info.html'
 
     # Obtener la categoria del socio
     def get_initial(self):

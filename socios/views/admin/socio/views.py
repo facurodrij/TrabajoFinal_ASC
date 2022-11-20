@@ -20,7 +20,7 @@ from socios.models import Socio, Categoria, CuotaSocial, DetalleCuotaSocial
 class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """ Vista para listar los socios """
     model = Socio
-    template_name = 'socio/admin/list.html'
+    template_name = 'admin/socio/list.html'
     context_object_name = 'socios'
     permission_required = 'socios.view_socio'
 
@@ -118,7 +118,7 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """ Vista para mostrar un socio, solo para administradores """
     model = Socio
-    template_name = 'socio/admin/detail.html'
+    template_name = 'admin/socio/detail.html'
     context_object_name = 'socio'
     permission_required = 'socios.view_socio'
 
@@ -274,7 +274,7 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
     """ Vista para editar un socio, solo para administradores """
     model = Socio
     form_class = SocioForm
-    template_name = 'socio/admin/update.html'
+    template_name = 'admin/socio/update.html'
     permission_required = 'socios.change_socio'
     context_object_name = 'socio'
     success_url = reverse_lazy('admin-socio-listado')

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from socios.views.socio.admin.views import *
+from socios.views.admin.socio.views import *
 from socios.views.socio.views import SocioFormView
 from socios.views.solicitud.views import *
 
