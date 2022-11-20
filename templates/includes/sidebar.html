@@ -82,6 +82,17 @@
                             </ul>
                         </li>
                     {% endif %}
+                    {% if user.is_socio %}
+                        <li class="nav-item">
+                            <a href="{% url 'socio-cuotas' %}"
+                               class="nav-link {% active_link 'socio-cuotas' %}">
+                                <i class="fa-solid fa-receipt nav-icon"></i>
+                                <p>Mis Cuotas
+                                    <span class="right badge badge-danger">New</span>
+                                </p>
+                            </a>
+                        </li>
+                    {% endif %}
                 </ul>
             </nav>
             <!-- /.sidebar-menu -->

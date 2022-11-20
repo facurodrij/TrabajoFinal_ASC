@@ -36,6 +36,8 @@
         $(tables[i]).DataTable({
             responsive: true,
             lengthChange: false,
+            // Ordenar por la primera columna de forma descendente
+            order: [[0, 'desc']],
             autoWidth: false,
             // Quitarle estilos a la ultima columna
             columnDefs: [

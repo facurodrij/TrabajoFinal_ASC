@@ -56,6 +56,18 @@ class User(AbstractUser, SoftDeleteModel):
         """
         return self.is_superuser or self.is_staff
 
+    def is_socio(self):
+        """
+        Devuelve true si el usuario es socio.
+        """
+        try:
+            if self.persona is not None:
+                return True if self.persona.get_socio() else False
+            else:
+                return False
+        except ObjectDoesNotExist:
+            return False
+
     def clean(self):
         super(User, self).clean()
         if not self.is_admin():
