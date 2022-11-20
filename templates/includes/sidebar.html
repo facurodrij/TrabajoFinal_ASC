@@ -33,52 +33,55 @@
                                 <img src="{% static 'icons/icons8-club.svg' %}" class="nav-icon" alt="icon">
                                 <p>
                                     Mi Club
-                                    <span class="right badge badge-danger">New</span>
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{% url 'admin-socio-listado' %}" class="nav-link {% active_link 'admin-socio-listado' %}">
+                            <a href="#" class="nav-link {% active_link 'admin-socio' %}">
                                 <img src="{% static 'icons/icons8-socio.svg' %}" class="nav-icon" alt="icon">
                                 <p>
                                     Socios
-                                    <span class="right badge badge-danger">New</span>
+                                    <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{% url 'admin-solicitud-listado' %}" class="nav-link {% active_link 'admin-solicitud-listado' %}">
-                                <img src="{% static 'icons/icons8-socio.svg' %}" class="nav-icon" alt="icon">
-                                <p>
-                                    Solicitudes
-                                    <span class="right badge badge-danger">New</span>
-                                </p>
-                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{% url 'admin-socio-listado' %}"
+                                       class="nav-link {% active_link 'admin-socio-listado' %}">
+                                        <i class="fa-regular fa-rectangle-list nav-icon"></i>
+                                        <p>Listado</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{% url 'admin-socio-solicitudes' %}"
+                                       class="nav-link {% active_link 'admin-socio-solicitudes' %}">
+                                        <i class="fa-solid fa-list-check nav-icon"></i>
+                                        <p>
+                                            Solicitudes
+                                        </p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{% url 'admin-socio-cuotas' %}"
+                                       class="nav-link {% active_link 'admin-socio-cuotas' %}">
+                                        <i class="fa-solid fa-receipt nav-icon"></i>
+                                        <p>Cuotas
+                                            <span class="right badge badge-danger">New</span>
+                                        </p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{% url 'admin-socio-parametros' %}"
+                                       class="nav-link {% active_link 'admin-socio-parametros' %}">
+                                        <i class="fa-solid fa-sliders nav-icon"></i>
+                                        <p>Parámetros
+                                            <span class="right badge badge-danger">New</span>
+                                        </p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                     {% endif %}
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-tachometer-alt"></i>
-                            <p>
-                                Starter Pages
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Active Page</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Inactive Page</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
                 </ul>
             </nav>
             <!-- /.sidebar-menu -->
