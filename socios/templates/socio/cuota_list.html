@@ -54,7 +54,7 @@
                                     {% if cuota.get_estado == 'Pendiente' %}
                                         <td><span class="badge badge-warning">{{ cuota.get_estado }}</span></td>
                                         <td>
-                                            <button class="btn btn-success btn-sm pay" value="{{ cuota.pk }}">
+                                            <button class="btn btn-success btn-sm checkout-btn" value="{{ cuota.pk }}">
                                                 <i class="fa-solid fa-hand-holding-dollar"></i>
                                             </button>
                                             <button class="btn btn-info btn-sm">
@@ -90,28 +90,40 @@
             </div>
         </div>
     </div>
+    <div class="cho-container"></div>
 {% endblock content %}
 
 {% block body_js %}
     <!-- Select2 -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- MercadoPago SDK -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
     {% include 'includes/dataTable.html' %}
     <script>
-        $('.pay').on('click', function (e) {
+        const mercadopago = new MercadoPago('TEST-fb84a994-fe54-4837-99e0-33f3bdfda8fc', {
+            locale: 'es-AR'
+        });
+        $('.checkout-btn').on('click', function (e) {
             e.preventDefault();
             let cuota_id = $(this).val();
             $.ajax({
                 url: window.location.pathname,
                 type: 'POST',
                 data: {
-                    'action': 'pay',
-                    'id': cuota_id,
+                    'action': 'checkout',
+                    'cuota_id': cuota_id,
                     'csrfmiddlewaretoken': '{{ csrf_token }}',
                 },
                 dataType: 'json',
                 success: function (data) {
                     if (!data.hasOwnProperty('error')) {
-                        location.reload();
+                        mercadopago.checkout({
+                            preference: {
+                                id: data.id
+                            },
+                            // Redirecciona a la URL de pago
+                            autoOpen: true,
+                        });
                     } else {
                         let errors = []
                         $.each(data.error, function (key, value) {

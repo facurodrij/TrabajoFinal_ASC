@@ -7,3 +7,4 @@ django-active-link
 psycopg2-binary
 python-dateutil
 six
+mercadopago

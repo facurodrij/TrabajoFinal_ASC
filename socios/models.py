@@ -222,9 +222,9 @@ class CuotaSocial(SoftDeleteModel):
     """
     id_referencia_pago = models.CharField(max_length=255, unique=True, verbose_name='ID de referencia de pago')
     persona = models.ForeignKey('accounts.Persona', on_delete=models.PROTECT, verbose_name='Persona')
-    fecha_emision = models.DateField(default=datetime.now, verbose_name='Fecha de emisión')
-    fecha_vencimiento = models.DateField(verbose_name='Fecha de vencimiento')
-    fecha_pago = models.DateField(verbose_name='Fecha de pago', null=True, blank=True)
+    fecha_emision = models.DateTimeField(default=datetime.now, verbose_name='Fecha de emisión')
+    fecha_vencimiento = models.DateTimeField(verbose_name='Fecha de vencimiento')
+    fecha_pago = models.DateTimeField(verbose_name='Fecha de pago', null=True, blank=True)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Total')
     cargo_extra = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Cargo extra')
 
