@@ -100,7 +100,7 @@
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     {% include 'includes/dataTable.html' %}
     <script>
-        const mercadopago = new MercadoPago('TEST-fb84a994-fe54-4837-99e0-33f3bdfda8fc', {
+        const mercadopago = new MercadoPago('{{ public_key }}', {
             locale: 'es-AR'
         });
         $('.checkout-btn').on('click', function (e) {

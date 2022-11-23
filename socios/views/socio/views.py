@@ -14,7 +14,12 @@ from socios.forms import SocioForm
 from socios.models import Socio, CuotaSocial
 from socios.mixins import SocioRequiredMixin
 
-from socios.payments import sdk
+import mercadopago
+from static.credentials import MercadoPagoCredentials  # Aquí deberia insertar sus credenciales de MercadoPago
+
+public_key = MercadoPagoCredentials.get_public_key()
+access_token = MercadoPagoCredentials.get_access_token()
+sdk = mercadopago.SDK(access_token)
 
 
 class SocioFormView(LoginRequiredMixin, SocioRequiredMixin, FormView):
@@ -50,6 +55,7 @@ class CuotaSocialListView(LoginRequiredMixin, SocioRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(CuotaSocialListView, self).get_context_data(**kwargs)
         context['title'] = 'Mis Cuotas'
+        context['public_key'] = public_key
         return context
 
     def get_queryset(self):
