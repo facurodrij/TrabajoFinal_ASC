@@ -230,12 +230,9 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                 # Si la acción es add_cuota_social, se agrega una cuota social
                 cuota_social_form = CuotaSocialForm(request.POST)
                 if cuota_social_form.is_valid():
-                    with transaction.atomic():
+                    # with transaction.atomic():
                         cuota_social = cuota_social_form.save(commit=False)
                         cuota_social.persona = self.get_object().persona
-                        # Generar el ID de referencia de pago.
-                        cuota_social.id_referencia_pago = str(int(datetime.now().strftime('%Y%m%d%H%M%S%f')) + int(
-                            self.get_object().persona.id))
                         cuota_social.save()
                         # Agregar el detalle de la cuota social
                         detalle = DetalleCuotaSocial()

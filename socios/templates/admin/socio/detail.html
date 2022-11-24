@@ -726,26 +726,23 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
     <script>
         $('#btn-add-cuota').on('click', function () {
             $('#id_fecha_emision').datetimepicker({
-                "format": "DD/MM/YYYY",
-                "icons": {"time": "fa fa-clock-o"},
+                "icons": {"time": "fa-regular fa-clock"},
                 "locale": "es-AR",
                 "date": null,
-                "minDate": "1900-01-01",
+                "minDate": "1900-01-01 00:00:00",
                 "maxDate": Date.now(),
             });
             $('#id_fecha_vencimiento').datetimepicker({
-                "format": "DD/MM/YYYY",
-                "icons": {"time": "fa fa-clock-o"},
+                "icons": {"time": "fa-regular fa-clock"},
                 "locale": "es-AR",
                 "date": null,
-                "minDate": "1900-01-01",
+                "minDate": "1900-01-01 00:00:00",
             });
             $('#ModalAddCuota').modal('show');
         });
         $('#formCuota').on('submit', function (e) { // Evento submit del formulario de una cuota
             e.preventDefault();
             let form = new FormData(this);
-            console.log(form);
             form.append('action', 'add_cuota_social'); // Agregar la acción que se va a ejecutar en el backend
             $.ajax({
                 url: window.location.pathname,

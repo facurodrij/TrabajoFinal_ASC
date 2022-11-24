@@ -127,25 +127,7 @@ class CuotaSocialForm(forms.ModelForm):
         model = CuotaSocial
         fields = ['fecha_emision', 'fecha_vencimiento', 'cargo_extra']
         widgets = {
-            'fecha_emision': forms.DateInput(
-                format='%d/%m/%Y',
-                attrs={
-                    'autocomplete': 'off',
-                    'placeholder': 'Fecha de emisión',
-                    'class': 'form-control  datetimepicker-input',
-                    'data-toggle': 'datetimepicker',
-                    'data-target': '#id_fecha_emision',
-                }
-            ),
-            'fecha_vencimiento': forms.DateInput(
-                format='%d/%m/%Y',
-                attrs={
-                    'autocomplete': 'off',
-                    'placeholder': 'Fecha de vencimiento',
-                    'class': 'form-control  datetimepicker-input',
-                    'data-toggle': 'datetimepicker',
-                    'data-target': '#id_fecha_vencimiento',
-                }
-            ),
+            'fecha_emision': forms.DateTimeInput(),
+            'fecha_vencimiento': forms.DateTimeInput(),
             'cargo_extra': forms.NumberInput(attrs={'class': 'form-control', 'value': 0}),
         }
