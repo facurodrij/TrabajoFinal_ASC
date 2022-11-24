@@ -1,21 +1,21 @@
 from datetime import datetime
 
+import mercadopago
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
+from django.http import JsonResponse
 from django.shortcuts import redirect
+from django.urls import reverse_lazy
 from django.views.generic import FormView
 from django.views.generic.list import ListView
-from django.http import JsonResponse
-from django.urls import reverse_lazy
-from django.db import transaction
 
+from accounts.models import Persona
 from core.models import Club
 from socios.forms import SocioForm
-from socios.models import Socio, CuotaSocial
 from socios.mixins import SocioRequiredMixin
-
-import mercadopago
-from static.credentials import MercadoPagoCredentials  # Aquí deberia insertar sus credenciales de MercadoPago
+from socios.models import Socio, CuotaSocial
+from static.credentials import MercadoPagoCredentials  # Aquí debería insertar sus credenciales de MercadoPago
 
 public_key = MercadoPagoCredentials.get_public_key()
 access_token = MercadoPagoCredentials.get_access_token()
@@ -115,3 +115,69 @@ class CuotaSocialListView(LoginRequiredMixin, SocioRequiredMixin, ListView):
                 messages.error(request, 'No se pudo realizar el pago')
             return redirect(reverse_lazy('socio-cuotas'))
         return super(CuotaSocialListView, self).get(request, *args, **kwargs)
+
+
+class CuotaSocialWOAListView(ListView):
+    """
+    Vista para obtener el listado de cuotas sociales sin autenticación
+    """
+    model = CuotaSocial
+    template_name = 'socio/cuota_list_woa.html'
+    context_object_name = 'cuotas_sociales'
+
+    def get_context_data(self, **kwargs):
+        context = super(CuotaSocialWOAListView, self).get_context_data(**kwargs)
+        context['club_logo'] = Club.objects.get(pk=1).get_imagen()
+        context['public_key'] = public_key
+        return context
+
+    def get_queryset(self):
+        # Obtener el dni de la url
+        dni = self.kwargs['dni']
+        persona = Persona.objects.get(dni=dni)
+        return CuotaSocial.objects.filter(detallecuotasocial__socio=persona.socio)
+
+    def post(self, request, *args, **kwargs):
+        cuota = CuotaSocial.objects.get(pk=request.POST['cuota_id'])
+        dni = str(self.kwargs['dni'])
+        preference_data = {
+            "items": [
+                {
+                    "title": "Cuota Social #{}".format(cuota.id),
+                    "quantity": 1,
+                    "currency_id": "ARS",
+                    "unit_price": float(cuota.total),
+                }
+            ],
+            "back_urls": {
+                "success": "http://127.0.0.1:8000/cuotas/dni=" + dni + "/",
+                "failure": "http://127.0.0.1:8000",
+                "pending": "http://127.0.0.1:8000",
+            },
+            "auto_return": "approved",
+            "external_reference": str(cuota.id),
+            "payment_methods": {
+                "excluded_payment_types": [
+                    {
+                        "id": "ticket"
+                    }
+                ],
+                "installments": 1,
+            },
+        }
+        preference_response = sdk.preference().create(preference_data)
+        preference = preference_response["response"]
+        return JsonResponse(preference, safe=False)
+
+    def get(self, request, *args, **kwargs):
+        if 'collection_status' in request.GET:
+            if request.GET['collection_status'] == 'approved':
+                cuota = CuotaSocial.objects.get(pk=request.GET['external_reference'])
+                with transaction.atomic():
+                    cuota.fecha_pago = datetime.now()
+                    cuota.save()
+                messages.success(request, 'Pago realizado con éxito')
+            else:
+                messages.error(request, 'No se pudo realizar el pago')
+            return redirect(reverse_lazy('cuotas-sin-autenticacion', kwargs={'dni': self.kwargs['dni']}))
+        return super(CuotaSocialWOAListView, self).get(request, *args, **kwargs)

@@ -1,0 +1,133 @@
+{% extends "extends/base.html" %}
+{% load static %}
+
+{% block head_css %}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+{% endblock head_css %}
+
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">Cuotas Sociales</h3>
+                    </div>
+                    <div class="card-body">
+                        <table id="cuota-table" class="table table-bordered table-striped dataTable">
+                            <thead>
+                            <tr>
+                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">Titular</th>
+                                <th scope="col" style="">Total</th>
+                                <th scope="col" style="">Fecha de emisión</th>
+                                <th scope="col" style="">Fecha de vencimiento</th>
+                                <th scope="col" style="">Estado</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for cuota in cuotas_sociales %}
+                                <tr>
+                                    <td>{{ cuota.pk }}</td>
+                                    <td>{{ cuota.persona }}</td>
+                                    <td>${{ cuota.total }}</td>
+                                    <td>{{ cuota.fecha_emision }}</td>
+                                    <td>{{ cuota.fecha_vencimiento }}</td>
+                                    {% if cuota.get_estado == 'Pendiente' %}
+                                        <td><span class="badge badge-warning">{{ cuota.get_estado }}</span></td>
+                                        <td>
+                                            <button class="btn btn-success btn-sm checkout-btn" value="{{ cuota.pk }}">
+                                                <i class="fa-solid fa-hand-holding-dollar"></i>
+                                            </button>
+                                            <button class="btn btn-info btn-sm">
+                                                <i class="fa-solid fa-file-pdf"></i>
+                                            </button>
+                                        </td>
+                                    {% elif cuota.get_estado == 'Pagada' %}
+                                        <td><span class="badge badge-success">{{ cuota.get_estado }}</span></td>
+                                        <td>
+                                            <button class="btn btn-info btn-sm">
+                                                <i class="fa-solid fa-file-pdf"></i>
+                                            </button>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">Titular</th>
+                                <th scope="col" style="">Total</th>
+                                <th scope="col" style="">Fecha de emisión</th>
+                                <th scope="col" style="">Fecha de vencimiento</th>
+                                <th scope="col" style="">Estado</th>
+                                <th></th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="cho-container"></div>
+{% endblock content %}
+
+{% block body_js %}
+    <!-- Select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- MercadoPago SDK -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+    {% include 'includes/dataTable.html' %}
+    <script>
+        const mercadopago = new MercadoPago('{{ public_key }}', {
+            locale: 'es-AR'
+        });
+        $('.checkout-btn').on('click', function (e) {
+            e.preventDefault();
+            let cuota_id = $(this).val();
+            $.ajax({
+                url: window.location.pathname,
+                type: 'POST',
+                data: {
+                    'action': 'checkout',
+                    'cuota_id': cuota_id,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (!data.hasOwnProperty('error')) {
+                        mercadopago.checkout({
+                            preference: {
+                                id: data.id
+                            },
+                            // Redirecciona a la URL de pago
+                            autoOpen: true,
+                        });
+                    } else {
+                        let errors = []
+                        $.each(data.error, function (key, value) {
+                            errors.push(value);
+                        });
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: errors.join('\n'),
+                            showConfirmButton: true,
+                        })
+                        document.body.classList.remove('swal2-height-auto');
+                    }
+                },
+                error: function (data) {
+                    alert('Error al intentar pagar la cuota');
+                }
+            });
+        });
+    </script>
+{% endblock body_js %}

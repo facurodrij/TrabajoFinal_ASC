@@ -3,10 +3,12 @@ import pathlib
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core import management
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 
 from accounts.decorators import admin_required
+from accounts.models import Persona
 from core.forms import *
 from core.models import Club
 
@@ -19,6 +21,19 @@ class IndexView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         return context
+
+    def get(self, request, *args, **kwargs):
+        # Si action es search, se realiza la búsqueda
+        if request.GET.get('action') == 'search':
+            try:
+                persona = Persona.objects.get(dni=request.GET.get('dni'))
+                socio = persona.get_socio()
+                return JsonResponse({
+                    'socio_dni': socio.persona.dni,
+                })
+            except Persona.DoesNotExist:
+                pass
+        return super().get(request, *args, **kwargs)
 
 
 @login_required(login_url='login')

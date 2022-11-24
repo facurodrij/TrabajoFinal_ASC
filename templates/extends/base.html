@@ -28,6 +28,23 @@
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <!-- BS Custom File Input -->
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    {% if not user.is_authenticated %}
+        <style>
+            body {
+                background-color: #aeaeae;
+            }
+            #login-img:hover {
+                transform: scale(1.1);
+            }
+        </style>
+    {% endif %}
+    <style>
+        /* Todos los h3 con clase card-title deben ser mayúscula negrita */
+        h3.card-title {
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+    </style>
     {% block head_css %}
     {% endblock head_css %}
     {% block head_js %}
