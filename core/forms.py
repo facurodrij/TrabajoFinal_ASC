@@ -1,7 +1,6 @@
 from django import forms
-from accounts.models import User
 
-from .models import *
+from core.models import *
 
 
 class UpdateClubForm(forms.ModelForm):

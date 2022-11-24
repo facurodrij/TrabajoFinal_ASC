@@ -1,9 +1,11 @@
 {% if not user.is_authenticated %}
-    <nav class="navbar navbar-expand navbar-dark bg-primary">
-        <a class="navbar-brand text-bold" href="{% url 'index' %}">RESERVÁ</a>
+    <nav class="navbar navbar-expand shadow p-3 mb-5 bg-white rounded">
+        <a class="navbar-brand text-bold" href="{% url 'index' %}">
+            <img src="{{ club_logo }}" alt="ClubLogo" width="150px" height="150px">
+        </a>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'login' %}">Login</a>
+                <a class="nav-link" href="{% url 'login' %}">Ingresar</a>
             </li>
         </ul>
     </nav>

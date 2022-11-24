@@ -90,12 +90,15 @@
                     <label for="">{{ form.imagen.label }}</label>
                     {{ form.imagen }}
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-2">
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary btn-block">Enviar solicitud</button>
                     </div>
                 </div>
             </form>
+            <p>
+                <a href="{% url 'signup' %}" class="text-center">Soy socio pero sin cuenta</a>
+            </p>
         </div>
     </div>
 </div>

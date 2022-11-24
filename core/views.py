@@ -1,16 +1,14 @@
 import pathlib
-from django.shortcuts import render, redirect, HttpResponseRedirect
-from django.urls import reverse_lazy, reverse
-from django.contrib import messages
-from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
-from django.contrib.admin.views.decorators import staff_member_required
-from django.core import management
 
-from .forms import *
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core import management
+from django.shortcuts import render, redirect
+from django.views.generic import TemplateView
+
 from accounts.decorators import admin_required
+from core.forms import *
+from core.models import Club
 
 
 class IndexView(TemplateView):
@@ -19,7 +17,7 @@ class IndexView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Inicio'
+        context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         return context
 
 

@@ -1,8 +1,7 @@
-import uuid
-from django.db import models
-from django_softdelete.models import SoftDeleteModel, SoftDeleteManager
 from PIL import Image
 from django.conf import settings
+from django.db import models
+from django_softdelete.models import SoftDeleteModel
 
 
 class Club(SoftDeleteModel):
