@@ -37,13 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Aplicaciones de terceros
-    'widget_tweaks',
-    'django_cleanup.apps.CleanupConfig',
     'active_link',
+    "django_apscheduler",
+    'django_cleanup.apps.CleanupConfig',
+    'widget_tweaks',
     # Aplicaciones locales
-    'parameters',
     'accounts',
     'core',
+    'parameters',
     'socios',
 ]
 
