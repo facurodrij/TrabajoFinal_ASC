@@ -15,7 +15,6 @@ class Socio(SoftDeleteModel):
     """
     persona = models.OneToOneField('accounts.Persona', on_delete=models.PROTECT)
     categoria = models.ForeignKey('socios.Categoria', on_delete=models.PROTECT)
-    estado = models.ForeignKey('socios.Estado', on_delete=models.PROTECT)
     fecha_ingreso = models.DateField(default=datetime.now)
     socio_titular = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True)
     parentesco = models.ForeignKey('parameters.Parentesco', on_delete=models.PROTECT, null=True, blank=True)
@@ -25,6 +24,9 @@ class Socio(SoftDeleteModel):
 
     def es_titular(self):
         return True if self.socio_titular_id is None else False
+
+    def get_estado(self):
+        return 'Activo' if self.is_deleted is False else 'Inactivo'
 
     def get_miembros(self):
         return Socio.global_objects.filter(socio_titular=self)
@@ -59,24 +61,14 @@ class Socio(SoftDeleteModel):
         return item
 
     def clean(self):
-        # Si tuviera miembros, asignarle el mismo estado
-        if self.es_titular():
-            if self.get_miembros().exists():
-                for miembro in self.get_miembros():
-                    miembro.estado = self.estado
-                    miembro.save()
-
         # Un socio no puede ser miembro de otro miembro
         if not self.es_titular():
             if not self.socio_titular.es_titular():
                 raise ValidationError(_('Un socio no puede ser miembro de otro miembro.'))
-
         # Un socio titular no puede ser menor de 16 años
         if self.es_titular():
             if self.persona.get_edad() < 16:
                 raise ValidationError(_('Un socio titular no puede ser menor de 16 años.'))
-
-        # TODO: Si el socio tiene deudas pendientes, no puede ser eliminado
 
     class Meta:
         verbose_name = 'Socio'
@@ -144,23 +136,6 @@ class Categoria(models.Model):
                                         'detalle de la facturación.'
             ),
         ]
-
-
-class Estado(models.Model):
-    """
-    Modelo para almacenar los estados de los socios.
-    """
-    nombre = models.CharField(max_length=50, unique=True, verbose_name='Nombre')
-    descripcion = models.CharField(max_length=255, verbose_name='Descripción')
-    code = models.CharField(max_length=2, unique=True, verbose_name='Código')
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return self.nombre
-
-    class Meta:
-        verbose_name = 'Estado'
-        verbose_name_plural = 'Estados'
 
 
 class SolicitudSocio(PersonaAbstract):

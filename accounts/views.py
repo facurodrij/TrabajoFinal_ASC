@@ -98,9 +98,9 @@ class CustomLoginView(LoginView):
             if user.persona.get_socio() is None:
                 messages.error(self.request, 'Su cuenta no está asociada a un socio de la institución.')
                 return redirect('logout')
-            if not user.persona.get_socio().estado.is_active:
-                messages.error(self.request, 'Su cuenta estado de socio está inactivo. Descripción: {}'.format(
-                    user.persona.get_socio().estado.descripcion))
+            if not user.persona.get_socio().get_estado():
+                messages.error(self.request, 'Su cuenta estado de socio está inactivo. Descripción: {}')
+                # TODO: Agregar descripción del estado del socio
                 return redirect('logout')
         return super().form_valid(form)
 

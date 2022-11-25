@@ -4,16 +4,7 @@ from django.core.exceptions import ValidationError
 
 from accounts.models import User
 from parameters.models import Parentesco
-from socios.models import Estado, Categoria, Socio, SolicitudSocio, CuotaSocial
-
-
-class SelectEstadoForm(forms.Form):
-    """
-    Formulario para elegir un estado de socio.
-    """
-    estado = forms.ModelChoiceField(required=True,
-                                    queryset=Estado.objects.all(),
-                                    widget=forms.Select(attrs={'class': 'form-control select2'}))
+from socios.models import Categoria, Socio, SolicitudSocio, CuotaSocial
 
 
 class SelectCategoriaForm(forms.Form):
@@ -41,11 +32,10 @@ class SocioForm(forms.ModelForm):
 
     class Meta:
         model = Socio
-        fields = ['persona', 'categoria', 'estado', 'socio_titular', 'parentesco']
+        fields = ['persona', 'categoria', 'socio_titular', 'parentesco']
         widgets = {
             'persona': forms.Select(attrs={'class': 'form-control select2'}),
             'categoria': forms.Select(attrs={'class': 'form-control select2'}),
-            'estado': forms.Select(attrs={'class': 'form-control select2'}),
             'socio_titular': forms.Select(attrs={'class': 'form-control select2'}),
             'parentesco': forms.Select(attrs={'class': 'form-control select2'})
         }

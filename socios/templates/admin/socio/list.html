@@ -49,11 +49,7 @@
                                     <td>{{ socio.categoria }}</td>
                                     <td><span class="badge badge-primary">{{ socio.get_tipo }}</span></td>
                                     {% if not socio.is_deleted %}
-                                        {% if socio.estado.is_active %}
-                                            <td><span class="badge badge-success">{{ socio.estado }}</span></td>
-                                        {% else %}
-                                            <td><span class="badge badge-danger">{{ socio.estado }}</span></td>
-                                        {% endif %}
+                                        <td><span class="badge badge-success">{{ socio.get_estado }}</span></td>
                                         <td>
                                             <a href="{% url 'admin-socio-detalle' socio.pk %}" class="btn btn-info btn-sm">
                                                 <i class="fa-solid fa-eye"></i>
@@ -66,7 +62,7 @@
                                             </a>
                                         </td>
                                     {% else %}
-                                        <td><span class="badge badge-danger">Eliminado</span></td>
+                                        <td><span class="badge badge-danger">{{ socio.get_estado }}</span></td>
                                         <td>
                                             <a href="{% url 'admin-socio-restaurar' socio.pk %}"
                                                class="btn btn-success btn-sm">

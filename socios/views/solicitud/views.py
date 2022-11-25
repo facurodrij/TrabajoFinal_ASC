@@ -18,7 +18,7 @@ from django.views.generic import ListView, CreateView
 from accounts.models import User, Persona
 from core.models import Club
 from socios.forms import SolicitudForm
-from socios.models import SolicitudSocio, Categoria, Estado, Socio
+from socios.models import SolicitudSocio, Categoria, Socio
 
 
 class SolicitudView(CreateView):
@@ -112,10 +112,8 @@ class SolicitudAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListVi
                                                          apellido=solicitud.apellido,
                                                          fecha_nacimiento=solicitud.fecha_nacimiento,
                                                          imagen=solicitud.imagen)
-                        estado = Estado.objects.get(code='AD')
                         socio = Socio.objects.create(persona=persona,
-                                                     categoria=solicitud.categoria,
-                                                     estado=estado)
+                                                     categoria=solicitud.categoria)
                         password = User.objects.make_random_password()
                         user = User.objects.create_user(persona=persona,
                                                         username=solicitud.dni,

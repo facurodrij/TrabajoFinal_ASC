@@ -17,11 +17,6 @@
             <li class="nav-item">
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
-            {% if user.persona.get_socio %}
-                <li class="nav-item">
-                    <span class="nav-link">Estado de socio: {{ user.persona.socio.estado }}</span>
-                </li>
-            {% endif %}
         </ul>
         <ul class="navbar-nav ml-auto">
             {% if not user.is_admin %}

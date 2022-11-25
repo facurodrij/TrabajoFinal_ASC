@@ -87,7 +87,6 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 # se lo restaura como titular, si no se lo restaura como miembro
                 persona = request.POST['persona']
                 categoria = request.POST['categoria']
-                estado = request.POST['estado']
                 socio_titular = request.POST['socio_titular']
                 parentesco = request.POST['parentesco']
                 socio = Socio.deleted_objects.get(persona_id=persona)
@@ -97,12 +96,10 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                     if socio.persona.get_edad() < 16:
                         socio.socio_titular_id = socio_titular
                         socio.parentesco_id = parentesco
-                        socio.estado_id = estado
                         socio.save()
                         data = socio.toJSON()
                         messages.success(request, 'Se ha restaurado el socio como socio miembro')
                     else:
-                        socio.estado_id = estado
                         socio.socio_titular_id = None
                         socio.parentesco_id = None
                         socio.save()
@@ -220,7 +217,6 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                 with transaction.atomic():
                     socio = Socio.objects.get(persona_id=persona)
                     socio.socio_titular_id = self.get_object().pk
-                    socio.estado = self.get_object().estado
                     socio.categoria_id = categoria
                     socio.parentesco_id = parentesco
                     socio.save()
