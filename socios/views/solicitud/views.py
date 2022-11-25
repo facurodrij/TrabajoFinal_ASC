@@ -73,7 +73,7 @@ class SolicitudAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListVi
     Vista que lista las solicitudes de asociación.
     """
     model = SolicitudSocio
-    template_name = 'solicitud/list.html'
+    template_name = 'solicitud/../../templates/admin/solicitud/list.html'
     permission_required = 'socios.view_solicitudsocio'
     context_object_name = 'solicitudes'
 

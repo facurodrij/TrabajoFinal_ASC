@@ -231,26 +231,26 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                 cuota_social_form = CuotaSocialForm(request.POST)
                 if cuota_social_form.is_valid():
                     # with transaction.atomic():
-                        cuota_social = cuota_social_form.save(commit=False)
-                        cuota_social.persona = self.get_object().persona
-                        cuota_social.save()
-                        # Agregar el detalle de la cuota social
-                        detalle = DetalleCuotaSocial()
-                        detalle.cuota_social = cuota_social
-                        detalle.socio = self.get_object()
-                        detalle.save()
-                        for miembro in self.get_object().get_miembros():
-                            detalle_miembro = DetalleCuotaSocial()
-                            detalle_miembro.cuota_social = cuota_social
-                            detalle_miembro.socio = miembro
-                            detalle_miembro.save()
-                        # Generar el total, sumando los totales parciales de los detalles relacionados.
-                        total = cuota_social.cargo_extra
-                        for detalle in cuota_social.detallecuotasocial_set.all():
-                            total += detalle.total_parcial
-                        cuota_social.total = total
-                        cuota_social.save()
-                        messages.success(request, 'Cuota social agregada correctamente')
+                    cuota_social = cuota_social_form.save(commit=False)
+                    cuota_social.persona = self.get_object().persona
+                    cuota_social.save()
+                    # Agregar el detalle de la cuota social
+                    detalle = DetalleCuotaSocial()
+                    detalle.cuota_social = cuota_social
+                    detalle.socio = self.get_object()
+                    detalle.save()
+                    for miembro in self.get_object().get_miembros():
+                        detalle_miembro = DetalleCuotaSocial()
+                        detalle_miembro.cuota_social = cuota_social
+                        detalle_miembro.socio = miembro
+                        detalle_miembro.save()
+                    # Generar el total, sumando los totales parciales de los detalles relacionados.
+                    total = cuota_social.cargo_extra
+                    for detalle in cuota_social.detallecuotasocial_set.all():
+                        total += detalle.total_parcial
+                    cuota_social.total = total
+                    cuota_social.save()
+                    messages.success(request, 'Cuota social agregada correctamente')
                 else:
                     data['error'] = cuota_social_form.errors
             elif action == 'mark_as_paid':
@@ -374,50 +374,4 @@ def socio_restore(request, pk):
     except ValidationError as e:
         messages.error(request, e.message)
     # Recargar la página actual
-    return redirect(request.META.get('HTTP_REFERER'))
-
-
-class CuotaSocialAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
-    """ Vista para listar las cuotas sociales, solo para administradores """
-    model = CuotaSocial
-    template_name = 'admin/socio/cuota_list.html'
-    permission_required = 'socios.view_cuotasocial'
-    context_object_name = 'cuotas_sociales'
-
-    def get_queryset(self):
-        return CuotaSocial.global_objects.all()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Cuotas Sociales'
-        return context
-
-    def post(self, request, *args, **kwargs):
-        data = {}
-        try:
-            action = request.POST['action']
-            if action == 'mark_as_paid':
-                # Si la acción es mark_as_paid, se marca una cuota social como pagada
-                cuota_social_id = request.POST['id']
-                cuota_social = CuotaSocial.objects.get(pk=cuota_social_id)
-                cuota_social.fecha_pago = datetime.now()
-                cuota_social.save()
-                messages.success(request, 'Cuota social marcada como pagada correctamente')
-            else:
-                data['error'] = 'Ha ocurrido un error, intente nuevamente'
-        except Exception as e:
-            data['error'] = str(e)
-        return JsonResponse(data, safe=False)
-
-
-@login_required
-@admin_required
-def cuota_delete(request, pk):
-    """
-    Eliminar una cuota social
-    """
-    cuota = get_object_or_404(CuotaSocial, pk=pk)
-    with transaction.atomic():
-        cuota.delete(cascade=True)
-        messages.success(request, 'Cuota social eliminada correctamente')
     return redirect(request.META.get('HTTP_REFERER'))

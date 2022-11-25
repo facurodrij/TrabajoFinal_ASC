@@ -37,7 +37,6 @@
                                 <th scope="col" style="">Total</th>
                                 <th scope="col" style="">Fecha de emisión</th>
                                 <th scope="col" style="">Fecha de vencimiento</th>
-                                <th scope="col" style="">ID referencia de pago</th>
                                 <th scope="col" style="">Estado</th>
                                 <th></th>
                             </tr>
@@ -50,7 +49,6 @@
                                     <td>${{ cuota.total }}</td>
                                     <td>{{ cuota.fecha_emision }}</td>
                                     <td>{{ cuota.fecha_vencimiento }}</td>
-                                    <td>{{ cuota.id_referencia_pago }}</td>
                                     {% if cuota.get_estado == 'Pendiente' %}
                                         <td><span class="badge badge-warning">{{ cuota.get_estado }}</span></td>
                                         <td>
@@ -90,7 +88,6 @@
                                 <th scope="col" style="">Total</th>
                                 <th scope="col" style="">Fecha de emisión</th>
                                 <th scope="col" style="">Fecha de vencimiento</th>
-                                <th scope="col" style="">ID referencia de pago</th>
                                 <th scope="col" style="">Estado</th>
                                 <th></th>
                             </tr>

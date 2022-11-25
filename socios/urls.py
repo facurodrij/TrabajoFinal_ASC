@@ -1,6 +1,8 @@
 from django.urls import path
 
+from socios.views.admin.cuota.views import *
 from socios.views.admin.socio.views import *
+from socios.views.cuota.views import *
 from socios.views.socio.views import *
 from socios.views.solicitud.views import *
 
