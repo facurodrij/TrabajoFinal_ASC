@@ -120,10 +120,6 @@
                             {{ socio_form.categoria }}
                         </div>
                         <div class="form-group">
-                            <label class="labels">{{ socio_form.estado.label }}</label>
-                            {{ socio_form.estado }}
-                        </div>
-                        <div class="form-group">
                             <label class="labels">{{ socio_form.socio_titular.label }}</label>
                             {{ socio_form.socio_titular }}
                         </div>
@@ -216,7 +212,6 @@
         let select_categoria = $('#id_categoria');
         let select_socio_titular = $('#id_socio_titular');
         let select_parentesco = $('#id_parentesco');
-        let select_estado = $('#id_estado');
         $('#btn-add-socio').click(function () { // Evento para mostrar el modal de agregar socio
             $('#id_persona').select2({
                 theme: 'bootstrap4',
@@ -233,14 +228,6 @@
                 language: 'es',
                 dropdownParent: ModalAddSocio
             });
-            $('#id_estado').select2({
-                theme: 'bootstrap4',
-                placeholder: 'Seleccione un estado',
-                allowClear: true,
-                width: '100%',
-                language: 'es',
-                dropdownParent: ModalAddSocio
-            });
             select_socio_titular.select2({
                 theme: 'bootstrap4',
                 placeholder: 'Seleccione un tutor',
@@ -250,7 +237,7 @@
             });
             select_parentesco.select2({
                 theme: 'bootstrap4',
-                placeholder: 'Seleccione un estado',
+                placeholder: 'Seleccione un parentesco',
                 allowClear: true,
                 width: '100%',
                 language: 'es',
@@ -343,7 +330,6 @@
                                             'action': 'restore_socio', // Acción que se va a ejecutar en el backend
                                             'persona': $('#id_persona').val(), // Pasar el valor pk de la Persona
                                             'categoria': $('#id_categoria').val(), // Pasar el valor pk de la Categoria
-                                            'estado': $('#id_estado').val(), // Pasar el valor pk de la Estado
                                             'socio_titular': $('#id_socio_titular').val(), // Pasar el valor pk de la Socio_titular
                                             'parentesco': $('#id_parentesco').val(), // Pasar el valor pk de la Parentesco
                                             'csrfmiddlewaretoken': '{{ csrf_token }}'
