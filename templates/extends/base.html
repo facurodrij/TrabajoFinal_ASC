@@ -11,21 +11,20 @@
 
     <title>{{ title }} - RESERVÁ</title>
     <!-- Bootstrap 4.6 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-          integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
-          crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'libs/bootstrap-4.6.2/bootstrap.min.css' %}">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
-          integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
     <!-- AdminLTE 3 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="{% static 'libs/adminlte-3.2/adminlte.min.css' %}">
     <!-- SweetAlert2 Theme Borderless -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-borderless@5.0.12/borderless.min.css">
+    <link rel="stylesheet" href="{% static 'libs/sweetalert2/borderless.min.css' %}">
     <!-- iCheck Bootstrap -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/icheck-bootstrap/3.0.1/icheck-bootstrap.min.css"
-          integrity="sha512-8vq2g5nHE062j3xor4XxPeZiPjmRDh6wlufQlfC6pdQ/9urJkU07NM0tEREeymP++NczacJ/Q59ul+/K2eYvcg=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link rel="stylesheet" href="{% static 'libs/icheck-bootstrap-3.0.1/icheck-bootstrap.min.css' %}">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'libs/select2-4.1/select2.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'libs/select2-4.1/select2-bootstrap4.min.css' %}">
     <!-- BS Custom File Input -->
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
     {% if not user.is_authenticated %}
@@ -78,19 +77,16 @@
     </div>
 </div>
 <!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.1.min.js"
-        integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+<script src="{% static 'libs/jquery-3.6.1/jquery-3.6.1.min.js' %}"></script>
 <!-- Bootstrap -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
-        crossorigin="anonymous"></script>
+<script src="{% static 'libs/bootstrap-4.6.2/bootstrap.bundle.min.js' %}"></script>
 <!-- AdminLTE 3 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js"
-        integrity="sha512-KBeR1NhClUySj9xBB0+KRqYLPkM6VvXiiWaSz/8LCQNdRpUm38SWUrj0ccNDNSkwCD9qPA4KobLliG26yPppJA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{% static 'libs/adminlte-3.2/adminlte.min.js' %}"></script>
 <!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.33/dist/sweetalert2.all.min.js"></script>
-<!-- Todas los templates que extienden de base.html podran recibir los mesajes que envian las vistas -->
+<script src="{% static 'libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+<!-- Select2 -->
+<script src="{% static 'libs/select2-4.1/select2.min.js' %}"></script>
+<!-- Todos los templates que extienden de base.html podrán recibir los mensajes que envían las vistas -->
 {% include 'includes/message.html' %}
 {% block body_js %}
 {% endblock body_js %}

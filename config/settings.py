@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'active_link',
     "django_apscheduler",
     'django_cleanup.apps.CleanupConfig',
+    'fontawesomefree',
     'widget_tweaks',
     # Aplicaciones locales
     'accounts',
