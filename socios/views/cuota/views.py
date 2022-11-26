@@ -44,7 +44,7 @@ class CuotaSocialListView(LoginRequiredMixin, SocioRequiredMixin, ListView):
         preference_data = {
             "items": [
                 {
-                    "title": "Cuota Social",
+                    "title": "Cuota Social #{}".format(cuota.id),
                     "quantity": 1,
                     "currency_id": "ARS",
                     "unit_price": float(cuota.total),

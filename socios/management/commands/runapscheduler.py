@@ -1,19 +1,56 @@
 import logging
+from datetime import datetime
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.db import transaction
+from django.utils.timezone import make_aware
 from django_apscheduler import util
 from django_apscheduler.jobstores import DjangoJobStore
 from django_apscheduler.models import DjangoJobExecution
 
+from socios.models import Socio, CuotaSocial, DetalleCuotaSocial
+
 logger = logging.getLogger(__name__)
 
 
-def my_job():
-    # Your job processing logic here...
-    pass
+def add_cuota_social():
+    """
+    Este método genera una cuota social a cada socio titular
+    """
+    print('Procesando Job..')
+    # Los 7 de cada mes se ejecuta el proceso automatizado
+    if datetime.now().day == 7 and datetime.now().hour == 0 and datetime.now().minute == 0:
+        # Por cada Socio que es_titular sea verdadero
+        with transaction.atomic():
+            for socio in Socio.objects.filter(socio_titular__isnull=True):
+                print('Procesando Socio: ', socio, ' - ', socio.get_tipo())
+                # Fecha de vencimiento, 1 mes después de la fecha de emisión
+                cuota_social = CuotaSocial(persona=socio.persona,
+                                           fecha_emision=make_aware(datetime.now()),
+                                           # Fecha de vencimiento, 21 días después de la fecha de emisión
+                                           fecha_vencimiento=make_aware(datetime.now() + relativedelta(days=21)))
+                cuota_social.save()
+                # Agregar el detalle de la cuota social
+                detalle = DetalleCuotaSocial()
+                detalle.cuota_social = cuota_social
+                detalle.socio = cuota_social.persona.socio
+                detalle.save()
+                for miembro in cuota_social.persona.socio.get_miembros():
+                    detalle_miembro = DetalleCuotaSocial()
+                    detalle_miembro.cuota_social = cuota_social
+                    detalle_miembro.socio = miembro
+                    detalle_miembro.save()
+                # Generar el total, sumando los totales parciales de los detalles relacionados.
+                total = cuota_social.cargo_extra
+                for detalle in cuota_social.detallecuotasocial_set.all():
+                    total += detalle.total_parcial
+                cuota_social.total = total
+                cuota_social.save()
+            print('Cuotas sociales agregadas a cada socio titular')
 
 
 # The `close_old_connections` decorator ensures that database connections, that have become
@@ -40,9 +77,9 @@ class Command(BaseCommand):
         scheduler.add_jobstore(DjangoJobStore(), "default")
 
         scheduler.add_job(
-            my_job,
-            trigger=CronTrigger(second="*/10"),  # Every 10 seconds
-            id="my_job",  # The `id` assigned to each job MUST be unique
+            add_cuota_social,
+            trigger=CronTrigger(minute="*/1"),  # Run each 1 minute
+            id="add_cuota_social",  # The `id` assigned to each job MUST be unique
             max_instances=1,
             replace_existing=True,
         )
