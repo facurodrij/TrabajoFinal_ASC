@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django_apscheduler",
     'django_cleanup.apps.CleanupConfig',
     'fontawesomefree',
+    'simple_history',
     'widget_tweaks',
     # Aplicaciones locales
     'accounts',
@@ -57,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'

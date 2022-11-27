@@ -5,6 +5,7 @@ from django.db import models
 from django.forms import model_to_dict
 from django.utils.translation import gettext_lazy as _
 from django_softdelete.models import SoftDeleteModel
+from simple_history.models import HistoricalRecords
 
 from accounts.models import PersonaAbstract
 
@@ -18,6 +19,7 @@ class Socio(SoftDeleteModel):
     fecha_ingreso = models.DateField(default=datetime.now)
     socio_titular = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True)
     parentesco = models.ForeignKey('parameters.Parentesco', on_delete=models.PROTECT, null=True, blank=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.persona.__str__()
@@ -201,6 +203,7 @@ class CuotaSocial(SoftDeleteModel):
     fecha_pago = models.DateTimeField(verbose_name='Fecha de pago', null=True, blank=True)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Total')
     cargo_extra = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Cargo extra')
+    history = HistoricalRecords()
 
     def is_pagada(self):
         return True if self.fecha_pago else False

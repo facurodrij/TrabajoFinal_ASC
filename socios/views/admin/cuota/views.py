@@ -52,7 +52,10 @@ def cuota_delete(request, pk):
     Eliminar una cuota social
     """
     cuota = get_object_or_404(CuotaSocial, pk=pk)
+    # Obtener el motivo de la eliminación en la url ?motivo=...
+    motivo = request.GET.get('motivo', None)
     with transaction.atomic():
+        cuota._change_reason = motivo
         cuota.delete(cascade=True)
         messages.success(request, 'Cuota social eliminada correctamente')
     return redirect(request.META.get('HTTP_REFERER'))

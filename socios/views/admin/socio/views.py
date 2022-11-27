@@ -342,7 +342,10 @@ def socio_delete(request, pk):
     Eliminar un socio
     """
     socio = get_object_or_404(Socio, pk=pk)
+    # Obtener el motivo de la eliminación en la url ?motivo=...
+    motivo = request.GET.get('motivo', None)
     with transaction.atomic():
+        socio._change_reason = motivo
         socio.delete(cascade=True)
         messages.success(request, 'Socio eliminado correctamente')
     if socio.es_titular():
