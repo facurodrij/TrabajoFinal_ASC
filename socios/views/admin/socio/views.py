@@ -13,6 +13,7 @@ from django.views.generic import ListView, DetailView, UpdateView
 from accounts.decorators import admin_required
 from accounts.forms import *
 from core.models import Club
+from parameters.models import Socios
 from socios.forms import SocioForm, CuotaSocialForm
 from socios.models import Socio, Categoria, CuotaSocial, DetalleCuotaSocial
 
@@ -78,22 +79,24 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 for categoria in categorias:
                     item = categoria.toJSON()
                     data.append(item)
-                # Si la persona es menor de 16, mandar una variable
+                edad_minima_titular = Socios.objects.get(club_id=1).edad_minima_socio_titular
+                # Si la persona es menor de edad_minima_titular, mandar una variable
                 # tutor_required para que el front-end sepa que debe pedir
-                tutor_required = True if edad < 16 else False
+                tutor_required = True if edad < edad_minima_titular else False
                 data.append({'tutor_required': tutor_required})
             elif action == 'restore_socio':
-                # Si la acción es restore_socio, si el socio es mayor de 16 años
+                # Si la acción es restore_socio, si el socio es mayor de edad_minima_titular años
                 # se lo restaura como titular, si no se lo restaura como miembro
                 persona = request.POST['persona']
                 categoria = request.POST['categoria']
                 socio_titular = request.POST['socio_titular']
                 parentesco = request.POST['parentesco']
                 socio = Socio.deleted_objects.get(persona_id=persona)
+                edad_minima_titular = Socios.objects.get(club_id=1).edad_minima_socio_titular
                 with transaction.atomic():
                     socio.restore()
                     socio.categoria_id = categoria
-                    if socio.persona.get_edad() < 16:
+                    if socio.persona.get_edad() < edad_minima_titular:
                         socio.socio_titular_id = socio_titular
                         socio.parentesco_id = parentesco
                         socio.save()

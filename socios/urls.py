@@ -1,5 +1,6 @@
 from django.urls import path
 
+from parameters.views import ParametersSociosFormView
 from socios.views.admin.cuota.views import *
 from socios.views.admin.socio.views import *
 from socios.views.cuota.views import *
@@ -16,9 +17,7 @@ urlpatterns = [
     path('admin/socios/<int:pk>/editar/', SocioAdminUpdateView.as_view(), name='admin-socio-editar'),
     path('admin/socios/<int:pk>/eliminar/', socio_delete, name='admin-socio-eliminar'),
     path('admin/socios/<int:pk>/restaurar/', socio_restore, name='admin-socio-restaurar'),
-    # TODO: Agregar la vista de parámetros socios
-    path('admin/socios/parametros/', lambda request: redirect('admin-socio-listado', permanent=True),
-         name='admin-socio-parametros'),
+    path('admin/socios/parametros/', ParametersSociosFormView.as_view(), name='admin-socio-parametros'),
     # Socios, URLs de usuario
     path('socio/mis_datos/', SocioFormView.as_view(), name='socio-datos'),
 

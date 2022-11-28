@@ -8,6 +8,7 @@ from django_softdelete.models import SoftDeleteModel
 from simple_history.models import HistoricalRecords
 
 from accounts.models import PersonaAbstract
+from parameters.models import Socios
 
 
 class Socio(SoftDeleteModel):
@@ -69,8 +70,9 @@ class Socio(SoftDeleteModel):
                 raise ValidationError(_('Un socio no puede ser miembro de otro miembro.'))
         # Un socio titular no puede ser menor de 16 años
         if self.es_titular():
-            if self.persona.get_edad() < 16:
-                raise ValidationError(_('Un socio titular no puede ser menor de 16 años.'))
+            edad_minima_titular = Socios.objects.get(club_id=1).edad_minima_socio_titular
+            if self.persona.get_edad() < edad_minima_titular:
+                raise ValidationError(_('Un socio titular no puede ser menor de {} años.'.format(edad_minima_titular)))
 
     class Meta:
         verbose_name = 'Socio'

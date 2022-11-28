@@ -1,0 +1,84 @@
+{% extends "extends/base.html" %}
+{% load static %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.club }}
+                    <div class="card">
+                        <div class="card-header bg-primary">
+                            <h4 class="card-title">
+                                <i class="fas fa-edit"></i>
+                                {{ title }}
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div id="div-socio" class="col-lg-6">
+                                    <h5>Parámetros de Socios</h5>
+                                    <hr>
+                                    <div class="form-group">
+                                        <label for="id_edad_minima_socio_titular">{{ form.edad_minima_socio_titular.label }}</label>
+                                        {{ form.edad_minima_socio_titular }}
+                                    </div>
+                                </div>
+                                <div id="div-cuotas" class="col-lg-6">
+                                    <h5>Parámetros de las Cuotas</h5>
+                                    <hr>
+                                    <div class="form-group">
+                                        <label for="id_dia_emision_cuota">{{ form.dia_emision_cuota.label }}</label>
+                                        {{ form.dia_emision_cuota }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="id_dia_vencimiento_cuota">{{ form.dia_vencimiento_cuota.label }}</label>
+                                        {{ form.dia_vencimiento_cuota }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="id_cantidad_maxima_cuotas_pendientes">{{ form.cantidad_maxima_cuotas_pendientes.label }}</label>
+                                        {{ form.cantidad_maxima_cuotas_pendientes }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="id_aumento_por_cuota_vencida">{{ form.aumento_por_cuota_vencida.label }}</label>
+                                        {{ form.aumento_por_cuota_vencida }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary" type="submit">Guardar Cambios</button>
+                            <button class="btn btn-secondary" type="reset" onclick="resetForm()">Reset</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block body_js %}
+    {% if form.errors %}
+        <script type="text/javascript">
+            let errors = []
+            {% for key, value in form.errors.items %}
+                errors.push('{{ value|join:" " }}')
+            {% endfor %}
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Ocurrió un error',
+                text: errors.join('\n'),
+                showConfirmButton: true,
+            })
+            document.body.classList.remove('swal2-height-auto');
+        </script>
+    {% endif %}
+{% endblock body_js %}

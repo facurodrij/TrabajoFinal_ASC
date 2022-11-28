@@ -1,10 +1,10 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ValidationError
 
 
 # PARÁMETROS DEL SISTEMA
-# Parámetros para socios y miembros
+# Parámetros para la app Socios
 class Parentesco(models.Model):
     """
     Modelo para almacenar los parentescos de los miembros de la familia.
@@ -19,7 +19,36 @@ class Parentesco(models.Model):
         verbose_name_plural = _('Parentescos')
 
 
-# Parámetros para perfiles de usuario
+class Socios(models.Model):
+    """
+    Modelo para almacenar las reglas establecidas para los socios.
+    Las reglas las establece el administrador del club.
+    """
+    club = models.OneToOneField('core.Club', on_delete=models.CASCADE, verbose_name=_('Club'))
+    edad_minima_socio_titular = models.PositiveSmallIntegerField(
+        default=16,
+        verbose_name=_('Edad mínima para ser socio titular'))
+    dia_emision_cuota = models.PositiveSmallIntegerField(
+        default=7,
+        verbose_name=_('Día de emisión'))
+    dia_vencimiento_cuota = models.PositiveSmallIntegerField(
+        default=28,
+        verbose_name=_('Día de vencimiento'))
+    cantidad_maxima_cuotas_pendientes = models.PositiveSmallIntegerField(
+        default=3,
+        verbose_name=_('Cantidad máxima de cuotas pendientes'))
+    aumento_por_cuota_vencida = models.DecimalField(
+        default=10.0,
+        max_digits=5,
+        decimal_places=2,
+        verbose_name=_('Porcentaje de aumento por cuota vencida'))
+
+    class Meta:
+        verbose_name = _('Regla de socio')
+        verbose_name_plural = _('Reglas de socios')
+
+
+# Parámetros para la app Accounts
 class Sexo(models.Model):
     """Modelo para almacenar los sexos de los usuarios."""
     nombre = models.CharField(max_length=100, unique=True, verbose_name=_('Nombre'))
