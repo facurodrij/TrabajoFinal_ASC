@@ -35,4 +35,5 @@ urlpatterns = [
     path('socio/mis_cuotas/', CuotaSocialListView.as_view(), name='socio-cuotas'),
     # Cuotas sociales, URLs de usuario sin autenticación
     path('cuotas/dni=<int:dni>/', CuotaSocialWOAListView.as_view(), name='cuotas-sin-autenticacion'),
+    path('cuotas/reporte/<int:pk>/', cuota_social_pdf, name='cuotas-pdf'),
 ]

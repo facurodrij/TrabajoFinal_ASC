@@ -48,9 +48,9 @@
                                             <button class="btn btn-success btn-sm mark-as-paid" value="{{ cuota.pk }}">
                                                 <i class="fa-solid fa-check-double"></i>
                                             </button>
-                                            <button class="btn btn-info btn-sm">
+                                            <a href="{% url 'cuotas-pdf' cuota.pk %}" class="btn btn-info btn-sm">
                                                 <i class="fa-solid fa-file-pdf"></i>
-                                            </button>
+                                            </a>
                                             <a href="{% url 'admin-cuota-eliminar' cuota.pk %}"
                                                class="btn btn-danger btn-sm anular-cuota">
                                                 <i class="fa-solid fa-ban"></i>
@@ -59,16 +59,16 @@
                                     {% elif cuota.get_estado == 'Pagada' %}
                                         <td><span class="badge badge-success">{{ cuota.get_estado }}</span></td>
                                         <td>
-                                            <button class="btn btn-info btn-sm">
+                                            <a href="{% url 'cuotas-pdf' cuota.pk %}" class="btn btn-info btn-sm">
                                                 <i class="fa-solid fa-file-pdf"></i>
-                                            </button>
+                                            </a>
                                         </td>
                                     {% elif cuota.get_estado == 'Anulada' %}
                                         <td><span class="badge badge-danger">{{ cuota.get_estado }}</span></td>
                                         <td>
-                                            <button class="btn btn-info btn-sm">
+                                            <a href="{% url 'cuotas-pdf' cuota.pk %}" class="btn btn-info btn-sm">
                                                 <i class="fa-solid fa-file-pdf"></i>
-                                            </button>
+                                            </a>
                                         </td>
                                     {% endif %}
                                 </tr>

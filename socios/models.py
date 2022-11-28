@@ -1,3 +1,4 @@
+import locale
 from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -9,6 +10,8 @@ from simple_history.models import HistoricalRecords
 
 from accounts.models import PersonaAbstract
 from parameters.models import Socios
+
+locale.setlocale(locale.LC_ALL, 'es_AR.UTF-8')
 
 
 class Socio(SoftDeleteModel):
@@ -200,6 +203,7 @@ class CuotaSocial(SoftDeleteModel):
     Modelo para almacenar las cuotas sociales.
     """
     persona = models.ForeignKey('accounts.Persona', on_delete=models.PROTECT, verbose_name='Persona')
+    nombre_completo = models.CharField(max_length=255, verbose_name='Nombre completo')
     fecha_emision = models.DateTimeField(default=datetime.now, verbose_name='Fecha de emisión')
     fecha_vencimiento = models.DateTimeField(verbose_name='Fecha de vencimiento')
     fecha_pago = models.DateTimeField(verbose_name='Fecha de pago', null=True, blank=True)
@@ -216,6 +220,27 @@ class CuotaSocial(SoftDeleteModel):
         elif self.is_deleted:
             return 'Anulada'
         return 'Pendiente'
+
+    def get_fecha_emision(self):
+        return self.fecha_emision.strftime('%d/%m/%Y')
+
+    def get_fecha_vencimiento(self):
+        return self.fecha_vencimiento.strftime('%d/%m/%Y')
+
+    def get_fecha_pago(self):
+        return self.fecha_pago.strftime('%d/%m/%Y') if self.fecha_pago else None
+
+    def get_periodo(self):
+        # MM en letras (Ej: 01 -> Enero) y AAAA en español
+        return self.fecha_emision.strftime('%B %Y').capitalize()
+
+    def get_subtotal(self):
+        return self.total - self.cargo_extra
+
+    def get_motivo_anulacion(self):
+        # Obtener reason change en django_simple_history
+        motivo = self.history.filter(is_deleted=True).first().history_change_reason
+        return motivo if motivo else 'No especificado'
 
     def get_related_objects(self):
         return self.detallecuotasocial_set.all()
@@ -265,6 +290,8 @@ class DetalleCuotaSocial(SoftDeleteModel):
     """
     cuota_social = models.ForeignKey('socios.CuotaSocial', on_delete=models.PROTECT, verbose_name='Cuota social')
     socio = models.ForeignKey('socios.Socio', on_delete=models.PROTECT, verbose_name='Socio')
+    nombre_completo = models.CharField(max_length=100, verbose_name='Nombre completo')
+    categoria = models.CharField(max_length=50, verbose_name='Categoría')
     cuota = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Cuota')
     cargo_extra = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Cargo extra')
     total_parcial = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total parcial')

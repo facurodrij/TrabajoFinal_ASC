@@ -237,11 +237,15 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                         detalle = DetalleCuotaSocial()
                         detalle.cuota_social = cuota_social
                         detalle.socio = self.get_object()
+                        detalle.nombre_completo = self.get_object().persona.get_full_name()
+                        detalle.categoria = self.get_object().categoria.__str__()
                         detalle.save()
                         for miembro in self.get_object().get_miembros():
                             detalle_miembro = DetalleCuotaSocial()
                             detalle_miembro.cuota_social = cuota_social
                             detalle_miembro.socio = miembro
+                            detalle_miembro.nombre_completo = miembro.persona.get_full_name()
+                            detalle_miembro.categoria = miembro.categoria.__str__()
                             detalle_miembro.save()
                         # Generar el total, sumando los totales parciales de los detalles relacionados.
                         total = cuota_social.cargo_extra

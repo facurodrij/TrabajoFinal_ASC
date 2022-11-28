@@ -3,16 +3,19 @@ from datetime import datetime
 import mercadopago
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.files.storage import FileSystemStorage
 from django.db import transaction
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic.list import ListView
+from weasyprint import HTML, CSS
 
 from accounts.models import Persona
 from core.models import Club
 from socios.mixins import SocioRequiredMixin
-from socios.models import CuotaSocial
+from socios.models import CuotaSocial, DetalleCuotaSocial
 from static.credentials import MercadoPagoCredentials  # Aquí debería insertar sus credenciales de MercadoPago
 
 public_key = MercadoPagoCredentials.get_public_key()
@@ -157,3 +160,19 @@ class CuotaSocialWOAListView(ListView):
                 messages.error(request, 'No se pudo realizar el pago')
             return redirect(reverse_lazy('cuotas-sin-autenticacion', kwargs={'dni': self.kwargs['dni']}))
         return super(CuotaSocialWOAListView, self).get(request, *args, **kwargs)
+
+
+# Generar PDF con weasyprint del detalle de la cuota social
+def cuota_social_pdf(request, pk):
+    cuota = CuotaSocial.global_objects.get(pk=pk)
+    club = Club.objects.get(pk=1)
+    detalle_cuota = DetalleCuotaSocial.global_objects.filter(cuota_social=cuota)
+    html_string = render_to_string('cuota/pdf.html', {'cuota': cuota, 'club': club, 'detalle_cuota': detalle_cuota})
+    html = HTML(string=html_string, base_url=request.build_absolute_uri())
+    html.write_pdf(target='/tmp/cuota.pdf',
+                   stylesheets=[CSS('https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css')])
+    fs = FileSystemStorage('/tmp')
+    with fs.open('cuota.pdf') as pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="cuota.pdf"'
+        return response
