@@ -6,6 +6,7 @@ from django.db import models
 from django.forms import model_to_dict
 from django.utils.translation import gettext_lazy as _
 from django_softdelete.models import SoftDeleteModel
+from num2words import num2words
 from simple_history.models import HistoricalRecords
 
 from accounts.models import PersonaAbstract
@@ -239,8 +240,14 @@ class CuotaSocial(SoftDeleteModel):
 
     def get_motivo_anulacion(self):
         # Obtener reason change en django_simple_history
-        motivo = self.history.filter(is_deleted=True).first().history_change_reason
+        motivo = self.history.filter(is_deleted=True).last().history_change_reason
         return motivo if motivo else 'No especificado'
+
+    def get_total_letras(self):
+        """
+        Obtener el total en letras.
+        """
+        return 'Son: {} pesos argentinos'.format(num2words(self.total, lang='es'))
 
     def get_related_objects(self):
         return self.detallecuotasocial_set.all()

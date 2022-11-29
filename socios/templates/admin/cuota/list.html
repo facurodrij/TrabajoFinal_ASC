@@ -38,7 +38,9 @@
                             {% for cuota in cuotas_sociales %}
                                 <tr>
                                     <td>{{ cuota.pk }}</td>
-                                    <td>{{ cuota.persona }}</td>
+                                    <td>
+                                        <a href="{% url 'admin-socio-detalle' cuota.persona.socio.pk %}">{{ cuota.persona }}</a>
+                                    </td>
                                     <td>${{ cuota.total }}</td>
                                     <td>{{ cuota.fecha_emision }}</td>
                                     <td>{{ cuota.fecha_vencimiento }}</td>

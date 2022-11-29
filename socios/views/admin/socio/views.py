@@ -206,6 +206,12 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                 with transaction.atomic():
                     socio = Socio.deleted_objects.get(persona_id=persona)
                     socio.restore()
+                    # Si tenia miembros agregados, se eliminan
+                    if socio.get_miembros().exists():
+                        for miembro in socio.get_miembros():
+                            miembro.socio_titular_id = None
+                            miembro.parentesco_id = None
+                            miembro.delete()
                     socio.socio_titular_id = self.get_object().pk
                     socio.categoria_id = categoria
                     socio.parentesco_id = parentesco
@@ -370,7 +376,12 @@ def socio_restore(request, pk):
     try:
         if not socio.get_related_objects():
             with transaction.atomic():
+                edad_minima_titular = Socios.objects.get(club_id=1).edad_minima_socio_titular
                 socio.restore()
+                if socio.es_titular() and socio.persona.get_edad() < edad_minima_titular:
+                    raise ValidationError(
+                        'El socio que intenta restaurar es menor de {} años y no tiene tutor a cargo. '
+                        'Agréguelo manualmente con un titular a cargo.'.format(edad_minima_titular))
                 messages.success(request, 'Socio restaurado correctamente')
         else:
             with transaction.atomic():

@@ -17,6 +17,7 @@ fonttools==4.38.0
 html5lib==1.1
 idna==3.4
 mercadopago==2.2.0
+num2words==0.5.12
 Pillow==9.3.0
 psycopg2-binary==2.9.5
 pycparser==2.21

@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Reporte PDF</title>
+    <title>Cuota social #{{ cuota.pk }}</title>
     <!-- Font Awesome -->
     <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
@@ -33,10 +33,10 @@
             </div>
         </div>
         <div class="col-6 text-right">
-            <h2>FACTURA</h2>
+            <h2>CUOTA SOCIAL</h2>
             <h3 class="pb-3"># {{ cuota.pk }}</h3>
             <ul class="px-0 list-unstyled">
-                <li style="font-size: 1.5rem"><b>Total a pagar:</b> {{ cuota.total }}</li>
+                <li style="font-size: 1.5rem"><b>Total a pagar:</b> ${{ cuota.total }}</li>
                 <li style="font-size: 1.5rem"><b>Vencimiento:</b> {{ cuota.get_fecha_vencimiento }}</li>
             </ul>
         </div>
@@ -64,37 +64,41 @@
     <!--/ Invoice Customer Details -->
 </div>
 <!-- Invoice Items Details -->
-<div class="pt-2">
-    <div class="row">
-        <div class="col-11">
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
+
+<div class="row pt-2">
+    <div class="col-11">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Socio &amp; Categoria</th>
+                    <th scope="col" class="text-right">Cargo unitario</th>
+                    <th scope="col" class="text-right">Cargo extra c/u</th>
+                    <th scope="col" class="text-right">Importe en pesos</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for detalle in detalle_cuota %}
                     <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Socio &amp; Categoria</th>
-                        <th scope="col" class="text-right">Monto</th>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>
+                            <p>{{ detalle.nombre_completo }}</p>
+                            <p class="text-muted">{{ detalle.categoria }}</p>
+                        </td>
+                        <td class="text-right text-bold-500">{{ detalle.cuota }}</td>
+                        <td class="text-right text-bold-500">{{ detalle.cargo_extra }}</td>
+                        <td class="text-right text-bold-500">{{ detalle.total_parcial }}</td>
                     </tr>
-                    </thead>
-                    <tbody>
-                    {% for detalle in detalle_cuota %}
-                        <tr>
-                            <th scope="row">{{ forloop.counter }}</th>
-                            <td>
-                                <p>{{ detalle.nombre_completo }}</p>
-                                <p class="text-muted">{{ detalle.categoria }}</p>
-                            </td>
-                            <td class="text-right text-bold-500">{{ detalle.cuota }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 <div class="row">
     <div class="col-7 text-left">
+        <hr>
         <p class="lead">Observaciones:</p>
         {% if not cuota.is_deleted %}
             <p class="text-muted">Sin observaciones</p>
@@ -106,7 +110,8 @@
         {% endif %}
     </div>
     <div class="col-5">
-        <p class="lead text-right"><b>Total</b></p>
+        <hr>
+        <p class="lead">Totales:</p>
         <div class="table-responsive">
             <table class="table table-striped">
                 <tbody>
@@ -124,6 +129,7 @@
                 </tr>
                 </tbody>
             </table>
+            <p class="text-muted">{{ cuota.get_total_letras }}</p>
         </div>
     </div>
 </div>
