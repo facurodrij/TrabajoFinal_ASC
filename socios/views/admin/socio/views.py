@@ -3,19 +3,24 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.core.files.storage import FileSystemStorage
 from django.db import transaction
 from django.db.models import Q
+from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, UpdateView
+from weasyprint import HTML, CSS
 
 from accounts.decorators import admin_required
 from accounts.forms import *
 from core.models import Club
-from parameters.models import Socios
+from parameters.models import SociosParameters
 from socios.forms import SocioForm, CuotaSocialForm
 from socios.models import Socio, Categoria, CuotaSocial, DetalleCuotaSocial
+from socios.utilities import get_categoria
 
 
 class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -53,7 +58,7 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                             data['message'] = 'La persona seleccionada es un socio pero está eliminado,' \
                                               ' ¿Desea restaurarlo y convertirlo en socio titular?'
                         form.save()
-                        messages.success(request, 'Se ha agregado un nuevo socio')
+                        data['id'] = Socio.history.first().id
                 else:
                     data['error'] = form.errors
             elif action == 'add_persona':
@@ -67,21 +72,12 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                         data = persona.toJSON()
                 else:
                     data['error'] = form.errors
-            elif action == 'get_categoria':
-                # Si la acción es get_categoria, se obtiene las categorias que puede tener el socio
-                data = []
-                # Obtener la edad de la Persona
-                persona_id = request.POST['persona']
-                edad = Persona.objects.get(pk=persona_id).get_edad()
-                # Obtener las categorias que corresponden a la edad, incluyendo la primera categoria
-                categorias = Categoria.objects.filter((Q(edad_desde__lte=edad) & Q(edad_hasta__gte=edad)) | Q(pk=1))
-                print(categorias)
-                for categoria in categorias:
-                    item = categoria.toJSON()
-                    data.append(item)
-                edad_minima_titular = Socios.objects.get(club_id=1).edad_minima_socio_titular
+            elif action == 'select_persona_change':
+                data = get_categoria(persona=request.POST['persona'])
+                edad_minima_titular = SociosParameters.objects.get(club_id=1).edad_minima_socio_titular
                 # Si la persona es menor de edad_minima_titular, mandar una variable
                 # tutor_required para que el front-end sepa que debe pedir
+                edad = Persona.objects.get(pk=request.POST['persona']).get_edad()
                 tutor_required = True if edad < edad_minima_titular else False
                 data.append({'tutor_required': tutor_required})
             elif action == 'restore_socio':
@@ -92,7 +88,7 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 socio_titular = request.POST['socio_titular']
                 parentesco = request.POST['parentesco']
                 socio = Socio.deleted_objects.get(persona_id=persona)
-                edad_minima_titular = Socios.objects.get(club_id=1).edad_minima_socio_titular
+                edad_minima_titular = SociosParameters.objects.get(club_id=1).edad_minima_socio_titular
                 with transaction.atomic():
                     socio.restore()
                     socio.categoria_id = categoria
@@ -376,7 +372,7 @@ def socio_restore(request, pk):
     try:
         if not socio.get_related_objects():
             with transaction.atomic():
-                edad_minima_titular = Socios.objects.get(club_id=1).edad_minima_socio_titular
+                edad_minima_titular = SociosParameters.objects.get(club_id=1).edad_minima_socio_titular
                 socio.restore()
                 if socio.es_titular() and socio.persona.get_edad() < edad_minima_titular:
                     raise ValidationError(
@@ -392,3 +388,20 @@ def socio_restore(request, pk):
         messages.error(request, e.message)
     # Recargar la página actual
     return redirect(request.META.get('HTTP_REFERER'))
+
+
+def socio_comprobante_operacion(request, pk, operacion):
+    socio = Socio.global_objects.get(pk=pk)
+    club = Club.objects.get(pk=1)
+    historial = socio.history.first()
+    html_string = render_to_string('admin/socio/comprobante_operacion.html', {'historial': historial,
+                                                                              'club': club,
+                                                                              'operacion': operacion})
+    html = HTML(string=html_string, base_url=request.build_absolute_uri())
+    html.write_pdf(target='/tmp/comprobante_operacion.pdf',
+                   stylesheets=[CSS('https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css')])
+    fs = FileSystemStorage('/tmp')
+    with fs.open('comprobante_operacion.pdf') as pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="comprobante_operacion.pdf"'
+        return response

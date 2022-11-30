@@ -5,7 +5,7 @@ from django.views.generic import FormView
 
 from core.models import Club
 from parameters.forms import ParametersSociosForm
-from parameters.models import Socios
+from parameters.models import SociosParameters
 
 
 class ParametersSociosFormView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
@@ -28,5 +28,5 @@ class ParametersSociosFormView(LoginRequiredMixin, PermissionRequiredMixin, Form
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['instance'] = Socios.objects.get(club=Club.objects.get(pk=1))
+        kwargs['instance'] = SociosParameters.objects.get(club=Club.objects.get(pk=1))
         return kwargs

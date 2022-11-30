@@ -10,7 +10,7 @@ from num2words import num2words
 from simple_history.models import HistoricalRecords
 
 from accounts.models import PersonaAbstract
-from parameters.models import Socios
+from parameters.models import SociosParameters
 
 locale.setlocale(locale.LC_ALL, 'es_AR.UTF-8')
 
@@ -74,7 +74,7 @@ class Socio(SoftDeleteModel):
                 raise ValidationError(_('Un socio no puede ser miembro de otro miembro.'))
         # Un socio titular no puede ser menor de 16 años
         if self.es_titular():
-            edad_minima_titular = Socios.objects.get(club_id=1).edad_minima_socio_titular
+            edad_minima_titular = SociosParameters.objects.get(club_id=1).edad_minima_socio_titular
             if self.persona.get_edad() < edad_minima_titular:
                 raise ValidationError(_('Un socio titular no puede ser menor de {} años.'.format(edad_minima_titular)))
 
