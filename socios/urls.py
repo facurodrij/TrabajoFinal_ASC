@@ -15,11 +15,10 @@ urlpatterns = [
     path('admin/socios/listado/', SocioAdminListView.as_view(), name='admin-socio-listado'),
     path('admin/socios/<int:pk>/', SocioAdminDetailView.as_view(), name='admin-socio-detalle'),
     path('admin/socios/<int:pk>/editar/', SocioAdminUpdateView.as_view(), name='admin-socio-editar'),
-    path('admin/socios/<int:pk>/eliminar/', socio_delete, name='admin-socio-eliminar'),
     path('admin/socios/<int:pk>/restaurar/', socio_restore, name='admin-socio-restaurar'),
     path('admin/socios/parametros/', ParametersSociosFormView.as_view(), name='admin-socio-parametros'),
     path('admin/socios/<int:pk>/comp-operacion/<str:operacion>/', socio_comprobante_operacion,
-         name='socio-comprobante_operacion'),
+         name='socio-comprobante-operacion'),
     # Socios, URLs de usuario
     path('socio/mis_datos/', SocioFormView.as_view(), name='socio-datos'),
 

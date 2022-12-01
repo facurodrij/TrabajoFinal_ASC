@@ -17,10 +17,10 @@
                         <h3 class="card-title">Socios Registrados</h3>
                     </div>
                     <div class="card-body">
-                        <button id="btn-add-socio" class="btn btn-success mb-3">
+                        <button id="open-ModalAddSocio" class="btn btn-success mb-3">
                             <i class="fas fa-plus pr-1"></i> Crear Nuevo
                         </button>
-                        <a href="{% url 'socio-comprobante_operacion' 1 '+' %}">Comprobante</a>
+                        <a href="{% url 'socio-comprobante-operacion' 1 '+' %}">Comprobante</a>
                         <table id="dataTable" class="table table-bordered table-striped dataTable">
                             <thead>
                             <tr>
@@ -54,10 +54,10 @@
                                                class="btn btn-warning btn-sm">
                                                 <i class="fa-solid fa-edit"></i>
                                             </a>
-                                            <a href="{% url 'admin-socio-eliminar' socio.pk %}"
-                                               class="btn btn-danger btn-sm eliminar-socio">
+                                            <button class="btn btn-danger btn-sm btn-delete"
+                                                    value="{{ socio.pk }}">
                                                 <i class="fa-solid fa-trash"></i>
-                                            </a>
+                                            </button>
                                         </td>
                                     {% else %}
                                         <td><span class="badge badge-danger">{{ socio.get_estado }}</span></td>
@@ -89,116 +89,10 @@
             </div>
         </div>
     </div>
-    <!-- Modals -->
-    <div class="modal fade" id="ModalAddSocio" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-         aria-hidden="true">
-        <form id="formSocio" method="post" enctype="multipart/form-data">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="ModalLabel">
-                            <b><i class="fas fa-user-plus"></i> Nuevo registro de un Socio</b>
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label class="labels">{{ socio_form.persona.label }}</label>
-                            <div class="input-group">
-                                {{ socio_form.persona }}
-                                <div class="input-group-append">
-                                    <button id="btn-add-persona" class="btn btn-success" type="button">
-                                        <i class="fas fa-user-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ socio_form.categoria.label }}</label>
-                            {{ socio_form.categoria }}
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ socio_form.socio_titular.label }}</label>
-                            {{ socio_form.socio_titular }}
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ socio_form.parentesco.label }}</label>
-                            {{ socio_form.parentesco }}
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Guardar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal fade" id="ModalAddPersona" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-         aria-hidden="true">
-        <form id="formPersona" method="post" enctype="multipart/form-data">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="ModalLabel">
-                            <b><i class="fas fa-user-plus"></i> Nuevo registro de una persona</b>
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label class="labels">{{ persona_form.dni.label }}</label>
-                            {{ persona_form.dni }}
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ persona_form.nombre.label }}</label>
-                            {{ persona_form.nombre }}
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ persona_form.apellido.label }}</label>
-                            {{ persona_form.apellido }}
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ persona_form.fecha_nacimiento.label }}</label>
-                            <div class="input-group" id="div_id_fecha_nacimiento"
-                                 data-target-input="nearest">
-                                <input type="text" name="fecha_nacimiento" autocomplete="off"
-                                       placeholder="Fecha de nacimiento"
-                                       class="form-control  datetimepicker-input"
-                                       data-toggle="datetimepicker" data-target="#id_fecha_nacimiento"
-                                       required=""
-                                       id="id_fecha_nacimiento">
-                                <div class="input-group-append" data-target="#id_fecha_nacimiento"
-                                     data-toggle="datetimepicker">
-                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ persona_form.sexo.label }}</label>
-                            {{ persona_form.sexo }}
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ persona_form.imagen.label }}</label><br>
-                            {{ persona_form.imagen }}
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Guardar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
+    <!-- Modals Add Socio -->
+    {% include 'admin/socio/modals/add-socio.html' %}
+    <!-- Modals Add Persona -->
+    {% include 'admin/socio/modals/add-persona.html' %}
 {% endblock content %}
 
 {% block body_js %}
@@ -209,8 +103,9 @@
     <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
     {% include 'includes/dataTable.html' %}
     <script>
+        // Inicializar los campos del modal de nuevo socio.
         let ModalAddSocio = $('#ModalAddSocio');
-        // Cuando el modal se cierra, se limpian los campos
+        // Cuando el modal se cierra, se limpian los campos.
         ModalAddSocio.on('hidden.bs.modal', function () {
             $(this).find('form')[0].reset();
         });
@@ -218,7 +113,8 @@
         let select_categoria = $('#id_categoria');
         let select_socio_titular = $('#id_socio_titular');
         let select_parentesco = $('#id_parentesco');
-        $('#btn-add-socio').click(function () { // Evento para mostrar el modal de agregar socio
+
+        $('#open-ModalAddSocio').click(function () {
             select_persona.select2({
                 theme: 'bootstrap4',
                 placeholder: 'Seleccione una persona',
@@ -249,14 +145,17 @@
                 language: 'es',
                 dropdownParent: ModalAddSocio
             });
-            // Ocultar el div.form-group de socio_titular y parentesco
+            // Ocultar el div.form-group de socio_titular y parentesco.
+            // Ambos se muestran solo si la persona requiere tutor.
             select_socio_titular.parent().hide();
             select_parentesco.parent().hide();
             ModalAddSocio.modal('show');
         });
+
+        // Obtener las categorias que puede tener la persona seleccionada.
         select_persona.on('change', function (e) { // El evento se activa cuando select Persona cambia
             if ($(this).val()) { // Verificar que el input Persona no este vacío
-                $.ajax({ // Realizar una petición AJAX para obtener las categorias que puede tener la persona
+                $.ajax({
                     url: window.location.pathname,
                     type: 'POST',
                     data: {
@@ -290,13 +189,13 @@
                 });
             }
         });
-    </script>
-    <script>
-        $('#formSocio').on('submit', function (e) { // Evento submit del formulario de socio
+
+        // Evento submit del formulario de socio.
+        $('#formSocio').on('submit', function (e) {
             e.preventDefault();
             let form = new FormData(this);
             form.append('action', 'add_socio'); // Acción que se va a ejecutar en el backend
-            $.ajax({ // Realizar una petición AJAX para agregar un socio
+            $.ajax({
                 url: window.location.pathname,
                 type: 'POST',
                 data: form,
@@ -315,7 +214,7 @@
                             cancelButtonText: 'Cerrar',
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.open('/admin/socios/' + data.id + '/comp_operacion/+/', '_blank');
+                                window.open('/admin/socios/' + data.id + '/comp-operacion/+/', '_blank');
                             }
                             location.reload();
                         });
@@ -329,7 +228,7 @@
                         } else {
                             errors = data.error
                         }
-                        if (code === 'socio_deleted_exists') { // Si el código es 'socio_exists' mostrar un mensaje de error
+                        if (code === 'socio_deleted_exists') {
                             Swal.fire({
                                 title: 'Socio eliminado',
                                 position: 'top-end',
@@ -342,7 +241,7 @@
                                 cancelButtonText: 'Cancelar'
                             }).then((result) => {
                                 if (result.value) {
-                                    $.ajax({ // Realizar una petición AJAX para restaurar un miembro
+                                    $.ajax({ // Realizar una petición AJAX para restaurar un socio
                                         url: window.location.pathname,
                                         type: 'POST',
                                         data: {
@@ -396,8 +295,9 @@
         });
     </script>
     <script>
+        // Inicializar los campos del modal de agregar persona.
         let ModalAddPersona = $('#ModalAddPersona');
-        $('#btn-add-persona').on('click', function () { // Evento para mostrar el modal de agregar persona
+        $('#open-ModalAddPersona').on('click', function () {
             $('#id_fecha_nacimiento').datetimepicker({
                 "format": "DD/MM/YYYY",
                 "icons": {"time": "fa fa-clock-o"},
@@ -416,7 +316,9 @@
             });
             ModalAddPersona.modal('show');
         });
-        $('#formPersona').on('submit', function (e) { // Evento submit del formulario de persona
+
+        // Evento submit del formulario de persona
+        $('#formPersona').on('submit', function (e) {
             e.preventDefault();
             let form = new FormData(this);
             form.append('action', 'add_persona');
@@ -465,8 +367,9 @@
         });
     </script>
     <script>
-        $('.eliminar-socio').on('click', function (e) {
+        $('.btn-delete').on('click', function (e) {
             e.preventDefault();
+            let socio_id = $(this).val();
             Swal.fire({
                 position: 'top-end',
                 title: '¿Está seguro que quiere dar de baja este socio?',
@@ -488,8 +391,37 @@
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Redireccionar al href del tag <a>
-                    window.location.href = $(this).attr('href') + '?motivo=' + result.value;
+                    $.ajax({
+                        url: window.location.pathname,
+                        type: 'POST',
+                        data: {
+                            'action': 'delete_socio',
+                            'id': socio_id,
+                            'motivo': result.value,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+                            if (!data.hasOwnProperty('error')) {
+                                Swal.fire({
+                                    position: 'top-end',
+                                    title: 'Socio dado de baja',
+                                    text: 'El socio se dio de baja correctamente',
+                                    icon: 'success',
+                                    confirmButtonText: 'Imprimir comprobante de operación',
+                                    showCancelButton: true,
+                                    cancelButtonText: 'Cerrar',
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.open('/admin/socios/' + data.id + '/comp-operacion/-/', '_blank');
+                                    }
+                                    location.reload();
+                                });
+                            } else {
+                                alert('Error al dar de baja el socio: ' + data.error)
+                            }
+                        }
+                    });
                 }
             })
         });

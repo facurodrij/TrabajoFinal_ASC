@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -8,7 +9,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponse
 from django.http import JsonResponse
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, UpdateView
@@ -58,7 +59,7 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                             data['message'] = 'La persona seleccionada es un socio pero está eliminado,' \
                                               ' ¿Desea restaurarlo y convertirlo en socio titular?'
                         form.save()
-                        data['id'] = Socio.history.first().id
+                        data['id'] = form.instance.id
                 else:
                     data['error'] = form.errors
             elif action == 'add_persona':
@@ -104,6 +105,14 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                         socio.save()
                         data = socio.toJSON()
                         messages.success(request, 'Se ha restaurado el socio como socio titular')
+            elif action == 'delete_socio':
+                # Si la acción es delete_socio, se elimina el socio
+                socio = Socio.objects.get(pk=request.POST['id'])
+                motivo = request.POST['motivo']
+                with transaction.atomic():
+                    socio._change_reason = motivo
+                    socio.delete(cascade=True)
+                    data['id'] = request.POST['id']
             else:
                 data['error'] = 'Ha ocurrido un error, intente nuevamente'
         except Exception as e:
@@ -346,24 +355,6 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
 
 @login_required
 @admin_required
-def socio_delete(request, pk):
-    """
-    Eliminar un socio
-    """
-    socio = get_object_or_404(Socio, pk=pk)
-    # Obtener el motivo de la eliminación en la url ?motivo=...
-    motivo = request.GET.get('motivo', None)
-    with transaction.atomic():
-        socio._change_reason = motivo
-        socio.delete(cascade=True)
-        messages.success(request, 'Socio eliminado correctamente')
-    if socio.es_titular():
-        return redirect('admin-socio-listado')
-    return redirect(request.META.get('HTTP_REFERER'))
-
-
-@login_required
-@admin_required
 def socio_restore(request, pk):
     """
     Restaurar un socio eliminado
@@ -399,7 +390,7 @@ def socio_comprobante_operacion(request, pk, operacion):
                                                                               'operacion': operacion})
     html = HTML(string=html_string, base_url=request.build_absolute_uri())
     html.write_pdf(target='/tmp/comprobante_operacion.pdf',
-                   stylesheets=[CSS('https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css')])
+                   stylesheets=[CSS('{}/libs/bootstrap-4.6.2/bootstrap.min.css'.format(settings.STATIC_ROOT))])
     fs = FileSystemStorage('/tmp')
     with fs.open('comprobante_operacion.pdf') as pdf:
         response = HttpResponse(pdf, content_type='application/pdf')
