@@ -124,86 +124,84 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                 </div>
             </div>
         </div>
-        {% if socio.es_titular %}
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header bg-primary">
-                            <h3 class="card-title">Grupo Familiar</h3>
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <button id="btn-add-miembro" class="btn btn-success mb-3">
-                                <i class="fas fa-plus pr-1"></i> Agregar Miembro
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">Grupo Familiar</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
                             </button>
-                            <table id="miembro-table" class="table table-bordered table-striped dataTable">
-                                <thead>
-                                <tr>
-                                    <th scope="col" style="">#</th>
-                                    <th scope="col" style="">DNI</th>
-                                    <th scope="col" style="">Nombre completo</th>
-                                    <th scope="col" style="">Edad</th>
-                                    <th scope="col" style="">Categoría</th>
-                                    <th scope="col" style="">Parentesco</th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for miembro in miembros %}
-                                    <tr>
-                                        <td>{{ miembro.pk }}</td>
-                                        <td>{{ miembro.persona.dni }}</td>
-                                        <td>{{ miembro.persona.get_full_name }}</td>
-                                        <td>{{ miembro.persona.get_edad }}</td>
-                                        <td>{{ miembro.categoria }}</td>
-                                        <td>{{ miembro.get_parentesco }}</td>
-                                        {% if not miembro.is_deleted %}
-                                            <td>
-                                                <a href="{% url 'admin-socio-detalle' miembro.pk %}"
-                                                   class="btn btn-info btn-sm">
-                                                    <i class="fa-solid fa-eye"></i>
-                                                </a>
-                                                <a href="{% url 'admin-socio-editar' miembro.pk %}"
-                                                   class="btn btn-warning btn-sm">
-                                                    <i class="fa-solid fa-edit"></i>
-                                                </a>
-                                                <a href="{% url 'admin-socio-eliminar' miembro.pk %}"
-                                                   class="btn btn-danger btn-sm eliminar-miembro">
-                                                    <i class="fa-solid fa-trash"></i>
-                                                </a>
-                                            </td>
-                                        {% else %}
-                                            <td>
-                                                <a href="{% url 'admin-socio-restaurar' miembro.pk %}"
-                                                   class="btn btn-success btn-sm">
-                                                    <i class="fa-solid fa-rotate-left"></i>
-                                                </a>
-                                            </td>
-                                        {% endif %}
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                                <tfoot>
-                                <tr>
-                                    <th scope="col" style="">#</th>
-                                    <th scope="col" style="">DNI</th>
-                                    <th scope="col" style="">Nombre completo</th>
-                                    <th scope="col" style="">Edad</th>
-                                    <th scope="col" style="">Categoría</th>
-                                    <th scope="col" style="">Parentesco</th>
-                                    <th></th>
-                                </tr>
-                                </tfoot>
-                            </table>
                         </div>
+                    </div>
+                    <div class="card-body">
+                        <button id="open-ModalAddMiembro" class="btn btn-success mb-3">
+                            <i class="fas fa-plus pr-1"></i> Agregar Miembro
+                        </button>
+                        <table id="miembro-table" class="table table-bordered table-striped dataTable">
+                            <thead>
+                            <tr>
+                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">DNI</th>
+                                <th scope="col" style="">Nombre completo</th>
+                                <th scope="col" style="">Edad</th>
+                                <th scope="col" style="">Categoría</th>
+                                <th scope="col" style="">Parentesco</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for miembro in miembros %}
+                                <tr>
+                                    <td>{{ miembro.pk }}</td>
+                                    <td>{{ miembro.persona.dni }}</td>
+                                    <td>{{ miembro.persona.get_full_name }}</td>
+                                    <td>{{ miembro.persona.get_edad }}</td>
+                                    <td>{{ miembro.categoria }}</td>
+                                    <td>{{ miembro.get_parentesco }}</td>
+                                    {% if not miembro.is_deleted %}
+                                        <td>
+                                            <a href="{% url 'admin-socio-detalle' miembro.pk %}"
+                                               class="btn btn-info btn-sm">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'admin-socio-editar' miembro.pk %}"
+                                               class="btn btn-warning btn-sm">
+                                                <i class="fa-solid fa-edit"></i>
+                                            </a>
+                                            <button class="btn btn-danger btn-sm btn-delete"
+                                                    value="{{ miembro.pk }}">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    {% else %}
+                                        <td>
+                                            <button class="btn btn-success btn-sm btn-restore"
+                                                    value="{{ miembro.pk }}">
+                                                <i class="fa-solid fa-rotate-left"></i>
+                                            </button>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">DNI</th>
+                                <th scope="col" style="">Nombre completo</th>
+                                <th scope="col" style="">Edad</th>
+                                <th scope="col" style="">Categoría</th>
+                                <th scope="col" style="">Parentesco</th>
+                                <th></th>
+                            </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
             </div>
-        {% endif %}
+        </div>
         <div class="row">
             <div class="col-12">
                 <div class="card">
@@ -217,7 +215,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                     </div>
                     <div class="card-body">
                         {% if socio.es_titular %}
-                            <button id="btn-add-cuota" class="btn btn-success mb-3">
+                            <button id="open-ModalAddCuota" class="btn btn-success mb-3">
                                 <i class="fas fa-plus pr-1"></i> Agregar Cuota
                             </button>
                         {% endif %}
@@ -288,174 +286,9 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
         </div>
     </div>
     <!-- Modals -->
-    <div class="modal fade" id="ModalAddMiembro" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-         aria-hidden="true">
-        <form id="formMiembro" method="post" enctype="multipart/form-data">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="ModalLabel">
-                            <b><i class="fas fa-user-plus"></i> Nuevo registro de un Miembro</b>
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        {% csrf_token %}
-                        {{ miembro_form.socio_titular }}
-                        <div class="form-group">
-                            <label class="labels">{{ miembro_form.persona.label }}</label>
-                            <div class="input-group">
-                                {{ miembro_form.persona }}
-                                <div class="input-group-append">
-                                    <button id="btn-add-persona" class="btn btn-success" type="button">
-                                        <i class="fas fa-user-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ miembro_form.parentesco.label }}</label>
-                            {{ miembro_form.parentesco }}
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ miembro_form.categoria.label }}</label>
-                            {{ miembro_form.categoria }}
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Guardar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal fade" id="ModalAddPersona" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-         aria-hidden="true">
-        <form id="formPersona" method="post" enctype="multipart/form-data">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="ModalLabel">
-                            <b><i class="fas fa-user-plus"></i> Nuevo registro de una persona</b>
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="{{ value }}">
-                        <div class="form-group">
-                            <label class="labels">{{ persona_form.dni.label }}</label>
-                            {{ persona_form.dni }}
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ persona_form.nombre.label }}</label>
-                            {{ persona_form.nombre }}
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ persona_form.apellido.label }}</label>
-                            {{ persona_form.apellido }}
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ persona_form.fecha_nacimiento.label }}</label>
-                            <div class="input-group" id="div_id_fecha_nacimiento"
-                                 data-target-input="nearest">
-                                <input type="text" name="fecha_nacimiento" autocomplete="off"
-                                       placeholder="Fecha de nacimiento"
-                                       class="form-control  datetimepicker-input"
-                                       data-toggle="datetimepicker" data-target="#id_fecha_nacimiento"
-                                       required=""
-                                       id="id_fecha_nacimiento">
-                                <div class="input-group-append" data-target="#id_fecha_nacimiento"
-                                     data-toggle="datetimepicker">
-                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ persona_form.sexo.label }}</label>
-                            {{ persona_form.sexo }}
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ persona_form.imagen.label }}</label><br>
-                            {{ persona_form.imagen }}
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Guardar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal fade" id="ModalAddCuota" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-         aria-hidden="true">
-        <form id="formCuota" method="post" enctype="multipart/form-data">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="ModalLabel">
-                            <b><i class="fas fa-user-plus"></i> Nuevo registro de una Cuota</b>
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label class="labels">{{ cuota_social_form.fecha_emision.label }}</label>
-                            <div class="input-group" id="div_id_fecha_emision"
-                                 data-target-input="nearest">
-                                <input type="text" name="fecha_emision" autocomplete="off"
-                                       placeholder="Fecha de emisión"
-                                       class="form-control  datetimepicker-input"
-                                       data-toggle="datetimepicker" data-target="#id_fecha_emision"
-                                       required=""
-                                       id="id_fecha_emision">
-                                <div class="input-group-append" data-target="#id_fecha_emision"
-                                     data-toggle="datetimepicker">
-                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ cuota_social_form.fecha_vencimiento.label }}</label>
-                            <div class="input-group" id="div_id_fecha_vencimiento"
-                                 data-target-input="nearest">
-                                <input type="text" name="fecha_vencimiento" autocomplete="off"
-                                       placeholder="Fecha de vencimiento"
-                                       class="form-control  datetimepicker-input"
-                                       data-toggle="datetimepicker" data-target="#id_fecha_vencimiento"
-                                       required=""
-                                       id="id_fecha_vencimiento">
-                                <div class="input-group-append" data-target="#id_fecha_vencimiento"
-                                     data-toggle="datetimepicker">
-                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="labels">{{ cuota_social_form.cargo_extra.label }}</label>
-                            {{ cuota_social_form.cargo_extra }}
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Guardar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
+    {% include 'admin/socio/modals/add-miembro.html' %}
+    {% include 'admin/socio/modals/add-persona.html' %}
+    {% include 'admin/socio/modals/add-cuota.html' %}
 {% endblock content %}
 
 {% block body_js %}
@@ -466,16 +299,25 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
     <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
     {% include 'includes/dataTable.html' %}
     <script>
+        // Inicializar los campos del modal de nuevo miembro.
         let ModalAddMiembro = $('#ModalAddMiembro');
-        $('#btn-add-miembro').click(function () { // Evento para mostrar el modal de agregar miembro
-            $('#id_persona').select2({
+        // Cuando el modal se cierra, se limpian los campos.
+        ModalAddMiembro.on('hidden.bs.modal', function () {
+            $(this).find('form')[0].reset();
+        });
+        let select_persona = $('#id_persona');
+        let select_categoria = $('#id_categoria');
+        let select_parentesco = $('#id_parentesco');
+
+        $('#open-ModalAddMiembro').click(function () {
+            select_persona.select2({
                 theme: 'bootstrap4',
                 placeholder: 'Seleccione una persona',
                 allowClear: true,
                 language: 'es',
                 dropdownParent: ModalAddMiembro
             });
-            $('#id_categoria').select2({
+            select_categoria.select2({
                 theme: 'bootstrap4',
                 allowClear: true,
                 placeholder: 'Seleccione una categoria',
@@ -483,7 +325,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                 language: 'es',
                 dropdownParent: ModalAddMiembro
             });
-            $('#id_parentesco').select2({
+            select_parentesco.select2({
                 theme: 'bootstrap4',
                 placeholder: 'Seleccione un parentesco',
                 allowClear: true,
@@ -493,14 +335,15 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
             });
             $('#ModalAddMiembro').modal('show');
         });
-        let select_categoria = $('#id_categoria');
-        $('#id_persona').on('change', function (e) { // El evento se activa cuando select Persona cambia
+
+        // Obtener las categorias que puede tener la persona seleccionada.
+        select_persona.on('change', function (e) { // El evento se activa cuando select Persona cambia
             if ($(this).val()) { // Verificar que el input Persona no este vacío
-                $.ajax({ // Realizar una petición AJAX para obtener las categorias que puede tener la persona
+                $.ajax({
                     url: window.location.pathname,
                     type: 'POST',
                     data: {
-                        'action': 'get_categoria', // Acción que se va a ejecutar en el backend
+                        'action': 'select_persona_change', // Acción que se va a ejecutar en el backend
                         'persona': $(this).val(), // Pasar el valor pk de la Persona
                         'csrfmiddlewaretoken': '{{ csrf_token }}'
                     },
@@ -519,13 +362,13 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                 });
             }
         });
-    </script>
-    <script>
-        $('#formMiembro').on('submit', function (e) { // Evento submit del formulario de miembro
+
+        // Evento submit del formulario de miembro
+        $('#formMiembro').on('submit', function (e) {
             e.preventDefault();
             let form = new FormData(this);
             form.append('action', 'add_miembro'); // Acción que se va a ejecutar en el backend
-            $.ajax({ // Realizar una petición AJAX para agregar un miembro
+            $.ajax({
                 url: window.location.pathname,
                 type: 'POST',
                 data: form,
@@ -534,7 +377,20 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                 processData: false,
                 success: function (data) {
                     if (!data.hasOwnProperty('error')) {
-                        location.reload();
+                        Swal.fire({
+                            position: 'top-end',
+                            title: 'Miembro agregado',
+                            text: 'El miembro se agregó correctamente',
+                            icon: 'success',
+                            confirmButtonText: 'Imprimir comprobante de operación',
+                            showCancelButton: true,
+                            cancelButtonText: 'Cerrar',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.open('/admin/socios/' + data.id + '/' + data.history_id + '/', '_blank');
+                            }
+                            location.reload();
+                        });
                     } else {
                         let errors = []
                         let code = data.code;
@@ -545,41 +401,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                         } else {
                             errors = data.error
                         }
-                        if (code === 'socio_exists') { // Si el código es 'socio_exists' mostrar un mensaje de error
-                            Swal.fire({
-                                title: 'Socio ya existe',
-                                position: 'top-end',
-                                text: data.message,
-                                icon: 'warning',
-                                showCancelButton: true,
-                                confirmButtonColor: '#3085d6',
-                                cancelButtonColor: '#d33',
-                                confirmButtonText: 'Agregar de todas formas',
-                                cancelButtonText: 'Cancelar'
-                            }).then((result) => {
-                                if (result.value) {
-                                    $.ajax({ // Realizar una petición AJAX para restaurar un miembro
-                                        url: window.location.pathname,
-                                        type: 'POST',
-                                        data: {
-                                            'action': 'add_socio_as_miembro', // Acción que se va a ejecutar en el backend
-                                            'persona': $('#id_persona').val(), // Pasar el valor pk de la Persona
-                                            'categoria': $('#id_categoria').val(), // Pasar el valor pk de la Categoria
-                                            'parentesco': $('#id_parentesco').val(), // Pasar el valor pk del Parentesco
-                                            'csrfmiddlewaretoken': '{{ csrf_token }}'
-                                        },
-                                        dataType: 'json',
-                                        success: function (data) {
-                                            if (!data.hasOwnProperty('error')) {
-                                                location.reload();
-                                            } else {
-                                                alert('Error al agregar el socio como miembro: ' + data.error)
-                                            }
-                                        }
-                                    });
-                                }
-                            });
-                        } else if (code === 'socio_deleted_exists') {
+                        if (code === 'socio_deleted_exists') {
                             Swal.fire({
                                 title: 'Socio eliminado',
                                 position: 'top-end',
@@ -588,7 +410,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                 showCancelButton: true,
                                 confirmButtonColor: '#3085d6',
                                 cancelButtonColor: '#d33',
-                                confirmButtonText: 'Restaurar y agregar miembro',
+                                confirmButtonText: 'Restaurarlo como miembro',
                                 cancelButtonText: 'Cancelar'
                             }).then((result) => {
                                 if (result.value) {
@@ -605,7 +427,20 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                         dataType: 'json',
                                         success: function (data) {
                                             if (!data.hasOwnProperty('error')) {
-                                                location.reload();
+                                                Swal.fire({
+                                                    position: 'top-end',
+                                                    title: 'Socio restaurado',
+                                                    text: 'El socio se restauró correctamente',
+                                                    icon: 'success',
+                                                    confirmButtonText: 'Imprimir comprobante de operación',
+                                                    showCancelButton: true,
+                                                    cancelButtonText: 'Cerrar',
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        window.open('/admin/socios/' + data.id + '/' + data.history_id + '/', '_blank');
+                                                    }
+                                                    location.reload();
+                                                });
                                             } else {
                                                 alert('Error al restaurar el socio: ' + data.error)
                                             }
@@ -632,8 +467,9 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
         });
     </script>
     <script>
+        // Inicializar los campos del modal de agregar persona.
         let ModalAddPersona = $('#ModalAddPersona');
-        $('#btn-add-persona').on('click', function () { // Evento para mostrar el modal de agregar persona
+        $('#open-ModalAddPersona').on('click', function () {
             $('#id_fecha_nacimiento').datetimepicker({
                 "format": "DD/MM/YYYY",
                 "icons": {"time": "fa fa-clock-o"},
@@ -650,12 +486,14 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                 language: 'es',
                 dropdownParent: ModalAddPersona
             });
-            $('#ModalAddPersona').modal('show');
+            ModalAddPersona.modal('show');
         });
-        $('#formPersona').on('submit', function (e) { // Evento submit del formulario de persona
+
+        // Evento submit del formulario de persona
+        $('#formPersona').on('submit', function (e) {
             e.preventDefault();
             let form = new FormData(this);
-            form.append('action', 'add_persona'); // Agregar la acción que se va a ejecutar en el backend
+            form.append('action', 'add_persona');
             $.ajax({
                 url: window.location.pathname,
                 type: 'POST',
@@ -667,12 +505,13 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                     if (!data.hasOwnProperty('error')) {
                         let newOption = new Option(data.__str__, data.id, false, true);
                         $('#id_persona').append(newOption).trigger('change');
-                        $('#ModalAddPersona').modal('hide');
+                        $('#formPersona')[0].reset();
+                        ModalAddPersona.modal('hide');
                         Swal.fire({
                             position: 'top-end',
                             icon: 'success',
                             title: 'Bien hecho!',
-                            text: 'Persona agregada correctamente',
+                            text: 'Se ha agregado una nueva persona',
                             showConfirmButton: false,
                             timer: 5000,
                             timerProgressBar: true,
@@ -719,36 +558,135 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
         });
     </script>
     <script>
-        $('.eliminar-miembro').on('click', function (e) {
+        $('.dataTable tbody').on('click', '.btn-delete', function (e) {
             e.preventDefault();
+            let socio_id = $(this).val();
             Swal.fire({
                 position: 'top-end',
-                title: '¿Está seguro de eliminar este socio?',
-                text: "¡No podrá revertir esto!",
+                title: '¿Está seguro que quiere dar de baja este socio?',
                 input: 'textarea',
-                inputPlaceholder: 'Motivo de la eliminación',
+                inputPlaceholder: 'Motivo de la baja',
                 inputAttributes: {
                     'required': true,
                 },
                 inputValidator: (value) => {
                     if (!value) {
-                        return 'Debe ingresar un motivo de la eliminación'
+                        return 'Debe ingresar un motivo de la baja'
                     }
                 },
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Si, eliminar!',
+                confirmButtonText: 'Si, dar de baja!',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Redireccionar al href del tag <a>
-                    window.location.href = $(this).attr('href') + '?motivo=' + result.value;
+                    $.ajax({
+                        url: window.location.pathname,
+                        type: 'POST',
+                        data: {
+                            'action': 'delete_socio',
+                            'id': socio_id,
+                            'motivo': result.value,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+                            if (!data.hasOwnProperty('error')) {
+                                Swal.fire({
+                                    position: 'top-end',
+                                    title: 'Socio dado de baja',
+                                    text: 'El socio se dio de baja correctamente',
+                                    icon: 'success',
+                                    confirmButtonText: 'Imprimir comprobante de operación',
+                                    showCancelButton: true,
+                                    cancelButtonText: 'Cerrar',
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.open('/admin/socios/' + data.id + '/' + data.history_id + '/', '_blank');
+                                    }
+                                    if (data.success_url) {
+                                        alert(data.success_url);
+                                        // Redireccionar a la url de éxito
+                                        window.location.href = data.success_url;
+                                    } else {
+                                        location.reload();
+                                    }
+                                });
+                            } else {
+                                Swal.fire({
+                                    position: 'top-end',
+                                    title: 'Error al dar de baja el socio',
+                                    text: data.error.replace('[', '').replace(']', ''),
+                                    icon: 'error',
+                                    confirmButtonText: 'Cerrar',
+                                })
+                            }
+                        }
+                    });
                 }
             })
         });
-        $('#btn-add-cuota').on('click', function () {
+
+        $('.dataTable tbody').on('click', '.btn-restore', function (e) {
+            e.preventDefault();
+            let socio_id = $(this).val();
+            Swal.fire({
+                position: 'top-end',
+                title: '¿Está seguro que quiere restaurar este socio?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Si, restaurar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: window.location.pathname,
+                        type: 'POST',
+                        data: {
+                            'action': 'restore_socio',
+                            'id': socio_id,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+                            if (!data.hasOwnProperty('error')) {
+                                Swal.fire({
+                                    position: 'top-end',
+                                    title: 'Socio restaurado',
+                                    text: 'El socio se restauró correctamente',
+                                    icon: 'success',
+                                    confirmButtonText: 'Imprimir comprobante de operación',
+                                    showCancelButton: true,
+                                    cancelButtonText: 'Cerrar',
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.open('/admin/socios/' + data.id + '/' + data.history_id + '/', '_blank');
+                                    }
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    position: 'top-end',
+                                    title: 'Error al restaurar el socio',
+                                    text: data.error.replace('[', '').replace(']', ''),
+                                    icon: 'error',
+                                    confirmButtonText: 'Cerrar',
+                                })
+                            }
+                        }
+                    });
+                }
+            })
+        });
+    </script>
+    <script>
+        // Inicializar los campos del modal de agregar cuota
+        let ModalAddCuota = $('#ModalAddCuota');
+        $('#open-ModalAddCuota').on('click', function () {
             $('#id_fecha_emision').datetimepicker({
                 "icons": {"time": "fa-regular fa-clock"},
                 "locale": "es-AR",

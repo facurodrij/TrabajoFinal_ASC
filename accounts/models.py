@@ -48,7 +48,10 @@ class User(AbstractUser, SoftDeleteModel):
     REQUIRED_FIELDS = ['email']
 
     def __str__(self):
-        return self.username
+        try:
+            return self.persona.get_full_name()
+        except ObjectDoesNotExist:
+            return self.username
 
     def is_admin(self):
         """

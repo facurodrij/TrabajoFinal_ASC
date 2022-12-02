@@ -1,0 +1,61 @@
+<div class="modal fade" id="ModalAddCuota" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+    <form id="formCuota" method="post" enctype="multipart/form-data">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">
+                        <b><i class="fas fa-user-plus"></i> Nuevo registro de una Cuota</b>
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="labels">{{ cuota_social_form.fecha_emision.label }}</label>
+                        <div class="input-group" id="div_id_fecha_emision"
+                             data-target-input="nearest">
+                            <input type="text" name="fecha_emision" autocomplete="off"
+                                   placeholder="Fecha de emisión"
+                                   class="form-control  datetimepicker-input"
+                                   data-toggle="datetimepicker" data-target="#id_fecha_emision"
+                                   required=""
+                                   id="id_fecha_emision">
+                            <div class="input-group-append" data-target="#id_fecha_emision"
+                                 data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="labels">{{ cuota_social_form.fecha_vencimiento.label }}</label>
+                        <div class="input-group" id="div_id_fecha_vencimiento"
+                             data-target-input="nearest">
+                            <input type="text" name="fecha_vencimiento" autocomplete="off"
+                                   placeholder="Fecha de vencimiento"
+                                   class="form-control  datetimepicker-input"
+                                   data-toggle="datetimepicker" data-target="#id_fecha_vencimiento"
+                                   required=""
+                                   id="id_fecha_vencimiento">
+                            <div class="input-group-append" data-target="#id_fecha_vencimiento"
+                                 data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="labels">{{ cuota_social_form.cargo_extra.label }}</label>
+                        {{ cuota_social_form.cargo_extra }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

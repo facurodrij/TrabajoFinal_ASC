@@ -144,7 +144,7 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 data['error'] = 'Ha ocurrido un error, intente nuevamente'
         except Exception as e:
             data['error'] = str(e)
-        print(data)
+        print('SocioAdminListView: POST data: ', data)
         return JsonResponse(data, safe=False)
 
 
@@ -167,8 +167,12 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
             socio__socio_titular=self.get_object())
         context['title'] = 'Detalle de Socio'
         # Obtener los miembros del socio y el socio titular
-        context['miembros'] = Socio.global_objects.filter(
-            Q(socio_titular=self.get_object()) | Q(pk=self.get_object().pk))
+        if self.get_object().es_titular():
+            context['miembros'] = Socio.global_objects.filter(
+                Q(socio_titular=self.get_object()) | Q(pk=self.get_object().pk))
+        else:
+            context['miembros'] = Socio.global_objects.filter(
+                Q(socio_titular=self.get_object().socio_titular) | Q(pk=self.get_object().socio_titular.pk))
         context['miembro_form'] = miembro_form
         context['persona_form'] = PersonaFormAdmin()
         context['cuota_social_form'] = CuotaSocialForm()
@@ -193,22 +197,7 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                         miembro_form.save()
                         messages.success(request, 'Miembro agregado correctamente')
                 else:
-                    try:
-                        # Si el error es por la persona
-                        data['error'] = miembro_form.errors['persona'][0]
-                        if Socio.objects.filter(persona_id=request.POST['persona']).exists():
-                            socio = Socio.objects.get(persona_id=request.POST['persona'])
-                            # Si la persona seleccionada es socio titular y tiene socios agregados, no se puede agregar
-                            if socio.get_miembros().exists():
-                                data['error'] = 'La persona seleccionada es socio titular y' \
-                                                ' tiene miembros agregados, no se puede agregar como miembro'
-                            else:
-                                data['code'] = 'socio_exists'
-                                data['message'] = 'La persona seleccionada es un socio,' \
-                                                  ' ¿Seguro desea agregarlo como miembro?'
-                    except Exception as e:
-                        print(e)
-                        data['error'] = miembro_form.errors
+                    data['error'] = miembro_form.errors
             elif action == 'add_persona':
                 # Si la acción es create_persona, se crea una nueva persona
                 persona_form = PersonaFormAdmin(request.POST, request.FILES)
@@ -220,17 +209,8 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                         data = persona.toJSON()
                 else:
                     data['error'] = persona_form.errors
-            elif action == 'get_categoria':
-                # Si la acción es get_categoria, se obtiene las categorias que puede tener el socio
-                data = []
-                # Obtener la edad de la Persona
-                persona_id = request.POST['persona']
-                edad = Persona.objects.get(pk=persona_id).get_edad()
-                # Obtener las categorias que corresponden a la edad, incluyendo la primera categoria
-                categorias = Categoria.objects.filter((Q(edad_desde__lte=edad) & Q(edad_hasta__gte=edad)) | Q(pk=1))
-                for categoria in categorias:
-                    item = categoria.toJSON()
-                    data.append(item)
+            elif action == 'select_persona_change':
+                data = get_categoria(persona=request.POST['persona'])
             elif action == 'restore_socio_as_miembro':
                 # Si la acción es restore_socio, se restaura un socio eliminado
                 persona = request.POST['persona']
@@ -250,20 +230,26 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                     socio.parentesco_id = parentesco
                     socio.save()
                     data = socio.toJSON()
-                    messages.success(request, 'Socio restaurado y agregado como miembro correctamente')
-            elif action == 'add_socio_as_miembro':
-                # Si la acción es add_socio_as_miembro, se agrega un socio como miembro
-                persona = request.POST['persona']
-                categoria = request.POST['categoria']
-                parentesco = request.POST['parentesco']
+                    data['history_id'] = socio.history.first().pk
+            elif action == 'delete_socio':
+                # Si la acción es delete_socio, se elimina el socio
+                socio = Socio.objects.get(pk=request.POST['id'])
+                motivo = request.POST['motivo']
                 with transaction.atomic():
-                    socio = Socio.objects.get(persona_id=persona)
-                    socio.socio_titular_id = self.get_object().pk
-                    socio.categoria_id = categoria
-                    socio.parentesco_id = parentesco
-                    socio.save()
-                    data = socio.toJSON()
-                    messages.success(request, 'Socio agregado como miembro correctamente')
+                    socio._change_reason = motivo
+                    socio.delete(cascade=True)
+                    data['id'] = request.POST['id']
+                    data['history_id'] = socio.history.first().pk
+                    if socio.es_titular():
+                        data['success_url'] = reverse_lazy('admin-socio-listado')
+                        messages.success(request, 'Socio eliminado correctamente')
+            elif action == 'restore_socio':
+                # Si la acción es restore_socio, se restaura el miembro
+                socio = Socio.deleted_objects.get(pk=request.POST['id'])
+                with transaction.atomic():
+                    socio.restore()
+                    data['id'] = request.POST['id']
+                    data['history_id'] = socio.history.first().pk
             elif action == 'add_cuota_social':
                 # Si la acción es add_cuota_social, se agrega una cuota social
                 cuota_social_form = CuotaSocialForm(request.POST)
@@ -306,6 +292,7 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                 data['error'] = 'Ha ocurrido un error, intente nuevamente'
         except Exception as e:
             data['error'] = str(e)
+        print('SocioAdminDetailView: POST data: ', data)
         return JsonResponse(data, safe=False)
 
 
