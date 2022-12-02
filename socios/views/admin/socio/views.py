@@ -2,20 +2,17 @@ from datetime import datetime
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.files.storage import FileSystemStorage
 from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponse
 from django.http import JsonResponse
-from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, UpdateView
 from weasyprint import HTML, CSS
 
-from accounts.decorators import admin_required
 from accounts.forms import *
 from core.models import Club
 from parameters.models import SociosParameters
@@ -60,6 +57,7 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                                               ' ¿Desea restaurarlo y convertirlo en socio titular?'
                         form.save()
                         data['id'] = form.instance.id
+                        data['history_id'] = form.instance.history.first().pk
                 else:
                     data['error'] = form.errors
             elif action == 'add_persona':
@@ -81,9 +79,10 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 edad = Persona.objects.get(pk=request.POST['persona']).get_edad()
                 tutor_required = True if edad < edad_minima_titular else False
                 data.append({'tutor_required': tutor_required})
-            elif action == 'restore_socio':
-                # Si la acción es restore_socio, si el socio es mayor de edad_minima_titular años
-                # se lo restaura como titular, si no se lo restaura como miembro
+            elif action == 'restore_socio_from_modal':
+                # Si la acción es restore_socio_from_modal, si el socio es mayor de
+                # edad_minima_titular años se lo restaura como titular, si no se lo
+                # restaura como miembro, con los datos enviados desde el modal.
                 persona = request.POST['persona']
                 categoria = request.POST['categoria']
                 socio_titular = request.POST['socio_titular']
@@ -105,6 +104,7 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                         socio.save()
                         data = socio.toJSON()
                         messages.success(request, 'Se ha restaurado el socio como socio titular')
+                    data['history_id'] = socio.history.first().pk
             elif action == 'delete_socio':
                 # Si la acción es delete_socio, se elimina el socio
                 socio = Socio.objects.get(pk=request.POST['id'])
@@ -113,10 +113,38 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                     socio._change_reason = motivo
                     socio.delete(cascade=True)
                     data['id'] = request.POST['id']
+                    data['history_id'] = socio.history.first().pk
+            elif action == 'restore_socio':
+                # Si la acción es restore_socio, se restaura el socio
+                socio = Socio.deleted_objects.get(pk=request.POST['id'])
+                with transaction.atomic():
+                    if not socio.get_related_objects():
+                        edad_minima_titular = SociosParameters.objects.get(club_id=1).edad_minima_socio_titular
+                        socio.restore()
+                        if socio.es_titular() and socio.persona.get_edad() < edad_minima_titular:
+                            raise ValidationError(
+                                'El socio que intenta restaurar es menor de {} años y no tiene tutor a cargo. '
+                                'Agréguelo manualmente con un titular a cargo.'.format(edad_minima_titular))
+                        if not socio.es_titular() and socio.socio_titular.is_deleted:
+                            if socio.persona.get_edad() < edad_minima_titular:
+                                raise ValidationError(
+                                    'El socio que intenta restaurar es menor de {} años y no tiene tutor a cargo '
+                                    'activo. Agréguelo manualmente con un titular a cargo.'.format(edad_minima_titular))
+                            else:
+                                raise ValidationError(
+                                    'El socio titular del miembro que intenta restaurar está eliminado. '
+                                    'Agréguelo manualmente como titular o como miembro de un titular activo.')
+                        data['id'] = request.POST['id']
+                        data['history_id'] = socio.history.first().pk
+                    else:
+                        socio.restore(cascade=True)
+                        data['id'] = request.POST['id']
+                        data['history_id'] = socio.history.first().pk
             else:
                 data['error'] = 'Ha ocurrido un error, intente nuevamente'
         except Exception as e:
             data['error'] = str(e)
+        print(data)
         return JsonResponse(data, safe=False)
 
 
@@ -353,46 +381,18 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
         return JsonResponse(data, safe=False)
 
 
-@login_required
-@admin_required
-def socio_restore(request, pk):
-    """
-    Restaurar un socio eliminado
-    """
-    socio = Socio.deleted_objects.get(pk=pk)
-    try:
-        if not socio.get_related_objects():
-            with transaction.atomic():
-                edad_minima_titular = SociosParameters.objects.get(club_id=1).edad_minima_socio_titular
-                socio.restore()
-                if socio.es_titular() and socio.persona.get_edad() < edad_minima_titular:
-                    raise ValidationError(
-                        'El socio que intenta restaurar es menor de {} años y no tiene tutor a cargo. '
-                        'Agréguelo manualmente con un titular a cargo.'.format(edad_minima_titular))
-                messages.success(request, 'Socio restaurado correctamente')
-        else:
-            with transaction.atomic():
-                socio.restore(cascade=True)
-                messages.success(request, 'Socio y miembros restaurado correctamente')
-    # Capturar el ValidationError si el socio ya existe
-    except ValidationError as e:
-        messages.error(request, e.message)
-    # Recargar la página actual
-    return redirect(request.META.get('HTTP_REFERER'))
-
-
-def socio_comprobante_operacion(request, pk, operacion):
-    socio = Socio.global_objects.get(pk=pk)
+def socio_history_pdf(request, socio_pk, history_pk):
+    socio = Socio.global_objects.get(pk=socio_pk)
     club = Club.objects.get(pk=1)
-    historial = socio.history.first()
-    html_string = render_to_string('admin/socio/comprobante_operacion.html', {'historial': historial,
-                                                                              'club': club,
-                                                                              'operacion': operacion})
+    history = socio.history.get(pk=history_pk)
+    html_string = render_to_string('admin/socio/history_pdf.html', {'history': history,
+                                                                    'socio': socio,
+                                                                    'club': club})
     html = HTML(string=html_string, base_url=request.build_absolute_uri())
-    html.write_pdf(target='/tmp/comprobante_operacion.pdf',
-                   stylesheets=[CSS('{}/libs/bootstrap-4.6.2/bootstrap.min.css'.format(settings.STATIC_ROOT))])
+    html.write_pdf(target='/tmp/socio_historial.pdf',
+                   stylesheets=[CSS('{}/libs/bootstrap-4.6.2/bootstrap.min.css'.format(settings.STATICFILES_DIRS[0]))])
     fs = FileSystemStorage('/tmp')
-    with fs.open('comprobante_operacion.pdf') as pdf:
+    with fs.open('socio_historial.pdf') as pdf:
         response = HttpResponse(pdf, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="comprobante_operacion.pdf"'
+        response['Content-Disposition'] = 'attachment; filename="socio_historial.pdf"'
         return response

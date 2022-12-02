@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>comprobante-operación</title>
+    <title>Socio Historial</title>
     <style>
         @page {
             size: A5 landscape;
@@ -43,26 +43,27 @@
 </head>
 <body>
 <section>
-    {% if operacion == '+' %}
+    {% if history.history_type == '+' %}
         <h1>Comprobante Alta de Socio</h1>
-    {% elif operacion == '-' %}
+    {% elif history.history_type == '~' and history.is_deleted %}
         <h1>Comprobante Baja de Socio</h1>
-    {% elif operacion == '~' %}
-        <h1>Comprobante Modificación de Socio</h1>
-    {% elif operacion == '~+' %}
+    {% elif history.history_type == '~' %}
         <h1>Comprobante Restauración de Socio</h1>
     {% endif %}
     <ul>
-        <li>Nombre: {{ historial.persona.nombre }}</li>
-        <li>Apellido: {{ historial.persona.apellido }}</li>
-        <li>DNI: {{ historial.persona.dni }}</li>
-        <li>Fecha de Nacimiento: {{ historial.persona.fecha_nacimiento }}</li>
-        <li>Categoria: {{ historial.categoria }}</li>
+        <li>Nombre: {{ history.persona.nombre }}</li>
+        <li>Apellido: {{ history.persona.apellido }}</li>
+        <li>DNI: {{ history.persona.dni }}</li>
+        <li>Fecha de Nacimiento: {{ history.persona.fecha_nacimiento }}</li>
+        <li>Categoria: {{ history.categoria }}</li>
     </ul>
     <ul>
-        <li>Numero de operación: {{ historial.history_id }}</li>
-        <li>Operador: {{ historial.history_user }}</li>
-        <li>Fecha de operación: {{ historial.history_date }}</li>
+        <li>Numero de operación: {{ history.history_id }}</li>
+        <li>Operador: {{ history.history_user }}</li>
+        <li>Fecha de operación: {{ history.history_date }}</li>
+        {% if history.history_type == '~' and history.is_deleted %}
+            <li>Motivo de la baja: {{ history.history_change_reason }}</li>
+        {% endif %}
     </ul>
 </section>
 </body>
