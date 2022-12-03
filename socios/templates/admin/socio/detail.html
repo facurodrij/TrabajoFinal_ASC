@@ -764,7 +764,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                 }
             })
         });
-        $('.mark-as-paid').on('click', function (e) {
+        $('.mark-as-paid').on('click', function (e) { // TODO: Cambiar para que funcione entre paginas
             e.preventDefault();
             let cuota_id = $(this).val();
             Swal.fire({

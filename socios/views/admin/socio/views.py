@@ -1,6 +1,6 @@
 from datetime import datetime, date
-import pytz
 
+import pytz
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -295,9 +295,36 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
             elif action == 'mark_as_paid':
                 # Si la acción es mark_as_paid, se marca una cuota social como pagada
                 # TODO: Actualizar la acción mark_as_paid para que se pueda marcar como pagada una cuota social
+                aumento_por_cuota_vencida = SociosParameters.objects.get(pk=1).aumento_por_cuota_vencida
                 cuota_social_id = request.POST['id']
                 cuota_social = CuotaSocial.objects.get(pk=cuota_social_id)
+                # Calcular intereses
+                if cuota_social.fecha_vencimiento < datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')):
+                    # Calcular los meses de atraso
+                    meses_atraso = (datetime.now(pytz.timezone(
+                        'America/Argentina/Buenos_Aires')).year - cuota_social.fecha_vencimiento.year) * 12 + (
+                                               datetime.now(pytz.timezone(
+                                                   'America/Argentina/Buenos_Aires')).month - cuota_social.fecha_vencimiento.month)
+                    interes = cuota_social.total * (aumento_por_cuota_vencida / 100) * meses_atraso
+                with transaction.atomic():
+                    cuota_social.pagada = True
+                    cuota_social.fecha_pago = datetime.now(pytz.timezone('America/Argentina/Buenos_Aires'))
+                    cuota_social.cargo_extra += interes
+                    if interes > 0:
+                        cuota_social.observaciones += 'Intereses por atraso: $' + str(interes)
+                    cuota_social.save()
+                    data['id'] = request.POST['id']
+                    data['history_id'] = cuota_social.history.first().pk
+                periodo = date(int(cuota_social.periodo_anio), int(cuota_social.periodo_mes), 1)
+                # Aumentar el total_pagado. Por cada mes pasado desde el mes de fecha_vencimiento, se aumenta el total_pagado
+                # en el porcentaje de aumento_por_cuota_vencida
+                total_pagado = cuota_social.total
+                if cuota_social.fecha_vencimiento < date.today():
+                    meses_vencidos = (date.today().year - cuota_social.fecha_vencimiento.year) * 12 + \
+                                     date.today().month - cuota_social.fecha_vencimiento.month
+                    total_pagado += total_pagado * (aumento_por_cuota_vencida / 100) * meses_vencidos
                 cuota_social.fecha_pago = datetime.now()
+                cuota_social.total_pagado = total_pagado
                 cuota_social.save()
                 messages.success(request, 'Cuota social marcada como pagada correctamente')
             else:
