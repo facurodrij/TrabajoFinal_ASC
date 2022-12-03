@@ -73,6 +73,9 @@ class Socio(SoftDeleteModel):
         if not self.es_titular():
             if not self.socio_titular.es_titular():
                 raise ValidationError(_('Un socio no puede ser miembro de otro miembro.'))
+            if self.parentesco.menor_al_titular:
+                if self.persona.get_edad() >= self.socio_titular.persona.get_edad():
+                    raise ValidationError(_('La edad del miembro debe ser menor a la del titular.'))
         # Un socio titular no puede ser menor de 16 años
         if self.es_titular():
             edad_minima_titular = SociosParameters.objects.get(club_id=1).edad_minima_socio_titular

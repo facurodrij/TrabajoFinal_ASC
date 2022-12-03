@@ -95,12 +95,12 @@ class CustomLoginView(LoginView):
         user = form.get_user()
         login(self.request, user)
         if not user.is_admin():
-            if user.persona.get_socio() is None:
+            if user.persona.get_socio(global_objects=True) is None:
                 messages.error(self.request, 'Su cuenta no está asociada a un socio de la institución.')
                 return redirect('logout')
-            if not user.persona.get_socio().get_estado():
-                messages.error(self.request, 'Su cuenta estado de socio está inactivo. Descripción: {}')
-                # TODO: Agregar descripción del estado del socio
+            if user.persona.get_socio(global_objects=True).is_deleted:
+                messages.error(self.request, 'Su cuenta de socio ha sido dada de baja.')
+                # TODO: Agregar motivo de la baja
                 return redirect('logout')
         return super().form_valid(form)
 

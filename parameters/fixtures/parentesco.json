@@ -1,16 +1,42 @@
 [
   {
-    "model": "parameters.Parentesco",
+    "model": "parameters.parentesco",
     "pk": 1,
     "fields": {
-      "nombre": "Hijo/a"
+      "nombre": "Hijo/a",
+      "menor_al_titular": true
     }
   },
   {
-    "model": "parameters.Parentesco",
+    "model": "parameters.parentesco",
     "pk": 2,
     "fields": {
-      "nombre": "Conyuge"
+      "nombre": "Cónyuge",
+      "menor_al_titular": false
+    }
+  },
+  {
+    "model": "parameters.parentesco",
+    "pk": 3,
+    "fields": {
+      "nombre": "Hermano/a",
+      "menor_al_titular": false
+    }
+  },
+  {
+    "model": "parameters.parentesco",
+    "pk": 4,
+    "fields": {
+      "nombre": "Nieto/a",
+      "menor_al_titular": true
+    }
+  },
+  {
+    "model": "parameters.parentesco",
+    "pk": 5,
+    "fields": {
+      "nombre": "Sobrino/a",
+      "menor_al_titular": false
     }
   }
 ]
