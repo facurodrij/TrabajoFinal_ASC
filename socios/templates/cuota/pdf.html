@@ -57,7 +57,7 @@
         <div class="col-6 text-right">
             <ul class="px-0 list-unstyled">
                 <li><span class="text-muted">Fecha emisión :</span> {{ cuota.get_fecha_emision }}</li>
-                <li><span class="text-muted">Período facturado :</span> {{ cuota.get_periodo }}</li>
+                <li><span class="text-muted">Período adeudado :</span> {{ cuota.get_periodo }}</li>
             </ul>
         </div>
     </div>
@@ -99,12 +99,17 @@
 <div class="row">
     <div class="col-7 text-left">
         <hr>
-        <p class="lead">Observaciones:</p>
-        {% if not cuota.is_deleted %}
-            <p class="text-muted">Sin observaciones</p>
-        {% else %}
+        <p class="lead">Observaciones: {{ cuota.observaciones }}</p>
+        {% if cuota.is_pagada %}
+            <div class="alert alert-success" role="alert">
+                <h4 class="alert-heading">Pagada! <i class="fa-solid fa-check-double"></i></h4>
+                <p>Esta cuota ya fue pagada.</p>
+                <hr>
+                <p class="mb-0">Fecha de pago: {{ cuota.get_fecha_pago }}</p>
+            </div>
+        {% elif cuota.is_deleted %}
             <div class="alert alert-danger" role="alert">
-                <h4 class="alert-heading">Factura Anulada! <i class="fa-solid fa-ban"></i></h4>
+                <h4 class="alert-heading">Deuda Anulada! <i class="fa-solid fa-ban"></i></h4>
                 <p>{{ cuota.get_motivo_anulacion }}</p>
             </div>
         {% endif %}

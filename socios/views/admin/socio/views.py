@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, date
+import pytz
 
 from django.conf import settings
 from django.contrib import messages
@@ -176,6 +177,7 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
         context['miembro_form'] = miembro_form
         context['persona_form'] = PersonaFormAdmin()
         context['cuota_social_form'] = CuotaSocialForm()
+        context['cuota_social_form'].fields['persona'].initial = self.get_object().persona
         context['cuotas_sociales'] = CuotaSocial.global_objects.filter(detallecuotasocial__socio=self.get_object())
         return context
 
@@ -196,6 +198,8 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                                               ' ¿Desea restaurarlo y agregarlo como miembro?'
                         miembro_form.save()
                         messages.success(request, 'Miembro agregado correctamente')
+                        data['id'] = miembro_form.instance.id
+                        data['history_id'] = miembro_form.instance.history.first().pk
                 else:
                     data['error'] = miembro_form.errors
             elif action == 'add_persona':
@@ -251,38 +255,46 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                     data['id'] = request.POST['id']
                     data['history_id'] = socio.history.first().pk
             elif action == 'add_cuota_social':
-                # Si la acción es add_cuota_social, se agrega una cuota social
-                cuota_social_form = CuotaSocialForm(request.POST)
-                if cuota_social_form.is_valid():
+                # Si la acción es add_cuota_social, se agregan las cuotas sociales
+                if CuotaSocialForm(request.POST).is_valid():
+                    periodo_mes = request.POST.getlist('meses')
                     with transaction.atomic():
-                        cuota_social = cuota_social_form.save(commit=False)
-                        cuota_social.persona = self.get_object().persona
-                        cuota_social.save()
-                        # Agregar el detalle de la cuota social
-                        detalle = DetalleCuotaSocial()
-                        detalle.cuota_social = cuota_social
-                        detalle.socio = self.get_object()
-                        detalle.nombre_completo = self.get_object().persona.get_full_name()
-                        detalle.categoria = self.get_object().categoria.__str__()
-                        detalle.save()
-                        for miembro in self.get_object().get_miembros():
-                            detalle_miembro = DetalleCuotaSocial()
-                            detalle_miembro.cuota_social = cuota_social
-                            detalle_miembro.socio = miembro
-                            detalle_miembro.nombre_completo = miembro.persona.get_full_name()
-                            detalle_miembro.categoria = miembro.categoria.__str__()
-                            detalle_miembro.save()
-                        # Generar el total, sumando los totales parciales de los detalles relacionados.
-                        total = cuota_social.cargo_extra
-                        for detalle in cuota_social.detallecuotasocial_set.all():
-                            total += detalle.total_parcial
-                        cuota_social.total = total
-                        cuota_social.save()
-                        messages.success(request, 'Cuota social agregada correctamente')
+                        for mes in periodo_mes:
+                            cuota_social = CuotaSocialForm(request.POST).save(commit=False)
+                            cuota_social.periodo_mes = mes
+                            # fecha_emision = datetime.now con timezone de argentina
+                            cuota_social.fecha_emision = datetime.now(pytz.timezone('America/Argentina/Buenos_Aires'))
+                            parameters_dia_vencimiento = SociosParameters.objects.get(pk=1).dia_vencimiento_cuota
+                            cuota_social.fecha_vencimiento = date(int(cuota_social.periodo_anio),
+                                                                  int(cuota_social.periodo_mes),
+                                                                  int(parameters_dia_vencimiento))
+                            cuota_social.save()
+                            # Agregar el detalle de la cuota social
+                            detalle = DetalleCuotaSocial()
+                            detalle.cuota_social = cuota_social
+                            detalle.socio = self.get_object()
+                            detalle.nombre_completo = self.get_object().persona.get_full_name()
+                            detalle.categoria = self.get_object().categoria.__str__()
+                            detalle.save()
+                            for miembro in self.get_object().get_miembros():
+                                detalle_miembro = DetalleCuotaSocial()
+                                detalle_miembro.cuota_social = cuota_social
+                                detalle_miembro.socio = miembro
+                                detalle_miembro.nombre_completo = miembro.persona.get_full_name()
+                                detalle_miembro.categoria = miembro.categoria.__str__()
+                                detalle_miembro.save()
+                            # Generar el total, sumando los totales parciales de los detalles relacionados.
+                            total = cuota_social.cargo_extra
+                            for detalle in cuota_social.detallecuotasocial_set.all():
+                                total += detalle.total_parcial
+                            cuota_social.total = total
+                            cuota_social.save()
+                        messages.success(request, 'Cuota/s social/es agregada/s correctamente')
                 else:
-                    data['error'] = cuota_social_form.errors
+                    data['error'] = CuotaSocialForm(request.POST).errors
             elif action == 'mark_as_paid':
                 # Si la acción es mark_as_paid, se marca una cuota social como pagada
+                # TODO: Actualizar la acción mark_as_paid para que se pueda marcar como pagada una cuota social
                 cuota_social_id = request.POST['id']
                 cuota_social = CuotaSocial.objects.get(pk=cuota_social_id)
                 cuota_social.fecha_pago = datetime.now()
@@ -381,5 +393,5 @@ def socio_history_pdf(request, socio_pk, history_pk):
     fs = FileSystemStorage('/tmp')
     with fs.open('socio_historial.pdf') as pdf:
         response = HttpResponse(pdf, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="socio_historial.pdf"'
+        response['Content-Disposition'] = 'filename="socio_historial.pdf"'
         return response

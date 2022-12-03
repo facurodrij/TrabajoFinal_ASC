@@ -50,7 +50,7 @@ class User(AbstractUser, SoftDeleteModel):
     def __str__(self):
         try:
             return self.persona.get_full_name()
-        except ObjectDoesNotExist:
+        except AttributeError:
             return self.username
 
     def is_admin(self):

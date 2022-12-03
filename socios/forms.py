@@ -112,12 +112,19 @@ class CuotaSocialForm(forms.ModelForm):
     """
     Formulario para crear una cuota social.
     """
+    con_vencimiento = forms.BooleanField(required=False,
+                                         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
+    meses = forms.MultipleChoiceField(required=True,
+                                      choices=CuotaSocial.MESES,
+                                      widget=forms.SelectMultiple(attrs={'class': 'form-control', 'size': '12'}))
 
     class Meta:
         model = CuotaSocial
-        fields = ['fecha_emision', 'fecha_vencimiento', 'cargo_extra']
+        fields = ['persona', 'periodo_anio', 'cargo_extra', 'observaciones']
         widgets = {
-            'fecha_emision': forms.DateTimeInput(),
-            'fecha_vencimiento': forms.DateTimeInput(),
+            'persona': forms.HiddenInput(),
+            # 'periodo_mes': forms.SelectMultiple(attrs={'class': 'form-control', 'size': '12'}),
+            'periodo_anio': forms.DateTimeInput(attrs={'class': 'form-control'}),
             'cargo_extra': forms.NumberInput(attrs={'class': 'form-control', 'value': 0}),
+            'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }

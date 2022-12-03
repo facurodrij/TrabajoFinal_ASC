@@ -13,33 +13,23 @@
                 </div>
                 <div class="modal-body">
                     {% csrf_token %}
+                    {{ cuota_social_form.persona }}
+                    <h3>Período de Deuda</h3>
                     <div class="form-group">
-                        <label class="labels">{{ cuota_social_form.fecha_emision.label }}</label>
-                        <div class="input-group" id="div_id_fecha_emision"
-                             data-target-input="nearest">
-                            <input type="text" name="fecha_emision" autocomplete="off"
-                                   placeholder="Fecha de emisión"
-                                   class="form-control  datetimepicker-input"
-                                   data-toggle="datetimepicker" data-target="#id_fecha_emision"
-                                   required=""
-                                   id="id_fecha_emision">
-                            <div class="input-group-append" data-target="#id_fecha_emision"
-                                 data-toggle="datetimepicker">
-                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                            </div>
-                        </div>
+                        <label for="id_meses">Meses</label>
+                        {{ cuota_social_form.meses }}
                     </div>
                     <div class="form-group">
-                        <label class="labels">{{ cuota_social_form.fecha_vencimiento.label }}</label>
-                        <div class="input-group" id="div_id_fecha_vencimiento"
+                        <label class="labels">{{ cuota_social_form.periodo_anio.label }}</label>
+                        <div class="input-group" id="div_id_periodo_anio"
                              data-target-input="nearest">
-                            <input type="text" name="fecha_vencimiento" autocomplete="off"
-                                   placeholder="Fecha de vencimiento"
+                            <input type="text" name="periodo_anio" autocomplete="off"
+                                   placeholder="Año"
                                    class="form-control  datetimepicker-input"
-                                   data-toggle="datetimepicker" data-target="#id_fecha_vencimiento"
+                                   data-toggle="datetimepicker" data-target="#id_periodo_anio"
                                    required=""
-                                   id="id_fecha_vencimiento">
-                            <div class="input-group-append" data-target="#id_fecha_vencimiento"
+                                   id="id_periodo_anio">
+                            <div class="input-group-append" data-target="#id_periodo_anio"
                                  data-toggle="datetimepicker">
                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                             </div>

@@ -6,7 +6,8 @@
       "nombre": "Sin categoria",
       "cuota": 0.00,
       "edad_desde": 0,
-      "edad_hasta": 0
+      "edad_hasta": 0,
+      "se_factura": false
     }
   },
   {
@@ -16,7 +17,8 @@
       "nombre": "Infantil Básico",
       "cuota": 2200.00,
       "edad_desde": 0,
-      "edad_hasta": 12
+      "edad_hasta": 12,
+      "se_factura": true
     }
   },
   {
@@ -26,7 +28,8 @@
       "nombre": "Infantil Premium",
       "cuota": 2500.00,
       "edad_desde": 0,
-      "edad_hasta": 12
+      "edad_hasta": 12,
+      "se_factura": true
     }
   },
   {
@@ -36,7 +39,8 @@
       "nombre": "Adolescente Básico",
       "cuota": 2600.00,
       "edad_desde": 13,
-      "edad_hasta": 17
+      "edad_hasta": 17,
+      "se_factura": true
     }
   },
   {
@@ -46,7 +50,8 @@
       "nombre": "Adolescente Premium",
       "cuota": 3000.00,
       "edad_desde": 13,
-      "edad_hasta": 17
+      "edad_hasta": 17,
+      "se_factura": true
     }
   },
   {
@@ -56,7 +61,8 @@
       "nombre": "Adulto Básico",
       "cuota": 3500.00,
       "edad_desde": 18,
-      "edad_hasta": 150
+      "edad_hasta": 150,
+      "se_factura": true
     }
   },
   {
@@ -66,7 +72,8 @@
       "nombre": "Adulto Premium",
       "cuota": 4000.00,
       "edad_desde": 18,
-      "edad_hasta": 150
+      "edad_hasta": 150,
+      "se_factura": true
     }
   }
 ]
