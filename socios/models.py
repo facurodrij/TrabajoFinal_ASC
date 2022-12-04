@@ -11,7 +11,7 @@ from num2words import num2words
 from simple_history.models import HistoricalRecords
 
 from accounts.models import PersonaAbstract
-from parameters.models import SociosParameters
+from parameters.models import SocioParameters
 
 locale.setlocale(locale.LC_ALL, 'es_AR.UTF-8')
 
@@ -78,7 +78,7 @@ class Socio(SoftDeleteModel):
                     raise ValidationError(_('La edad del miembro debe ser menor a la del titular.'))
         # Un socio titular no puede ser menor de 16 años
         if self.es_titular():
-            edad_minima_titular = SociosParameters.objects.get(club_id=1).edad_minima_socio_titular
+            edad_minima_titular = SocioParameters.objects.get(club_id=1).edad_minima_socio_titular
             if self.persona.get_edad() < edad_minima_titular:
                 raise ValidationError(_('Un socio titular no puede ser menor de {} años.'.format(edad_minima_titular)))
 
@@ -229,17 +229,17 @@ class CuotaSocial(SoftDeleteModel):
     periodo_anio = models.PositiveIntegerField(verbose_name='Año', validators=[MinValueValidator(1900)])
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Total')
     cargo_extra = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Cargo extra')
-    fecha_pago = models.DateTimeField(verbose_name='Fecha de pago', null=True, blank=True)
-    total_pagado = models.DecimalField(max_digits=10,
-                                       decimal_places=2,
-                                       verbose_name='Total pagado',
-                                       null=True,
-                                       blank=True)
     observaciones = models.TextField(verbose_name='Observaciones', null=True, blank=True)
     history = HistoricalRecords()
 
     def is_pagada(self):
-        return True if self.fecha_pago else False
+        try:
+            if not self.pagocuotasocial.is_deleted:
+                return True
+            else:
+                return False
+        except AttributeError:
+            return False
 
     def get_estado(self):
         if self.is_pagada():
@@ -255,7 +255,7 @@ class CuotaSocial(SoftDeleteModel):
         return self.fecha_vencimiento.strftime('%d/%m/%Y') if self.fecha_vencimiento else 'Sin vencimiento'
 
     def get_fecha_pago(self):
-        return self.fecha_pago.strftime('%d/%m/%Y') if self.fecha_pago else None
+        return self.pagocuotasocial.fecha_pago.strftime('%d/%m/%Y') if self.is_pagada() else 'Sin pago'
 
     def get_periodo(self):
         return datetime.strptime(f'{self.periodo_anio}-{self.periodo_mes}', '%Y-%m').strftime('%B %Y').capitalize()
@@ -281,12 +281,18 @@ class CuotaSocial(SoftDeleteModel):
         item = model_to_dict(self)
         item['persona'] = self.persona.toJSON()
         item['fecha_emision'] = self.fecha_emision.strftime('%d/%m/%Y %H:%M')
-        item['fecha_vencimiento'] = self.fecha_vencimiento.strftime('%d/%m/%Y %H:%M')
-        item['fecha_pago'] = self.fecha_pago.strftime('%d/%m/%Y %H:%M') if self.fecha_pago else None
-        item['periodo'] = self.periodo.strftime('%m/%Y')
+        item['fecha_vencimiento'] = self.fecha_vencimiento.strftime(
+            '%d/%m/%Y %H:%M') if self.fecha_vencimiento else 'Sin vencimiento'
+        item['fecha_pago'] = self.get_fecha_pago()
+        item['periodo'] = self.get_periodo()
         item['estado'] = self.get_estado()
         item['subtotal'] = self.get_subtotal()
         return item
+
+    def unique_error_message(self, model_class, unique_check):
+        if model_class == type(self) and unique_check == ('persona', 'periodo_mes', 'periodo_anio'):
+            return 'Ya existe una cuota social para la persona en el periodo seleccionado.'
+        return super(CuotaSocial, self).unique_error_message(model_class, unique_check)
 
     def clean(self):
         # Un socio no puede tener generada una cuota social el mismo mes y año que otra.
@@ -295,9 +301,9 @@ class CuotaSocial(SoftDeleteModel):
                                              periodo_anio=self.periodo_anio).exclude(pk=self.pk).exists():
             raise ValidationError('Ya existe una cuota social generada para el mes y año seleccionado.')
 
+    # TODO: Consultar si es necesario verificar esto.
     # if self.pk is None:
     #     # Si es una nueva cuota, verificar que la anterior sea del mes anterior.
-    #     # TODO: Consultar si es necesario verificar esto.
     #     cuota_anterior = CuotaSocial.objects.filter(
     #         persona=self.persona).order_by(
     #         '-periodo_anio', '-periodo_mes').first()
@@ -334,24 +340,14 @@ class CuotaSocial(SoftDeleteModel):
                                    name='cuota_social_cargo_extra_valido',
                                    violation_error_message=_(
                                        'Cargo extra: El cargo extra debe ser mayor o igual a 0.')),
-            # Validar que Fecha de vencimiento no puede ser menor a la fecha de emisión.
             # TODO: Consultar si es necesario validar esto.
+            # Validar que Fecha de vencimiento no puede ser menor a la fecha de emisión.
             # models.CheckConstraint(check=models.Q(fecha_vencimiento__gte=models.F('fecha_emision')),
             #                        name='cuota_social_fecha_vencimiento_valido',
             #                        violation_error_message=_(
             #                            'Fecha de vencimiento: La fecha de vencimiento no puede '
             #                            'ser menor a la fecha de emisión.')),
-            # Validar que si fecha_pago no es nulo, total_pagado no puede ser nulo, y viceversa.
-            models.CheckConstraint(check=models.Q(fecha_pago__isnull=True) | models.Q(total_pagado__isnull=False),
-                                   name='cuota_social_fecha_pago_valido',
-                                   violation_error_message=_(
-                                       'Fecha de pago: Si fecha de pago no es nulo, total pagado '
-                                       'no puede ser nulo, y viceversa.')),
             # Validar que total_pagado no puede ser menor al total.
-            models.CheckConstraint(check=models.Q(total_pagado__gte=models.F('total')),
-                                   name='cuota_social_total_pagado_valido',
-                                   violation_error_message=_(
-                                       'Total pagado: El total pagado no puede ser menor al total.')),
         ]
 
 
@@ -402,4 +398,35 @@ class DetalleCuotaSocial(SoftDeleteModel):
                                    name='detalle_cuota_social_total_parcial_valido',
                                    violation_error_message=_(
                                        'Total parcial: El total parcial debe ser mayor o igual a 0.')),
+        ]
+
+
+class PagoCuotaSocial(SoftDeleteModel):
+    """
+    Modelo para almacenar los pagos de las cuotas sociales.
+    """
+    cuota_social = models.OneToOneField('socios.CuotaSocial', on_delete=models.PROTECT, verbose_name='Cuota social')
+    medio_pago = models.ForeignKey('parameters.MedioPago', on_delete=models.PROTECT, verbose_name='Medio de pago')
+    fecha_pago = models.DateField(verbose_name='Fecha de pago')
+    total_pagado = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total pagado')
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['cuota_social'] = self.cuota_social.toJSON()
+        return item
+
+    def clean(self):
+        super(PagoCuotaSocial, self).clean()
+        if self.cuota_social.fecha_pago:
+            raise ValidationError('No se puede modificar un pago de cuota social que ya ha sido pagada.')
+
+    class Meta:
+        verbose_name = 'Pago de cuota social'
+        verbose_name_plural = 'Pagos de cuotas sociales'
+        constraints = [
+            # Validar que el total pagado sea mayor o igual a 0.
+            models.CheckConstraint(check=models.Q(total_pagado__gte=0),
+                                   name='pago_cuota_social_total_pagado_valido',
+                                   violation_error_message=_(
+                                       'Total pagado: El total pagado debe ser mayor o igual a 0.')),
         ]

@@ -49,6 +49,8 @@ class User(AbstractUser, SoftDeleteModel):
 
     def __str__(self):
         try:
+            if self.is_admin():
+                return self.persona.get_full_name() + ' (Administrador)'
             return self.persona.get_full_name()
         except AttributeError:
             return self.username

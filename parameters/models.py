@@ -20,7 +20,7 @@ class Parentesco(models.Model):
         verbose_name_plural = _('Parentescos')
 
 
-class SociosParameters(models.Model):
+class SocioParameters(models.Model):
     """
     Modelo para almacenar las reglas establecidas para los socios.
     Las reglas las establece el administrador del club.
@@ -47,6 +47,20 @@ class SociosParameters(models.Model):
     class Meta:
         verbose_name = _('Regla de socio')
         verbose_name_plural = _('Reglas de socios')
+
+
+class MedioPago(models.Model):
+    """
+    Modelo para almacenar los medios de pago.
+    """
+    nombre = models.CharField(max_length=50, verbose_name=_('Nombre'))
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        verbose_name = _('Medio de pago')
+        verbose_name_plural = _('Medios de pago')
 
 
 # Parámetros para la app Accounts

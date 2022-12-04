@@ -2,6 +2,7 @@ from datetime import datetime, date
 
 import pytz
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.files.storage import FileSystemStorage
@@ -14,11 +15,12 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, UpdateView
 from weasyprint import HTML, CSS
 
+from accounts.decorators import admin_required
 from accounts.forms import *
 from core.models import Club
-from parameters.models import SociosParameters
+from parameters.models import SocioParameters, MedioPago
 from socios.forms import SocioForm, CuotaSocialForm
-from socios.models import Socio, Categoria, CuotaSocial, DetalleCuotaSocial
+from socios.models import Socio, Categoria, CuotaSocial, DetalleCuotaSocial, PagoCuotaSocial
 from socios.utilities import get_categoria
 
 
@@ -74,7 +76,7 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                     data['error'] = form.errors
             elif action == 'select_persona_change':
                 data = get_categoria(persona=request.POST['persona'])
-                edad_minima_titular = SociosParameters.objects.get(club_id=1).edad_minima_socio_titular
+                edad_minima_titular = SocioParameters.objects.get(club_id=1).edad_minima_socio_titular
                 # Si la persona es menor de edad_minima_titular, mandar una variable
                 # tutor_required para que el front-end sepa que debe pedir
                 edad = Persona.objects.get(pk=request.POST['persona']).get_edad()
@@ -89,7 +91,7 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 socio_titular = request.POST['socio_titular']
                 parentesco = request.POST['parentesco']
                 socio = Socio.deleted_objects.get(persona_id=persona)
-                edad_minima_titular = SociosParameters.objects.get(club_id=1).edad_minima_socio_titular
+                edad_minima_titular = SocioParameters.objects.get(club_id=1).edad_minima_socio_titular
                 with transaction.atomic():
                     socio.restore()
                     socio.categoria_id = categoria
@@ -120,7 +122,7 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 socio = Socio.deleted_objects.get(pk=request.POST['id'])
                 with transaction.atomic():
                     if not socio.get_related_objects():
-                        edad_minima_titular = SociosParameters.objects.get(club_id=1).edad_minima_socio_titular
+                        edad_minima_titular = SocioParameters.objects.get(club_id=1).edad_minima_socio_titular
                         socio.restore()
                         if socio.es_titular() and socio.persona.get_edad() < edad_minima_titular:
                             raise ValidationError(
@@ -179,6 +181,7 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
         context['cuota_social_form'] = CuotaSocialForm()
         context['cuota_social_form'].fields['persona'].initial = self.get_object().persona
         context['cuotas_sociales'] = CuotaSocial.global_objects.filter(detallecuotasocial__socio=self.get_object())
+        context['medios_pagos'] = MedioPago.objects.all()
         return context
 
     def post(self, request, *args, **kwargs):
@@ -264,7 +267,7 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                             cuota_social.periodo_mes = mes
                             # fecha_emision = datetime.now con timezone de argentina
                             cuota_social.fecha_emision = datetime.now(pytz.timezone('America/Argentina/Buenos_Aires'))
-                            parameters_dia_vencimiento = SociosParameters.objects.get(pk=1).dia_vencimiento_cuota
+                            parameters_dia_vencimiento = SocioParameters.objects.get(pk=1).dia_vencimiento_cuota
                             cuota_social.fecha_vencimiento = date(int(cuota_social.periodo_anio),
                                                                   int(cuota_social.periodo_mes),
                                                                   int(parameters_dia_vencimiento))
@@ -292,41 +295,41 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                         messages.success(request, 'Cuota/s social/es agregada/s correctamente')
                 else:
                     data['error'] = CuotaSocialForm(request.POST).errors
-            elif action == 'mark_as_paid':
-                # Si la acción es mark_as_paid, se marca una cuota social como pagada
-                # TODO: Actualizar la acción mark_as_paid para que se pueda marcar como pagada una cuota social
-                aumento_por_cuota_vencida = SociosParameters.objects.get(pk=1).aumento_por_cuota_vencida
-                cuota_social_id = request.POST['id']
-                cuota_social = CuotaSocial.objects.get(pk=cuota_social_id)
+            elif action == 'get_total_cuota_social':
+                # Si la acción es get_total_cuota_social, se calcula el total de la cuota social
+                cuota_social = CuotaSocial.objects.get(pk=request.POST['id'])
                 # Calcular intereses
                 if cuota_social.fecha_vencimiento < datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')):
+                    aumento_por_cuota_vencida = SocioParameters.objects.get(pk=1).aumento_por_cuota_vencida
                     # Calcular los meses de atraso
                     meses_atraso = (datetime.now(pytz.timezone(
                         'America/Argentina/Buenos_Aires')).year - cuota_social.fecha_vencimiento.year) * 12 + (
-                                               datetime.now(pytz.timezone(
-                                                   'America/Argentina/Buenos_Aires')).month - cuota_social.fecha_vencimiento.month)
+                                           datetime.now(pytz.timezone(
+                                               'America/Argentina/Buenos_Aires')).month - cuota_social.fecha_vencimiento.month)
                     interes = cuota_social.total * (aumento_por_cuota_vencida / 100) * meses_atraso
+                    total_w_interes = cuota_social.total + interes
+                    data['meses_atraso'] = meses_atraso
+                    data['interes_por_mes'] = aumento_por_cuota_vencida
+                    data['interes'] = round(interes, 2)
+                    data['total_w_interes'] = round(total_w_interes, 2)
+                else:
+                    data['total'] = cuota_social.total
+            elif action == 'mark_as_paid':
+                # Si la acción es mark_as_paid, se marca una cuota social como pagada
+                cuota_social = CuotaSocial.objects.get(pk=request.POST['id'])
                 with transaction.atomic():
-                    cuota_social.pagada = True
-                    cuota_social.fecha_pago = datetime.now(pytz.timezone('America/Argentina/Buenos_Aires'))
-                    cuota_social.cargo_extra += interes
-                    if interes > 0:
-                        cuota_social.observaciones += 'Intereses por atraso: $' + str(interes)
+                    # cuota_social.fecha_pago = datetime.now(pytz.timezone('America/Argentina/Buenos_Aires'))
+                    # cuota_social.total_pagado = request.POST['total_pagado']
+                    medio_pago = MedioPago.objects.get(pk=request.POST['medio_pago'])
+                    PagoCuotaSocial.objects.create(
+                        cuota_social=cuota_social,
+                        medio_pago=medio_pago,
+                        fecha_pago=datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')),
+                        total_pagado=request.POST['total_pagado'])
+                    cuota_social.observaciones = request.POST['observaciones']
                     cuota_social.save()
                     data['id'] = request.POST['id']
                     data['history_id'] = cuota_social.history.first().pk
-                periodo = date(int(cuota_social.periodo_anio), int(cuota_social.periodo_mes), 1)
-                # Aumentar el total_pagado. Por cada mes pasado desde el mes de fecha_vencimiento, se aumenta el total_pagado
-                # en el porcentaje de aumento_por_cuota_vencida
-                total_pagado = cuota_social.total
-                if cuota_social.fecha_vencimiento < date.today():
-                    meses_vencidos = (date.today().year - cuota_social.fecha_vencimiento.year) * 12 + \
-                                     date.today().month - cuota_social.fecha_vencimiento.month
-                    total_pagado += total_pagado * (aumento_por_cuota_vencida / 100) * meses_vencidos
-                cuota_social.fecha_pago = datetime.now()
-                cuota_social.total_pagado = total_pagado
-                cuota_social.save()
-                messages.success(request, 'Cuota social marcada como pagada correctamente')
             else:
                 data['error'] = 'Ha ocurrido un error, intente nuevamente'
         except Exception as e:
@@ -407,6 +410,8 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
         return JsonResponse(data, safe=False)
 
 
+@login_required
+@admin_required
 def socio_history_pdf(request, socio_pk, history_pk):
     socio = Socio.global_objects.get(pk=socio_pk)
     club = Club.objects.get(pk=1)

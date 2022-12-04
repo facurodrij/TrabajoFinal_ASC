@@ -1,14 +1,21 @@
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db import transaction
 from django.http import JsonResponse
+from django.http import HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.views.generic import ListView
+from django.core.files.storage import FileSystemStorage
+from django.template.loader import render_to_string
+from weasyprint import HTML, CSS
+
 
 from accounts.decorators import admin_required
+from core.models import Club
 from socios.models import CuotaSocial
 
 
@@ -59,3 +66,22 @@ def cuota_delete(request, pk):
         cuota.delete(cascade=True)
         messages.success(request, 'Cuota social eliminada correctamente')
     return redirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
+@admin_required
+def cuota_history_pdf(request, cuota_pk, history_pk):
+    cuota = CuotaSocial.global_objects.get(pk=cuota_pk)
+    club = Club.objects.get(pk=1)
+    history = cuota.history.get(pk=history_pk)
+    html_string = render_to_string('admin/cuota/history_pdf.html', {'history': history,
+                                                                    'cuota': cuota,
+                                                                    'club': club})
+    html = HTML(string=html_string, base_url=request.build_absolute_uri())
+    html.write_pdf(target='/tmp/cuota_historial.pdf',
+                   stylesheets=[CSS('{}/libs/bootstrap-4.6.2/bootstrap.min.css'.format(settings.STATICFILES_DIRS[0]))])
+    fs = FileSystemStorage('/tmp')
+    with fs.open('cuota_historial.pdf') as pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = 'filename="cuota_historial.pdf"'
+        return response

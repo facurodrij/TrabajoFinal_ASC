@@ -30,6 +30,7 @@ urlpatterns = [
     # Cuotas sociales, URLs de administración
     path('admin/socios/cuotas/', CuotaSocialAdminListView.as_view(), name='admin-socio-cuotas'),
     path('admin/cuotas/<int:pk>/eliminar/', cuota_delete, name='admin-cuota-eliminar'),
+    path('admin/cuotas/<int:cuota_pk>/<int:history_pk>/', cuota_history_pdf, name='cuota-history-pdf'),
     # Cuotas sociales, URLs de usuario
     path('socio/mis_cuotas/', CuotaSocialListView.as_view(), name='socio-cuotas'),
     # Cuotas sociales, URLs de usuario sin autenticación
