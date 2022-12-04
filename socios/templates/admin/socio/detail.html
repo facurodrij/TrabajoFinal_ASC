@@ -765,10 +765,6 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
             })
         });
 
-        $('#cuota-table tbody').on('click', 'tr', function () {
-            $(this).toggleClass('selected');
-        });
-
         $('#cuota-table tbody').on('click', '.mark-as-paid', function (e) {
             e.preventDefault();
             let cuota_id = $(this).val();

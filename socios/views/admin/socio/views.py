@@ -180,7 +180,10 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
         context['persona_form'] = PersonaFormAdmin()
         context['cuota_social_form'] = CuotaSocialForm()
         context['cuota_social_form'].fields['persona'].initial = self.get_object().persona
-        context['cuotas_sociales'] = CuotaSocial.global_objects.filter(detallecuotasocial__socio=self.get_object())
+        context['cuotas_sociales'] = CuotaSocial.global_objects.filter(
+            detallecuotasocial__socio=self.get_object()).order_by(
+            # Ordenado por id, para que las cuotas sociales más recientes aparezcan primero
+            '-id')
         context['medios_pagos'] = MedioPago.objects.all()
         return context
 
@@ -318,8 +321,6 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                 # Si la acción es mark_as_paid, se marca una cuota social como pagada
                 cuota_social = CuotaSocial.objects.get(pk=request.POST['id'])
                 with transaction.atomic():
-                    # cuota_social.fecha_pago = datetime.now(pytz.timezone('America/Argentina/Buenos_Aires'))
-                    # cuota_social.total_pagado = request.POST['total_pagado']
                     medio_pago = MedioPago.objects.get(pk=request.POST['medio_pago'])
                     PagoCuotaSocial.objects.create(
                         cuota_social=cuota_social,

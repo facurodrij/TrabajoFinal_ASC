@@ -22,12 +22,13 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <table id="cuota-table" class="table table-bordered table-striped dataTable">
+                        <table id="cuota-table" class="table table-bordered table-striped dataTable display nowrap">
                             <thead>
                             <tr>
                                 <th scope="col" style="">#</th>
                                 <th scope="col" style="">Titular</th>
                                 <th scope="col" style="">Total</th>
+                                <th scope="col" style="">Período</th>
                                 <th scope="col" style="">Fecha de emisión</th>
                                 <th scope="col" style="">Fecha de vencimiento</th>
                                 <th scope="col" style="">Estado</th>
@@ -42,6 +43,7 @@
                                         <a href="{% url 'admin-socio-detalle' cuota.persona.socio.pk %}">{{ cuota.persona }}</a>
                                     </td>
                                     <td>${{ cuota.total }}</td>
+                                    <td>{{ cuota.get_periodo }}</td>
                                     <td>{{ cuota.fecha_emision }}</td>
                                     <td>{{ cuota.fecha_vencimiento }}</td>
                                     {% if cuota.get_estado == 'Pendiente' %}
@@ -81,6 +83,7 @@
                                 <th scope="col" style="">#</th>
                                 <th scope="col" style="">Titular</th>
                                 <th scope="col" style="">Total</th>
+                                <th scope="col" style="">Período</th>
                                 <th scope="col" style="">Fecha de emisión</th>
                                 <th scope="col" style="">Fecha de vencimiento</th>
                                 <th scope="col" style="">Estado</th>
@@ -98,56 +101,117 @@
 {% block body_js %}
     {% include 'includes/dataTable.html' %}
     <script>
-        $('.mark-as-paid').on('click', function (e) {
+        $('#cuota-table tbody').on('click', '.mark-as-paid', function (e) {
             e.preventDefault();
             let cuota_id = $(this).val();
-            Swal.fire({
-                position: 'top-end',
-                title: '¿Está seguro de marcar esta cuota como pagada?',
-                text: "¡No podrá revertir esto!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, marcar como pagada!',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: window.location.pathname,
-                        type: 'POST',
-                        data: {
-                            'action': 'mark_as_paid',
-                            'id': cuota_id,
-                            'csrfmiddlewaretoken': '{{ csrf_token }}',
+            $.ajax({
+                url: window.location.pathname,
+                type: 'POST',
+                data: {
+                    'action': 'get_total_cuota_social',
+                    'id': cuota_id,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+                dataType: 'json',
+                success: function (data) {
+                    let html = '';
+                    let observaciones = '';
+                    let total_pagado = 0;
+                    if (data.hasOwnProperty('total_w_interes')) {
+                        total_pagado = data.total_w_interes;
+                        observaciones = 'Se han incluido los intereses correspondientes a la mora';
+                        html = '<p class="text-left">' +
+                            '<strong>INFORMACIÓN DE DEUDA </strong><br>' +
+                            '<strong>Cantidad de meses de atraso: </strong>' + data.meses_atraso + '<br>' +
+                            '<strong>Interes por mes atrasado: </strong>' + data.interes_por_mes + '%<br>' +
+                            '<strong>Interes: </strong>$' + data.interes + '<br>' +
+                            '<strong>Total a pagar: </strong>$' + data.total_w_interes + '<br>' +
+                            '</p>';
+                    } else {
+                        total_pagado = data.total;
+                        html = '<p class="text-left">' +
+                            '<strong>INFORMACIÓN DE DEUDA </strong><br>' +
+                            '<strong>Total a pagar: </strong>$' + data.total + '<br>' +
+                            '</p>';
+                    }
+                    Swal.fire({
+                        position: 'top-end',
+                        title: '¿Está seguro que desea marcar la cuota como pagada?',
+                        html: html,
+                        icon: 'warning',
+                        // Select con medios de pago
+                        input: 'select',
+                        inputOptions: {
+                            {% for medio in medios_pagos %}
+                                '{{ medio.id }}': '{{ medio.nombre }}',
+                            {% endfor %}
                         },
-                        dataType: 'json',
-                        success: function (data) {
-                            if (!data.hasOwnProperty('error')) {
-                                location.reload();
-                            } else {
-                                let errors = []
-                                $.each(data.error, function (key, value) {
-                                    errors.push(value);
-                                });
-                                Swal.fire({
-                                    position: 'top-end',
-                                    icon: 'error',
-                                    title: 'Ocurrió un error',
-                                    text: errors.join('\n'),
-                                    showConfirmButton: true,
-                                })
-                                document.body.classList.remove('swal2-height-auto');
-                            }
+                        inputPlaceholder: 'Seleccione un medio de pago',
+                        inputValidator: (value) => {
+                            return new Promise((resolve) => {
+                                if (value !== '') {
+                                    resolve()
+                                } else {
+                                    resolve('Debe seleccionar un medio de pago')
+                                }
+                            })
                         },
-                        error: function (data) {
-                            alert('Error al guardar la cuota social');
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Si, marcar como pagada!',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: window.location.pathname,
+                                type: 'POST',
+                                data: {
+                                    'action': 'mark_as_paid',
+                                    'id': cuota_id,
+                                    'total_pagado': total_pagado,
+                                    'medio_pago': result.value,
+                                    'observaciones': observaciones,
+                                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                                },
+                                dataType: 'json',
+                                success: function (data) {
+                                    if (!data.hasOwnProperty('error')) {
+                                        Swal.fire({
+                                            position: 'top-end',
+                                            title: 'Cuota marcada como pagada',
+                                            text: 'El socio pagó la cuota correctamente',
+                                            icon: 'success',
+                                            confirmButtonText: 'Imprimir comprobante de operación',
+                                            showCancelButton: true,
+                                            cancelButtonText: 'Cerrar',
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                window.open('/admin/cuotas/' + data.id + '/' + data.history_id + '/', '_blank');
+                                            }
+                                            location.reload();
+                                        });
+                                    } else {
+                                        Swal.fire({
+                                            position: 'top-end',
+                                            title: 'Error al marcar la cuota como pagada',
+                                            text: data.error.replace('[', '').replace(']', ''),
+                                            icon: 'error',
+                                            confirmButtonText: 'Cerrar',
+                                        })
+                                    }
+                                }
+                            });
                         }
-                    });
+                    })
+                },
+                error: function (data) {
+                    alert('Error al guardar la cuota social');
                 }
-            })
+            });
         });
-        $('.anular-cuota').on('click', function (e) {
+
+        $('#cuota-table tbody').on('click', '.anular-cuota', function (e) {
             e.preventDefault();
             Swal.fire({
                 position: 'top-end',

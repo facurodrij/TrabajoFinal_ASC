@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import pytz
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -13,16 +14,17 @@ from django.core.files.storage import FileSystemStorage
 from django.template.loader import render_to_string
 from weasyprint import HTML, CSS
 
-
 from accounts.decorators import admin_required
+from parameters.models import SocioParameters, MedioPago
+from socios.forms import SocioForm, CuotaSocialForm
+from socios.models import Socio, Categoria, CuotaSocial, DetalleCuotaSocial, PagoCuotaSocial
 from core.models import Club
-from socios.models import CuotaSocial
 
 
 class CuotaSocialAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """ Vista para listar las cuotas sociales, solo para administradores """
     model = CuotaSocial
-    template_name = 'admin/socio/../../../templates/admin/cuota/list.html'
+    template_name = 'admin/cuota/list.html'
     permission_required = 'socios.view_cuotasocial'
     context_object_name = 'cuotas_sociales'
 
@@ -32,23 +34,51 @@ class CuotaSocialAdminListView(LoginRequiredMixin, PermissionRequiredMixin, List
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Cuotas Sociales'
+        context['medios_pagos'] = MedioPago.objects.all()
         return context
 
     def post(self, request, *args, **kwargs):
         data = {}
         try:
             action = request.POST['action']
-            if action == 'mark_as_paid':
+            if action == 'get_total_cuota_social':
+                # Si la acción es get_total_cuota_social, se calcula el total de la cuota social
+                cuota_social = CuotaSocial.objects.get(pk=request.POST['id'])
+                # Calcular intereses
+                if cuota_social.fecha_vencimiento < datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')):
+                    aumento_por_cuota_vencida = SocioParameters.objects.get(pk=1).aumento_por_cuota_vencida
+                    # Calcular los meses de atraso
+                    meses_atraso = (datetime.now(pytz.timezone(
+                        'America/Argentina/Buenos_Aires')).year - cuota_social.fecha_vencimiento.year) * 12 + (
+                                           datetime.now(pytz.timezone(
+                                               'America/Argentina/Buenos_Aires')).month - cuota_social.fecha_vencimiento.month)
+                    interes = cuota_social.total * (aumento_por_cuota_vencida / 100) * meses_atraso
+                    total_w_interes = cuota_social.total + interes
+                    data['meses_atraso'] = meses_atraso
+                    data['interes_por_mes'] = aumento_por_cuota_vencida
+                    data['interes'] = round(interes, 2)
+                    data['total_w_interes'] = round(total_w_interes, 2)
+                else:
+                    data['total'] = cuota_social.total
+            elif action == 'mark_as_paid':
                 # Si la acción es mark_as_paid, se marca una cuota social como pagada
-                cuota_social_id = request.POST['id']
-                cuota_social = CuotaSocial.objects.get(pk=cuota_social_id)
-                cuota_social.fecha_pago = datetime.now()
-                cuota_social.save()
-                messages.success(request, 'Cuota social marcada como pagada correctamente')
+                cuota_social = CuotaSocial.objects.get(pk=request.POST['id'])
+                with transaction.atomic():
+                    medio_pago = MedioPago.objects.get(pk=request.POST['medio_pago'])
+                    PagoCuotaSocial.objects.create(
+                        cuota_social=cuota_social,
+                        medio_pago=medio_pago,
+                        fecha_pago=datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')),
+                        total_pagado=request.POST['total_pagado'])
+                    cuota_social.observaciones = request.POST['observaciones']
+                    cuota_social.save()
+                    data['id'] = request.POST['id']
+                    data['history_id'] = cuota_social.history.first().pk
             else:
                 data['error'] = 'Ha ocurrido un error, intente nuevamente'
         except Exception as e:
             data['error'] = str(e)
+        print(data)
         return JsonResponse(data, safe=False)
 
 
