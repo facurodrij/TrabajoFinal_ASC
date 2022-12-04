@@ -42,11 +42,24 @@
                                     <td>
                                         <a href="{% url 'admin-socio-detalle' cuota.persona.socio.pk %}">{{ cuota.persona }}</a>
                                     </td>
-                                    <td>${{ cuota.total }}</td>
+                                    {% if cuota.is_deleted %}
+                                        <td>${{ cuota.total }}</td>
+                                    {% elif not cuota.is_pagada %}
+                                        <td>${{ cuota.total_a_pagar }}</td>
+                                    {% elif cuota.is_pagada %}
+                                        <td>${{ cuota.pagocuotasocial.total_pagado }}</td>
+                                    {% endif %}
                                     <td>{{ cuota.get_periodo }}</td>
                                     <td>{{ cuota.fecha_emision }}</td>
                                     <td>{{ cuota.fecha_vencimiento }}</td>
-                                    {% if cuota.get_estado == 'Pendiente' %}
+                                    {% if cuota.is_deleted %}
+                                        <td><span class="badge badge-danger">{{ cuota.get_estado }}</span></td>
+                                        <td>
+                                            <a href="{% url 'cuotas-pdf' cuota.pk %}" class="btn btn-info btn-sm">
+                                                <i class="fa-solid fa-file-pdf"></i>
+                                            </a>
+                                        </td>
+                                    {% elif not cuota.is_pagada %}
                                         <td><span class="badge badge-warning">{{ cuota.get_estado }}</span></td>
                                         <td>
                                             <button class="btn btn-success btn-sm mark-as-paid" value="{{ cuota.pk }}">
@@ -60,15 +73,8 @@
                                                 <i class="fa-solid fa-ban"></i>
                                             </a>
                                         </td>
-                                    {% elif cuota.get_estado == 'Pagada' %}
+                                    {% elif cuota.is_pagada %}
                                         <td><span class="badge badge-success">{{ cuota.get_estado }}</span></td>
-                                        <td>
-                                            <a href="{% url 'cuotas-pdf' cuota.pk %}" class="btn btn-info btn-sm">
-                                                <i class="fa-solid fa-file-pdf"></i>
-                                            </a>
-                                        </td>
-                                    {% elif cuota.get_estado == 'Anulada' %}
-                                        <td><span class="badge badge-danger">{{ cuota.get_estado }}</span></td>
                                         <td>
                                             <a href="{% url 'cuotas-pdf' cuota.pk %}" class="btn btn-info btn-sm">
                                                 <i class="fa-solid fa-file-pdf"></i>

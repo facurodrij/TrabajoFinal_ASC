@@ -1,3 +1,4 @@
+import pytz
 import locale
 from datetime import datetime
 
@@ -241,6 +242,29 @@ class CuotaSocial(SoftDeleteModel):
         except AttributeError:
             return False
 
+    def is_atrasada(self):
+        if self.fecha_vencimiento < datetime.now(
+                pytz.timezone('America/Argentina/Buenos_Aires')) and not self.is_pagada():
+            return True
+        return False
+
+    def meses_atraso(self):
+        if self.is_atrasada():
+            return (datetime.now(pytz.timezone(
+                'America/Argentina/Buenos_Aires')).year - self.fecha_vencimiento.year) * 12 + (
+                    datetime.now(pytz.timezone(
+                        'America/Argentina/Buenos_Aires')).month - self.fecha_vencimiento.month)
+        return 0
+
+    def interes(self):
+        aumento_por_cuota_vencida = SocioParameters.objects.get(pk=1).aumento_por_cuota_vencida
+        if self.is_atrasada():
+            return round(self.total * (aumento_por_cuota_vencida / 100) * self.meses_atraso(), 2)
+        return 0
+
+    def total_a_pagar(self):
+        return round(self.total + self.cargo_extra + self.interes(), 2)
+
     def get_estado(self):
         if self.is_pagada():
             return 'Pagada'
@@ -272,7 +296,11 @@ class CuotaSocial(SoftDeleteModel):
         """
         Obtener el total en letras.
         """
-        return 'Son: {} pesos argentinos'.format(num2words(self.total, lang='es'))
+        if self.is_pagada():
+            return 'Son: {} pesos argentinos'.format(num2words(self.pagocuotasocial.total_pagado, lang='es'))
+        if self.is_deleted:
+            return 'Son: {} pesos argentinos'.format(num2words(self.total, lang='es'))
+        return 'Son: {} pesos argentinos'.format(num2words(self.total_a_pagar(), lang='es'))
 
     def get_related_objects(self):
         return self.detallecuotasocial_set.all()
@@ -409,6 +437,12 @@ class PagoCuotaSocial(SoftDeleteModel):
     medio_pago = models.ForeignKey('parameters.MedioPago', on_delete=models.PROTECT, verbose_name='Medio de pago')
     fecha_pago = models.DateField(verbose_name='Fecha de pago')
     total_pagado = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total pagado')
+
+    def meses_atraso(self):
+        return self.fecha_pago.month - self.cuota_social.periodo_mes
+
+    def interes_aplicado(self):
+        return self.total_pagado - self.cuota_social.total
 
     def toJSON(self):
         item = model_to_dict(self)

@@ -33,5 +33,12 @@
     "fields": {
       "nombre": "Debito"
     }
+  },
+  {
+    "model": "parameters.MedioPago",
+    "pk": 6,
+    "fields": {
+      "nombre": "Checkout Mercado Pago"
+    }
   }
 ]
