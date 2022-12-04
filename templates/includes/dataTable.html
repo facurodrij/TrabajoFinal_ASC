@@ -5,6 +5,8 @@
 
 <link rel="stylesheet" type="text/css" href="{% static 'libs/DataTables/datatables.css' %}"/>
 <script type="text/javascript" src="{% static 'libs/DataTables/datatables.js' %}"></script>
+<script type="text/javascript" src="{% static 'libs/DataTables/Select-1.5.0/js/dataTables.select.js' %}"></script>
+
 
 {# Datatable Internacionalización #}
 <script src="{% static 'libs/datatables/es-ES.json' %}"></script>
@@ -15,59 +17,31 @@
         $(tables[i]).DataTable({
             responsive: true,
             lengthChange: false,
-            // Ordenar por la primera columna de forma descendente
-            order: [[0, 'desc']],
+            // No ordenar por defecto
+            order: [],
             autoWidth: false,
+            select: true,
             // Quitarle estilos a la ultima columna
             columnDefs: [
                 {"orderable": false, "targets": -1}
             ],
             buttons: [
                 {
-                    extend: 'print',
-                    exportOptions: {
-                        // Impresión de todas las columnas excepto la última
-                        columns: ':not(:last-child)'
-                    }
+                    extend: 'selectAll',
+                    text: 'Seleccionar todo',
+                    className: 'btn btn-primary'
                 },
                 {
-                    extend: 'pdf',
-                    exportOptions: {
-                        columns: ':not(:last-child)',
-                        footer: true
-                    },
-                    footer: function (currentPage, pageCount) {
-                        return currentPage.toString() + ' of ' + pageCount;
-                    },
-                    customize:
-                        function (doc) {
-                            doc.content[1].table.widths = ['10%', '20%', '20%', '20%', '20%', '10%'];
-                            doc.styles.tableBodyEven.alignment = 'center';
-                            doc.styles.tableBodyOdd.alignment = 'center';
-                            doc.styles.tableFooter.alignment = 'center';
-                            doc['footer'] = (function (page, pages) {
-                                return {
-                                    columns: [
-                                        {
-                                            alignment: 'left',
-                                            text: ['Página ', {text: page.toString()}, ' de ', {text: pages.toString()}]
-                                        },
-                                        {
-                                            alignment: 'right',
-                                            text: ['Fecha: ', {text: new Date().toLocaleString()}]
-                                        }
-                                    ],
-                                    margin: [10, 0]
-                                }
-                            });
-                        }
+                    extend: 'selectNone',
+                    text: 'Deseleccionar todo',
+                    className: 'btn btn-primary'
                 },
                 {
                     extend: 'colvis',
                     text: 'Columnas visibles',
                     columns: ':gt(0)',
                     postfixButtons: ['colvisRestore']
-                }
+                },
             ],
             language: {
                 search: "Buscar:",
