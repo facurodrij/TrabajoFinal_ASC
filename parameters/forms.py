@@ -1,13 +1,13 @@
 from django import forms
 
-from parameters.models import SocioParameters
+from parameters.models import ClubParameters
 
 
-class ParametersSociosForm(forms.ModelForm):
+class ParametersClubForm(forms.ModelForm):
     """Formulario para la edición de los parámetros de socios."""
 
     class Meta:
-        model = SocioParameters
+        model = ClubParameters
         fields = '__all__'
         widgets = {
             'club': forms.HiddenInput(),

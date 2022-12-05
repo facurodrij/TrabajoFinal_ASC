@@ -29,12 +29,32 @@
                          with font-awesome or any other icon font library -->
                     {% if user.is_admin %}
                         <li class="nav-item">
-                            <a href="{% url 'club' %}" class="nav-link {% active_link 'club' %}">
+                            <a href="#" class="nav-link {% active_link 'club' %}">
                                 <img src="{% static 'icons/icons8-club.svg' %}" class="nav-icon" alt="icon">
                                 <p>
                                     Mi Club
+                                    <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{% url 'club-detalles' %}" class="nav-link {% active_link 'club-detalles' %}">
+                                        <i class="fa-solid fa-info nav-icon"></i>
+                                        <p>
+                                            Detalles
+                                        </p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{% url 'admin-club-parametros' %}"
+                                       class="nav-link {% active_link 'admin-club-parametros' %}">
+                                        <i class="fa-solid fa-sliders nav-icon"></i>
+                                        <p>Parámetros
+                                            <span class="right badge badge-danger">New</span>
+                                        </p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link {% active_link 'admin-socio' %}">
@@ -61,22 +81,22 @@
                                         </p>
                                     </a>
                                 </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#"
+                               class="nav-link {% active_link 'admin-cuota' %}">
+                                <i class="fa-solid fa-receipt nav-icon"></i>
+                                <p>Cuotas
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{% url 'admin-socio-cuotas' %}"
-                                       class="nav-link {% active_link 'admin-socio-cuotas' %}">
-                                        <i class="fa-solid fa-receipt nav-icon"></i>
-                                        <p>Cuotas
-                                            <span class="right badge badge-danger">New</span>
-                                        </p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{% url 'admin-socio-parametros' %}"
-                                       class="nav-link {% active_link 'admin-socio-parametros' %}">
-                                        <i class="fa-solid fa-sliders nav-icon"></i>
-                                        <p>Parámetros
-                                            <span class="right badge badge-danger">New</span>
-                                        </p>
+                                    <a href="{% url 'admin-cuota-listado' %}"
+                                       class="nav-link {% active_link 'admin-cuota-listado' %}">
+                                        <i class="fa-solid fa-rectangle-list nav-icon"></i>
+                                        <p>Listado</p>
                                     </a>
                                 </li>
                             </ul>

@@ -1,9 +1,9 @@
-import pytz
 import locale
 from datetime import datetime
 
+import pytz
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.forms import model_to_dict
 from django.utils.translation import gettext_lazy as _
@@ -12,7 +12,7 @@ from num2words import num2words
 from simple_history.models import HistoricalRecords
 
 from accounts.models import PersonaAbstract
-from parameters.models import SocioParameters
+from parameters.models import ClubParameters
 
 locale.setlocale(locale.LC_ALL, 'es_AR.UTF-8')
 
@@ -79,7 +79,7 @@ class Socio(SoftDeleteModel):
                     raise ValidationError(_('La edad del miembro debe ser menor a la del titular.'))
         # Un socio titular no puede ser menor de 16 años
         if self.es_titular():
-            edad_minima_titular = SocioParameters.objects.get(club_id=1).edad_minima_socio_titular
+            edad_minima_titular = ClubParameters.objects.get(club_id=1).edad_minima_socio_titular
             if self.persona.get_edad() < edad_minima_titular:
                 raise ValidationError(_('Un socio titular no puede ser menor de {} años.'.format(edad_minima_titular)))
 
@@ -257,7 +257,7 @@ class CuotaSocial(SoftDeleteModel):
         return 0
 
     def interes(self):
-        aumento_por_cuota_vencida = SocioParameters.objects.get(pk=1).aumento_por_cuota_vencida
+        aumento_por_cuota_vencida = ClubParameters.objects.get(pk=1).aumento_por_cuota_vencida
         if self.is_atrasada():
             return round(self.total * (aumento_por_cuota_vencida / 100) * self.meses_atraso(), 2)
         return 0

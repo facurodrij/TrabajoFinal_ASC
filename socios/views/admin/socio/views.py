@@ -2,8 +2,8 @@ from datetime import datetime, date
 
 import pytz
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.files.storage import FileSystemStorage
 from django.db import transaction
@@ -18,7 +18,7 @@ from weasyprint import HTML, CSS
 from accounts.decorators import admin_required
 from accounts.forms import *
 from core.models import Club
-from parameters.models import SocioParameters, MedioPago
+from parameters.models import ClubParameters, MedioPago
 from socios.forms import SocioForm, CuotaSocialForm
 from socios.models import Socio, Categoria, CuotaSocial, DetalleCuotaSocial, PagoCuotaSocial
 from socios.utilities import get_categoria
@@ -76,7 +76,7 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                     data['error'] = form.errors
             elif action == 'select_persona_change':
                 data = get_categoria(persona=request.POST['persona'])
-                edad_minima_titular = SocioParameters.objects.get(club_id=1).edad_minima_socio_titular
+                edad_minima_titular = ClubParameters.objects.get(club_id=1).edad_minima_socio_titular
                 # Si la persona es menor de edad_minima_titular, mandar una variable
                 # tutor_required para que el front-end sepa que debe pedir
                 edad = Persona.objects.get(pk=request.POST['persona']).get_edad()
@@ -91,7 +91,7 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 socio_titular = request.POST['socio_titular']
                 parentesco = request.POST['parentesco']
                 socio = Socio.deleted_objects.get(persona_id=persona)
-                edad_minima_titular = SocioParameters.objects.get(club_id=1).edad_minima_socio_titular
+                edad_minima_titular = ClubParameters.objects.get(club_id=1).edad_minima_socio_titular
                 with transaction.atomic():
                     socio.restore()
                     socio.categoria_id = categoria
@@ -122,7 +122,7 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 socio = Socio.deleted_objects.get(pk=request.POST['id'])
                 with transaction.atomic():
                     if not socio.get_related_objects():
-                        edad_minima_titular = SocioParameters.objects.get(club_id=1).edad_minima_socio_titular
+                        edad_minima_titular = ClubParameters.objects.get(club_id=1).edad_minima_socio_titular
                         socio.restore()
                         if socio.es_titular() and socio.persona.get_edad() < edad_minima_titular:
                             raise ValidationError(
@@ -270,7 +270,7 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                             cuota_social.periodo_mes = mes
                             # fecha_emision = datetime.now con timezone de argentina
                             cuota_social.fecha_emision = datetime.now(pytz.timezone('America/Argentina/Buenos_Aires'))
-                            parameters_dia_vencimiento = SocioParameters.objects.get(pk=1).dia_vencimiento_cuota
+                            parameters_dia_vencimiento = ClubParameters.objects.get(pk=1).dia_vencimiento_cuota
                             cuota_social.fecha_vencimiento = date(int(cuota_social.periodo_anio),
                                                                   int(cuota_social.periodo_mes),
                                                                   int(parameters_dia_vencimiento))
@@ -303,7 +303,7 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                 cuota_social = CuotaSocial.objects.get(pk=request.POST['id'])
                 # Calcular intereses
                 if cuota_social.is_atrasada():
-                    aumento_por_cuota_vencida = SocioParameters.objects.get(pk=1).aumento_por_cuota_vencida
+                    aumento_por_cuota_vencida = ClubParameters.objects.get(pk=1).aumento_por_cuota_vencida
                     # Calcular los meses de atraso
                     meses_atraso = cuota_social.meses_atraso()
                     interes = cuota_social.interes()

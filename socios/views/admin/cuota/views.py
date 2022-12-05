@@ -5,20 +5,19 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.db import transaction
-from django.http import JsonResponse
-from django.http import HttpResponse
-from django.shortcuts import redirect, get_object_or_404
-from django.views.generic import ListView
 from django.core.files.storage import FileSystemStorage
+from django.db import transaction
+from django.http import HttpResponse
+from django.http import JsonResponse
+from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
+from django.views.generic import ListView
 from weasyprint import HTML, CSS
 
 from accounts.decorators import admin_required
-from parameters.models import SocioParameters, MedioPago
-from socios.forms import SocioForm, CuotaSocialForm
-from socios.models import Socio, Categoria, CuotaSocial, DetalleCuotaSocial, PagoCuotaSocial
 from core.models import Club
+from parameters.models import ClubParameters, MedioPago
+from socios.models import CuotaSocial, PagoCuotaSocial
 
 
 class CuotaSocialAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -46,7 +45,7 @@ class CuotaSocialAdminListView(LoginRequiredMixin, PermissionRequiredMixin, List
                 cuota_social = CuotaSocial.objects.get(pk=request.POST['id'])
                 # Calcular intereses
                 if cuota_social.fecha_vencimiento < datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')):
-                    aumento_por_cuota_vencida = SocioParameters.objects.get(pk=1).aumento_por_cuota_vencida
+                    aumento_por_cuota_vencida = ClubParameters.objects.get(pk=1).aumento_por_cuota_vencida
                     # Calcular los meses de atraso
                     meses_atraso = (datetime.now(pytz.timezone(
                         'America/Argentina/Buenos_Aires')).year - cuota_social.fecha_vencimiento.year) * 12 + (

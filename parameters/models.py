@@ -20,7 +20,7 @@ class Parentesco(models.Model):
         verbose_name_plural = _('Parentescos')
 
 
-class SocioParameters(models.Model):
+class ClubParameters(models.Model):
     """
     Modelo para almacenar las reglas establecidas para los socios.
     Las reglas las establece el administrador del club.

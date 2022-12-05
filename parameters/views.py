@@ -4,20 +4,20 @@ from django.urls import reverse_lazy
 from django.views.generic import FormView
 
 from core.models import Club
-from parameters.forms import ParametersSociosForm
-from parameters.models import SocioParameters
+from parameters.forms import ParametersClubForm
+from parameters.models import ClubParameters
 
 
-class ParametersSociosFormView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+class ParametersClubFormView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     """Vista para la edición de los parámetros de socios."""
     template_name = 'socios.html'
-    form_class = ParametersSociosForm
+    form_class = ParametersClubForm
     permission_required = 'parameters.change_socios'
-    success_url = reverse_lazy('admin-socio-parametros')
+    success_url = reverse_lazy('admin-club-parametros')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Parámetros de socios'
+        context['title'] = 'Parámetros del club'
         return context
 
     # Definir message success
@@ -28,5 +28,5 @@ class ParametersSociosFormView(LoginRequiredMixin, PermissionRequiredMixin, Form
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['instance'] = SocioParameters.objects.get(club=Club.objects.get(pk=1))
+        kwargs['instance'] = ClubParameters.objects.get(club=Club.objects.get(pk=1))
         return kwargs

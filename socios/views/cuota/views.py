@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime
 
 import mercadopago
 import pytz
@@ -14,9 +14,8 @@ from django.urls import reverse_lazy
 from django.views.generic.list import ListView
 from weasyprint import HTML, CSS
 
-from accounts.models import Persona
 from core.models import Club
-from parameters.models import SocioParameters, MedioPago
+from parameters.models import ClubParameters, MedioPago
 from socios.mixins import SocioRequiredMixin
 from socios.models import CuotaSocial, DetalleCuotaSocial, PagoCuotaSocial
 from static.credentials import MercadoPagoCredentials  # Aquí debería insertar sus credenciales de MercadoPago
@@ -64,7 +63,7 @@ class CuotaSocialListView(LoginRequiredMixin, SocioRequiredMixin, ListView):
                 if cuota_social == all_cuota_social.first():
                     # Calcular intereses
                     if cuota_social.is_atrasada():
-                        aumento_por_cuota_vencida = SocioParameters.objects.get(pk=1).aumento_por_cuota_vencida
+                        aumento_por_cuota_vencida = ClubParameters.objects.get(pk=1).aumento_por_cuota_vencida
                         # Calcular los meses de atraso
                         meses_atraso = cuota_social.meses_atraso()
                         interes = cuota_social.interes()
@@ -134,7 +133,7 @@ class CuotaSocialListView(LoginRequiredMixin, SocioRequiredMixin, ListView):
                 cuota_social = CuotaSocial.objects.get(pk=request.GET['external_reference'])
                 # Calcular intereses
                 if cuota_social.fecha_vencimiento < datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')):
-                    aumento_por_cuota_vencida = SocioParameters.objects.get(pk=1).aumento_por_cuota_vencida
+                    aumento_por_cuota_vencida = ClubParameters.objects.get(pk=1).aumento_por_cuota_vencida
                     # Calcular los meses de atraso
                     meses_atraso = (datetime.now(pytz.timezone(
                         'America/Argentina/Buenos_Aires')).year - cuota_social.fecha_vencimiento.year) * 12 + (
