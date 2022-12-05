@@ -11,6 +11,7 @@ from django.db import models
 from django.forms import model_to_dict
 from django.utils.translation import gettext_lazy as _
 from django_softdelete.models import SoftDeleteModel
+from simple_history.models import HistoricalRecords
 
 from core.models import Club
 
@@ -187,6 +188,7 @@ class Persona(PersonaAbstract):
     """
     Modelo para almacenar los datos personales de los Usuarios
     """
+    history = HistoricalRecords()
 
     def get_socio(self, global_objects=False):
         """

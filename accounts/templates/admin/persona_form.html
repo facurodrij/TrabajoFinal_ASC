@@ -1,0 +1,129 @@
+{% extends "extends/base.html" %}
+{% load static %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin-persona-listado' %}">Personas</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <form id="formPersona" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="card">
+                        <div class="card-header bg-primary">
+                            <h4 class="card-title">
+                                <i class="fas fa-edit"></i>
+                                {{ title }}
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>{{ form.dni.label }}</label>
+                                {{ form.dni }}
+                            </div>
+                            <div class="form-group">
+                                <label>{{ form.nombre.label }}</label>
+                                {{ form.nombre }}
+                            </div>
+                            <div class="form-group">
+                                <label>{{ form.apellido.label }}</label>
+                                {{ form.apellido }}
+                            </div>
+                            <div class="form-group">
+                                <label>{{ form.sexo.label }}</label>
+                                {{ form.sexo }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ form.fecha_nacimiento.label }}</label>
+                                <div class="input-group" id="div_id_fecha_nacimiento"
+                                     data-target-input="nearest">
+                                    {{ form.fecha_nacimiento }}
+                                    <div class="input-group-append" data-target="#id_fecha_nacimiento"
+                                         data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>{{ form.imagen.label }}</label>
+                                {{ form.imagen }}
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary" type="submit">Guardar Cambios</button>
+                            <button class="btn btn-secondary" type="reset" onclick="resetForm()">Reset</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block body_js %}
+    <!-- Tempus Dominus -->
+    <link href="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.css' %}" media="all"
+          rel="stylesheet">
+    <script src="{% static 'libs/tempusdominus-bootstrap-5.39/moment-with-locales.min.js' %}"></script>
+    <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
+    <script>
+        $('#id_fecha_nacimiento').datetimepicker({
+            "format": "DD/MM/YYYY",
+            "icons": {"time": "fa fa-clock-o"},
+            "locale": "es-AR",
+            "date": new Date('{{ persona.get_fecha_nacimiento }}'),
+            "minDate": "1900-01-01",
+            "maxDate": Date.now(),
+        });
+        $('#id_sexo').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione un sexo',
+            allowClear: true,
+            width: '100%',
+            language: 'es',
+        });
+        $('#formPersona').on('submit', function (e) {
+            e.preventDefault();
+            let form = new FormData(this);
+            form.append('action', '{{ action }}');
+            $.ajax({
+                url: window.location.pathname,
+                type: 'POST',
+                data: form,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (!data.hasOwnProperty('error')) {
+                        window.location.href = '{% url 'admin-persona-listado' %}';
+                    } else {
+                        let errors = []
+                        // Si data error es un objeto pushear los errores al array
+                        if (typeof data.error === 'object') {
+                            $.each(data.error, function (key, value) {
+                                errors.push(value);
+                            });
+                        } else {
+                            errors = data.error
+                        }
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: errors,
+                            showConfirmButton: true,
+                        });
+                    }
+                },
+                error: function (data) {
+                    alert('Error al guardar la persona');
+                }
+            });
+        });
+    </script>
+{% endblock body_js %}

@@ -4,6 +4,7 @@ import mercadopago
 import pytz
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.storage import FileSystemStorage
 from django.db import transaction
@@ -161,6 +162,7 @@ class CuotaSocialListView(LoginRequiredMixin, SocioRequiredMixin, ListView):
 
 
 # Generar PDF con weasyprint del detalle de la cuota social
+@login_required
 def cuota_social_pdf(request, pk):
     cuota = CuotaSocial.global_objects.get(pk=pk)
     club = Club.objects.get(pk=1)

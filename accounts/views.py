@@ -1,16 +1,18 @@
 from django.contrib.auth import (
     logout, get_user_model, login)
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db import transaction
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import FormView
+from django.views.generic import FormView, UpdateView, CreateView, ListView
 
 from core.models import Club
 from .decorators import *
@@ -133,3 +135,85 @@ def activate_account(request, uidb64, token):
     else:
         messages.error(request, 'El link de activación es inválido.')
         return redirect('login')
+
+
+class PersonaAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    """ Vista para el listado de personas """
+    model = Persona
+    template_name = 'admin/persona_list.html'
+    permission_required = 'accounts.view_persona'
+    context_object_name = 'personas'
+    paginate_by = 20
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Personas'
+        return context
+
+
+class PersonaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """ Vista para la creación de personas """
+    model = Persona
+    form_class = PersonaFormAdmin
+    template_name = 'admin/persona_form.html'
+    permission_required = 'accounts.add_persona'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Nueva persona'
+        context['action'] = 'add'
+        return context
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'add':
+                form = self.form_class(request.POST, request.FILES)
+                if form.is_valid():
+                    with transaction.atomic():
+                        persona = form.save(commit=False)
+                        persona.club = Club.objects.first()
+                        persona.save()
+                        messages.success(request, 'Persona creada correctamente.')
+                else:
+                    data['error'] = form.errors
+            else:
+                data['error'] = 'Ha ocurrido un error'
+        except Exception as e:
+            data['error'] = str(e)
+        print(data)
+        return JsonResponse(data)
+
+
+class PersonaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """ Vista para la actualización de personas """
+    model = Persona
+    form_class = PersonaFormAdmin
+    template_name = 'admin/persona_form.html'
+    permission_required = 'accounts.change_persona'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Editar persona'
+        context['action'] = 'edit'
+        return context
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'edit':
+                form = self.form_class(request.POST, request.FILES, instance=self.get_object())
+                if form.is_valid():
+                    with transaction.atomic():
+                        form.save()
+                        messages.success(request, 'Persona creada correctamente.')
+                else:
+                    data['error'] = form.errors
+            else:
+                data['error'] = 'Ha ocurrido un error'
+        except Exception as e:
+            data['error'] = str(e)
+        print(data)
+        return JsonResponse(data)

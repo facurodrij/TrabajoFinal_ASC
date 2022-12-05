@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 
 from accounts.decorators import admin_required
-from accounts.models import Persona
+from accounts.forms import *
 from core.forms import *
 from core.models import Club
 
@@ -64,4 +64,4 @@ def club(request):
         'object': club_object,
         'club_form': club_form,
     }
-    return render(request, 'club.html', context)
+    return render(request, 'admin/club.html', context)
