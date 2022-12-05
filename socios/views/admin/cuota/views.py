@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 
 import pytz
 from django.conf import settings
@@ -17,7 +17,7 @@ from weasyprint import HTML, CSS
 from accounts.decorators import admin_required
 from core.models import Club
 from parameters.models import ClubParameters, MedioPago
-from socios.models import CuotaSocial, PagoCuotaSocial
+from socios.models import CuotaSocial, PagoCuotaSocial, Socio, DetalleCuotaSocial
 
 
 class CuotaSocialAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -73,6 +73,46 @@ class CuotaSocialAdminListView(LoginRequiredMixin, PermissionRequiredMixin, List
                     cuota_social.save()
                     data['id'] = request.POST['id']
                     data['history_id'] = cuota_social.history.first().pk
+            elif action == 'generar_deudas':
+                # Si la acción es generar_deudas, se generan las deudas de las cuotas sociales
+                socios = Socio.objects.all()
+                periodo_mes = request.POST['periodo_mes']
+                periodo_anio = request.POST['periodo_anio']
+                parameters_dia_vencimiento = ClubParameters.objects.get(pk=1).dia_vencimiento_cuota
+                for socio in socios:
+                    if socio.es_titular():
+                        with transaction.atomic():
+                            cuota_social = CuotaSocial.objects.create(
+                                persona=socio.persona,
+                                fecha_emision=datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')),
+                                fecha_vencimiento=date(int(periodo_anio),
+                                                       int(periodo_mes),
+                                                       int(parameters_dia_vencimiento)),
+                                periodo_mes=periodo_mes,
+                                periodo_anio=periodo_anio,
+                            )
+                            cuota_social.save()
+                            # Agregar el detalle de la cuota social
+                            detalle = DetalleCuotaSocial()
+                            detalle.cuota_social = cuota_social
+                            detalle.socio = socio
+                            detalle.nombre_completo = socio.persona.get_full_name()
+                            detalle.categoria = socio.categoria.__str__()
+                            detalle.save()
+                            for miembro in socio.get_miembros():
+                                detalle_miembro = DetalleCuotaSocial()
+                                detalle_miembro.cuota_social = cuota_social
+                                detalle_miembro.socio = miembro
+                                detalle_miembro.nombre_completo = miembro.persona.get_full_name()
+                                detalle_miembro.categoria = miembro.categoria.__str__()
+                                detalle_miembro.save()
+                            # Generar el total, sumando los totales parciales de los detalles relacionados.
+                            total = cuota_social.cargo_extra
+                            for detalle in cuota_social.detallecuotasocial_set.all():
+                                total += detalle.total_parcial
+                            cuota_social.total = total
+                            cuota_social.save()
+                messages.success(request, 'Cuota/s social/es agregada/s correctamente')
             else:
                 data['error'] = 'Ha ocurrido un error, intente nuevamente'
         except Exception as e:

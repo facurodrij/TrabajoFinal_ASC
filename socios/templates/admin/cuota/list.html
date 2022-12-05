@@ -22,6 +22,9 @@
                         </div>
                     </div>
                     <div class="card-body">
+                        <button id="btn-generar-deudas" type="button" class="btn btn-primary mb-3">
+                            <i class="fas fa-plus"></i> Generar deudas
+                        </button>
                         <table id="cuota-table" class="table table-bordered table-striped dataTable display nowrap">
                             <thead>
                             <tr>
@@ -102,9 +105,15 @@
             </div>
         </div>
     </div>
+    {% include 'admin/cuota/modals/generate-deuda.html' %}
 {% endblock content %}
 
 {% block body_js %}
+    <!-- Tempus Dominus -->
+    <link href="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.css' %}" media="all"
+          rel="stylesheet">
+    <script src="{% static 'libs/tempusdominus-bootstrap-5.39/moment-with-locales.min.js' %}"></script>
+    <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
     {% include 'includes/dataTable.html' %}
     <script>
         $('#cuota-table tbody').on('click', '.mark-as-paid', function (e) {
@@ -243,6 +252,80 @@
                 if (result.isConfirmed) {
                     // Redireccionar al href del tag <a>
                     window.location.href = $(this).attr('href') + '?motivo=' + result.value;
+                }
+            })
+        });
+
+        $('#btn-generar-deudas').on('click', function (e) {
+            e.preventDefault();
+            // Abrir modal ModalGenerateDeudas
+            $('#id_periodo_anio').datetimepicker({
+                "format": "YYYY",
+                // Seleccionar solamente años
+                "viewMode": "years",
+                "locale": "es",
+                "useCurrent": false,
+                "minDate": "1900",
+                // maxDate es el año actual, incrementado en 1
+                "maxDate": moment().add(1, 'years').format('YYYY'),
+            });
+            $('#ModalGenerateDeuda').modal('show');
+        });
+
+        $('#formDeuda').on('submit', function (e) { // Evento submit del formulario de una cuota
+            e.preventDefault();
+            // Crear una lista con los meses seleccionados
+            let html = '<p class="text-left">' +
+                '<strong>Año: </strong>' + $('#id_periodo_anio').val() + '<br>' +
+                '<strong>Mes: </strong>' + $('#id_periodo_mes').val() + '<br>' +
+                '</p>';
+            Swal.fire({
+                position: 'top-end',
+                title: '¿Está seguro que desea generar las deudas?',
+                html: html,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Si, generar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let form = new FormData(this);
+                    form.append('action', 'generar_deudas'); // Agregar la acción que se va a ejecutar en el backend
+                    $.ajax({
+                        url: window.location.pathname,
+                        type: 'POST',
+                        data: form,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (data) {
+                            if (!data.hasOwnProperty('error')) {
+                                location.reload();
+                            } else {
+                                let errors = [];
+                                if (typeof data.error === 'object') { // Si 'data.error' es un objeto cargar los errores al array
+                                    $.each(data.error, function (key, value) {
+                                        errors.push(value);
+                                    });
+                                } else {
+                                    errors = data.error
+                                }
+                                Swal.fire({
+                                    position: 'top-end',
+                                    icon: 'error',
+                                    title: 'Ocurrió un error',
+                                    text: errors,
+                                    showConfirmButton: true,
+                                })
+                                document.body.classList.remove('swal2-height-auto');
+                            }
+                        },
+                        error: function (data) {
+                            alert('Error al guardar la cuota social');
+                        }
+                    });
                 }
             })
         });
