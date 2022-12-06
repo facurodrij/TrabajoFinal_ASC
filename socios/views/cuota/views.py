@@ -100,9 +100,9 @@ class CuotaSocialListView(LoginRequiredMixin, SocioRequiredMixin, ListView):
                         },
                     },
                     "back_urls": {
-                        "success": "http://127.0.0.1:8000/socio/mis_cuotas/",
-                        "failure": "http://127.0.0.1:8000/socio/mis_cuotas/",
-                        "pending": "http://127.0.0.1:8000/socio/mis_cuotas/",
+                        "success": "http://127.0.0.1:8000/cuotas/mis_cuotas/",
+                        "failure": "http://127.0.0.1:8000/cuotas/mis_cuotas/",
+                        "pending": "http://127.0.0.1:8000/cuotas/mis_cuotas/",
                     },
                     "auto_return": "approved",
                     "external_reference": str(cuota.id),
@@ -133,26 +133,24 @@ class CuotaSocialListView(LoginRequiredMixin, SocioRequiredMixin, ListView):
             if request.GET['collection_status'] == 'approved':
                 cuota_social = CuotaSocial.objects.get(pk=request.GET['external_reference'])
                 # Calcular intereses
-                if cuota_social.fecha_vencimiento < datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')):
+                if cuota_social.is_atrasada():
                     aumento_por_cuota_vencida = ClubParameters.objects.get(pk=1).aumento_por_cuota_vencida
                     # Calcular los meses de atraso
-                    meses_atraso = (datetime.now(pytz.timezone(
-                        'America/Argentina/Buenos_Aires')).year - cuota_social.fecha_vencimiento.year) * 12 + (
-                                           datetime.now(pytz.timezone(
-                                               'America/Argentina/Buenos_Aires')).month - cuota_social.fecha_vencimiento.month)
-                    interes = cuota_social.total * (aumento_por_cuota_vencida / 100) * meses_atraso
+                    meses_atraso = cuota_social.meses_atraso()
+                    interes = cuota_social.interes()
                     total_w_interes = cuota_social.total + interes
                     total_pagado = round(total_w_interes, 2)
+                    cuota_social.observaciones = 'Se han aplicado los intereses correspondientes a la mora'
+                    cuota_social.save()
                 else:
                     total_pagado = cuota_social.total
                 with transaction.atomic():
-                    pago = PagoCuotaSocial.objects.create(
+                    PagoCuotaSocial.objects.create(
                         cuota_social=cuota_social,
                         fecha_pago=datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')),
                         medio_pago=MedioPago.objects.get(pk=6),
                         total_pagado=total_pagado,
                     )
-                    pago.save()
                     messages.success(request, 'Pago realizado con éxito')
                     return redirect('socio-cuotas')
             else:

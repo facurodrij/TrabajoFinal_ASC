@@ -225,7 +225,6 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                 <th scope="col" style="">#</th>
                                 <th scope="col" style="">Total</th>
                                 <th scope="col" style="">Período</th>
-                                <th scope="col" style="">Fecha de emisión</th>
                                 <th scope="col" style="">Fecha de vencimiento</th>
                                 <th scope="col" style="">Estado</th>
                                 <th></th>
@@ -243,7 +242,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                         <td>${{ cuota.pagocuotasocial.total_pagado }}</td>
                                     {% endif %}
                                     <td>{{ cuota.get_periodo }}</td>
-                                    <td>{{ cuota.fecha_emision }}</td>
+
                                     <td>{{ cuota.fecha_vencimiento }}</td>
                                     {% if cuota.is_deleted %}
                                         <td><span class="badge badge-danger">{{ cuota.get_estado }}</span></td>
@@ -282,7 +281,6 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                 <th scope="col" style="">#</th>
                                 <th scope="col" style="">Total</th>
                                 <th scope="col" style="">Período</th>
-                                <th scope="col" style="">Fecha de emisión</th>
                                 <th scope="col" style="">Fecha de vencimiento</th>
                                 <th scope="col" style="">Estado</th>
                                 <th></th>
@@ -616,7 +614,6 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                         window.open('/admin/socios/' + data.id + '/' + data.history_id + '/', '_blank');
                                     }
                                     if (data.success_url) {
-                                        alert(data.success_url);
                                         // Redireccionar a la url de éxito
                                         window.location.href = data.success_url;
                                     } else {
@@ -704,7 +701,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                 "useCurrent": false,
                 "minDate": "1900",
                 // maxDate es el año actual, incrementado en 1
-                "maxDate": moment().add(1, 'years').format('YYYY'),
+                // "maxDate": moment().add(1, 'years').format('YYYY'),
             });
             ModalAddCuota.modal('show');
         });

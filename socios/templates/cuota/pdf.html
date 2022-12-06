@@ -204,7 +204,13 @@
     <div class="row">
         <div class="col-7 text-left">
             <hr>
-            <p class="lead">Observaciones: {{ cuota.observaciones }}</p>
+            <p class="lead">Observaciones: {{ cuota.observaciones | default_if_none:"" }}</p>
+            {% if cuota.is_atrasada %}
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Deuda Atrasada! <i class="fa-solid fa-exclamation-triangle"></i></h4>
+                    <p>Se han incluido los intereses correspondientes a la deuda.</p>
+                </div>
+            {% endif %}
         </div>
         <div class="col-5">
             <hr>
@@ -316,7 +322,7 @@
     <div class="row">
         <div class="col-7 text-left">
             <hr>
-            <p class="lead">Observaciones: {{ cuota.observaciones }}</p>
+            <p class="lead">Observaciones: {{ cuota.observaciones | default_if_none:"" }}</p>
             <div class="alert alert-success" role="alert">
                 <h4 class="alert-heading">Pagada! <i class="fa-solid fa-check-double"></i></h4>
                 <p>Esta cuota ya fue pagada.</p>
@@ -338,10 +344,10 @@
                         <td>Cargo extra</td>
                         <td class="text-right">$ {{ cuota.cargo_extra }}</td>
                     </tr>
-                    <tr>
-                        <td>Meses de atraso</td>
-                        <td class="text-right">{{ cuota.pagocuotasocial.meses_atraso }}</td>
-                    </tr>
+{#                    <tr>#}
+{#                        <td>Meses de atraso</td>#}
+{#                        <td class="text-right">{{ cuota.pagocuotasocial.meses_atraso }}</td>#}
+{#                    </tr>#}
                     <tr>
                         <td>Intereses</td>
                         <td class="text-right">$ {{ cuota.pagocuotasocial.interes_aplicado }}</td>

@@ -1,6 +1,6 @@
 [
   {
-    "model": "parameters.SocioParameters",
+    "model": "parameters.ClubParameters",
     "pk": 1,
     "fields": {
       "club": 1,

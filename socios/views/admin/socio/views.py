@@ -253,6 +253,9 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
                     if socio.es_titular():
                         data['success_url'] = reverse_lazy('admin-socio-listado')
                         messages.success(request, 'Socio eliminado correctamente')
+                    else:
+                        data['success_url'] = reverse_lazy('admin-socio-detalle', kwargs={'pk': socio.socio_titular.pk})
+                        messages.success(request, 'Miembro eliminado correctamente')
             elif action == 'restore_socio':
                 # Si la acción es restore_socio, se restaura el miembro
                 socio = Socio.deleted_objects.get(pk=request.POST['id'])

@@ -19,37 +19,6 @@
                     </div>
                 </div>
                 <div class="col">
-                    <div class="card card-info">
-                        <div class="card-header">
-                            <h3 class="card-title">Imprima y pague sus cuotas de socio</h3>
-                        </div>
-                        <div class="card-body text-center">
-                            <a href="#" id="search-socio-btn">
-                                <img src="{% static 'icons/icons8-invoice.svg' %}"
-                                     class="rounded-circle p-1 m-3 bg-info" alt="" width="200px" id="login-img">
-                            </a>
-                            <div class="row mt-4" id="search-socio-div">
-                                <div class="col-8">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Ingrese su DNI"
-                                               autocomplete>
-                                        <div class="input-group-append">
-                                            <div class="input-group-text">
-                                                <span class="fas fa-id-card"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    <button class="btn btn-primary btn-block" id="btn-buscar">
-                                        <i class="fa-solid fa-magnifying-glass"></i> Buscar cuotas
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
                     <div class="card card-primary">
                         <div class="card-header">
                             <h3 class="card-title">Asociarse al club</h3>
@@ -65,84 +34,7 @@
             </div>
         {% endif %}
     </div>
-{% endblock %}
+{% endblock content %}
+
 {% block body_js %}
-    <script>
-        let searchSocioDiv = $('#search-socio-div').hide();
-        $('#search-socio-btn').on('click', function () {
-            // searchSocioDiv.toggle() con transición de deslizamiento hacia abajo 500ms
-            searchSocioDiv.slideToggle(200);
-        });
-        $('#btn-buscar').click(function () {
-            // Obtengo el valor del input
-            let dni = $('input').val();
-            // Si el valor es vacío
-            if (dni === '') {
-                // Muestro un mensaje de error
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Debe ingresar su DNI',
-                });
-            } else {
-                // Si el valor no es vacío
-                // Muestro un mensaje de espera
-                Swal.fire({
-                    title: 'Buscando...',
-                    html: 'Espere un momento por favor',
-                    allowOutsideClick: false,
-                    onBeforeOpen: () => {
-                        // ShowLoading() por 2 segundos
-                        Swal.showLoading();
-                    },
-                });
-                // Hago una petición ajax
-                $.ajax({
-                    url: window.location.pathname,
-                    type: 'GET',
-                    data: {
-                        'dni': dni,
-                        'action': 'search'
-                    },
-                    success: function (data) {
-                        // Si la petición es exitosa
-                        // Cierro el mensaje de espera
-                        Swal.close();
-                        // Si el socio existe
-                        if (data.socio_dni) {
-                            // Muestro un mensaje de éxito
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Socio encontrado!',
-                                text: 'El socio con DNI ' + dni + ' existe',
-                                showConfirmButton: false,
-                            });
-                            // Delay de 2 segundos
-                            setTimeout(function () {
-                                // Redirecciono a la página de impresión
-                                window.location.href = '/cuotas/dni=' + data.socio_dni + '/';
-                            }, 2000);
-                        } else {
-                            // Si el socio no existe
-                            // Muestro un mensaje de error
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: 'El socio con DNI ' + dni + ' no existe',
-                            });
-                        }
-                    },
-                    error: function (data) {
-                        // Si la petición falla
-                        // Muestro un mensaje de error
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Ocurrió un error al buscar el socio',
-                        });
-                    }
-                });
-            }
-        });
-    </script>
 {% endblock body_js %}

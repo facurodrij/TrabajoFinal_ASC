@@ -44,18 +44,15 @@ class CuotaSocialAdminListView(LoginRequiredMixin, PermissionRequiredMixin, List
                 # Si la acción es get_total_cuota_social, se calcula el total de la cuota social
                 cuota_social = CuotaSocial.objects.get(pk=request.POST['id'])
                 # Calcular intereses
-                if cuota_social.fecha_vencimiento < datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')):
+                if cuota_social.is_atrasada():
                     aumento_por_cuota_vencida = ClubParameters.objects.get(pk=1).aumento_por_cuota_vencida
                     # Calcular los meses de atraso
-                    meses_atraso = (datetime.now(pytz.timezone(
-                        'America/Argentina/Buenos_Aires')).year - cuota_social.fecha_vencimiento.year) * 12 + (
-                                           datetime.now(pytz.timezone(
-                                               'America/Argentina/Buenos_Aires')).month - cuota_social.fecha_vencimiento.month)
-                    interes = cuota_social.total * (aumento_por_cuota_vencida / 100) * meses_atraso
+                    meses_atraso = cuota_social.meses_atraso()
+                    interes = cuota_social.interes()
                     total_w_interes = cuota_social.total + interes
                     data['meses_atraso'] = meses_atraso
                     data['interes_por_mes'] = aumento_por_cuota_vencida
-                    data['interes'] = round(interes, 2)
+                    data['interes'] = interes
                     data['total_w_interes'] = round(total_w_interes, 2)
                 else:
                     data['total'] = cuota_social.total

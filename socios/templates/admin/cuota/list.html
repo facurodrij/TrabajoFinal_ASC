@@ -32,7 +32,6 @@
                                 <th scope="col" style="">Titular</th>
                                 <th scope="col" style="">Total</th>
                                 <th scope="col" style="">Período</th>
-                                <th scope="col" style="">Fecha de emisión</th>
                                 <th scope="col" style="">Fecha de vencimiento</th>
                                 <th scope="col" style="">Estado</th>
                                 <th></th>
@@ -53,7 +52,7 @@
                                         <td>${{ cuota.pagocuotasocial.total_pagado }}</td>
                                     {% endif %}
                                     <td>{{ cuota.get_periodo }}</td>
-                                    <td>{{ cuota.fecha_emision }}</td>
+
                                     <td>{{ cuota.fecha_vencimiento }}</td>
                                     {% if cuota.is_deleted %}
                                         <td><span class="badge badge-danger">{{ cuota.get_estado }}</span></td>
@@ -93,7 +92,6 @@
                                 <th scope="col" style="">Titular</th>
                                 <th scope="col" style="">Total</th>
                                 <th scope="col" style="">Período</th>
-                                <th scope="col" style="">Fecha de emisión</th>
                                 <th scope="col" style="">Fecha de vencimiento</th>
                                 <th scope="col" style="">Estado</th>
                                 <th></th>

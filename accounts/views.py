@@ -104,6 +104,7 @@ class CustomLoginView(LoginView):
                 messages.error(self.request, 'Su cuenta de socio ha sido dada de baja.')
                 # TODO: Agregar motivo de la baja
                 return redirect('logout')
+            return redirect('persona')
         return super().form_valid(form)
 
 

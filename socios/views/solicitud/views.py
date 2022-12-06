@@ -57,7 +57,7 @@ class SolicitudView(CreateView):
                 edad = relativedelta(datetime.now(), datetime.strptime(fecha_nacimiento, '%d/%m/%Y')).years
                 # Obtener las categorias que corresponden a la edad
                 categorias = Categoria.objects.filter(edad_desde__lte=edad,
-                                                      edad_hasta__gte=edad)
+                                                      edad_hasta__gte=edad).exclude(pk=1)
                 for categoria in categorias:
                     item = categoria.toJSON()
                     data.append(item)
