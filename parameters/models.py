@@ -84,19 +84,6 @@ class Pais(models.Model):
     def __str__(self):
         return self.nombre
 
-    def clean(self):
-        super(Pais, self).clean()
-        # El nombre del país comienza con mayúscula.
-        self.nombre = self.nombre.capitalize()
-        # El nombre del país no debe contener números.
-        if any(char.isdigit() for char in self.nombre):
-            raise ValidationError(_('El nombre del país no debe contener números.'))
-        # El nombre del país no debe contener dobles espacios.
-        if '  ' in self.nombre:
-            raise ValidationError(_('El nombre del país no debe contener dobles espacios.'))
-        # Si tiene espacios en blanco al principio o al final, se eliminan.
-        self.nombre = self.nombre.strip()
-
     class Meta:
         verbose_name = _('País')
         verbose_name_plural = _('Países')
@@ -110,48 +97,53 @@ class Provincia(models.Model):
     def __str__(self):
         return self.nombre
 
-    def clean(self):
-        super(Provincia, self).clean()
-        # El nombre de la provincia comienza con mayúscula.
-        self.nombre = self.nombre.capitalize()
-        # El nombre de la provincia no debe contener números.
-        if any(char.isdigit() for char in self.nombre):
-            raise ValidationError(_('El nombre de la provincia no debe contener números.'))
-        # El nombre de la provincia no debe contener dobles espacios.
-        if '  ' in self.nombre:
-            raise ValidationError(_('El nombre de la provincia no debe contener dobles espacios.'))
-        # Si tiene espacios en blanco al principio o al final, se eliminan.
-        self.nombre = self.nombre.strip()
-
     class Meta:
         unique_together = ('nombre', 'pais')
         verbose_name = _('Provincia')
         verbose_name_plural = _('Provincias')
 
 
-class Localidad(models.Model):
-    """Modelo para almacenar las localidades."""
-    nombre = models.CharField(max_length=255, verbose_name=_('Nombre'))
+class Departamento(models.Model):
+    nombre = models.CharField(max_length=100, verbose_name=_('Nombre'))
     provincia = models.ForeignKey(Provincia, on_delete=models.PROTECT, verbose_name=_('Provincia'))
-    pais = models.ForeignKey(Pais, on_delete=models.PROTECT, verbose_name=_('Pais'))
 
-    def __str__(self):
-        return self.nombre + ', ' + self.provincia.nombre + ', ' + self.pais.nombre
-
-    def clean(self):
-        super(Localidad, self).clean()
-        # El nombre de la localidad comienza con mayúscula.
-        self.nombre = self.nombre.capitalize()
-        # El nombre de la localidad no debe contener números.
-        if any(char.isdigit() for char in self.nombre):
-            raise ValidationError(_('El nombre de la localidad no debe contener números.'))
-        # El nombre de la localidad no debe contener dobles espacios.
-        if '  ' in self.nombre:
-            raise ValidationError(_('El nombre de la localidad no debe contener dobles espacios.'))
-        # Si tiene espacios en blanco al principio o al final, se eliminan.
-        self.nombre = self.nombre.strip()
+    def __unicode__(self):
+        return self.nombre
 
     class Meta:
-        unique_together = ('nombre', 'provincia', 'pais')
-        verbose_name = _('Localidad')
-        verbose_name_plural = _('Localidades')
+        unique_together = ('nombre', 'provincia')
+        verbose_name = _('Departamento')
+        verbose_name_plural = _('Departamentos')
+
+
+class Municipio(models.Model):
+    nombre = models.CharField(max_length=255)
+    provincia = models.ForeignKey(Provincia, on_delete=models.PROTECT)
+
+    def __unicode__(self):
+        return self.nombre
+
+    class Meta:
+        verbose_name = _('Municipio')
+        verbose_name_plural = _('Municipios')
+
+
+class Localidad(models.Model):
+    nombre = models.CharField(max_length=255)
+    categoria = models.CharField(max_length=50)
+    departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT, null=True)
+    municipio = models.ForeignKey(Municipio, on_delete=models.PROTECT, null=True)
+    provincia = models.ForeignKey(Provincia, on_delete=models.PROTECT)
+
+    def __str__(self):
+        localidad = self.nombre
+        if self.municipio and self.municipio.nombre != self.nombre:
+            localidad += ', ' + self.municipio.nombre
+        if self.departamento and self.departamento.nombre != self.nombre:
+            localidad += ', ' + self.departamento.nombre
+        localidad += ', ' + self.provincia.nombre
+        return localidad
+
+    class Meta:
+        verbose_name_plural = "Localidades"
+        unique_together = ("nombre", "provincia", "departamento", "municipio")
