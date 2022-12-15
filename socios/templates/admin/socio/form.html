@@ -1,0 +1,234 @@
+{% extends "extends/base.html" %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block head_js %}
+    <!-- Tempus Dominus -->
+    <script src="{% static 'libs/tempusdominus-bootstrap-5.39/moment-with-locales.min.js' %}"></script>
+    <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
+{% endblock head_js %}
+
+{% block head_css %}
+    <link href="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.css' %}" media="all"
+          rel="stylesheet">
+    <style>
+        .image-area {
+            border: 2px dashed rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            position: relative;
+        }
+
+        .image-area::before {
+            content: 'Resultado de la imagen subida';
+            color: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            text-transform: uppercase;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8rem;
+            z-index: 1;
+        }
+
+        .image-area img {
+            z-index: 2;
+            position: relative;
+        }
+    </style>
+{% endblock head_css %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin-socio-listado' %}">Socios</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <form method="post" enctype="multipart/form-data" id="formSocio">
+                    {% csrf_token %}
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    <h4>Datos Personales</h4>
+                                    <hr>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            {{ form.persona }}
+                                            <div class="input-group-append">
+                                                <button id="open-ModalAddPersona" class="btn btn-success" type="button">
+                                                    <i class="fas fa-user-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <h4>Datos del socio</h4>
+                                    <hr>
+                                    <div class="form-group">
+                                        {{ form.categoria }}
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group" data-target-input="nearest">
+                                            {{ form.fecha_ingreso }}
+                                            <div class="input-group-append" data-target="#id_fecha_ingreso"
+                                                 data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <h4>Datos del tutor</h4>
+                                        <hr class="mt-0">
+                                        <div class="form-group">
+                                            {{ form.socio_titular }}
+                                        </div>
+                                        <div class="form-group">
+                                            {{ form.parentesco }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fa fa-save"></i> Guardar
+                            </button>
+                            <button class="btn btn-secondary" type="reset" onclick="resetSocioForm()">
+                                <i class="fas fa-eraser"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modals Add Persona -->
+    {% include 'admin/socio/modals/persona_form.html' %}
+{% endblock content %}
+{% block body_js %}
+    <script>
+        $('#open-ModalAddPersona').click(function () {
+            $('#ModalAddPersona').modal('show');
+        });
+
+        $('#id_persona').select2({
+            theme: 'bootstrap4',
+            allowClear: true,
+            placeholder: 'Seleccione una persona',
+            language: 'es'
+        });
+        $('#id_categoria').select2({
+            theme: 'bootstrap4',
+            allowClear: true,
+            placeholder: 'Seleccione una categoría',
+            width: '100%',
+            language: 'es'
+        });
+        $('#id_socio_titular').select2({
+            theme: 'bootstrap4',
+            allowClear: true,
+            placeholder: 'Seleccione un tutor',
+            width: '100%',
+            language: 'es'
+        });
+        $('#id_parentesco').select2({
+            theme: 'bootstrap4',
+            allowClear: true,
+            placeholder: 'Seleccione un parentesco',
+            width: '100%',
+            language: 'es'
+        });
+        $('#id_fecha_ingreso').datetimepicker({
+            "format": "DD/MM/YYYY",
+            "locale": "es-AR",
+            "date": null,
+            "minDate": "01/01/1900",
+            "maxDate": Date.now(),
+        });
+
+        function resetSocioForm() {
+            $('#id_persona').val(null).trigger('change');
+            $('#id_categoria').val(null).trigger('change');
+            $('#id_socio_titular').val(null).trigger('change');
+            $('#id_parentesco').val(null).trigger('change');
+            $('#id_fecha_ingreso').val(null).trigger('change');
+        }
+
+        // Submit form
+        $('#formSocio').submit(function (e) {
+            e.preventDefault();
+            console.log('submit');
+            let form = new FormData(this);
+            form.append('action', '{{ action }}');
+            $.ajax({
+                url: window.location.pathname,
+                type: 'POST',
+                data: form,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (!data.hasOwnProperty('error')) {
+                        Swal.fire({
+                            position: 'top-end',
+                            title: 'Socio agregado',
+                            text: 'El socio se agregó correctamente',
+                            icon: 'success',
+                            confirmButtonText: 'Imprimir comprobante de operación',
+                            showCancelButton: true,
+                            cancelButtonText: 'Cerrar',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    url: "{% url 'admin-socio-ajax' %}",
+                                    type: "GET",
+                                    data: {
+                                        'action': 'print_comprobante',
+                                        'persona': data['persona'],
+                                        'socio': data['socio'],
+                                    },
+                                    success: function (data) {
+                                        if (data['url']) {
+                                            window.open(data['url'], '_blank');
+                                        }
+                                    },
+                                    error: function (data) {
+                                        console.log('Error:', data);
+                                    }
+                                });
+                            }
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            html: '<p>Ha ocurrido un error al crear el socio.</p>',
+                            icon: 'error',
+                            confirmButtonText: 'Ok',
+                            confirmButtonColor: '#3085d6',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            allowEnterKey: false,
+                            stopKeydownPropagation: false,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                resetForm();
+                            }
+                        });
+                    }
+                },
+                error: function (data) {
+                    console.log('Error:', data);
+                }
+            });
+        });
+    </script>
+{% endblock body_js %}

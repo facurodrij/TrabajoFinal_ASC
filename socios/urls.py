@@ -11,9 +11,11 @@ urlpatterns = [
     # Si ingresan a admin/socios/ se redirige a admin-socio-listado
     path('admin/socios/', lambda request: redirect('admin-socio-listado', permanent=True), name='admin-socio'),
     path('admin/socios/listado/', SocioAdminListView.as_view(), name='admin-socio-listado'),
+    path('admin/socios/crear/', SocioAdminCreateView.as_view(), name='admin-socio-crear'),
     path('admin/socios/<int:pk>/', SocioAdminDetailView.as_view(), name='admin-socio-detalle'),
     path('admin/socios/<int:pk>/editar/', SocioAdminUpdateView.as_view(), name='admin-socio-editar'),
     path('admin/socios/<int:socio_pk>/<int:history_pk>/', socio_history_pdf, name='socio-history-pdf'),
+    path('admin/socios/ajax/', socio_admin_ajax, name='admin-socio-ajax'),
 
     # URLs de socios (usuarios)
     path('socio/mis_datos/', SocioFormView.as_view(), name='socio-datos'),

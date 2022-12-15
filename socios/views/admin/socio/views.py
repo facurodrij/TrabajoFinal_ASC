@@ -12,7 +12,7 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, UpdateView
+from django.views.generic import ListView, DetailView, UpdateView, CreateView
 from weasyprint import HTML, CSS
 
 from accounts.decorators import admin_required
@@ -149,6 +149,37 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             data['error'] = str(e)
         print('SocioAdminListView: POST data: ', data)
         return JsonResponse(data, safe=False)
+
+
+class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    model = Socio
+    form_class = SocioForm
+    template_name = 'admin/socio/form.html'
+    permission_required = 'socio.add_socio'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Nuevo Socio'
+        context['action'] = 'add'
+        context['persona_form'] = PersonaFormAdmin()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'add':
+                form = SocioForm(request.POST)
+                if form.is_valid():
+                    with transaction.atomic():
+                        socio = form.save()
+                        data = {'persona': socio.persona.toJSON(), 'socio': socio.toJSON()}
+                else:
+                    data['error'] = form.errors
+        except Exception as e:
+            data = {'error': str(e)}
+        print(data)
+        return JsonResponse(data)
 
 
 class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
@@ -428,3 +459,39 @@ def socio_history_pdf(request, socio_pk, history_pk):
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = 'filename="socio_historial.pdf"'
         return response
+
+
+@login_required
+@admin_required
+def socio_admin_ajax(request):
+    data = {}
+    # Obtener si el GET o POST
+    if request.method == 'GET':
+        action = request.GET['action']
+        if action == 'get_persona':
+            # Si la acción es get_persona, se obtiene la persona
+            try:
+                persona = Persona.global_objects.get(dni=request.GET['dni'])
+                if persona.is_deleted:
+                    data = {'persona_is_deleted': persona.toJSON()}
+                elif persona.get_socio(global_objects=True):
+                    data = {'persona_is_socio': persona.toJSON()}
+                else:
+                    data = {'persona': persona.toJSON()}
+            except Persona.DoesNotExist:
+                pass
+            print(data)
+    elif request.method == 'POST':
+        action = request.POST['action']
+        if action == 'add_persona':
+            # Si la acción es add_persona, se crea una nueva persona
+            form = PersonaFormAdmin(request.POST, request.FILES)
+            if form.is_valid():
+                with transaction.atomic():
+                    persona = form.save(commit=False)
+                    persona.club = Club.objects.get(pk=1)
+                    persona.save()
+                    data = {'persona': persona.toJSON()}
+            else:
+                data['error'] = form.errors
+    return JsonResponse(data, safe=False)

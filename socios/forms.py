@@ -29,15 +29,29 @@ class SocioForm(forms.ModelForm):
     """
     Formulario para crear un socio.
     """
+    fecha_ingreso = forms.DateField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                'autocomplete': 'off',
+                'placeholder': 'Fecha de ingreso',
+                'class': 'form-control  datetimepicker-input',
+                'data-toggle': 'datetimepicker',
+                'data-target': '#id_fecha_ingreso',
+            }
+        ))
+    socio_titular = forms.ModelChoiceField(required=False,
+                                           queryset=Socio.global_objects.all().filter(socio_titular__isnull=True),
+                                           widget=forms.Select(attrs={'class': 'form-control select2'}))
 
     class Meta:
         model = Socio
-        fields = ['persona', 'categoria', 'socio_titular', 'parentesco']
+        fields = ['persona', 'categoria', 'socio_titular', 'parentesco', 'fecha_ingreso']
         widgets = {
             'persona': forms.Select(attrs={'class': 'form-control select2'}),
             'categoria': forms.Select(attrs={'class': 'form-control select2'}),
-            'socio_titular': forms.Select(attrs={'class': 'form-control select2'}),
-            'parentesco': forms.Select(attrs={'class': 'form-control select2'})
+            'parentesco': forms.Select(attrs={'class': 'form-control select2'}),
+            'fecha_ingreso': forms.DateInput(attrs={'class': 'form-control datepicker'}),
         }
 
 

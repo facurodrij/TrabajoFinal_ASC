@@ -10,28 +10,39 @@
     {% endblock head_meta %}
 
     <title>{{ title }} - RESERVÁ</title>
-    <!-- Bootstrap 4.6 -->
+    <!-- Bootstrap 4.6 CSS -->
     <link rel="stylesheet" href="{% static 'libs/bootstrap-4.6.2/bootstrap.min.css' %}">
     <!-- Font Awesome -->
     <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
-    <!-- AdminLTE 3 -->
+    <!-- AdminLTE 3 CSS -->
     <link rel="stylesheet" href="{% static 'libs/adminlte-3.2/adminlte.min.css' %}">
-    <!-- SweetAlert2 Theme Borderless -->
+    <!-- SweetAlert2 Theme Borderless CSS -->
     <link rel="stylesheet" href="{% static 'libs/sweetalert2/borderless.min.css' %}">
-    <!-- iCheck Bootstrap -->
+    <!-- iCheck Bootstrap CSS -->
     <link rel="stylesheet" href="{% static 'libs/icheck-bootstrap-3.0.1/icheck-bootstrap.min.css' %}">
-    <!-- Select2 -->
+    <!-- Select2 Bootstrap CSS -->
     <link rel="stylesheet" href="{% static 'libs/select2-4.1/select2.min.css' %}"/>
     <link rel="stylesheet" href="{% static 'libs/select2-4.1/select2-bootstrap4.min.css' %}">
-    <!-- BS Custom File Input -->
+    <!-- jQuery JS -->
+    <script src="{% static 'libs/jquery-3.6.1/jquery-3.6.1.min.js' %}"></script>
+    <!-- Bootstrap 4.6 JS -->
+    <script src="{% static 'libs/bootstrap-4.6.2/bootstrap.bundle.min.js' %}"></script>
+    <!-- AdminLTE 3 JS -->
+    <script src="{% static 'libs/adminlte-3.2/adminlte.min.js' %}"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="{% static 'libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+    <!-- Select2 JS -->
+    <script src="{% static 'libs/select2-4.1/select2.min.js' %}"></script>
+    <!-- BS Custom File Input JS -->
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
     {% if not user.is_authenticated %}
         <style>
             body {
                 background-color: #aeaeae;
             }
+
             #login-img:hover {
                 transform: scale(1.1);
             }
@@ -76,16 +87,6 @@
         </section>
     </div>
 </div>
-<!-- jQuery -->
-<script src="{% static 'libs/jquery-3.6.1/jquery-3.6.1.min.js' %}"></script>
-<!-- Bootstrap -->
-<script src="{% static 'libs/bootstrap-4.6.2/bootstrap.bundle.min.js' %}"></script>
-<!-- AdminLTE 3 -->
-<script src="{% static 'libs/adminlte-3.2/adminlte.min.js' %}"></script>
-<!-- SweetAlert2 -->
-<script src="{% static 'libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
-<!-- Select2 -->
-<script src="{% static 'libs/select2-4.1/select2.min.js' %}"></script>
 <!-- Todos los templates que extienden de base.html podrán recibir los mensajes que envían las vistas -->
 {% include 'includes/message.html' %}
 {% block body_js %}

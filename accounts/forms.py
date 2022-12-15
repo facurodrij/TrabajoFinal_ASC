@@ -113,8 +113,7 @@ class PersonaFormAdmin(forms.ModelForm):
                                       }))
     fecha_nacimiento = forms.DateField(
         required=True,
-        widget=forms.DateInput(
-            format='%d/%m/%Y',
+        widget=forms.TextInput(
             attrs={
                 'autocomplete': 'off',
                 'placeholder': 'Fecha de nacimiento',
@@ -124,7 +123,12 @@ class PersonaFormAdmin(forms.ModelForm):
             }
         ))
     imagen = forms.ImageField(
-        required=True, widget=AdminFileWidget, label='Foto Carnet')
+        required=True,
+        widget=forms.FileInput(
+            attrs={
+                'class': 'custom-file-input',
+            }
+        ))
 
     class Meta:
         model = Persona

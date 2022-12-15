@@ -145,7 +145,7 @@ class PersonaAbstract(SoftDeleteModel):
         """
         Devuelve la fecha de nacimiento de la persona.
         """
-        return self.fecha_nacimiento.strftime('%Y/%m/%d')
+        return self.fecha_nacimiento.strftime('%d/%m/%Y')
 
     def save(self, *args, **kwargs):
         """Método save() sobrescrito para redimensionar la imagen."""
