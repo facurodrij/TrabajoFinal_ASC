@@ -4,7 +4,6 @@ from socios.views.admin.cuota.views import *
 from socios.views.admin.socio.views import *
 from socios.views.cuota.views import *
 from socios.views.socio.views import *
-from socios.views.solicitud.views import *
 
 urlpatterns = [
     # # URLs de socios (administración)
@@ -19,12 +18,6 @@ urlpatterns = [
 
     # URLs de socios (usuarios)
     path('socio/mis_datos/', SocioFormView.as_view(), name='socio-datos'),
-
-    # URLs de solicitud de socio (administración)
-    path('admin/socios/solicitudes/', SolicitudAdminListView.as_view(), name='admin-socio-solicitudes'),
-
-    # URLs de solicitud de socio (usuario)
-    path('solicitud/', SolicitudView.as_view(), name='solicitud-crear'),
 
     # URLs de cuotas de socios (administración)
     path('admin/cuotas/', lambda request: redirect('admin-cuota-listado', permanent=True), name='admin-cuota'),
