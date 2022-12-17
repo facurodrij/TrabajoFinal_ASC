@@ -9,58 +9,133 @@
     </ol>
 {% endblock %}
 
+{% block head_css %}
+    <style>
+        @media (max-width: 576px) {
+            .label-align {
+                text-align: left;
+            }
+        }
+
+        @media (min-width: 576px) {
+            .label-align {
+                text-align: right;
+            }
+        }
+
+        .image-area {
+            border: 2px dashed rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            position: relative;
+        }
+
+        .image-area::before {
+            content: 'Resultado de la imagen subida';
+            color: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            text-transform: uppercase;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8rem;
+            z-index: 1;
+        }
+
+        .image-area img {
+            z-index: 2;
+            position: relative;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <form id="formPersona" method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="card">
-                        <div class="card-header bg-primary">
-                            <h4 class="card-title">
-                                <i class="fas fa-edit"></i>
-                                {{ title }}
-                            </h4>
-                        </div>
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h4 class="card-title">
+                            <i class="fas fa-user-pen"></i>
+                            {{ title }}
+                        </h4>
+                    </div>
+                    <form id="formPersona" method="post" enctype="multipart/form-data" class="form-horizontal">
+                        {% csrf_token %}
                         <div class="card-body">
-                            <div class="form-group">
-                                <label>{{ form.dni.label }}</label>
-                                {{ form.dni }}
+                            <div class="form-group row">
+                                <label for="id_dni"
+                                       class="col-form-label col-md-3 col-sm-3 label-align">{{ form.dni.label }}</label>
+                                <div class="col-sm-7">
+                                    {{ form.dni }}
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label>{{ form.nombre.label }}</label>
-                                {{ form.nombre }}
+                            <div class="form-group row">
+                                <label for="id_nombre"
+                                       class="col-form-label col-md-3 col-sm-3 label-align">{{ form.nombre.label }}</label>
+                                <div class="col-sm-7">
+                                    {{ form.nombre }}
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label>{{ form.apellido.label }}</label>
-                                {{ form.apellido }}
+                            <div class="form-group row">
+                                <label for="id_apellido" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.apellido.label }}
+
+                                </label>
+                                <div class="col-sm-7">
+                                    {{ form.apellido }}
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label>{{ form.sexo.label }}</label>
-                                {{ form.sexo }}
+                            <div class="form-group row">
+                                <label for="id_sexo"
+                                       class="col-form-label col-md-3 col-sm-3 label-align">{{ form.sexo.label }}</label>
+                                <div class="col-sm-7">
+                                    {{ form.sexo }}
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label class="labels">{{ form.fecha_nacimiento.label }}</label>
-                                <div class="input-group" id="div_id_fecha_nacimiento"
-                                     data-target-input="nearest">
-                                    {{ form.fecha_nacimiento }}
-                                    <div class="input-group-append" data-target="#id_fecha_nacimiento"
-                                         data-toggle="datetimepicker">
-                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            <div class="form-group row">
+                                <label for="id_fecha_nacimiento"
+                                       class="col-form-label col-md-3 col-sm-3 label-align">{{ form.fecha_nacimiento.label }}</label>
+                                <div class="col-sm-7">
+                                    <div class="input-group" id="div_id_fecha_nacimiento"
+                                         data-target-input="nearest">
+                                        {{ form.fecha_nacimiento }}
+                                        <div class="input-group-append" data-target="#id_fecha_nacimiento"
+                                             data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label>{{ form.imagen.label }}</label>
-                                {{ form.imagen }}
+                            <div class="form-group row">
+                                <label for="id_imagen"
+                                       class="col-form-label col-md-3 col-sm-3 label-align">{{ form.imagen.label }}</label>
+                                <div class="col-sm-7">
+                                    <div class="custom-file" id="customFile" lang="es">
+                                        {{ form.imagen }}
+                                        <label class="custom-file-label" for="id_imagen">
+                                            <span class="text-black-50">Seleccione una foto carnet</span>
+                                        </label>
+                                    </div>
+                                    <!-- Uploaded image area-->
+                                    <p class="font-italic text-black-50 text-center mt-2">
+                                        La imagen subida se representará dentro del siguiente cuadro.
+                                    </p>
+                                    <div class="image-area mt-3">
+                                        <img id="imageResult" src="#" alt=""
+                                             style="max-height: 300px; max-width: 300px;"
+                                             class="img-fluid rounded mx-auto d-block"/>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="card-footer">
-                            <button class="btn btn-primary" type="submit">Guardar Cambios</button>
-                            <button class="btn btn-secondary" type="reset" onclick="resetForm()">Reset</button>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fa fa-save"></i> Guardar
+                            </button>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -74,9 +149,10 @@
     <script>
         $('#id_fecha_nacimiento').datetimepicker({
             "format": "DD/MM/YYYY",
-            "icons": {"time": "fa fa-clock-o"},
             "locale": "es-AR",
-            "date": new Date('{{ persona.get_fecha_nacimiento }}'),
+            {% if action == 'add' %}"date": null,
+                {% elif action == 'edit' %}"date": "{{ object.fecha_nacimiento|date:'d/m/Y' }}",
+            {% endif %}
             "minDate": "1900-01-01",
             "maxDate": Date.now(),
         });
@@ -87,6 +163,29 @@
             width: '100%',
             language: 'es',
         });
+
+        {% if action == 'edit' %}
+            // Obtener el nombre del archivo de la imagen
+            const imagen = "{{ persona.get_imagen | default_if_none:'' }}";
+            const filename = imagen.split('\\').pop().split('/').pop();
+
+            $('#id_imagen').val('').next().html('<span class="text-muted"> ' + filename + '</span>');
+            $('#imageResult').attr('src', '{{ object.get_imagen }}');
+        {% endif %}
+
+        // Imagen preview
+        document.querySelector('.custom-file-input').addEventListener('change', function (e) {
+            const fileName = document.getElementById("id_imagen").files[0].name;
+            const nextSibling = e.target.nextElementSibling;
+            nextSibling.innerText = fileName
+            const reader = new FileReader();
+            reader.onload = function () {
+                const output = document.getElementById('imageResult');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        });
+
         $('#formPersona').on('submit', function (e) {
             e.preventDefault();
             let form = new FormData(this);

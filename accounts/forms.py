@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.admin.widgets import AdminFileWidget
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm
 from django.contrib.auth.models import User
@@ -94,29 +93,33 @@ class PersonaFormAdmin(forms.ModelForm):
     """
     dni = forms.CharField(
         max_length=8,
+        label='DNI',
         required=True,
-        widget=forms.TextInput(attrs={'placeholder': 'DNI',
+        widget=forms.TextInput(attrs={'placeholder': 'Ingrese su DNI',
                                       'class': 'form-control',
+                                      'autocomplete': 'off',
                                       }))
     sexo = forms.Select(attrs={'class': 'form-control select2'})
     nombre = forms.CharField(
         max_length=100,
         required=True,
-        widget=forms.TextInput(attrs={'placeholder': 'Nombre',
+        widget=forms.TextInput(attrs={'placeholder': 'Ingrese su nombre',
                                       'class': 'form-control',
+                                      'autocomplete': 'off',
                                       }))
     apellido = forms.CharField(
         max_length=100,
         required=True,
-        widget=forms.TextInput(attrs={'placeholder': 'Apellido',
+        widget=forms.TextInput(attrs={'placeholder': 'Ingrese su apellido',
                                       'class': 'form-control',
+                                      'autocomplete': 'off',
                                       }))
     fecha_nacimiento = forms.DateField(
         required=True,
         widget=forms.TextInput(
             attrs={
                 'autocomplete': 'off',
-                'placeholder': 'Fecha de nacimiento',
+                'placeholder': 'Ingrese su fecha de nacimiento',
                 'class': 'form-control  datetimepicker-input',
                 'data-toggle': 'datetimepicker',
                 'data-target': '#id_fecha_nacimiento',
@@ -124,6 +127,7 @@ class PersonaFormAdmin(forms.ModelForm):
         ))
     imagen = forms.ImageField(
         required=True,
+        label='Foto carnet',
         widget=forms.FileInput(
             attrs={
                 'class': 'custom-file-input',
@@ -141,6 +145,7 @@ class LoginForm(AuthenticationForm):
         required=True,
         widget=forms.TextInput(attrs={'placeholder': 'Username',
                                       'class': 'form-control',
+                                      'autocomplete': 'off',
                                       }))
     password = forms.CharField(
         max_length=50,
@@ -170,14 +175,19 @@ class SignUpForm(forms.Form):
         required=True,
         widget=forms.TextInput(attrs={'placeholder': 'DNI',
                                       'class': 'form-control',
+                                      'autocomplete': 'off',
                                       }))
     email = forms.EmailField(
         required=True,
         widget=forms.TextInput(attrs={'placeholder': 'Email',
                                       'class': 'form-control',
+                                      'autocomplete': 'off',
                                       }))
     socio_id = forms.IntegerField(required=True,
-                                  widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Socio ID'}))
+                                  widget=forms.NumberInput(attrs={'class': 'form-control',
+                                                                  'placeholder': 'Socio ID',
+                                                                  'autocomplete': 'off',
+                                                                  }))
     error_messages = {
         "password_mismatch": _("The two password fields didn’t match."),
     }

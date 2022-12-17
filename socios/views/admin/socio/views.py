@@ -159,9 +159,10 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Nuevo Socio'
+        context['title'] = 'Nuevo Socio Titular'
         context['action'] = 'add'
         context['persona_form'] = PersonaFormAdmin()
+        context['edad_minima_titular'] = ClubParameters.objects.get(club_id=1).edad_minima_socio_titular
         return context
 
     def post(self, request, *args, **kwargs):
@@ -177,7 +178,7 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
                 else:
                     data['error'] = form.errors
         except Exception as e:
-            data = {'error': str(e)}
+            data['error'] = str(e)
         print(data)
         return JsonResponse(data)
 
@@ -471,16 +472,21 @@ def socio_admin_ajax(request):
         if action == 'get_persona':
             # Si la acción es get_persona, se obtiene la persona
             try:
-                persona = Persona.global_objects.get(dni=request.GET['dni'])
+                try:
+                    persona = Persona.global_objects.get(dni=request.GET['dni'])
+                except KeyError:
+                    persona = Persona.global_objects.get(pk=request.GET['id'])
                 if persona.is_deleted:
                     data = {'persona_is_deleted': persona.toJSON()}
                 elif persona.get_socio(global_objects=True):
-                    data = {'persona_is_socio': persona.toJSON()}
+                    data = {'persona_is_socio': persona.toJSON(),
+                            'socio': persona.get_socio(global_objects=True).toJSON()}
                 else:
                     data = {'persona': persona.toJSON()}
             except Persona.DoesNotExist:
                 pass
-            print(data)
+        elif action == 'get_categoria':
+            data = get_categoria(persona=request.GET['persona'])
     elif request.method == 'POST':
         action = request.POST['action']
         if action == 'add_persona':
@@ -494,4 +500,5 @@ def socio_admin_ajax(request):
                     data = {'persona': persona.toJSON()}
             else:
                 data['error'] = form.errors
+    print('socio_admin_ajax: ', data)
     return JsonResponse(data, safe=False)

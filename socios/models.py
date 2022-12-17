@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.forms import model_to_dict
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django_softdelete.models import SoftDeleteModel
 from num2words import num2words
@@ -67,6 +68,7 @@ class Socio(SoftDeleteModel):
     def toJSON(self):
         item = model_to_dict(self)
         item['__str__'] = self.__str__()
+        item['url_editar'] = reverse('admin-socio-editar', kwargs={'pk': self.pk})
         return item
 
     def clean(self):
@@ -151,59 +153,6 @@ class Categoria(models.Model):
                 violation_error_message='Si el precio de la cuota es $0, no se debe incluir en el '
                                         'detalle de la facturación.'
             ),
-        ]
-
-
-class SolicitudSocio(PersonaAbstract):
-    """
-    Modelo para almacenar las solicitudes de socios.
-    """
-    dni = models.CharField(max_length=8, verbose_name='DNI')
-    email = models.EmailField(max_length=255, verbose_name='Email')
-    categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT, verbose_name='Categoría')
-    is_aprobado = models.BooleanField(default=False, verbose_name='Aprobado')
-
-    def get_estado(self):
-        if self.is_aprobado:
-            return 'Aprobado'
-        elif self.is_deleted:
-            return 'Rechazado'
-        return 'Pendiente'
-
-    def toJSON(self):
-        item = model_to_dict(self, exclude=['imagen', 'sexo', 'is_aprobado', 'is_deleted', 'deleted_at'])
-        item['estado'] = self.get_estado()
-        item['categoria'] = self.categoria.toJSON()
-        item['edad'] = self.get_edad()
-        item['sexo'] = self.sexo.nombre
-        item['imagen'] = self.get_imagen()
-        return item
-
-    def clean(self):
-        super(SolicitudSocio, self).clean()
-        # Fecha de nacimiento no puede ser mayor a la fecha actual
-        if self.fecha_nacimiento > datetime.now().date():
-            raise ValidationError('La fecha de nacimiento no puede ser mayor a la fecha actual.')
-
-    class Meta:
-        verbose_name = 'Solicitud de socio'
-        verbose_name_plural = 'Solicitudes de socios'
-        constraints = [
-            # Validar que el DNI solo contenga números, tenga al menos 7 dígitos y no comience con 0.
-            models.CheckConstraint(check=models.Q(dni__regex=r'^[1-9][0-9]{6,}$'),
-                                   name='solicitud_dni_valido',
-                                   violation_error_message=_(
-                                       'DNI: El DNI debe contener solo números, '
-                                       'tener al menos 7 dígitos y no comenzar con 0.')),
-            # Validar que el nombre y el apellido solo contengan letras y espacios.
-            models.CheckConstraint(check=models.Q(nombre__regex=r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$'),
-                                   name='solicitud_nombre_valido',
-                                   violation_error_message=_(
-                                       'Nombre: El nombre solo puede contener letras y espacios.')),
-            models.CheckConstraint(check=models.Q(apellido__regex=r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$'),
-                                   name='solicitud_apellido_valido',
-                                   violation_error_message=_(
-                                       'Apellido: El apellido solo puede contener letras y espacios.')),
         ]
 
 

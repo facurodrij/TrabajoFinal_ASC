@@ -3,37 +3,19 @@
 {% load static %}
 
 {% block head_js %}
-    <!-- Tempus Dominus -->
+    <!-- Tempus Dominus JS -->
     <script src="{% static 'libs/tempusdominus-bootstrap-5.39/moment-with-locales.min.js' %}"></script>
     <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
 {% endblock head_js %}
 
 {% block head_css %}
+    <!-- Tempus Dominus CSS -->
     <link href="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.css' %}" media="all"
           rel="stylesheet">
     <style>
-        .image-area {
-            border: 2px dashed rgba(0, 0, 0, 0.3);
-            padding: 1rem;
-            position: relative;
-        }
-
-        .image-area::before {
-            content: 'Resultado de la imagen subida';
-            color: rgba(0, 0, 0, 0.3);
-            font-weight: bold;
-            text-transform: uppercase;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 0.8rem;
-            z-index: 1;
-        }
-
-        .image-area img {
-            z-index: 2;
-            position: relative;
+        img {
+            max-width: 300px;
+            max-height: 300px;
         }
     </style>
 {% endblock head_css %}
@@ -68,12 +50,14 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <ul id="list-data" class="list-group">
+                                    </ul>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <h4>Datos del socio</h4>
                                     <hr>
                                     <div class="form-group">
-                                        {{ form.categoria }}
+                                        {{ form.categoria|attr:"disabled" }}
                                     </div>
                                     <div class="form-group">
                                         <div class="input-group" data-target-input="nearest">
@@ -84,7 +68,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group" hidden="hidden">
                                         <h4>Datos del tutor</h4>
                                         <hr class="mt-0">
                                         <div class="form-group">
@@ -119,34 +103,40 @@
             $('#ModalAddPersona').modal('show');
         });
 
-        $('#id_persona').select2({
+        let selectPersona = $('#id_persona');
+        let selectSocioTitular = $('#id_socio_titular');
+        let selectCategoria = $('#id_categoria');
+        let selectParentesco = $('#id_parentesco');
+        let inputFechaIngreso = $('#id_fecha_ingreso');
+
+        selectPersona.select2({
             theme: 'bootstrap4',
             allowClear: true,
             placeholder: 'Seleccione una persona',
             language: 'es'
         });
-        $('#id_categoria').select2({
+        selectCategoria.select2({
             theme: 'bootstrap4',
             allowClear: true,
             placeholder: 'Seleccione una categoría',
             width: '100%',
             language: 'es'
         });
-        $('#id_socio_titular').select2({
+        selectSocioTitular.select2({
             theme: 'bootstrap4',
             allowClear: true,
             placeholder: 'Seleccione un tutor',
             width: '100%',
             language: 'es'
         });
-        $('#id_parentesco').select2({
+        selectParentesco.select2({
             theme: 'bootstrap4',
             allowClear: true,
             placeholder: 'Seleccione un parentesco',
             width: '100%',
             language: 'es'
         });
-        $('#id_fecha_ingreso').datetimepicker({
+        inputFechaIngreso.datetimepicker({
             "format": "DD/MM/YYYY",
             "locale": "es-AR",
             "date": null,
@@ -155,17 +145,74 @@
         });
 
         function resetSocioForm() {
-            $('#id_persona').val(null).trigger('change');
-            $('#id_categoria').val(null).trigger('change');
-            $('#id_socio_titular').val(null).trigger('change');
-            $('#id_parentesco').val(null).trigger('change');
-            $('#id_fecha_ingreso').val(null).trigger('change');
+            selectPersona.val(null).trigger('change');
+            selectCategoria.val(null).trigger('change');
+            selectSocioTitular.val(null).trigger('change');
+            selectParentesco.val(null).trigger('change');
+            inputFechaIngreso.val(null).trigger('change');
         }
+
+        // Obtener las categorias que puede tener la persona seleccionada.
+        selectPersona.on('change', function (e) {
+            let listDataPersona = $('#list-data');
+            if ($(this).val()) {
+                $.ajax({
+                    url: "{% url 'admin-socio-ajax' %}",
+                    type: 'GET',
+                    data: {
+                        'action': 'get_categoria',
+                        'persona': $(this).val()
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        if (!data.hasOwnProperty('error')) {
+                            selectCategoria.empty();
+                            selectCategoria.prop('disabled', false);
+                            $.each(data, function (key, value) { // Agregar las categorias traídas del backend al select
+                                if (value.id) {
+                                    selectCategoria.append('<option value="' + value.id + '">' + value.__str__ + '</option>');
+                                }
+                            });
+                        } else {
+                            alert('Error al obtener las categorias: ' + data.error)
+                        }
+                    }
+                });
+                $.ajax({
+                    url: "{% url 'admin-socio-ajax' %}",
+                    type: 'GET',
+                    data: {
+                        'action': 'get_persona',
+                        'id': $(this).val()
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        if (!data.hasOwnProperty('error')) {
+                            listDataPersona.empty();
+                            let persona = data['persona'];
+                            listDataPersona.append('<li class="list-group-item list-group-item-secondary"><h5 class="m-0">Datos de la persona seleccionada</h5></li>');
+                            listDataPersona.append('<li class="list-group-item"><b>DNI:</b> ' + persona['dni'] + '</li>');
+                            listDataPersona.append('<li class="list-group-item"><b>Nombre:</b> ' + persona['nombre'] + '</li>');
+                            listDataPersona.append('<li class="list-group-item"><b>Apellido:</b> ' + persona['apellido'] + '</li>');
+                            listDataPersona.append('<li class="list-group-item"><b>Edad:</b> ' + persona['edad'] + '</li>');
+                            listDataPersona.append('<li class="list-group-item"><p><b>Foto carnet:</b></p>' +
+                                '<img src="' + persona['imagen'] + '" class="img-thumbnail" alt=""></li>');
+                            listDataPersona.append('<li class="list-group-item"><a href="' + persona['url_editar'] + '" class="btn btn-warning"><i class="fas fa-user-pen"></i> Editar persona</a></li>');
+                        } else {
+                            alert('Error al obtener los datos de la persona: ' + data.error)
+                        }
+                    }
+                });
+            } else {
+                selectCategoria.empty();
+                selectCategoria.prop('disabled', true);
+                listDataPersona.empty();
+            }
+        });
 
         // Submit form
         $('#formSocio').submit(function (e) {
             e.preventDefault();
-            console.log('submit');
             let form = new FormData(this);
             form.append('action', '{{ action }}');
             $.ajax({
@@ -208,25 +255,25 @@
                             location.reload();
                         });
                     } else {
+                        let errors = []
+                        if (typeof data.error === 'object') {
+                            $.each(data.error, function (key, value) {
+                                errors.push(value);
+                            });
+                        } else {
+                            errors = data.error
+                        }
                         Swal.fire({
-                            title: 'Error',
-                            html: '<p>Ha ocurrido un error al crear el socio.</p>',
+                            position: 'top-end',
                             icon: 'error',
-                            confirmButtonText: 'Ok',
-                            confirmButtonColor: '#3085d6',
-                            allowOutsideClick: false,
-                            allowEscapeKey: false,
-                            allowEnterKey: false,
-                            stopKeydownPropagation: false,
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                resetForm();
-                            }
-                        });
+                            title: 'Ocurrió un error',
+                            text: errors,
+                            showConfirmButton: true,
+                        })
                     }
                 },
                 error: function (data) {
-                    console.log('Error:', data);
+                    alert('Error en la petición ajax en el submit del formulario: ' + data);
                 }
             });
         });

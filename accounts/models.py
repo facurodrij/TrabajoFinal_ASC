@@ -9,6 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.forms import model_to_dict
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django_softdelete.models import SoftDeleteModel
 from simple_history.models import HistoricalRecords
@@ -109,7 +110,7 @@ class PersonaAbstract(SoftDeleteModel):
         """
         return 'img/{0}/{1}/{2}'.format(self._meta.model_name, self.dni, filename)
 
-    imagen = models.ImageField(upload_to=image_directory_path, verbose_name=_('Imagen'))
+    imagen = models.ImageField(upload_to=image_directory_path, verbose_name=_('Foto carnet'))
 
     def __str__(self):
         return self.get_full_name() + ' DNI: ' + self.dni
@@ -214,6 +215,7 @@ class Persona(PersonaAbstract):
         item['edad'] = self.get_edad()
         item['fecha_nacimiento'] = self.get_fecha_nacimiento()
         item['socio'] = self.get_socio().__str__()
+        item['url_editar'] = reverse('admin-persona-editar', kwargs={'pk': self.pk})
         item['__str__'] = self.__str__()
         return item
 
