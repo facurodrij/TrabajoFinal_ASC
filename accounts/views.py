@@ -141,7 +141,7 @@ def activate_account(request, uidb64, token):
 class PersonaAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """ Vista para el listado de personas """
     model = Persona
-    template_name = 'admin/persona_list.html'
+    template_name = 'admin/persona/list.html'
     permission_required = 'accounts.view_persona'
     context_object_name = 'personas'
     paginate_by = 20
@@ -156,7 +156,7 @@ class PersonaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
     """ Vista para la creación de personas """
     model = Persona
     form_class = PersonaFormAdmin
-    template_name = 'admin/persona_form.html'
+    template_name = 'admin/persona/form.html'
     permission_required = 'accounts.add_persona'
 
     def get_context_data(self, **kwargs):
@@ -191,7 +191,7 @@ class PersonaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
     """ Vista para la actualización de personas """
     model = Persona
     form_class = PersonaFormAdmin
-    template_name = 'admin/persona_form.html'
+    template_name = 'admin/persona/form.html'
     permission_required = 'accounts.change_persona'
 
     def get_context_data(self, **kwargs):
