@@ -82,3 +82,19 @@ class CuotaSocialForm(forms.ModelForm):
             'cargo_extra': forms.NumberInput(attrs={'class': 'form-control', 'value': 0}),
             'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+
+
+class CategoriaForm(forms.ModelForm):
+    """
+    Formulario para crear una categoria de socio.
+    """
+
+    class Meta:
+        model = Categoria
+        fields = ['nombre', 'cuota', 'edad_desde', 'edad_hasta']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el nombre'}),
+            'cuota': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el monto de la cuota'}),
+            'edad_desde': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la edad minima'}),
+            'edad_hasta': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la edad maxima'}),
+        }

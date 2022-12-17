@@ -1,5 +1,6 @@
 from django.urls import path
 
+from socios.views.admin.categoria.views import *
 from socios.views.admin.cuota.views import *
 from socios.views.admin.socio.views import *
 from socios.views.cuota.views import *
@@ -28,4 +29,9 @@ urlpatterns = [
     # URLs de cuotas de socios (usuario)
     path('cuotas/mis_cuotas/', CuotaSocialListView.as_view(), name='socio-cuotas'),
     path('cuotas/reporte/<int:pk>/', cuota_social_pdf, name='cuotas-pdf'),
+
+    # URLs de categorias de socios (administración)
+    path('admin/socios/categorias/', CategoriaAdminListView.as_view(), name='admin-categoria-listado'),
+    path('admin/socios/categorias/crear/', CategoriaAdminCreateView.as_view(), name='admin-categoria-crear'),
+    path('admin/socios/categorias/<int:pk>/editar/', CategoriaAdminUpdateView.as_view(), name='admin-categoria-editar'),
 ]

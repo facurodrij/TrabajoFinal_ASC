@@ -125,7 +125,16 @@ class Categoria(models.Model):
     def sin_categoria(self):
         return self.objects.get(cuota=0, edad_desde=0, edad_hasta=0, se_factura=False)
 
+    def get_rango_edad(self):
+        if self.edad_desde == 0 and self.edad_hasta == 0:
+            return 'Sin rango'
+        if self.edad_hasta > 100:
+            return '{}+'.format(self.edad_desde)
+        return '{} - {}'.format(self.edad_desde, self.edad_hasta)
+
     def clean(self):
+        if self.cuota == 0:
+            self.se_factura = False
         if self.edad_desde > self.edad_hasta:
             raise ValidationError('La edad "desde" debe ser menor que la edad "hasta".')
         if self.edad_desde == self.edad_hasta:
