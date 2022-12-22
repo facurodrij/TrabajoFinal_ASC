@@ -12,7 +12,6 @@ from django_softdelete.models import SoftDeleteModel
 from num2words import num2words
 from simple_history.models import HistoricalRecords
 
-from accounts.models import PersonaAbstract
 from parameters.models import ClubParameters
 
 locale.setlocale(locale.LC_ALL, 'es_AR.UTF-8')
@@ -23,33 +22,36 @@ class Socio(SoftDeleteModel):
     Modelo de socio.
     """
     persona = models.OneToOneField('accounts.Persona', on_delete=models.PROTECT)
-    categoria = models.ForeignKey('socios.Categoria', on_delete=models.PROTECT)
     fecha_ingreso = models.DateField(default=datetime.now)
-    socio_titular = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True)
-    parentesco = models.ForeignKey('parameters.Parentesco', on_delete=models.PROTECT, null=True, blank=True)
     history = HistoricalRecords()
 
     def __str__(self):
         return self.persona.__str__()
 
+    def get_categoria(self):
+        """
+        TODO: Devuelve la categoria del socio en base a su edad.
+        """
+
     def es_titular(self):
-        return True if self.socio_titular_id is None else False
+        """
+        TODO: Devuelve True si el socio es titular.
+        """
 
     def get_estado(self):
         return 'Activo' if self.is_deleted is False else 'Inactivo'
 
     def get_miembros(self):
-        return Socio.global_objects.filter(socio_titular=self)
-
-    def get_parentesco(self):
-        return 'Titular' if self.es_titular() else self.parentesco
+        """
+        TODO: Devuelve los miembros del socio.
+        """
 
     def get_tipo(self):
         return 'Titular' if self.es_titular() else 'Miembro'
 
     def get_user(self):
         try:
-            return self.persona.user
+            return self.user
         except ObjectDoesNotExist:
             return None
 
@@ -71,42 +73,10 @@ class Socio(SoftDeleteModel):
         item['url_editar'] = reverse('admin-socio-editar', kwargs={'pk': self.pk})
         return item
 
-    def clean(self):
-        # Un socio no puede ser miembro de otro miembro
-        if not self.es_titular():
-            if not self.socio_titular.es_titular():
-                raise ValidationError(_('Un socio no puede ser miembro de otro miembro.'))
-            if self.parentesco.menor_al_titular:
-                if self.persona.get_edad() >= self.socio_titular.persona.get_edad():
-                    raise ValidationError(_('La edad del miembro debe ser menor a la del titular.'))
-        # Un socio titular no puede ser menor de 16 años
-        if self.es_titular():
-            edad_minima_titular = ClubParameters.objects.get(club_id=1).edad_minima_socio_titular
-            if self.persona.get_edad() < edad_minima_titular:
-                raise ValidationError(_('Un socio titular no puede ser menor de {} años.'.format(edad_minima_titular)))
-        # Si socio es miembro, no puede tener la categoria 1
-        if not self.es_titular() and self.categoria_id == 1:
-            raise ValidationError(_('Un socio miembro debe tener una categoria.'))
-
     class Meta:
         verbose_name = 'Socio'
         verbose_name_plural = "Socios"
         ordering = ['id']
-        constraints = [
-            # Validar que el socio titular no sea el mismo socio
-            models.CheckConstraint(
-                check=~models.Q(socio_titular=models.F('id')),
-                name='socio_titular_distinto_socio',
-                violation_error_message='Un socio no puede ser su propio titular.'
-            ),
-            # Validar si socio_titular es nulo, parentesco también lo es y viceversa
-            models.CheckConstraint(
-                check=((models.Q(socio_titular__isnull=True) & models.Q(parentesco__isnull=True))
-                       | (models.Q(socio_titular__isnull=False) & models.Q(parentesco__isnull=False))),
-                name='socio_titular_parentesco',
-                violation_error_message='Si socio_titular es nulo, parentesco también debe serlo y viceversa.'
-            ),
-        ]
 
 
 class Categoria(models.Model):
@@ -122,9 +92,6 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nombre + ' $' + str(self.cuota)
 
-    def sin_categoria(self):
-        return self.objects.get(cuota=0, edad_desde=0, edad_hasta=0, se_factura=False)
-
     def get_rango_edad(self):
         if self.edad_desde == 0 and self.edad_hasta == 0:
             return 'Sin rango'
@@ -133,6 +100,8 @@ class Categoria(models.Model):
         return '{} - {}'.format(self.edad_desde, self.edad_hasta)
 
     def clean(self):
+        # TODO: Validar que no exista una categoria con el mismo rango de edad
+        # TODO: Validar que las edades de la categoria no se solapen con otras categorias
         if self.cuota == 0:
             self.se_factura = False
         if self.edad_desde > self.edad_hasta:

@@ -11,7 +11,7 @@ class ParametersClubForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'club': forms.HiddenInput(),
-            'edad_minima_socio_titular': forms.NumberInput(attrs={'class': 'form-control'}),
+            'edad_minima_titular': forms.NumberInput(attrs={'class': 'form-control'}),
             'dia_emision_cuota': forms.NumberInput(attrs={'class': 'form-control'}),
             'dia_vencimiento_cuota': forms.NumberInput(attrs={'class': 'form-control'}),
             'cantidad_maxima_cuotas_pendientes': forms.NumberInput(attrs={'class': 'form-control'}),

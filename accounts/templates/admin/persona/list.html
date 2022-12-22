@@ -25,7 +25,7 @@
                             <thead>
                             <tr>
                                 <th scope="col" style="">#</th>
-                                <th scope="col" style="">DNI</th>
+                                <th scope="col" style="">CUIL</th>
                                 <th scope="col" style="">Nombre completo</th>
                                 <th scope="col" style="">Edad</th>
                                 <th></th>
@@ -35,7 +35,7 @@
                             {% for persona in personas %}
                                 <tr>
                                     <td>{{ persona.pk }}</td>
-                                    <td>{{ persona.dni }}</td>
+                                    <td>{{ persona.cuil_completo }}</td>
                                     <td>{{ persona.get_full_name }}</td>
                                     <td>{{ persona.get_edad }}</td>
                                     <td>
@@ -50,7 +50,7 @@
                             <tfoot>
                             <tr>
                                 <th scope="col" style="">#</th>
-                                <th scope="col" style="">DNI</th>
+                                <th scope="col" style="">CUIL</th>
                                 <th scope="col" style="">Nombre completo</th>
                                 <th scope="col" style="">Edad</th>
                                 <th></th>

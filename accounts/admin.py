@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.utils.translation import gettext_lazy as _
 
-from .forms import *
+from accounts.models import User
 
 
 class CustomUserAdmin(UserAdmin):
@@ -12,7 +13,7 @@ class CustomUserAdmin(UserAdmin):
     """
     fieldsets = (
         ("Usuario info", {"fields": ("username", "email", "password")}),
-        (_("Personal info"), {"fields": ["persona"]}),
+        (_("Socio info"), {"fields": ["socio"]}),
         (_("Permissions"),
          {
              "fields": (
@@ -29,28 +30,15 @@ class CustomUserAdmin(UserAdmin):
         (
             None,
             {
-                "fields": ("persona", "username", "email", "password1", "password2"),
+                "fields": ("socio", "username", "email", "password1", "password2"),
             },
         ),
     )
-    form = UpdateUserFormAdmin
-    add_form = CreateUserFormAdmin
+    form = UserChangeForm
+    add_form = UserCreationForm
     list_display = ("username", "email", "is_staff")
     list_filter = ("is_staff", "is_superuser", "is_active", "groups")
     search_fields = ("username", "email")
 
 
-class PersonaAdmin(admin.ModelAdmin):
-    """
-    Formulario para registrar una nueva persona desde el panel de administrador.
-    """
-    fieldsets = (
-        ("Información personal", {"fields": ("dni", "nombre", "apellido", "sexo", "fecha_nacimiento")}),
-        (_("Información adicional"), {"fields": ["club"]}),
-    )
-    list_display = ("dni", "nombre", "apellido")
-    search_fields = ("dni", "nombre", "apellido")
-
-
 admin.site.register(User, CustomUserAdmin)
-admin.site.register(Persona, PersonaAdmin)

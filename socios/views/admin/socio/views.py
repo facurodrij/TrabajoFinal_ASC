@@ -20,7 +20,7 @@ from accounts.forms import *
 from core.models import Club
 from parameters.models import ClubParameters, MedioPago
 from socios.forms import SocioForm, CuotaSocialForm
-from socios.models import Socio, Categoria, CuotaSocial, DetalleCuotaSocial, PagoCuotaSocial
+from socios.models import Socio, CuotaSocial, DetalleCuotaSocial, PagoCuotaSocial
 from socios.utilities import get_categoria
 
 
@@ -37,78 +37,13 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Listado de socios'
-        socio_form = SocioForm()
-        socio_form.fields['categoria'].disabled = True
-        context['socio_form'] = socio_form
-        context['persona_form'] = PersonaFormAdmin()
         return context
 
     def post(self, request, *args, **kwargs):
         data = {}
         try:
             action = request.POST['action']
-            if action == 'add_socio':
-                # Si la acción es add_socio, se crea un nuevo socio
-                form = SocioForm(request.POST)
-                if form.is_valid():
-                    with transaction.atomic():
-                        # Si la persona seleccionada es socio, pero está eliminado
-                        persona = form.cleaned_data['persona']
-                        if Socio.deleted_objects.filter(persona=persona).exists():
-                            data['code'] = 'socio_deleted_exists'
-                            data['message'] = 'La persona seleccionada es un socio pero está eliminado,' \
-                                              ' ¿Desea restaurarlo y convertirlo en socio titular?'
-                        form.save()
-                        data['id'] = form.instance.id
-                        data['history_id'] = form.instance.history.first().pk
-                else:
-                    data['error'] = form.errors
-            elif action == 'add_persona':
-                # Si la acción es add_persona, se crea una nueva persona
-                form = PersonaFormAdmin(request.POST, request.FILES)
-                if form.is_valid():
-                    with transaction.atomic():
-                        persona = form.save(commit=False)
-                        persona.club = Club.objects.get(pk=1)
-                        persona.save()
-                        data = persona.toJSON()
-                else:
-                    data['error'] = form.errors
-            elif action == 'select_persona_change':
-                data = get_categoria(persona=request.POST['persona'])
-                edad_minima_titular = ClubParameters.objects.get(club_id=1).edad_minima_socio_titular
-                # Si la persona es menor de edad_minima_titular, mandar una variable
-                # tutor_required para que el front-end sepa que debe pedir
-                edad = Persona.objects.get(pk=request.POST['persona']).get_edad()
-                tutor_required = True if edad < edad_minima_titular else False
-                data.append({'tutor_required': tutor_required})
-            elif action == 'restore_socio_from_modal':
-                # Si la acción es restore_socio_from_modal, si el socio es mayor de
-                # edad_minima_titular años se lo restaura como titular, si no se lo
-                # restaura como miembro, con los datos enviados desde el modal.
-                persona = request.POST['persona']
-                categoria = request.POST['categoria']
-                socio_titular = request.POST['socio_titular']
-                parentesco = request.POST['parentesco']
-                socio = Socio.deleted_objects.get(persona_id=persona)
-                edad_minima_titular = ClubParameters.objects.get(club_id=1).edad_minima_socio_titular
-                with transaction.atomic():
-                    socio.restore()
-                    socio.categoria_id = categoria
-                    if socio.persona.get_edad() < edad_minima_titular:
-                        socio.socio_titular_id = socio_titular
-                        socio.parentesco_id = parentesco
-                        socio.save()
-                        data = socio.toJSON()
-                        messages.success(request, 'Se ha restaurado el socio como socio miembro')
-                    else:
-                        socio.socio_titular_id = None
-                        socio.parentesco_id = None
-                        socio.save()
-                        data = socio.toJSON()
-                        messages.success(request, 'Se ha restaurado el socio como socio titular')
-                    data['history_id'] = socio.history.first().pk
-            elif action == 'delete_socio':
+            if action == 'delete_socio':
                 # Si la acción es delete_socio, se elimina el socio
                 socio = Socio.objects.get(pk=request.POST['id'])
                 motivo = request.POST['motivo']
@@ -122,7 +57,7 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 socio = Socio.deleted_objects.get(pk=request.POST['id'])
                 with transaction.atomic():
                     if not socio.get_related_objects():
-                        edad_minima_titular = ClubParameters.objects.get(club_id=1).edad_minima_socio_titular
+                        edad_minima_titular = ClubParameters.objects.get(club_id=1).edad_minima_titular
                         socio.restore()
                         if socio.es_titular() and socio.persona.get_edad() < edad_minima_titular:
                             raise ValidationError(
@@ -161,8 +96,6 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
         context = super().get_context_data(**kwargs)
         context['title'] = 'Nuevo Socio Titular'
         context['action'] = 'add'
-        context['persona_form'] = PersonaFormAdmin()
-        context['edad_minima_titular'] = ClubParameters.objects.get(club_id=1).edad_minima_socio_titular
         return context
 
     def post(self, request, *args, **kwargs):
@@ -383,9 +316,7 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Editar Socio'
-        context['action'] = 'edit_socio'
-        context['persona_form'] = PersonaFormAdmin(instance=self.get_object().persona)
-        context['socio_titular_id'] = self.get_object().socio_titular_id
+        context['action'] = 'edit'
         return context
 
     def get_form(self, form_class=None):
@@ -393,21 +324,13 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
         form = super().get_form(form_class)
         form.fields['persona'].queryset = Persona.objects.filter(pk=self.get_object().persona.pk)
         form.fields['persona'].widget.attrs['disabled'] = True
-        if self.get_object().es_titular():
-            # Quitar el campo socio_titular y parentesco
-            del form.fields['socio_titular']
-            del form.fields['parentesco']
-        # Si el socio no es titular, el select de socio_titular debe mostrar solo su socio titular
-        if not self.get_object().es_titular():
-            form.fields['socio_titular'].queryset = Socio.objects.filter(pk=self.get_object().socio_titular.pk)
-            form.fields['socio_titular'].widget.attrs['disabled'] = True
         return form
 
     def post(self, request, *args, **kwargs):
         data = {}
         try:
             action = request.POST['action']
-            if action == 'edit_socio':
+            if action == 'edit':
                 # Si la acción es editar, se edita el socio
                 form = self.get_form_class()(request.POST, instance=self.get_object())
                 if form.is_valid():
@@ -416,26 +339,6 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
                         messages.success(request, 'Socio editado correctamente')
                 else:
                     data['error'] = form.errors
-            elif action == 'edit_persona':
-                # Si la acción es update_persona, se edita la persona
-                persona_form = PersonaFormAdmin(request.POST, request.FILES, instance=self.get_object().persona)
-                if persona_form.is_valid():
-                    with transaction.atomic():
-                        persona = persona_form.save()
-                        data = persona.toJSON()
-                else:
-                    data['error'] = persona_form.errors
-            elif action == 'get_categoria':
-                # Si la acción es get_categoria, se obtiene las categorias que puede tener el socio
-                data = []
-                # Obtener la edad de la Persona
-                persona_id = request.POST['persona']
-                edad = Persona.objects.get(pk=persona_id).get_edad()
-                # Obtener las categorias que corresponden a la edad, incluyendo la primera categoria
-                categorias = Categoria.objects.filter((Q(edad_desde__lte=edad) & Q(edad_hasta__gte=edad)) | Q(pk=1))
-                for categoria in categorias:
-                    item = categoria.toJSON()
-                    data.append(item)
             else:
                 data['error'] = 'Ha ocurrido un error, intente nuevamente'
         except Exception as e:
@@ -485,8 +388,6 @@ def socio_admin_ajax(request):
                     data = {'persona': persona.toJSON()}
             except Persona.DoesNotExist:
                 pass
-        elif action == 'get_categoria':
-            data = get_categoria(persona=request.GET['persona'])
     elif request.method == 'POST':
         action = request.POST['action']
         if action == 'add_persona':

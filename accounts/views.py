@@ -14,10 +14,10 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import FormView, UpdateView, CreateView, ListView
 
-from core.models import Club
-from .decorators import *
-from .forms import *
-from .tokens import account_activation_token
+from accounts.decorators import *
+from accounts.forms import *
+from accounts.tokens import account_activation_token
+from parameters.models import ClubParameters
 
 User = get_user_model()
 
@@ -43,15 +43,15 @@ class SignUpView(FormView):
         return context
 
     def form_valid(self, form):
-        # Obtener DNI, Email y SocioID
-        dni = form.clean_dni()
+        # Obtener CUIL, Email y SocioID
+        cuil = form.clean_cuil()
         email = form.clean_email()
         socio_id = form.clean_socio_id()
-        # Obtener la Persona con el DNI ingresado
-        persona = Persona.objects.get(dni=dni)
-        # Crear el Usuario con el Email ingresado y Username igual al DNI ingresado
+        # Obtener la Persona con el CUIL y el SocioID ingresados
+        persona = Persona.objects.get(cuil=cuil, socio_id=socio_id)
+        # Crear el Usuario con el Email ingresado y Username igual al CUIL ingresado
         with transaction.atomic():
-            user = User(username=dni,
+            user = User(username=cuil,
                         email=email,
                         persona=persona)
             user.set_password(form.cleaned_data['password1'])
@@ -140,11 +140,11 @@ def activate_account(request, uidb64, token):
 
 class PersonaAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """ Vista para el listado de personas """
+    # TODO: Permitir filtrar por eliminados
     model = Persona
     template_name = 'admin/persona/list.html'
     permission_required = 'accounts.view_persona'
     context_object_name = 'personas'
-    paginate_by = 20
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -154,6 +154,7 @@ class PersonaAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView
 
 class PersonaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """ Vista para la creación de personas """
+    # TODO: Generar comprobante de operación
     model = Persona
     form_class = PersonaFormAdmin
     template_name = 'admin/persona/form.html'
@@ -165,6 +166,13 @@ class PersonaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
         context['action'] = 'add'
         return context
 
+    # Si en la url existe ?titular=true, se deshabilita el campo es_menor del formulario
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if self.request.GET.get('titular'):
+            form.fields['es_menor'].widget.attrs['disabled'] = True
+        return form
+
     def post(self, request, *args, **kwargs):
         data = {}
         try:
@@ -173,22 +181,30 @@ class PersonaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
                 form = self.form_class(request.POST, request.FILES)
                 if form.is_valid():
                     with transaction.atomic():
-                        persona = form.save(commit=False)
-                        persona.club = Club.objects.first()
-                        persona.save()
+                        persona = form.save()
+                        edad_minima_titular = ClubParameters.objects.get(club=persona.club).edad_minima_titular
+                        if persona.get_edad() < edad_minima_titular:
+                            persona_titular = form.cleaned_data.get('persona_titular')
+                            if persona_titular is None:
+                                raise ValidationError(
+                                    'La persona al ser menor de {} años, se debe seleccionar una persona titular'.format(
+                                        edad_minima_titular))
+                            persona.persona_titular = persona_titular
+                            persona.save()
                         messages.success(request, 'Persona creada correctamente.')
                 else:
                     data['error'] = form.errors
             else:
                 data['error'] = 'Ha ocurrido un error'
         except Exception as e:
-            data['error'] = str(e)
+            data['error'] = e.args[0]
         print(data)
         return JsonResponse(data)
 
 
 class PersonaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """ Vista para la actualización de personas """
+    # TODO: Generar comprobante de operación
     model = Persona
     form_class = PersonaFormAdmin
     template_name = 'admin/persona/form.html'
@@ -209,7 +225,7 @@ class PersonaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
                 if form.is_valid():
                     with transaction.atomic():
                         form.save()
-                        messages.success(request, 'Persona creada correctamente.')
+                        messages.success(request, 'Persona actualizada correctamente.')
                 else:
                     data['error'] = form.errors
             else:
@@ -218,3 +234,6 @@ class PersonaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
             data['error'] = str(e)
         print(data)
         return JsonResponse(data)
+
+# TODO: PersonaAdminDetailView
+# TODO: PersonaAdminDeleteView

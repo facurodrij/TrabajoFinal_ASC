@@ -21,7 +21,7 @@ urlpatterns = [
     # URLs de persona (administración)
     path('admin/personas/', lambda request: redirect('admin-persona-listado', permanent=True), name='admin-persona'),
     path('admin/personas/listado/', PersonaAdminListView.as_view(), name='admin-persona-listado'),
-    path('admin/personas/create/', PersonaAdminCreateView.as_view(), name='admin-persona-crear'),
+    path('admin/personas/crear/', PersonaAdminCreateView.as_view(), name='admin-persona-crear'),
     # path('admin/club/personas/<int:pk>/', PersonaAdminDetailView.as_view(), name='admin-club-persona-detalle'),
     path('admin/personas/<int:pk>/editar/', PersonaAdminUpdateView.as_view(), name='admin-persona-editar'),
 ]

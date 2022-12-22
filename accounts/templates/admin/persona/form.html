@@ -62,40 +62,60 @@
                     </div>
                     <form id="formPersona" method="post" enctype="multipart/form-data" class="form-horizontal">
                         {% csrf_token %}
+                        {{ form.club }}
                         <div class="card-body">
                             <div class="form-group row">
-                                <label for="id_dni"
-                                       class="col-form-label col-md-3 col-sm-3 label-align">{{ form.dni.label }}</label>
+                                <label for="id_es_menor" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.es_menor.label }}</label>
                                 <div class="col-sm-7">
-                                    {{ form.dni }}
+                                    {{ form.es_menor }}
+                                </div>
+                            </div>
+                            <div class="form-group row" id="div_persona_titular">
+                                <label for="id_persona_titular" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.persona_titular.label }} <span class="required">*</span></label>
+                                <div class="col-sm-7">
+                                    <div class="input-group">
+                                        {{ form.persona_titular }}
+                                        <div class="input-group-append">
+                                            <a href="{% url 'admin-persona-crear' %}?titular=true" class="btn btn-primary">
+                                                <i class="fas fa-user-plus"></i>
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="id_nombre"
-                                       class="col-form-label col-md-3 col-sm-3 label-align">{{ form.nombre.label }}</label>
+                                <label for="id_cuil" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.cuil.label }} <span class="required">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ form.cuil }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_nombre" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.nombre.label }} <span class="required">*</span></label>
                                 <div class="col-sm-7">
                                     {{ form.nombre }}
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="id_apellido" class="col-form-label col-md-3 col-sm-3 label-align">
-                                    {{ form.apellido.label }}
-
-                                </label>
+                                    {{ form.apellido.label }} <span class="required">*</span></label>
                                 <div class="col-sm-7">
                                     {{ form.apellido }}
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="id_sexo"
-                                       class="col-form-label col-md-3 col-sm-3 label-align">{{ form.sexo.label }}</label>
+                                <label for="id_sexo" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.sexo.label }} <span class="required">*</span></label>
                                 <div class="col-sm-7">
                                     {{ form.sexo }}
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="id_fecha_nacimiento"
-                                       class="col-form-label col-md-3 col-sm-3 label-align">{{ form.fecha_nacimiento.label }}</label>
+                                <label for="id_fecha_nacimiento" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.fecha_nacimiento.label }} <span class="required">*</span></label>
                                 <div class="col-sm-7">
                                     <div class="input-group" id="div_id_fecha_nacimiento"
                                          data-target-input="nearest">
@@ -108,8 +128,8 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="id_imagen"
-                                       class="col-form-label col-md-3 col-sm-3 label-align">{{ form.imagen.label }}</label>
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.imagen.label }} <span class="required">*</span></label>
                                 <div class="col-sm-7">
                                     <div class="custom-file" id="customFile" lang="es">
                                         {{ form.imagen }}
@@ -146,6 +166,7 @@
           rel="stylesheet">
     <script src="{% static 'libs/tempusdominus-bootstrap-5.39/moment-with-locales.min.js' %}"></script>
     <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
+    <script src="{% static 'libs/inputmask/jquery.inputmask.js' %}"></script>
     <script>
         $('#id_fecha_nacimiento').datetimepicker({
             "format": "DD/MM/YYYY",
@@ -163,6 +184,56 @@
             width: '100%',
             language: 'es',
         });
+        $('#id_persona_titular').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione una persona titular',
+            allowClear: true,
+            language: 'es',
+        });
+        $('#div_persona_titular').hide();
+        // Si es_menor es true, se muestra el campo persona_titular
+        $('#id_es_menor').change(function () {
+            if ($(this).is(':checked')) {
+                $('#div_persona_titular').show();
+                $('#id_persona_titular').prop('required', true).val(null).trigger('change');
+                $('#id_fecha_nacimiento').val(null).trigger('change');
+            } else {
+                $('#div_persona_titular').hide();
+                $('#id_persona_titular').prop('required', false).val(null).trigger('change');
+                $('#id_fecha_nacimiento').val(null).trigger('change');
+            }
+        });
+
+        // El input id_cuil solo debe tener la forma de un CUIL/CUIT
+        $('#id_cuil').inputmask({
+            regex: "[0-9]{2}-[0-9]{8}-[0-9]",
+            placeholder: '00-00000000-0',
+            showMaskOnHover: false,
+            showMaskOnFocus: false,
+            clearMaskOnLostFocus: false,
+            clearIncomplete: true,
+        });
+
+        // Función para validar el CUIL/CUIT Argentina
+        function validarCUIL(cuil) {
+            let cuil_nro = cuil.replace(/-/g, '');
+            let resultado = 0;
+            const codes = "6789456789";
+            let verificador = parseInt(cuil_nro[cuil_nro.length - 1]);
+            let i = 0;
+
+            while (i < 10) {
+                let digitoValidador = parseInt(codes.substring(i, i + 1));
+                if (isNaN(digitoValidador)) digitoValidador = 0;
+                let digito = parseInt(cuil_nro.substring(i, i + 1));
+                if (isNaN(digito)) digito = 0;
+                let digitoValidacion = digitoValidador * digito;
+                resultado += digitoValidacion;
+                i++;
+            }
+            resultado = resultado % 11;
+            return resultado === verificador;
+        }
 
         {% if action == 'edit' %}
             // Obtener el nombre del archivo de la imagen
@@ -186,10 +257,61 @@
             reader.readAsDataURL(e.target.files[0]);
         });
 
+        function calcularEdad(fecha) {
+            const [day, month, year] = fecha.split('/');
+            const cumpleanos = new Date(+year, month - 1, +day);
+            const hoy = new Date();
+            let edad = hoy.getFullYear() - cumpleanos.getFullYear();
+            const m = hoy.getMonth() - cumpleanos.getMonth();
+            if (m < 0 || (m === 0 && hoy.getDate() < cumpleanos.getDate())) {
+                edad--;
+            }
+            return edad;
+        }
+
         $('#formPersona').on('submit', function (e) {
             e.preventDefault();
             let form = new FormData(this);
+            // Validar el CUIL/CUIT
+            if (!validarCUIL(form.get('cuil'))) {
+                Swal.fire({
+                    position: 'top-end',
+                    title: 'Error',
+                    text: 'El CUIL ingresado no es válido.',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar',
+                });
+                return false;
+            }
+            if (form.get('es_menor') === 'on') {
+                let fecha_nacimiento = form.get('fecha_nacimiento');
+                let edad = calcularEdad(fecha_nacimiento);
+                if (edad >= {{ form.edad_minima_titular }}) {
+                    Swal.fire({
+                        position: 'top-end',
+                        title: 'Error',
+                        text: 'La persona debe ser menor de {{ form.edad_minima_titular }} años.',
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar',
+                    });
+                    return false;
+                }
+            } else {
+                let fecha_nacimiento = form.get('fecha_nacimiento');
+                let edad = calcularEdad(fecha_nacimiento);
+                if (edad < {{ form.edad_minima_titular }}) {
+                    Swal.fire({
+                        position: 'top-end',
+                        title: 'Error',
+                        text: 'La persona debe ser mayor de {{ form.edad_minima_titular }} años.',
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar',
+                    });
+                    return false;
+                }
+            }
             form.append('action', '{{ action }}');
+            form.set('cuil', form.get('cuil').replace(/-/g, ''));
             $.ajax({
                 url: window.location.pathname,
                 type: 'POST',
@@ -199,7 +321,7 @@
                 processData: false,
                 success: function (data) {
                     if (!data.hasOwnProperty('error')) {
-                        window.location.href = '{% url 'admin-persona-listado' %}';
+                        window.location.href = '{% url 'admin-persona-crear' %}';
                     } else {
                         let errors = []
                         // Si data error es un objeto pushear los errores al array

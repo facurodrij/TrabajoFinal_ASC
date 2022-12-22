@@ -39,7 +39,7 @@ class CuotaSocialListView(LoginRequiredMixin, SocioRequiredMixin, ListView):
         context['title'] = 'Mis Cuotas'
         context['public_key'] = public_key
         context['cuotas_sociales_pagadas'] = CuotaSocial.objects.filter(
-            detallecuotasocial__socio=self.request.user.persona.socio).exclude(
+            detallecuotasocial__socio=self.request.user.socio).exclude(
             pagocuotasocial__isnull=True).order_by('pagocuotasocial__fecha_pago')
         return context
 

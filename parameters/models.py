@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -26,7 +25,7 @@ class ClubParameters(models.Model):
     Las reglas las establece el administrador del club.
     """
     club = models.OneToOneField('core.Club', on_delete=models.CASCADE, verbose_name=_('Club'))
-    edad_minima_socio_titular = models.PositiveSmallIntegerField(
+    edad_minima_titular = models.PositiveSmallIntegerField(
         default=16,
         verbose_name=_('Edad mínima para ser socio titular'))
     dia_emision_cuota = models.PositiveSmallIntegerField(

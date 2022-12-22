@@ -10,7 +10,7 @@ class SocioRequiredMixin(AccessMixin):
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            if request.user.persona.get_socio() is None:
+            if request.user.get_socio():
                 return self.handle_no_permission()
         except AttributeError:
             return self.handle_no_permission()
