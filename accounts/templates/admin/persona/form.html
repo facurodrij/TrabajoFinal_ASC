@@ -287,7 +287,10 @@
                     icon: 'error',
                     confirmButtonText: 'Aceptar',
                 });
+                $('#id_cuil').addClass('is-invalid');
                 return false;
+            } else {
+                $('#id_cuil').removeClass('is-invalid');
             }
             form.append('action', '{{ action }}');
             form.set('cuil', form.get('cuil').replace(/-/g, ''));
