@@ -4,7 +4,7 @@ from accounts.models import Persona
 from socios.models import Categoria, Socio, CuotaSocial
 
 
-class SocioForm(forms.ModelForm):
+class SocioAdminForm(forms.ModelForm):
     """
     Formulario para crear un socio.
     """

@@ -14,6 +14,7 @@ from django_softdelete.models import SoftDeleteModel
 from simple_history.models import HistoricalRecords
 
 from core.models import Club
+from parameters.models import ClubParameters
 from socios.models import Socio
 
 
@@ -112,7 +113,7 @@ class Persona(SoftDeleteModel):
     imagen = models.ImageField(upload_to=image_directory_path, verbose_name='Foto carnet')
 
     def __str__(self):
-        return self.get_full_name() + ' (' + self.cuil + ')'
+        return self.get_full_name() + ' (' + self.cuil_completo + ')'
 
     def get_full_name(self):
         """
@@ -145,7 +146,7 @@ class Persona(SoftDeleteModel):
         """
         Devuelve true si el campo persona_titular es nulo.
         """
-        return self.persona_titular is None
+        return True if self.persona_titular is None else False
 
     def get_socio(self, global_objects=False):
         """
@@ -180,8 +181,9 @@ class Persona(SoftDeleteModel):
         """
         Devuelve un diccionario con los datos de la persona.
         """
-        item = model_to_dict(self, exclude=['imagen'])
+        item = model_to_dict(self, exclude=['imagen', 'cuil'])
         item['imagen'] = self.get_imagen()
+        item['cuil'] = self.cuil_completo
         item['edad'] = self.get_edad()
         item['fecha_nacimiento'] = self.get_fecha_nacimiento()
         item['socio'] = self.get_socio().__str__()
@@ -189,14 +191,27 @@ class Persona(SoftDeleteModel):
         item['__str__'] = self.__str__()
         return item
 
-    def clean(self):
-        super(Persona, self).clean()
-        if not self.es_titular():
+    def validate(self):
+        """
+        Este método debe ejecutarse después de guardar el formulario.
+        """
+        edad_minima_titular = ClubParameters.objects.get(club=self.club).edad_minima_titular
+        if self.es_titular():
+            if self.get_edad() < edad_minima_titular:
+                raise ValidationError(
+                    'La persona al ser menor de {} años, debe tener una persona a cargo.'.format(edad_minima_titular))
+        else:
+            # No se puede seleccionar una persona_titular que no sea titular.
             if not self.persona_titular.es_titular():
-                raise ValidationError('Persona titular: La persona seleccionada no es titular.')
+                raise ValidationError('La persona a cargo seleccionada no es titular.')
             # Si la persona no es titular, no puede tener personas a su cargo.
             if self.persona_set.exists():
-                raise ValidationError('La persona actual no puede tener personas a su cargo.')
+                raise ValidationError('No se puede seleccionar una persona a cargo, porque {} ya tiene '
+                                      'personas a su cargo.'.format(self.get_full_name()))
+            self.persona_titular.validate()
+
+    def clean(self):
+        super(Persona, self).clean()
 
         # Quitar espacios en blanco al principio y al final del nombre y apellido.
         self.nombre = self.nombre.strip()

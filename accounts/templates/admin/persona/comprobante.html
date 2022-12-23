@@ -1,0 +1,52 @@
+{# TODO: Mejorar el comprobate generado #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        @page {
+            size: A5 landscape;
+            margin: 2rem 1rem 1rem 1rem;
+        }
+
+        html {
+            align-content: center;
+            align-items: center;
+            background: #eef1f5;
+            display: flex;
+            justify-content: center;
+            height: 100%;
+        }
+
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            background: #fff;
+            box-sizing: border-box;
+            color: #2A3239;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            word-break: break-all;
+        }
+
+        section {
+            box-sizing: border-box;
+        }
+
+        h1 {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+    </style>
+</head>
+<body>
+<section>
+        <h1>{{ persona.nombre }}</h1>
+        <h1>{{ persona.apellido }}</h1>
+        <h1>{{ persona.cuil }}</h1>
+</section>
+</body>
+</html>

@@ -1,35 +1,29 @@
-from datetime import datetime, date
-
-import pytz
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.files.storage import FileSystemStorage
 from django.db import transaction
-from django.db.models import Q
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, UpdateView, CreateView
 from weasyprint import HTML, CSS
 
 from accounts.decorators import admin_required
 from accounts.forms import *
 from core.models import Club
-from parameters.models import ClubParameters, MedioPago
-from socios.forms import SocioForm, CuotaSocialForm
-from socios.models import Socio, CuotaSocial, DetalleCuotaSocial, PagoCuotaSocial
-from socios.utilities import get_categoria
+from socios.forms import SocioAdminForm
+from socios.models import Socio
 
 
 class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """ Vista para listar los socios """
+    # TODO: Permitir filtrar por eliminados
     model = Socio
     template_name = 'admin/socio/list.html'
-    context_object_name = 'socios'
     permission_required = 'socios.view_socio'
+    context_object_name = 'socios'
 
     def get_queryset(self):
         return Socio.global_objects.all()
@@ -39,62 +33,16 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         context['title'] = 'Listado de socios'
         return context
 
-    def post(self, request, *args, **kwargs):
-        data = {}
-        try:
-            action = request.POST['action']
-            if action == 'delete_socio':
-                # Si la acción es delete_socio, se elimina el socio
-                socio = Socio.objects.get(pk=request.POST['id'])
-                motivo = request.POST['motivo']
-                with transaction.atomic():
-                    socio._change_reason = motivo
-                    socio.delete(cascade=True)
-                    data['id'] = request.POST['id']
-                    data['history_id'] = socio.history.first().pk
-            elif action == 'restore_socio':
-                # Si la acción es restore_socio, se restaura el socio
-                socio = Socio.deleted_objects.get(pk=request.POST['id'])
-                with transaction.atomic():
-                    if not socio.get_related_objects():
-                        edad_minima_titular = ClubParameters.objects.get(club_id=1).edad_minima_titular
-                        socio.restore()
-                        if socio.es_titular() and socio.persona.get_edad() < edad_minima_titular:
-                            raise ValidationError(
-                                'El socio que intenta restaurar es menor de {} años y no tiene tutor a cargo. '
-                                'Agréguelo manualmente con un titular a cargo.'.format(edad_minima_titular))
-                        if not socio.es_titular() and socio.socio_titular.is_deleted:
-                            if socio.persona.get_edad() < edad_minima_titular:
-                                raise ValidationError(
-                                    'El socio que intenta restaurar es menor de {} años y no tiene tutor a cargo '
-                                    'activo. Agréguelo manualmente con un titular a cargo.'.format(edad_minima_titular))
-                            else:
-                                raise ValidationError(
-                                    'El socio titular del miembro que intenta restaurar está eliminado. '
-                                    'Agréguelo manualmente como titular o como miembro de un titular activo.')
-                        data['id'] = request.POST['id']
-                        data['history_id'] = socio.history.first().pk
-                    else:
-                        socio.restore(cascade=True)
-                        data['id'] = request.POST['id']
-                        data['history_id'] = socio.history.first().pk
-            else:
-                data['error'] = 'Ha ocurrido un error, intente nuevamente'
-        except Exception as e:
-            data['error'] = str(e)
-        print('SocioAdminListView: POST data: ', data)
-        return JsonResponse(data, safe=False)
-
 
 class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Socio
-    form_class = SocioForm
+    form_class = SocioAdminForm
     template_name = 'admin/socio/form.html'
     permission_required = 'socio.add_socio'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Nuevo Socio Titular'
+        context['title'] = 'Nuevo Socio'
         context['action'] = 'add'
         return context
 
@@ -103,7 +51,7 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
         try:
             action = request.POST['action']
             if action == 'add':
-                form = SocioForm(request.POST)
+                form = self.form_class(request.POST, request.FILES)
                 if form.is_valid():
                     with transaction.atomic():
                         socio = form.save()
@@ -111,13 +59,14 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
                 else:
                     data['error'] = form.errors
         except Exception as e:
-            data['error'] = str(e)
+            data['error'] = e.args[0]
         print(data)
         return JsonResponse(data)
 
 
 class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """ Vista para mostrar un socio, solo para administradores """
+    # TODO: Si esta eliminado, mostrar un mensaje de que esta eliminado y mostrar el botón de restaurar
     model = Socio
     template_name = 'admin/socio/detail.html'
     context_object_name = 'socio'
@@ -125,193 +74,20 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        miembro_form = SocioForm()
-        miembro_form.fields['categoria'].disabled = True
-        miembro_form.fields['socio_titular'].queryset = Socio.objects.filter(pk=self.get_object().pk)
-        miembro_form.fields['socio_titular'].initial = self.get_object()
-        miembro_form.fields['socio_titular'].widget.attrs['hidden'] = True
-        # Filtrar las personas que no sean miembros del socio
-        miembro_form.fields['persona'].queryset = Persona.objects.exclude(pk=self.get_object().persona.pk).exclude(
-            socio__socio_titular=self.get_object())
         context['title'] = 'Detalle de Socio'
-        # Obtener los miembros del socio y el socio titular
-        if self.get_object().es_titular():
-            context['miembros'] = Socio.global_objects.filter(
-                Q(socio_titular=self.get_object()) | Q(pk=self.get_object().pk))
-        else:
-            context['miembros'] = Socio.global_objects.filter(
-                Q(socio_titular=self.get_object().socio_titular) | Q(pk=self.get_object().socio_titular.pk))
-        context['miembro_form'] = miembro_form
-        context['persona_form'] = PersonaFormAdmin()
-        context['cuota_social_form'] = CuotaSocialForm()
-        context['cuota_social_form'].fields['persona'].initial = self.get_object().persona
-        context['cuotas_sociales'] = CuotaSocial.global_objects.filter(
-            detallecuotasocial__socio=self.get_object()).order_by(
-            # Ordenado por id, para que las cuotas sociales más recientes aparezcan primero
-            '-id')
-        context['medios_pagos'] = MedioPago.objects.all()
         return context
 
-    def post(self, request, *args, **kwargs):
-        data = {}
-        try:
-            action = request.POST['action']
-            if action == 'add_miembro':
-                # Si la acción es add_miembro, se agrega un nuevo miembro al socio
-                miembro_form = SocioForm(request.POST)
-                if miembro_form.is_valid():
-                    with transaction.atomic():
-                        # Si la persona seleccionada es socio titular, pero está eliminado
-                        persona = miembro_form.cleaned_data['persona']
-                        if Socio.deleted_objects.filter(persona=persona).exists():
-                            data['code'] = 'socio_deleted_exists'
-                            data['message'] = 'La persona seleccionada es un socio pero está eliminado,' \
-                                              ' ¿Desea restaurarlo y agregarlo como miembro?'
-                        miembro_form.save()
-                        messages.success(request, 'Miembro agregado correctamente')
-                        data['id'] = miembro_form.instance.id
-                        data['history_id'] = miembro_form.instance.history.first().pk
-                else:
-                    data['error'] = miembro_form.errors
-            elif action == 'add_persona':
-                # Si la acción es create_persona, se crea una nueva persona
-                persona_form = PersonaFormAdmin(request.POST, request.FILES)
-                if persona_form.is_valid():
-                    with transaction.atomic():
-                        persona = persona_form.save(commit=False)
-                        persona.club = Club.objects.get(pk=1)
-                        persona.save()
-                        data = persona.toJSON()
-                else:
-                    data['error'] = persona_form.errors
-            elif action == 'select_persona_change':
-                data = get_categoria(persona=request.POST['persona'])
-            elif action == 'restore_socio_as_miembro':
-                # Si la acción es restore_socio, se restaura un socio eliminado
-                persona = request.POST['persona']
-                categoria = request.POST['categoria']
-                parentesco = request.POST['parentesco']
-                with transaction.atomic():
-                    socio = Socio.deleted_objects.get(persona_id=persona)
-                    socio.restore()
-                    # Si tenia miembros agregados, se eliminan
-                    if socio.get_miembros().exists():
-                        for miembro in socio.get_miembros():
-                            miembro.socio_titular_id = None
-                            miembro.parentesco_id = None
-                            miembro.delete()
-                    socio.socio_titular_id = self.get_object().pk
-                    socio.categoria_id = categoria
-                    socio.parentesco_id = parentesco
-                    socio.save()
-                    data = socio.toJSON()
-                    data['history_id'] = socio.history.first().pk
-            elif action == 'delete_socio':
-                # Si la acción es delete_socio, se elimina el socio
-                socio = Socio.objects.get(pk=request.POST['id'])
-                motivo = request.POST['motivo']
-                with transaction.atomic():
-                    socio._change_reason = motivo
-                    socio.delete(cascade=True)
-                    data['id'] = request.POST['id']
-                    data['history_id'] = socio.history.first().pk
-                    if socio.es_titular():
-                        data['success_url'] = reverse_lazy('admin-socio-listado')
-                        messages.success(request, 'Socio eliminado correctamente')
-                    else:
-                        data['success_url'] = reverse_lazy('admin-socio-detalle', kwargs={'pk': socio.socio_titular.pk})
-                        messages.success(request, 'Miembro eliminado correctamente')
-            elif action == 'restore_socio':
-                # Si la acción es restore_socio, se restaura el miembro
-                socio = Socio.deleted_objects.get(pk=request.POST['id'])
-                with transaction.atomic():
-                    socio.restore()
-                    data['id'] = request.POST['id']
-                    data['history_id'] = socio.history.first().pk
-            elif action == 'add_cuota_social':
-                # Si la acción es add_cuota_social, se agregan las cuotas sociales
-                if CuotaSocialForm(request.POST).is_valid():
-                    periodo_mes = request.POST.getlist('meses')
-                    with transaction.atomic():
-                        for mes in periodo_mes:
-                            cuota_social = CuotaSocialForm(request.POST).save(commit=False)
-                            cuota_social.periodo_mes = mes
-                            # fecha_emision = datetime.now con timezone de argentina
-                            cuota_social.fecha_emision = datetime.now(pytz.timezone('America/Argentina/Buenos_Aires'))
-                            parameters_dia_vencimiento = ClubParameters.objects.get(pk=1).dia_vencimiento_cuota
-                            cuota_social.fecha_vencimiento = date(int(cuota_social.periodo_anio),
-                                                                  int(cuota_social.periodo_mes),
-                                                                  int(parameters_dia_vencimiento))
-                            cuota_social.save()
-                            # Agregar el detalle de la cuota social
-                            detalle = DetalleCuotaSocial()
-                            detalle.cuota_social = cuota_social
-                            detalle.socio = self.get_object()
-                            detalle.nombre_completo = self.get_object().persona.get_full_name()
-                            detalle.categoria = self.get_object().categoria.__str__()
-                            detalle.save()
-                            for miembro in self.get_object().get_miembros():
-                                detalle_miembro = DetalleCuotaSocial()
-                                detalle_miembro.cuota_social = cuota_social
-                                detalle_miembro.socio = miembro
-                                detalle_miembro.nombre_completo = miembro.persona.get_full_name()
-                                detalle_miembro.categoria = miembro.categoria.__str__()
-                                detalle_miembro.save()
-                            # Generar el total, sumando los totales parciales de los detalles relacionados.
-                            total = cuota_social.cargo_extra
-                            for detalle in cuota_social.detallecuotasocial_set.all():
-                                total += detalle.total_parcial
-                            cuota_social.total = total
-                            cuota_social.save()
-                        messages.success(request, 'Cuota/s social/es agregada/s correctamente')
-                else:
-                    data['error'] = CuotaSocialForm(request.POST).errors
-            elif action == 'get_total_cuota_social':
-                # Si la acción es get_total_cuota_social, se calcula el total de la cuota social
-                cuota_social = CuotaSocial.objects.get(pk=request.POST['id'])
-                # Calcular intereses
-                if cuota_social.is_atrasada():
-                    aumento_por_cuota_vencida = ClubParameters.objects.get(pk=1).aumento_por_cuota_vencida
-                    # Calcular los meses de atraso
-                    meses_atraso = cuota_social.meses_atraso()
-                    interes = cuota_social.interes()
-                    total_w_interes = cuota_social.total + interes
-                    data['meses_atraso'] = meses_atraso
-                    data['interes_por_mes'] = aumento_por_cuota_vencida
-                    data['interes'] = interes
-                    data['total_w_interes'] = round(total_w_interes, 2)
-                else:
-                    data['total'] = cuota_social.total
-            elif action == 'mark_as_paid':
-                # Si la acción es mark_as_paid, se marca una cuota social como pagada
-                cuota_social = CuotaSocial.objects.get(pk=request.POST['id'])
-                with transaction.atomic():
-                    medio_pago = MedioPago.objects.get(pk=request.POST['medio_pago'])
-                    PagoCuotaSocial.objects.create(
-                        cuota_social=cuota_social,
-                        medio_pago=medio_pago,
-                        fecha_pago=datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')),
-                        total_pagado=request.POST['total_pagado'])
-                    cuota_social.observaciones = request.POST['observaciones']
-                    cuota_social.save()
-                    data['id'] = request.POST['id']
-                    data['history_id'] = cuota_social.history.first().pk
-            else:
-                data['error'] = 'Ha ocurrido un error, intente nuevamente'
-        except Exception as e:
-            data['error'] = str(e)
-        print('SocioAdminDetailView: POST data: ', data)
-        return JsonResponse(data, safe=False)
+    def get_object(self, queryset=None):
+        return Socio.global_objects.get(pk=self.kwargs['pk'])
 
 
 class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """ Vista para editar un socio, solo para administradores """
     model = Socio
-    form_class = SocioForm
-    template_name = 'admin/socio/update.html'
+    form_class = SocioAdminForm
+    template_name = 'admin/socio/form.html'
     permission_required = 'socios.change_socio'
     context_object_name = 'socio'
-    success_url = reverse_lazy('admin-socio-listado')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -319,30 +95,24 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
         context['action'] = 'edit'
         return context
 
-    def get_form(self, form_class=None):
-        # El select de persona debe mostrar solo la persona del socio y deshabilitar el campo
-        form = super().get_form(form_class)
-        form.fields['persona'].queryset = Persona.objects.filter(pk=self.get_object().persona.pk)
-        form.fields['persona'].widget.attrs['disabled'] = True
-        return form
-
     def post(self, request, *args, **kwargs):
         data = {}
         try:
             action = request.POST['action']
             if action == 'edit':
                 # Si la acción es editar, se edita el socio
-                form = self.get_form_class()(request.POST, instance=self.get_object())
+                form = self.form_class(request.POST, instance=self.get_object())
                 if form.is_valid():
                     with transaction.atomic():
                         form.save()
-                        messages.success(request, 'Socio editado correctamente')
+                        messages.success(request, 'Socio actualizado correctamente')
                 else:
                     data['error'] = form.errors
             else:
                 data['error'] = 'Ha ocurrido un error, intente nuevamente'
         except Exception as e:
-            data['error'] = str(e)
+            data['error'] = e.args[0]
+        print(data)
         return JsonResponse(data, safe=False)
 
 
@@ -392,7 +162,7 @@ def socio_admin_ajax(request):
         action = request.POST['action']
         if action == 'add_persona':
             # Si la acción es add_persona, se crea una nueva persona
-            form = PersonaFormAdmin(request.POST, request.FILES)
+            form = PersonaAdminForm(request.POST, request.FILES)
             if form.is_valid():
                 with transaction.atomic():
                     persona = form.save(commit=False)

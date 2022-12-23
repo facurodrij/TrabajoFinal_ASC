@@ -11,7 +11,7 @@ from parameters.models import ClubParameters
 from socios.models import Socio
 
 
-class PersonaFormAdmin(forms.ModelForm):
+class PersonaAdminForm(forms.ModelForm):
     """
     Formulario para registrar los datos de una Persona. Se utiliza en el formulario de registro de un nuevo usuario.
     """

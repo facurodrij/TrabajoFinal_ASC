@@ -64,21 +64,24 @@
                         {% csrf_token %}
                         {{ form.club }}
                         <div class="card-body">
-                            <div class="form-group row">
-                                <label for="id_es_menor" class="col-form-label col-md-3 col-sm-3 label-align">
-                                    {{ form.es_menor.label }}</label>
-                                <div class="col-sm-7">
-                                    {{ form.es_menor }}
+                            {% if action == 'add' %}
+                                <div class="form-group row">
+                                    <label for="id_es_menor" class="col-form-label col-md-3 col-sm-3 label-align">
+                                        {{ form.es_menor.label }}</label>
+                                    <div class="col-sm-7">
+                                        {{ form.es_menor }}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group row" id="div_persona_titular">
-                                <label for="id_persona_titular" class="col-form-label col-md-3 col-sm-3 label-align">
-                                    {{ form.persona_titular.label }} <span class="required">*</span></label>
+                            {% endif %}
+                            <div class="form-group row">
+                                <label id="id_persona_titular_label" for="id_persona_titular" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.persona_titular.label }} <span class="required"></span></label>
                                 <div class="col-sm-7">
                                     <div class="input-group">
                                         {{ form.persona_titular }}
                                         <div class="input-group-append">
-                                            <a href="{% url 'admin-persona-crear' %}?titular=true" class="btn btn-primary">
+                                            <a href="{% url 'admin-persona-crear' %}?titular=true"
+                                               class="btn btn-primary">
                                                 <i class="fas fa-user-plus"></i>
                                             </a>
                                         </div>
@@ -150,8 +153,11 @@
                             </div>
                         </div>
                         <div class="card-footer">
-                            <button class="btn btn-primary" type="submit">
-                                <i class="fa fa-save"></i> Guardar
+                            <button class="btn btn-primary float-right ml-2" type="submit" name="_save">
+                                <i class="fa fa-save"></i> GUARDAR
+                            </button>
+                            <button class="btn btn-outline-primary float-right" type="submit" name="_addsocio">
+                                <i class="fa fa-save"></i> Guardar y continuar con socio
                             </button>
                         </div>
                     </form>
@@ -190,20 +196,6 @@
             allowClear: true,
             language: 'es',
         });
-        $('#div_persona_titular').hide();
-        // Si es_menor es true, se muestra el campo persona_titular
-        $('#id_es_menor').change(function () {
-            if ($(this).is(':checked')) {
-                $('#div_persona_titular').show();
-                $('#id_persona_titular').prop('required', true).val(null).trigger('change');
-                $('#id_fecha_nacimiento').val(null).trigger('change');
-            } else {
-                $('#div_persona_titular').hide();
-                $('#id_persona_titular').prop('required', false).val(null).trigger('change');
-                $('#id_fecha_nacimiento').val(null).trigger('change');
-            }
-        });
-
         // El input id_cuil solo debe tener la forma de un CUIL/CUIT
         $('#id_cuil').inputmask({
             regex: "[0-9]{2}-[0-9]{8}-[0-9]",
@@ -235,15 +227,6 @@
             return resultado === verificador;
         }
 
-        {% if action == 'edit' %}
-            // Obtener el nombre del archivo de la imagen
-            const imagen = "{{ persona.get_imagen | default_if_none:'' }}";
-            const filename = imagen.split('\\').pop().split('/').pop();
-
-            $('#id_imagen').val('').next().html('<span class="text-muted"> ' + filename + '</span>');
-            $('#imageResult').attr('src', '{{ object.get_imagen }}');
-        {% endif %}
-
         // Imagen preview
         document.querySelector('.custom-file-input').addEventListener('change', function (e) {
             const fileName = document.getElementById("id_imagen").files[0].name;
@@ -257,6 +240,7 @@
             reader.readAsDataURL(e.target.files[0]);
         });
 
+        // Función para calcular la edad a partir de la fecha de nacimiento
         function calcularEdad(fecha) {
             const [day, month, year] = fecha.split('/');
             const cumpleanos = new Date(+year, month - 1, +day);
@@ -268,12 +252,34 @@
             }
             return edad;
         }
+        {% if action == 'add' %}
+            $('#id_es_menor').change(function () {
+                if ($(this).is(':checked')) {
+                    $('#id_persona_titular').prop('required', true).val(null).trigger('change');
+                    $('#id_persona_titular_label span').text('*');
+                    $('#id_fecha_nacimiento').val(null).trigger('change');
+                } else {
+                    $('#id_persona_titular').prop('required', false).val(null).trigger('change');
+                    $('#id_persona_titular_label span').text('');
+                    $('#id_fecha_nacimiento').val(null).trigger('change');
+                }
+            });
+        {% endif %}
+        {% if action == 'edit' %}
+            // Obtener el nombre del archivo de la imagen
+            const imagen = "{{ persona.get_imagen | default_if_none:'' }}";
+            const filename = imagen.split('\\').pop().split('/').pop();
+
+            $('#id_imagen').val('').next().html('<span class="text-muted"> ' + filename + '</span>');
+            $('#imageResult').attr('src', '{{ object.get_imagen }}');
+        {% endif %}
 
         $('#formPersona').on('submit', function (e) {
             e.preventDefault();
+            // Obtener el atributo name del botón que se presionó
+            const name_submit = $(document.activeElement).attr('name');
             let form = new FormData(this);
-            // Validar el CUIL/CUIT
-            if (!validarCUIL(form.get('cuil'))) {
+            if (!validarCUIL(form.get('cuil'))) { // Validar el CUIL/CUIT
                 Swal.fire({
                     position: 'top-end',
                     title: 'Error',
@@ -282,33 +288,6 @@
                     confirmButtonText: 'Aceptar',
                 });
                 return false;
-            }
-            if (form.get('es_menor') === 'on') {
-                let fecha_nacimiento = form.get('fecha_nacimiento');
-                let edad = calcularEdad(fecha_nacimiento);
-                if (edad >= {{ form.edad_minima_titular }}) {
-                    Swal.fire({
-                        position: 'top-end',
-                        title: 'Error',
-                        text: 'La persona debe ser menor de {{ form.edad_minima_titular }} años.',
-                        icon: 'error',
-                        confirmButtonText: 'Aceptar',
-                    });
-                    return false;
-                }
-            } else {
-                let fecha_nacimiento = form.get('fecha_nacimiento');
-                let edad = calcularEdad(fecha_nacimiento);
-                if (edad < {{ form.edad_minima_titular }}) {
-                    Swal.fire({
-                        position: 'top-end',
-                        title: 'Error',
-                        text: 'La persona debe ser mayor de {{ form.edad_minima_titular }} años.',
-                        icon: 'error',
-                        confirmButtonText: 'Aceptar',
-                    });
-                    return false;
-                }
             }
             form.append('action', '{{ action }}');
             form.set('cuil', form.get('cuil').replace(/-/g, ''));
@@ -321,7 +300,33 @@
                 processData: false,
                 success: function (data) {
                     if (!data.hasOwnProperty('error')) {
-                        window.location.href = '{% url 'admin-persona-crear' %}';
+                        {% if action == 'add' %}
+                            Swal.fire({
+                                position: 'top-end',
+                                title: 'Persona agregada',
+                                text: 'La persona se agregó correctamente',
+                                icon: 'success',
+                                confirmButtonText: 'Imprimir comprobante de operación',
+                                showCancelButton: true,
+                                cancelButtonText: 'Continuar',
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.open('{% url 'admin-persona-comprobante' %}?action=print&persona_id=' + data['persona']['id'] + '', '_blank');
+                                }
+                                if (name_submit === '_save') {
+                                    window.location.href = '{% url 'admin-persona-listado' %}';
+                                } else if (name_submit === '_addsocio') {
+                                    window.location.href = '{% url 'admin-socio-crear' %}';
+                                }
+                            });
+                        {% endif %}
+                        {% if action == 'edit' %}
+                            if (name_submit === '_save') {
+                                window.location.href = '{% url 'admin-persona-listado' %}';
+                            } else if (name_submit === '_addsocio') {
+                                window.location.href = '{% url 'admin-socio-crear' %}';
+                            }
+                        {% endif %}
                     } else {
                         let errors = []
                         // Si data error es un objeto pushear los errores al array
@@ -341,7 +346,7 @@
                         });
                     }
                 },
-                error: function (data) {
+                error: function () {
                     alert('Error al guardar la persona');
                 }
             });

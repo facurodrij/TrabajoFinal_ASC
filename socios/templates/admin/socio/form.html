@@ -44,9 +44,10 @@
                                         <div class="input-group">
                                             {{ form.persona }}
                                             <div class="input-group-append">
-                                                <button id="open-ModalAddPersona" class="btn btn-success" type="button">
+                                                <a href="{% url 'admin-persona-crear' %}?next={{ request.path }}"
+                                                   class="btn btn-success">
                                                     <i class="fas fa-user-plus"></i>
-                                                </button>
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
@@ -57,9 +58,6 @@
                                     <h4>Datos del socio</h4>
                                     <hr>
                                     <div class="form-group">
-                                        {{ form.categoria|attr:"disabled" }}
-                                    </div>
-                                    <div class="form-group">
                                         <div class="input-group" data-target-input="nearest">
                                             {{ form.fecha_ingreso }}
                                             <div class="input-group-append" data-target="#id_fecha_ingreso"
@@ -68,25 +66,12 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="form-group" hidden="hidden">
-                                        <h4>Datos del tutor</h4>
-                                        <hr class="mt-0">
-                                        <div class="form-group">
-                                            {{ form.socio_titular }}
-                                        </div>
-                                        <div class="form-group">
-                                            {{ form.parentesco }}
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer">
-                            <button class="btn btn-primary" type="submit">
+                            <button class="btn btn-primary float-right" type="submit">
                                 <i class="fa fa-save"></i> Guardar
-                            </button>
-                            <button class="btn btn-secondary" type="reset" onclick="resetSocioForm()">
-                                <i class="fas fa-eraser"></i> Limpiar
                             </button>
                         </div>
                     </div>
@@ -94,20 +79,10 @@
             </div>
         </div>
     </div>
-    <!-- Modals Add Persona -->
-    {% include 'admin/socio/modals/persona_form.html' %}
 {% endblock content %}
 {% block body_js %}
     <script>
-        $('#open-ModalAddPersona').click(function () {
-            $('#ModalAddPersona').modal('show');
-        });
-
         let selectPersona = $('#id_persona');
-        let selectSocioTitular = $('#id_socio_titular');
-        let selectCategoria = $('#id_categoria');
-        let selectParentesco = $('#id_parentesco');
-        let inputFechaIngreso = $('#id_fecha_ingreso');
 
         selectPersona.select2({
             theme: 'bootstrap4',
@@ -115,28 +90,7 @@
             placeholder: 'Seleccione una persona',
             language: 'es'
         });
-        selectCategoria.select2({
-            theme: 'bootstrap4',
-            allowClear: true,
-            placeholder: 'Seleccione una categoría',
-            width: '100%',
-            language: 'es'
-        });
-        selectSocioTitular.select2({
-            theme: 'bootstrap4',
-            allowClear: true,
-            placeholder: 'Seleccione un tutor',
-            width: '100%',
-            language: 'es'
-        });
-        selectParentesco.select2({
-            theme: 'bootstrap4',
-            allowClear: true,
-            placeholder: 'Seleccione un parentesco',
-            width: '100%',
-            language: 'es'
-        });
-        inputFechaIngreso.datetimepicker({
+        $('#id_fecha_ingreso').datetimepicker({
             "format": "DD/MM/YYYY",
             "locale": "es-AR",
             "date": null,
@@ -144,40 +98,9 @@
             "maxDate": Date.now(),
         });
 
-        function resetSocioForm() {
-            selectPersona.val(null).trigger('change');
-            selectCategoria.val(null).trigger('change');
-            selectSocioTitular.val(null).trigger('change');
-            selectParentesco.val(null).trigger('change');
-            inputFechaIngreso.val(null).trigger('change');
-        }
-
-        // Obtener las categorias que puede tener la persona seleccionada.
         selectPersona.on('change', function (e) {
             let listDataPersona = $('#list-data');
             if ($(this).val()) {
-                $.ajax({
-                    url: "{% url 'admin-socio-ajax' %}",
-                    type: 'GET',
-                    data: {
-                        'action': 'get_categoria',
-                        'persona': $(this).val()
-                    },
-                    dataType: 'json',
-                    success: function (data) {
-                        if (!data.hasOwnProperty('error')) {
-                            selectCategoria.empty();
-                            selectCategoria.prop('disabled', false);
-                            $.each(data, function (key, value) { // Agregar las categorias traídas del backend al select
-                                if (value.id) {
-                                    selectCategoria.append('<option value="' + value.id + '">' + value.__str__ + '</option>');
-                                }
-                            });
-                        } else {
-                            alert('Error al obtener las categorias: ' + data.error)
-                        }
-                    }
-                });
                 $.ajax({
                     url: "{% url 'admin-socio-ajax' %}",
                     type: 'GET',
@@ -191,7 +114,7 @@
                             listDataPersona.empty();
                             let persona = data['persona'];
                             listDataPersona.append('<li class="list-group-item list-group-item-secondary"><h5 class="m-0">Datos de la persona seleccionada</h5></li>');
-                            listDataPersona.append('<li class="list-group-item"><b>DNI:</b> ' + persona['dni'] + '</li>');
+                            listDataPersona.append('<li class="list-group-item"><b>CUIL:</b> ' + persona['cuil'] + '</li>');
                             listDataPersona.append('<li class="list-group-item"><b>Nombre:</b> ' + persona['nombre'] + '</li>');
                             listDataPersona.append('<li class="list-group-item"><b>Apellido:</b> ' + persona['apellido'] + '</li>');
                             listDataPersona.append('<li class="list-group-item"><b>Edad:</b> ' + persona['edad'] + '</li>');
@@ -204,8 +127,6 @@
                     }
                 });
             } else {
-                selectCategoria.empty();
-                selectCategoria.prop('disabled', true);
                 listDataPersona.empty();
             }
         });
@@ -252,7 +173,7 @@
                                     }
                                 });
                             }
-                            location.reload();
+                            window.location.href = "{% url 'admin-socio-listado' %}";
                         });
                     } else {
                         let errors = []
