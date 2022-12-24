@@ -12,7 +12,7 @@ class CustomUserAdmin(UserAdmin):
     Excluir los campos 'first_name' y 'last_name'.
     """
     fieldsets = (
-        ("Usuario info", {"fields": ("username", "email", "password")}),
+        ("Usuario info", {"fields": ("email", "password")}),
         (_("Socio info"), {"fields": ["socio"]}),
         (_("Permissions"),
          {
@@ -30,15 +30,16 @@ class CustomUserAdmin(UserAdmin):
         (
             None,
             {
-                "fields": ("socio", "username", "email", "password1", "password2"),
+                "fields": ("socio", "email", "password1", "password2"),
             },
         ),
     )
     form = UserChangeForm
     add_form = UserCreationForm
-    list_display = ("username", "email", "is_staff")
+    list_display = ("email", "is_staff")
     list_filter = ("is_staff", "is_superuser", "is_active", "groups")
-    search_fields = ("username", "email")
+    search_fields = ["email"]
+    ordering = ["email"]
 
 
 admin.site.register(User, CustomUserAdmin)

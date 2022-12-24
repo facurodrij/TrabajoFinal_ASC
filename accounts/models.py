@@ -4,7 +4,6 @@ from PIL import Image
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.models import UnicodeUsernameValidator
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -21,33 +20,24 @@ from socios.models import Socio
 class User(AbstractUser, SoftDeleteModel):
     """
     Modelos de usuario personalizado.
+    TODO: Email como username.
     """
-    username_validator = UnicodeUsernameValidator()
     socio = models.OneToOneField('socios.Socio', on_delete=models.PROTECT, null=True, blank=True)
     email = models.EmailField(
         unique=True,
         verbose_name='Email',
         error_messages={
-            "unique": "Email: Una persona con ese email ya existe.",
+            "unique": "Un usuario con ese email ya existe.",
         },
     )
-    username = models.CharField(
-        "Nombre de usuario",
-        max_length=150,
-        unique=True,
-        help_text="Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ solamente.",
-        validators=[username_validator],
-        error_messages={
-            "unique": "Nombre de usuario: Una persona con ese nombre de usuario ya existe.",
-            "invalid":
-                "Nombre de usuario: Este campo solo puede contener letras, números y los "
-                "siguientes caracteres: @/./+/-/_",
-        },
-    )
+    username = None
     first_name = None
     last_name = None
+    nombre = models.CharField(max_length=255, verbose_name='Nombre')
+    apellido = models.CharField(max_length=255, verbose_name='Apellido')
 
-    REQUIRED_FIELDS = ['email']
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['nombre', 'apellido']
 
     def __str__(self):
         try:
@@ -55,7 +45,7 @@ class User(AbstractUser, SoftDeleteModel):
                 return self.socio.persona.get_full_name() + ' (Administrador)'
             return self.socio.persona.get_full_name()
         except AttributeError:
-            return self.username
+            return self.email
 
     def is_admin(self):
         """
@@ -84,7 +74,7 @@ class Persona(SoftDeleteModel):
     Modelo para almacenar los datos personales de los Usuarios
     """
     cuil = models.CharField(max_length=11, unique=True, verbose_name='CUIL',
-                            error_messages={'unique': 'CUIL: Una persona con ese CUIL ya existe.'})
+                            error_messages={'unique': 'Una persona con ese CUIL ya existe.'})
     sexo = models.ForeignKey('parameters.Sexo', on_delete=models.PROTECT, verbose_name='Sexo')
     club = models.ForeignKey('core.Club', on_delete=models.PROTECT, verbose_name='Club')
     persona_titular = models.ForeignKey(
@@ -93,7 +83,7 @@ class Persona(SoftDeleteModel):
     apellido = models.CharField(max_length=255, verbose_name='Apellido')
     fecha_nacimiento = models.DateField(verbose_name='Fecha de nacimiento',
                                         error_messages={
-                                            "invalid": "Fecha de nacimiento: Formato de fecha inválido.",
+                                            "invalid": "Formato de fecha de nacimiento inválido.",
                                         })
     history = HistoricalRecords()
 

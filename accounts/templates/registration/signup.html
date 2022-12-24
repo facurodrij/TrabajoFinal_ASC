@@ -32,11 +32,10 @@
             <a href="{% url 'index' %}" class="h1">RESERVÁ</a>
         </div>
         <div class="card-body">
-            <p class="login-box-msg">Para registrarse en el sitio<br>primero debe ser socio</p>
             <form method="post">
                 {% csrf_token %}
                 <div class="input-group mb-3">
-                    {{ form.dni }}
+                    {{ form.nombre }}
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-user"></span>
@@ -44,10 +43,10 @@
                     </div>
                 </div>
                 <div class="input-group mb-3">
-                    {{ form.socio_id }}
+                    {{ form.apellido }}
                     <div class="input-group-append">
                         <div class="input-group-text">
-                            <span class="fa-solid fa-id-card"></span>
+                            <span class="fas fa-user"></span>
                         </div>
                     </div>
                 </div>
@@ -86,9 +85,6 @@
             <p class="mb-3">
                 <a href="{% url 'login' %}" class="text-center">Ya tengo cuenta</a>
             </p>
-            <div class="input-group">
-                <a href="{% url 'solicitud-crear' %}" class="col-md-12 btn btn-success">Asociarse</a>
-            </div>
         </div>
     </div>
 </div>

@@ -1,5 +1,5 @@
 from django.contrib.auth import (
-    logout, get_user_model, login)
+    logout, get_user_model)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.views import LoginView
@@ -26,9 +26,8 @@ User = get_user_model()
 
 class SignUpView(FormView):
     """
-    Vista para que un socio sin usuario pueda registrarse.
-    Para que un socio pueda registrarse con esta vista deben estar sus datos en la
-    tabla Persona y esos datos deben estar asociados con la tabla Socio.
+    Vista para que un usuario se registre en el sistema.
+    TODO: Cualquier persona puede registrarse con esta vista, no solo socios.
     """
     template_name = 'registration/signup.html'
     form_class = SignUpForm
@@ -45,36 +44,24 @@ class SignUpView(FormView):
         return context
 
     def form_valid(self, form):
-        # Obtener CUIL, Email y SocioID
-        cuil = form.clean_cuil()
-        email = form.clean_email()
-        socio_id = form.clean_socio_id()
-        # Obtener la Persona con el CUIL y el SocioID ingresados
-        persona = Persona.objects.get(cuil=cuil, socio_id=socio_id)
-        # Crear el Usuario con el Email ingresado y Username igual al CUIL ingresado
-        with transaction.atomic():
-            user = User(username=cuil,
-                        email=email,
-                        persona=persona)
-            user.set_password(form.cleaned_data['password1'])
-            user.is_active = False
-            user.save()
         # Enviar un Email de activación de cuenta
-        current_site = get_current_site(self.request)
-        mail_subject = 'Active su cuenta.'
-        message = render_to_string('email/activate_account.html', {
-            'user': user,
-            'domain': current_site.domain,
-            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-            'token': account_activation_token.make_token(user),
-            'protocol': 'https' if self.request.is_secure() else 'http',
-            'club': Club.objects.first(),
-        })
-        to_email = email
-        email = EmailMessage(
-            mail_subject, message, to=[to_email]
-        )
-        email.send()
+        with transaction.atomic():
+            user = form.save()
+            current_site = get_current_site(self.request)
+            mail_subject = 'Active su cuenta.'
+            message = render_to_string('email/activate_account.html', {
+                'user': user,
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': account_activation_token.make_token(user),
+                'protocol': 'https' if self.request.is_secure() else 'http',
+                'club': Club.objects.first(),
+            })
+            to_email = user.email
+            email = EmailMessage(
+                mail_subject, message, to=[to_email]
+            )
+            email.send()
         messages.success(self.request, 'Se ha enviado un email a su casilla para que active su cuenta.')
         return redirect('login')
 
@@ -95,18 +82,6 @@ class CustomLoginView(LoginView):
             self.request.session.set_expiry(0)
             # Set session as modified to force data updates/cookie to be saved.
             self.request.session.modified = True
-        # User validate after login
-        user = form.get_user()
-        login(self.request, user)
-        if not user.is_admin():
-            if user.persona.get_socio(global_objects=True) is None:
-                messages.error(self.request, 'Su cuenta no está asociada a un socio de la institución.')
-                return redirect('logout')
-            if user.persona.get_socio(global_objects=True).is_deleted:
-                messages.error(self.request, 'Su cuenta de socio ha sido dada de baja.')
-                # TODO: Agregar motivo de la baja
-                return redirect('logout')
-            return redirect('persona')
         return super().form_valid(form)
 
 

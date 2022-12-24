@@ -1,14 +1,11 @@
 from django import forms
-from django.contrib.auth import password_validation
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
+from django.contrib.auth import authenticate, password_validation
+from django.contrib.auth.forms import UserCreationForm, UsernameField, AuthenticationForm
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import User, Persona
 from core.models import Club
 from parameters.models import ClubParameters
-from socios.models import Socio
 
 
 class PersonaAdminForm(forms.ModelForm):
@@ -82,125 +79,110 @@ class PersonaAdminForm(forms.ModelForm):
 
 
 class LoginForm(AuthenticationForm):
-    username = forms.CharField(
+    """
+    Formulario para el login de usuarios.
+    """
+    username_field = User._meta.get_field(User.USERNAME_FIELD)
+    username = UsernameField(
         max_length=100,
-        required=True,
-        widget=forms.TextInput(attrs={'placeholder': 'Username',
-                                      'class': 'form-control',
-                                      'autocomplete': 'off',
-                                      }))
+        widget=forms.EmailInput(
+            attrs={
+                'autofocus': True,
+                'class': 'form-control',
+                'placeholder': 'Ingrese su email',
+                'autocomplete': 'off',
+            }
+        )
+    )
     password = forms.CharField(
-        max_length=50,
-        required=True,
-        widget=forms.PasswordInput(attrs={'placeholder': 'Contraseña',
+        label=_("Password"),
+        strip=False,
+        widget=forms.PasswordInput(attrs={"autocomplete": "current-password",
                                           'class': 'form-control',
-                                          'data-toggle': 'password',
-                                          'id': 'password',
-                                          'name': 'password',
-                                          }))
+                                          'placeholder': 'Contraseña'}),
+    )
     remember_me = forms.BooleanField(
         required=False, label='Recordarme')
 
-    class Meta:
-        model = User
-        fields = ['username', 'password', 'remember_me']
+    def __init__(self, request=None, *args, **kwargs):
+        self.request = request
+        self.user_cache = None
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+
+        if username and password:
+            self.user_cache = authenticate(self.request, email=username, password=password)
+            if self.user_cache is None:
+                raise forms.ValidationError(
+                    self.error_messages['invalid_login'],
+                    code='invalid_login',
+                    params={'username': self.username_field.verbose_name},
+                )
+            else:
+                self.confirm_login_allowed(self.user_cache)
+        return self.cleaned_data
 
 
-class SignUpForm(forms.Form):
+class SignUpForm(UserCreationForm):
     """
-    Formulario para que un socio sin usuario pueda registrarse.
-    Debe pasar su DNI para comprobar si existe en la tabla Persona y está asociado
-    con la tabla Socio; y un Email personal.
+    Formulario para el registro de usuarios.
     """
-    cuil = forms.CharField(
-        max_length=13,
-        label='CUIL',
-        required=True,
-        widget=forms.TextInput(attrs={'placeholder': 'Ingrese el CUIL',
-                                      'class': 'form-control',
-                                      'autocomplete': 'off',
-                                      }))
     email = forms.EmailField(
+        max_length=100,
         required=True,
-        widget=forms.TextInput(attrs={'placeholder': 'Email',
-                                      'class': 'form-control',
-                                      'autocomplete': 'off',
-                                      }))
-    socio_id = forms.IntegerField(required=True,
-                                  widget=forms.NumberInput(attrs={'class': 'form-control',
-                                                                  'placeholder': 'Socio ID',
-                                                                  'autocomplete': 'off',
-                                                                  }))
-    error_messages = {
-        "password_mismatch": _("The two password fields didn’t match."),
-    }
+        widget=forms.EmailInput(attrs={'placeholder': 'Ingrese su email',
+                                       'class': 'form-control',
+                                       'autocomplete': 'off',
+                                       }))
+    nombre = forms.CharField(
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(
+            attrs={'placeholder': 'Ingrese su nombre',
+                   'class': 'form-control',
+                   'autocomplete': 'off',
+                   }))
+    apellido = forms.CharField(
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(
+            attrs={'placeholder': 'Ingrese su apellido',
+                   'class': 'form-control',
+                   'autocomplete': 'off',
+                   }))
     password1 = forms.CharField(
         label=_("Password"),
         strip=False,
         widget=forms.PasswordInput(attrs={"autocomplete": "new-password",
-                                          'placeholder': 'Contraseña',
-                                          'class': 'form-control'
-                                          }),
+                                          'class': 'form-control',
+                                          'placeholder': 'Contraseña'}),
         help_text=password_validation.password_validators_help_text_html(),
     )
     password2 = forms.CharField(
         label=_("Password confirmation"),
         widget=forms.PasswordInput(attrs={"autocomplete": "new-password",
-                                          'placeholder': 'Confirmar contraseña',
-                                          'class': 'form-control'}),
+                                          'class': 'form-control',
+                                          'placeholder': 'Repetir contraseña'}),
         strip=False,
         help_text=_("Enter the same password as before, for verification."),
     )
 
-    def clean_email(self):
-        """
-        Validar que el Email no exista en otro Usuario.
-        """
-        email = self['email'].value()
-        if User.objects.filter(email=email).exists():
-            raise forms.ValidationError('El Email ingresado ya está registrado.')
-        return email
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['nombre'].widget.attrs['autofocus'] = True
 
-    def clean_cuil(self):
-        """
-        Validar que el CUIL exista en la tabla Persona y esté asociado con la tabla Socio.
-        """
-        cuil = self['cuil'].value()
-        if not Socio.objects.filter(persona__cuil=cuil).exists():
-            raise forms.ValidationError('El CUIL ingresado no pertenece a un socio del Club. '
-                                        'Para registrarse debe ser socio.')
-        # Validar que el cuil no este asociado a un usuario.
-        if User.objects.filter(persona__cuil=cuil).exists():
-            raise forms.ValidationError('El CUIL ingresado ya está registrado.')
-        return cuil
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password1"])
+        user.is_active = False
+        if commit:
+            user.save()
+        return user
 
-    def clean_socio_id(self):
-        """
-        Validar que el socio_id exista en la tabla Socio y coincida con el CUIL ingresado.
-        """
-        socio_id = self['socio_id'].value()
-        cuil = self['cuil'].value()
-        if not Socio.objects.filter(id=socio_id, persona__cuil=cuil).exists():
-            raise forms.ValidationError('El número de Socio ingresado no coincide con el CUIL ingresado.')
-        return socio_id
-
-    def clean_password2(self):
-        password1 = self.cleaned_data.get("password1")
-        password2 = self.cleaned_data.get("password2")
-        if password1 and password2 and password1 != password2:
-            raise ValidationError(
-                self.error_messages["password_mismatch"],
-                code="password_mismatch",
-            )
-        return password2
-
-    def _post_clean(self):
-        super()._post_clean()
-        # Validate the password after self.instance is updated with form data
-        # by super().
-        password = self.cleaned_data.get("password2")
-        if password:
-            try:
-                password_validation.validate_password(password)
-            except ValidationError as error:
-                self.add_error("password2", error)
+    class Meta:
+        model = User
+        fields = ('email', 'nombre', 'apellido')
+        field_classes = {'email': UsernameField}
