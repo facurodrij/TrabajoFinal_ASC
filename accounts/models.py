@@ -20,7 +20,6 @@ from socios.models import Socio
 class User(AbstractUser, SoftDeleteModel):
     """
     Modelos de usuario personalizado.
-    TODO: Email como username.
     """
     socio = models.OneToOneField('socios.Socio', on_delete=models.PROTECT, null=True, blank=True)
     email = models.EmailField(
@@ -137,6 +136,12 @@ class Persona(SoftDeleteModel):
         Devuelve true si el campo persona_titular es nulo.
         """
         return True if self.persona_titular is None else False
+
+    def get_personas_dependientes(self):
+        """
+        Devuelve una lista de personas dependientes de la persona.
+        """
+        return self.persona_set.all()
 
     def get_socio(self, global_objects=False):
         """

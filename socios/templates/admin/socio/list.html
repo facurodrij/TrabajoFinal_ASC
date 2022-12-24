@@ -21,11 +21,10 @@
                             <thead>
                             <tr>
                                 <th scope="col" style="">#</th>
-                                <th scope="col" style="">DNI</th>
+                                <th scope="col" style="">CUIL</th>
                                 <th scope="col" style="">Nombre completo</th>
                                 <th scope="col" style="">Edad</th>
                                 <th scope="col" style="">Categoría</th>
-                                <th scope="col" style="">Tipo</th>
                                 <th scope="col" style="">Estado</th>
                                 <th></th>
                             </tr>
@@ -34,11 +33,10 @@
                             {% for socio in socios %}
                                 <tr>
                                     <td>{{ socio.pk }}</td>
-                                    <td>{{ socio.persona.dni }}</td>
+                                    <td>{{ socio.persona.cuil_completo }}</td>
                                     <td>{{ socio.persona.get_full_name }}</td>
                                     <td>{{ socio.persona.get_edad }}</td>
-                                    <td>{{ socio.categoria }}</td>
-                                    <td><span class="badge badge-primary">{{ socio.get_tipo }}</span></td>
+                                    <td>{{ socio.get_categoria }}</td>
                                     {% if not socio.is_deleted %}
                                         <td><span class="badge badge-success">{{ socio.get_estado }}</span></td>
                                         <td>
@@ -74,7 +72,6 @@
                                 <th scope="col" style="">Nombre completo</th>
                                 <th scope="col" style="">Edad</th>
                                 <th scope="col" style="">Categoría</th>
-                                <th scope="col" style="">Tipo</th>
                                 <th scope="col" style="">Estado</th>
                                 <th></th>
                             </tr>

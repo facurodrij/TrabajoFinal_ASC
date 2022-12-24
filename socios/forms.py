@@ -58,10 +58,10 @@ class CategoriaForm(forms.ModelForm):
 
     class Meta:
         model = Categoria
-        fields = ['nombre', 'cuota', 'edad_desde', 'edad_hasta']
+        fields = ['nombre', 'cuota', 'edad_minima', 'edad_maxima']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el nombre'}),
             'cuota': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el monto de la cuota'}),
-            'edad_desde': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la edad minima'}),
-            'edad_hasta': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la edad maxima'}),
+            'edad_minima': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la edad minima'}),
+            'edad_maxima': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la edad maxima'}),
         }

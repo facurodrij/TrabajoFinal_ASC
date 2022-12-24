@@ -30,24 +30,34 @@ class Socio(SoftDeleteModel):
 
     def get_categoria(self):
         """
-        TODO: Devuelve la categoria del socio en base a su edad.
+        Devuelve la categoria del socio en base a su edad.
         """
-
-    def es_titular(self):
-        """
-        TODO: Devuelve True si el socio es titular.
-        """
+        for categoria in Categoria.objects.all().order_by('edad_minima'):
+            if categoria.edad_minima <= self.persona.get_edad() <= categoria.edad_maxima:
+                return categoria
+            # En la ultima categoria, si la edad es mayor a la maxima, devolver la ultima categoria
+            if categoria == Categoria.objects.last():
+                return categoria
+        return None
 
     def get_estado(self):
         return 'Activo' if self.is_deleted is False else 'Inactivo'
 
     def get_miembros(self):
         """
-        TODO: Devuelve los miembros del socio.
+        Devuelve los socios miembros del titular.
         """
+        personas = self.persona.get_personas_dependientes().exclude(socio__isnull=True)
+        return [persona.socio for persona in personas]
 
-    def get_tipo(self):
-        return 'Titular' if self.es_titular() else 'Miembro'
+    def grupo_familiar(self):
+        """
+        Devuelve el grupo familiar del socio.
+        """
+        if self.persona.es_titular():
+            return [self] + self.get_miembros()
+        else:
+            return [self.persona.persona_titular.socio] + self.persona.persona_titular.socio.get_miembros()
 
     def get_user(self):
         try:
@@ -56,7 +66,7 @@ class Socio(SoftDeleteModel):
             return None
 
     def get_related_objects(self):
-        if self.es_titular():
+        if self.persona.es_titular():
             return self.get_miembros()
         return []
 
@@ -84,52 +94,69 @@ class Categoria(models.Model):
     Modelo para almacenar las categorías de los socios.
     """
     nombre = models.CharField(max_length=255, verbose_name='Nombre')
-    cuota = models.DecimalField(max_digits=10, default=0, decimal_places=2, verbose_name='Cuota')
-    edad_desde = models.PositiveSmallIntegerField(default=0, verbose_name='Edad desde')
-    edad_hasta = models.PositiveSmallIntegerField(default=0, verbose_name='Edad hasta')
-    se_factura = models.BooleanField(default=True, verbose_name='¿Se factura?')
+    cuota = models.DecimalField(max_digits=10, default=0, decimal_places=2, verbose_name='Precio de la cuota')
+    edad_minima = models.PositiveSmallIntegerField(default=0, verbose_name='Edad mínima')
+    edad_maxima = models.PositiveSmallIntegerField(default=0, verbose_name='Edad máxima')
 
     def __str__(self):
-        return self.nombre + ' $' + str(self.cuota)
+        if self.cuota > 0:
+            return '{} - ${}'.format(self.nombre, self.cuota)
+        return self.nombre
+
+    def se_factura(self):
+        return True if self.cuota > 0 else False
 
     def get_rango_edad(self):
-        if self.edad_desde == 0 and self.edad_hasta == 0:
+        if self.edad_minima == 0 and self.edad_maxima == 0:
             return 'Sin rango'
-        if self.edad_hasta > 100:
-            return '{}+'.format(self.edad_desde)
-        return '{} - {}'.format(self.edad_desde, self.edad_hasta)
+        if self.edad_maxima >= 100:
+            return '{}+'.format(self.edad_minima)
+        return '{} - {}'.format(self.edad_minima, self.edad_maxima)
 
     def clean(self):
-        # TODO: Validar que no exista una categoria con el mismo rango de edad
-        # TODO: Validar que las edades de la categoria no se solapen con otras categorias
-        if self.cuota == 0:
-            self.se_factura = False
-        if self.edad_desde > self.edad_hasta:
+        # Validar que la edad mínima no sea mayor a la edad máxima
+        if self.edad_minima > self.edad_maxima:
             raise ValidationError('La edad "desde" debe ser menor que la edad "hasta".')
-        if self.edad_desde == self.edad_hasta:
-            raise ValidationError('Las edades ingresadas no deben ser iguales.')
+
+        # Validar que las edades no se crucen con otras categorias
+        if self.edad_minima > 0 or self.edad_maxima > 0:
+            categorias = Categoria.objects.filter(edad_minima__lte=self.edad_minima,
+                                                  edad_maxima__gte=self.edad_minima).exclude(pk=self.pk)
+            if categorias.exists():
+                raise ValidationError('Ya existe una categoría con el mismo rango de edad.')
+            categorias = Categoria.objects.filter(edad_minima__lte=self.edad_maxima,
+                                                  edad_maxima__gte=self.edad_maxima).exclude(pk=self.pk)
+            if categorias.exists():
+                raise ValidationError('Ya existe una categoría con el mismo rango de edad.')
+
+        # Validar que no queden edades sin categorias
+        categoria_anterior = Categoria.objects.filter(edad_maxima__lt=self.edad_minima).order_by('-edad_maxima').first()
+        categoria_siguiente = Categoria.objects.filter(edad_minima__gt=self.edad_maxima).order_by('edad_minima').first()
+        if categoria_anterior:
+            if categoria_anterior.edad_maxima + 1 != self.edad_minima:
+                raise ValidationError('La edad {} se encuentra fuera del rango'
+                                      ' de edades.'.format(categoria_anterior.edad_maxima + 1))
+        if categoria_siguiente:
+            if categoria_siguiente.edad_minima - 1 != self.edad_maxima:
+                raise ValidationError('La edad {} se encuentra fuera del rango'
+                                      ' de edades.'.format(categoria_siguiente.edad_minima - 1))
 
     def toJSON(self):
         item = model_to_dict(self)
         item['__str__'] = self.__str__()
+        item['rango_edad'] = self.get_rango_edad()
         return item
 
     class Meta:
         verbose_name = 'Categoría'
         verbose_name_plural = 'Categorías'
+        unique_together = ('edad_minima', 'edad_maxima')
         constraints = [
             # Cuota debe ser mayor o igual a 0
             models.CheckConstraint(
                 check=models.Q(cuota__gte=0),
                 name='cuota_mayor_igual_cero',
                 violation_error_message='La cuota debe ser mayor o igual a 0.'
-            ),
-            # Si cuota es 0, se_factura debe ser False
-            models.CheckConstraint(
-                check=~(models.Q(cuota=0) & models.Q(se_factura=True)),
-                name='cuota_se_factura',
-                violation_error_message='Si el precio de la cuota es $0, no se debe incluir en el '
-                                        'detalle de la facturación.'
             ),
         ]
 

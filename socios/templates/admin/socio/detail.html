@@ -45,7 +45,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                     <div class="col-9 p-0">
                                         <ul style="list-style: none;">
                                             <li style="color: yellow"><strong>Socio N°: {{ socio.pk }}</strong></li>
-                                            <li style="color: white"><strong>DNI: {{ socio.persona.dni }}</strong></li>
+                                            <li style="color: white"><strong>CUIL: {{ socio.persona.cuil_completo }}</strong></li>
                                             <li class="text-right"><img
                                                     src="https://es.qr-code-generator.com/wp-content/themes/qr/new_structure/markets/core_market/generator/dist/generator/assets/images/websiteQRCode_noFrame.png"
                                                     alt=""
@@ -69,7 +69,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                             <div class="col">
                                 <h5>Información Personal</h5>
                                 <ul class="list-group">
-                                    <li class="list-group-item"><b>DNI: </b>{{ socio.persona.dni }}</li>
+                                    <li class="list-group-item"><b>CUIL: </b>{{ socio.persona.cuil_completo }}</li>
                                     <li class="list-group-item"><b>Nombre
                                         completo: </b>{{ socio.persona.get_full_name }}</li>
                                     <li class="list-group-item"><b>Sexo: </b>{{ socio.persona.sexo }}</li>
@@ -104,7 +104,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                 <h5>Información de Socio</h5>
                                 <ul class="list-group">
                                     <li class="list-group-item"><b>Tipo de socio: </b>{{ socio.get_tipo }}</li>
-                                    <li class="list-group-item"><b>Categoria: </b>{{ socio.categoria }}</li>
+                                    <li class="list-group-item"><b>Categoria: </b>{{ socio.get_categoria }}</li>
                                     <li class="list-group-item"><b>Antigüedad: </b>{{ socio.get_antiguedad }}
                                         ({{ socio.fecha_ingreso }})
                                     </li>
@@ -139,27 +139,25 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                         <button id="open-ModalAddMiembro" class="btn btn-success mb-3">
                             <i class="fas fa-plus pr-1"></i> Agregar Miembro
                         </button>
-                        <table id="miembro-table" class="table table-bordered table-striped dataTable">
+                        <table id="dataTable" class="table table-bordered table-striped dataTable">
                             <thead>
                             <tr>
                                 <th scope="col" style="">#</th>
-                                <th scope="col" style="">DNI</th>
+                                <th scope="col" style="">CUIL</th>
                                 <th scope="col" style="">Nombre completo</th>
                                 <th scope="col" style="">Edad</th>
                                 <th scope="col" style="">Categoría</th>
-                                <th scope="col" style="">Parentesco</th>
                                 <th></th>
                             </tr>
                             </thead>
                             <tbody>
-                            {% for miembro in miembros %}
+                            {% for miembro in grupo_familiar %}
                                 <tr>
                                     <td>{{ miembro.pk }}</td>
-                                    <td>{{ miembro.persona.dni }}</td>
+                                    <td>{{ miembro.persona.cuil_completo }}</td>
                                     <td>{{ miembro.persona.get_full_name }}</td>
                                     <td>{{ miembro.persona.get_edad }}</td>
-                                    <td>{{ miembro.categoria }}</td>
-                                    <td>{{ miembro.get_parentesco }}</td>
+                                    <td>{{ miembro.get_categoria }}</td>
                                     {% if not miembro.is_deleted %}
                                         <td>
                                             <a href="{% url 'admin-socio-detalle' miembro.pk %}"
@@ -189,11 +187,10 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                             <tfoot>
                             <tr>
                                 <th scope="col" style="">#</th>
-                                <th scope="col" style="">DNI</th>
+                                <th scope="col" style="">CUIL</th>
                                 <th scope="col" style="">Nombre completo</th>
                                 <th scope="col" style="">Edad</th>
                                 <th scope="col" style="">Categoría</th>
-                                <th scope="col" style="">Parentesco</th>
                                 <th></th>
                             </tr>
                             </tfoot>
@@ -256,7 +253,14 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                     },
                     colvisRestore: 'Restaurar'
                 },
-            }
+            },
+            // La fila que tiene el mismo id igual 2, fondo success
+            rowId: 'id',
+            rowCallback: function (row, data, index) {
+                if (data[0] === '{{ object.pk }}') {
+                    $(row).addClass('table-success');
+                }
+            },
         });
         // Datatable buttons bootstrap 4, append buttons
         table.DataTable().buttons().container().appendTo('#dataTable_wrapper .col-md-6:eq(0)');

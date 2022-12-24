@@ -27,7 +27,8 @@ class ClubParameters(models.Model):
     club = models.OneToOneField('core.Club', on_delete=models.CASCADE, verbose_name=_('Club'))
     edad_minima_titular = models.PositiveSmallIntegerField(
         default=16,
-        verbose_name=_('Edad mínima para ser socio titular'))
+        verbose_name=_('Edad mínima para no necesitar tutor'),
+        help_text=_('Edad mínima para no necesitar tutor'))
     dia_emision_cuota = models.PositiveSmallIntegerField(
         default=7,
         verbose_name=_('Día de emisión'))

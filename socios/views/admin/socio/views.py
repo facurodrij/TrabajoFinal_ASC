@@ -20,6 +20,7 @@ from socios.models import Socio
 class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """ Vista para listar los socios """
     # TODO: Permitir filtrar por eliminados
+    # TODO: Agregar todos los filtros
     model = Socio
     template_name = 'admin/socio/list.html'
     permission_required = 'socios.view_socio'
@@ -65,8 +66,11 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
 
 
 class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
-    """ Vista para mostrar un socio, solo para administradores """
-    # TODO: Si esta eliminado, mostrar un mensaje de que esta eliminado y mostrar el botón de restaurar
+    """
+    Vista para mostrar un socio, solo para administradores
+    TODO: Si esta eliminado, mostrar un mensaje de que esta eliminado y mostrar el botón de restaurar
+    TODO: Agregar todos los filtros
+    """
     model = Socio
     template_name = 'admin/socio/detail.html'
     context_object_name = 'socio'
@@ -75,6 +79,7 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Detalle de Socio'
+        context['grupo_familiar'] = self.object.grupo_familiar()
         return context
 
     def get_object(self, queryset=None):
@@ -82,7 +87,11 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
 
 
 class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
-    """ Vista para editar un socio, solo para administradores """
+    """
+    Vista para editar un socio, solo para administradores
+    TODO: Actualizar vista de actualizar socio
+    TODO: Si el socio esta eliminado, redirigir a la vista de detalle de socio
+    """
     model = Socio
     form_class = SocioAdminForm
     template_name = 'admin/socio/form.html'

@@ -27,7 +27,6 @@ User = get_user_model()
 class SignUpView(FormView):
     """
     Vista para que un usuario se registre en el sistema.
-    TODO: Cualquier persona puede registrarse con esta vista, no solo socios.
     """
     template_name = 'registration/signup.html'
     form_class = SignUpForm
