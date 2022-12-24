@@ -5,6 +5,7 @@ from parameters.views import ParametersClubFormView
 
 urlpatterns = [
     path('', IndexView.as_view(), name='index'),
+    path('admin/', IndexAdminView.as_view(), name='index_admin'),
 
     # URLs del club (administración)
     path('admin/club/', lambda request: redirect('club-detalles', permanent=True), name='club'),

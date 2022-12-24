@@ -1,0 +1,37 @@
+{% extends 'extends/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        {% if not user.is_authenticated %}
+            <div class="row">
+                <div class="col">
+                    <div class="card card-success">
+                        <div class="card-header">
+                            <h3 class="card-title">Ingrese a su cuenta</h3>
+                        </div>
+                        <div class="card-body text-center">
+                            <a href="{% url 'login' %}">
+                                <img src="{% static 'icons/icons8-login-rounded.svg' %}"
+                                     class="rounded-circle p-4 m-3 bg-success" alt="" width="200px" id="login-img">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">Asociarse al club</h3>
+                        </div>
+                        <div class="card-body text-center">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+{% endblock body_js %}
