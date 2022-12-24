@@ -19,8 +19,7 @@ class PersonaAdminForm(forms.ModelForm):
     es_menor = forms.BooleanField(
         label='Es menor de {} años?'.format(edad_minima_titular),
         required=False,
-        # Clase de bootstrap para alinear a la izquierda centrado verticalmente el checkbox.
-        widget=forms.CheckboxInput(attrs={'class': 'ml-1 mt-2'}),
+        widget=forms.CheckboxInput(),
         help_text='Marque esta casilla si la persona es menor de {} años.'.format(edad_minima_titular)
     )
     cuil = forms.CharField(
