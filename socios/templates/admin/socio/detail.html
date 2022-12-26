@@ -45,7 +45,8 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                     <div class="col-9 p-0">
                                         <ul style="list-style: none;">
                                             <li style="color: yellow"><strong>Socio N°: {{ socio.pk }}</strong></li>
-                                            <li style="color: white"><strong>CUIL: {{ socio.persona.cuil_completo }}</strong></li>
+                                            <li style="color: white">
+                                                <strong>CUIL: {{ socio.persona.cuil_completo }}</strong></li>
                                             <li class="text-right"><img
                                                     src="https://es.qr-code-generator.com/wp-content/themes/qr/new_structure/markets/core_market/generator/dist/generator/assets/images/websiteQRCode_noFrame.png"
                                                     alt=""
@@ -68,7 +69,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                         <div class="row">
                             <div class="col">
                                 <h5>Información Personal</h5>
-                                <ul class="list-group">
+                                <ul class="list-group mb-1">
                                     <li class="list-group-item"><b>CUIL: </b>{{ socio.persona.cuil_completo }}</li>
                                     <li class="list-group-item"><b>Nombre
                                         completo: </b>{{ socio.persona.get_full_name }}</li>
@@ -82,7 +83,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                             <b>Parentesco:</b> {{ socio.parentesco }}
                                         </li>
                                     {% endif %}
-                                    {% if socio.get_user %}
+                                    {% if socio.user %}
                                         <li class="list-group-item"><b>Usuario: </b>{{ socio.persona.user.username }}
                                         </li>
                                         <li class="list-group-item"><b>Email: </b>{{ socio.persona.user.email }}</li>
@@ -99,25 +100,27 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                         </li>
                                     {% endif %}
                                 </ul>
+                                <a href="{% url 'admin-persona-editar' socio.persona.pk %}" class="btn btn-sm btn-warning">
+                                    <i class="fa-solid fa-edit"></i>
+                                </a>
                             </div>
                             <div class="col">
                                 <h5>Información de Socio</h5>
-                                <ul class="list-group">
-                                    <li class="list-group-item"><b>Tipo de socio: </b>{{ socio.get_tipo }}</li>
+                                <ul class="list-group mb-1">
                                     <li class="list-group-item"><b>Categoria: </b>{{ socio.get_categoria }}</li>
                                     <li class="list-group-item"><b>Antigüedad: </b>{{ socio.get_antiguedad }}
                                         ({{ socio.fecha_ingreso }})
                                     </li>
                                     <li class="list-group-item"><b>Estado: </b>{{ socio.get_estado }}</li>
                                 </ul>
+                                <a href="{% url 'admin-socio-editar' socio.pk %}" class="btn btn-sm btn-warning">
+                                    <i class="fa-solid fa-edit"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
                     <div class="card-footer">
-                        <a href="{% url 'admin-socio-editar' socio.pk %}" class="btn btn-warning mr-2">
-                            <i class="fa-solid fa-edit"></i> Editar
-                        </a>
-                        <a href="{% url 'admin-socio-listado' %}" class="btn btn-secondary">
+                        <a href="{% url 'admin-socio-listado' %}" class="btn btn-secondary float-right">
                             <i class="fa-solid fa-rotate-left"></i> Volver
                         </a>
                     </div>

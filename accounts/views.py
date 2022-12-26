@@ -161,13 +161,12 @@ class PersonaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
                 if form.is_valid():
                     with transaction.atomic():
                         persona = form.save()
-                        edad_minima_titular = ClubParameters.objects.get(club=persona.club).edad_minima_titular
-                        if persona.get_edad() < edad_minima_titular:
-                            persona_titular = form.cleaned_data.get('persona_titular')
+                        persona_titular = form.cleaned_data.get('persona_titular')
+                        if persona_titular:
                             persona.persona_titular = persona_titular
                             persona.save()
                             persona.validate()
-                            persona_titular.validate_persona()
+                            persona.persona_titular.validate()
                         else:
                             persona.validate()
                         data['persona'] = persona.toJSON()
@@ -184,7 +183,6 @@ class PersonaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
 class PersonaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """ Vista para la actualización de personas """
     # TODO: Generar comprobante de operación
-    # TODO: Si la persona tiene personas a cargo, no permitir seleccionar una persona titular
     # TODO: Si la persona esta eliminada, redirigir a su detalle
     model = Persona
     form_class = PersonaAdminForm
@@ -202,6 +200,9 @@ class PersonaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
         form.fields['persona_titular'].initial = self.object.persona_titular
         form.fields['persona_titular'].queryset = Persona.objects.filter(persona_titular__isnull=True).exclude(
             pk=self.object.pk)
+        if self.object.persona_set.exists():
+            form.fields['persona_titular'].widget.attrs['disabled'] = True
+            form.fields['persona_titular'].help_text = 'No se puede modificar porque la persona tiene personas a cargo.'
         return form
 
     def post(self, request, *args, **kwargs):

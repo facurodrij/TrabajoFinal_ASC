@@ -129,18 +129,6 @@ class Categoria(models.Model):
             if categorias.exists():
                 raise ValidationError('Ya existe una categoría con el mismo rango de edad.')
 
-        # Validar que no queden edades sin categorias
-        categoria_anterior = Categoria.objects.filter(edad_maxima__lt=self.edad_minima).order_by('-edad_maxima').first()
-        categoria_siguiente = Categoria.objects.filter(edad_minima__gt=self.edad_maxima).order_by('edad_minima').first()
-        if categoria_anterior:
-            if categoria_anterior.edad_maxima + 1 != self.edad_minima:
-                raise ValidationError('La edad {} se encuentra fuera del rango'
-                                      ' de edades.'.format(categoria_anterior.edad_maxima + 1))
-        if categoria_siguiente:
-            if categoria_siguiente.edad_minima - 1 != self.edad_maxima:
-                raise ValidationError('La edad {} se encuentra fuera del rango'
-                                      ' de edades.'.format(categoria_siguiente.edad_minima - 1))
-
     def toJSON(self):
         item = model_to_dict(self)
         item['__str__'] = self.__str__()

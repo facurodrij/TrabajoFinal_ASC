@@ -1,79 +1,52 @@
 [
   {
-    "model": "socios.Categoria",
+    "model": "socios.categoria",
     "pk": 1,
     "fields": {
-      "nombre": "Sin categoria",
-      "cuota": 0.00,
-      "edad_desde": 0,
-      "edad_hasta": 0,
-      "se_factura": false
+      "nombre": "Infaltil",
+      "cuota": "2000.00",
+      "edad_minima": 0,
+      "edad_maxima": 5
     }
   },
   {
-    "model": "socios.Categoria",
+    "model": "socios.categoria",
     "pk": 2,
     "fields": {
-      "nombre": "Infantil Básico",
-      "cuota": 2200.00,
-      "edad_desde": 0,
-      "edad_hasta": 12,
-      "se_factura": true
+      "nombre": "Juvenil",
+      "cuota": "2500.00",
+      "edad_minima": 6,
+      "edad_maxima": 11
     }
   },
   {
-    "model": "socios.Categoria",
+    "model": "socios.categoria",
     "pk": 3,
     "fields": {
-      "nombre": "Infantil Premium",
-      "cuota": 2500.00,
-      "edad_desde": 0,
-      "edad_hasta": 12,
-      "se_factura": true
+      "nombre": "Adolescente",
+      "cuota": "3000.00",
+      "edad_minima": 12,
+      "edad_maxima": 17
     }
   },
   {
-    "model": "socios.Categoria",
+    "model": "socios.categoria",
     "pk": 4,
     "fields": {
-      "nombre": "Adolescente Básico",
-      "cuota": 2600.00,
-      "edad_desde": 13,
-      "edad_hasta": 17,
-      "se_factura": true
+      "nombre": "Adulto",
+      "cuota": "3500.00",
+      "edad_minima": 18,
+      "edad_maxima": 59
     }
   },
   {
-    "model": "socios.Categoria",
+    "model": "socios.categoria",
     "pk": 5,
     "fields": {
-      "nombre": "Adolescente Premium",
-      "cuota": 3000.00,
-      "edad_desde": 13,
-      "edad_hasta": 17,
-      "se_factura": true
-    }
-  },
-  {
-    "model": "socios.Categoria",
-    "pk": 6,
-    "fields": {
-      "nombre": "Adulto Básico",
-      "cuota": 3500.00,
-      "edad_desde": 18,
-      "edad_hasta": 150,
-      "se_factura": true
-    }
-  },
-  {
-    "model": "socios.Categoria",
-    "pk": 7,
-    "fields": {
-      "nombre": "Adulto Premium",
-      "cuota": 4000.00,
-      "edad_desde": 18,
-      "edad_hasta": 150,
-      "se_factura": true
+      "nombre": "Adulto Mayor",
+      "cuota": "2500.00",
+      "edad_minima": 60,
+      "edad_maxima": 100
     }
   }
 ]
