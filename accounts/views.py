@@ -142,6 +142,8 @@ class PersonaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Nueva Persona'
+        if self.request.GET.get('titular'):
+            context['title'] = 'Nuevo Persona Titular'
         context['action'] = 'add'
         return context
 
@@ -150,6 +152,7 @@ class PersonaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
         form = super().get_form(form_class)
         if self.request.GET.get('titular'):
             form.fields['es_menor'].widget.attrs['disabled'] = True
+            form.fields['persona_titular'].widget.attrs['disabled'] = True
         return form
 
     def post(self, request, *args, **kwargs):

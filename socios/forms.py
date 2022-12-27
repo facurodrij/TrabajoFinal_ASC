@@ -12,6 +12,10 @@ class SocioAdminForm(forms.ModelForm):
                                      queryset=Persona.objects.filter(socio__isnull=True),
                                      label='Persona',
                                      widget=forms.Select(attrs={'class': 'form-control select2'}))
+    email = forms.EmailField(required=False,
+                             label='Email',
+                             widget=forms.EmailInput(attrs={'class': 'form-control',
+                                                            'placeholder': 'Ingrese el email'}))
     fecha_ingreso = forms.DateField(
         required=True,
         widget=forms.TextInput(
