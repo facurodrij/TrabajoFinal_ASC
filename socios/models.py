@@ -22,6 +22,7 @@ class Socio(SoftDeleteModel):
     Modelo de socio.
     """
     persona = models.OneToOneField('accounts.Persona', on_delete=models.PROTECT)
+    user = models.OneToOneField('accounts.User', on_delete=models.PROTECT, null=True, blank=True)
     fecha_ingreso = models.DateField(default=datetime.now)
     history = HistoricalRecords()
 
@@ -57,7 +58,10 @@ class Socio(SoftDeleteModel):
         if self.persona.es_titular():
             return [self] + self.get_miembros()
         else:
-            return [self.persona.persona_titular.socio] + self.persona.persona_titular.socio.get_miembros()
+            try:
+                return [self.persona.persona_titular.socio] + self.persona.persona_titular.socio.get_miembros()
+            except ObjectDoesNotExist:
+                return [self]
 
     def get_user(self):
         try:

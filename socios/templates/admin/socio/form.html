@@ -17,6 +17,18 @@
             max-width: 300px;
             max-height: 300px;
         }
+
+        @media (max-width: 576px) {
+            .label-align {
+                text-align: left;
+            }
+        }
+
+        @media (min-width: 576px) {
+            .label-align {
+                text-align: right;
+            }
+        }
     </style>
 {% endblock head_css %}
 
@@ -32,7 +44,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <form method="post" enctype="multipart/form-data" id="formSocio">
+                <form method="post" enctype="multipart/form-data" id="formSocio" class="form-horizontal">
                     {% csrf_token %}
                     <div class="card">
                         <div class="card-body">
@@ -43,12 +55,21 @@
                                     <div class="form-group">
                                         <div class="input-group">
                                             {{ form.persona }}
-                                            <div class="input-group-append">
-                                                <a href="{% url 'admin-persona-crear' %}?next={{ request.path }}"
-                                                   class="btn btn-success">
-                                                    <i class="fas fa-user-plus"></i>
-                                                </a>
-                                            </div>
+                                            {% if action == 'add' %}
+                                                <div class="input-group-append">
+                                                    <a href="{% url 'admin-persona-crear' %}?next={{ request.path }}"
+                                                       class="btn btn-success">
+                                                        <i class="fas fa-user-plus"></i>
+                                                    </a>
+                                                </div>
+                                            {% elif action == 'edit' %}
+                                                <div class="input-group-append">
+                                                    <a href="{% url 'admin-persona-editar' object.persona.pk %}"
+                                                       class="btn btn-warning">
+                                                        <i class="fas fa-user-pen"></i>
+                                                    </a>
+                                                </div>
+                                            {% endif %}
                                         </div>
                                     </div>
                                     <ul id="list-data" class="list-group">
@@ -64,6 +85,13 @@
                                                  data-toggle="datetimepicker">
                                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                             </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="id_email" class="col-form-label col-md-2 col-sm-2 label-align">
+                                            {{ form.email.label }}</label>
+                                        <div class="col-sm-10">
+                                            {{ form.email }}
                                         </div>
                                     </div>
                                 </div>
@@ -93,43 +121,55 @@
         $('#id_fecha_ingreso').datetimepicker({
             "format": "DD/MM/YYYY",
             "locale": "es-AR",
-            "date": null,
+            {% if action == 'add' %}"date": null,
+                {% elif action == 'edit' %}"date": "{{ object.fecha_ingreso|date:'d/m/Y' }}",
+            {% endif %}
             "minDate": "01/01/1900",
             "maxDate": Date.now(),
         });
 
-        selectPersona.on('change', function (e) {
-            let listDataPersona = $('#list-data');
-            if ($(this).val()) {
-                $.ajax({
-                    url: "{% url 'admin-socio-ajax' %}",
-                    type: 'GET',
-                    data: {
-                        'action': 'get_persona',
-                        'id': $(this).val()
-                    },
-                    dataType: 'json',
-                    success: function (data) {
-                        if (!data.hasOwnProperty('error')) {
-                            listDataPersona.empty();
-                            let persona = data['persona'];
-                            listDataPersona.append('<li class="list-group-item list-group-item-secondary"><h5 class="m-0">Datos de la persona seleccionada</h5></li>');
-                            listDataPersona.append('<li class="list-group-item"><b>CUIL:</b> ' + persona['cuil'] + '</li>');
-                            listDataPersona.append('<li class="list-group-item"><b>Nombre:</b> ' + persona['nombre'] + '</li>');
-                            listDataPersona.append('<li class="list-group-item"><b>Apellido:</b> ' + persona['apellido'] + '</li>');
-                            listDataPersona.append('<li class="list-group-item"><b>Edad:</b> ' + persona['edad'] + '</li>');
-                            listDataPersona.append('<li class="list-group-item"><p><b>Foto carnet:</b></p>' +
-                                '<img src="' + persona['imagen'] + '" class="img-thumbnail" alt=""></li>');
-                            listDataPersona.append('<li class="list-group-item"><a href="' + persona['url_editar'] + '" class="btn btn-warning"><i class="fas fa-user-pen"></i> Editar persona</a></li>');
-                        } else {
-                            alert('Error al obtener los datos de la persona: ' + data.error)
-                        }
-                    }
-                });
-            } else {
+        {% if action == 'add' %}
+            selectPersona.on('change', function (e) {
+                let listDataPersona = $('#list-data');
                 listDataPersona.empty();
-            }
-        });
+                if ($(this).val()) {
+                    $.ajax({
+                        url: "{% url 'admin-socio-ajax' %}",
+                        type: 'GET',
+                        data: {
+                            'action': 'get_persona',
+                            'id': $(this).val()
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+                            if (!data.hasOwnProperty('error')) {
+                                let persona = data['persona'];
+                                listDataPersona.append('<li class="list-group-item list-group-item-secondary"><h5 class="m-0">Datos de la persona seleccionada</h5></li>');
+                                listDataPersona.append('<li class="list-group-item"><b>CUIL:</b> ' + persona['cuil'] + '</li>');
+                                listDataPersona.append('<li class="list-group-item"><b>Nombre:</b> ' + persona['nombre'] + '</li>');
+                                listDataPersona.append('<li class="list-group-item"><b>Apellido:</b> ' + persona['apellido'] + '</li>');
+                                listDataPersona.append('<li class="list-group-item"><b>Edad:</b> ' + persona['edad'] + '</li>');
+                                listDataPersona.append('<li class="list-group-item"><p><b>Foto carnet:</b></p>' +
+                                    '<img src="' + persona['imagen'] + '" class="img-thumbnail" alt=""></li>');
+                                listDataPersona.append('<li class="list-group-item"><a href="' + persona['url_editar'] + '" class="btn btn-warning"><i class="fas fa-user-pen"></i> Editar persona</a></li>');
+                            } else {
+                                alert('Error al obtener los datos de la persona: ' + data.error)
+                            }
+                        }
+                    });
+                }
+            });
+        {% elif action == 'edit' %}
+            let listDataPersona = $('#list-data');
+            listDataPersona.empty();
+            listDataPersona.append('<li class="list-group-item list-group-item-secondary"><h5 class="m-0">Datos de la persona seleccionada</h5></li>');
+            listDataPersona.append('<li class="list-group-item"><b>CUIL:</b> {{ object.persona.cuil }}</li>');
+            listDataPersona.append('<li class="list-group-item"><b>Nombre:</b> {{ object.persona.nombre }}</li>');
+            listDataPersona.append('<li class="list-group-item"><b>Apellido:</b> {{ object.persona.apellido }}</li>');
+            listDataPersona.append('<li class="list-group-item"><b>Edad:</b> {{ object.persona.get_edad }}</li>');
+            listDataPersona.append('<li class="list-group-item"><p><b>Foto carnet:</b></p>' +
+                '<img src="{{ object.persona.imagen.url }}" class="img-thumbnail" alt=""></li>');
+        {% endif %}
 
         // Submit form
         $('#formSocio').submit(function (e) {

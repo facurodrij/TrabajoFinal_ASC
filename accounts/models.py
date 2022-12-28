@@ -47,11 +47,10 @@ class CustonUserManager(UserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-class User(AbstractUser, SoftDeleteModel):
+class User(AbstractUser):
     """
     Modelos de usuario personalizado.
     """
-    socio = models.OneToOneField('socios.Socio', on_delete=models.PROTECT, null=True, blank=True)
     email = models.EmailField(
         unique=True,
         verbose_name='Email',
@@ -86,6 +85,12 @@ class User(AbstractUser, SoftDeleteModel):
         """
         return self.is_superuser or self.is_staff
 
+    def get_estado(self):
+        """
+        Devuelve el estado del usuario
+        """
+        return 'Activo' if self.is_active else 'Inactivo'
+
     def get_socio(self, global_object=False):
         """
         Devuelve el socio de la persona.
@@ -96,6 +101,11 @@ class User(AbstractUser, SoftDeleteModel):
             return self.socio
         except ObjectDoesNotExist:
             return False
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['socio'] = self.get_socio().toJSON() if self.get_socio() else None
+        return item
 
     class Meta:
         verbose_name = 'Usuario'
