@@ -41,6 +41,9 @@ class Socio(SoftDeleteModel):
                 return categoria
         return None
 
+    def get_fecha_ingreso(self):
+        return self.fecha_ingreso.strftime('%Y-%m-%d')
+
     def get_estado(self):
         return 'Activo' if self.is_deleted is False else 'Inactivo'
 

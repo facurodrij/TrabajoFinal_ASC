@@ -194,15 +194,26 @@
     <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
     <script src="{% static 'libs/inputmask/jquery.inputmask.js' %}"></script>
     <script>
-        $('#id_fecha_nacimiento').datetimepicker({
-            "format": "DD/MM/YYYY",
-            "locale": "es-AR",
-            {% if action == 'add' %}"date": null,
-                {% elif action == 'edit' %}"date": "{{ object.fecha_nacimiento|date:'d/m/Y' }}",
-            {% endif %}
-            "minDate": "1900-01-01",
-            "maxDate": Date.now(),
-        });
+        let selectFechaNacimiento = $('#id_fecha_nacimiento');
+        {% if action == 'add' %}
+            selectFechaNacimiento.datetimepicker({
+                "format": "DD/MM/YYYY",
+                "locale": "es-AR",
+                "date": null,
+                "minDate": "1900-01-01",
+                "maxDate": Date.now(),
+            });
+        {% elif action == 'edit' %}
+            let fecha_nacimiento = new Date('{{ object.get_fecha_nacimiento }}')
+            fecha_nacimiento.setMinutes(fecha_nacimiento.getMinutes() + fecha_nacimiento.getTimezoneOffset());
+            selectFechaNacimiento.datetimepicker({
+                "format": "DD/MM/YYYY",
+                "locale": "es-AR",
+                "date": fecha_nacimiento,
+                "minDate": "1900-01-01",
+                "maxDate": Date.now(),
+            });
+        {% endif %}
         $('#id_sexo').select2({
             theme: 'bootstrap4',
             placeholder: 'Seleccione un sexo',

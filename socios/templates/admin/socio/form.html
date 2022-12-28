@@ -52,26 +52,21 @@
                                 <div class="col-12 col-md-6">
                                     <h4>Datos Personales</h4>
                                     <hr>
-                                    <div class="form-group">
-                                        <div class="input-group">
-                                            {{ form.persona }}
-                                            {% if action == 'add' %}
+                                    {% if action == 'add' %}
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                {{ form.persona }}
                                                 <div class="input-group-append">
                                                     <a href="{% url 'admin-persona-crear' %}?next={{ request.path }}"
                                                        class="btn btn-success">
                                                         <i class="fas fa-user-plus"></i>
                                                     </a>
                                                 </div>
-                                            {% elif action == 'edit' %}
-                                                <div class="input-group-append">
-                                                    <a href="{% url 'admin-persona-editar' object.persona.pk %}"
-                                                       class="btn btn-warning">
-                                                        <i class="fas fa-user-pen"></i>
-                                                    </a>
-                                                </div>
-                                            {% endif %}
+                                            </div>
                                         </div>
-                                    </div>
+                                    {% else %}
+                                        {{ form.persona }}
+                                    {% endif %}
                                     <ul id="list-data" class="list-group">
                                     </ul>
                                 </div>
@@ -111,24 +106,21 @@
 {% block body_js %}
     <script>
         let selectPersona = $('#id_persona');
-
-        selectPersona.select2({
-            theme: 'bootstrap4',
-            allowClear: true,
-            placeholder: 'Seleccione una persona',
-            language: 'es'
-        });
-        $('#id_fecha_ingreso').datetimepicker({
-            "format": "DD/MM/YYYY",
-            "locale": "es-AR",
-            {% if action == 'add' %}"date": null,
-                {% elif action == 'edit' %}"date": "{{ object.fecha_ingreso|date:'d/m/Y' }}",
-            {% endif %}
-            "minDate": "01/01/1900",
-            "maxDate": Date.now(),
-        });
-
+        let selectFechaIngreso = $('#id_fecha_ingreso');
         {% if action == 'add' %}
+            selectPersona.select2({
+                theme: 'bootstrap4',
+                allowClear: true,
+                placeholder: 'Seleccione una persona',
+                language: 'es'
+            });
+            selectFechaIngreso.datetimepicker({
+                "format": "DD/MM/YYYY",
+                "locale": "es-AR",
+                "date": null,
+                "minDate": "01/01/1900",
+                "maxDate": Date.now(),
+            });
             selectPersona.on('change', function (e) {
                 let listDataPersona = $('#list-data');
                 listDataPersona.empty();
@@ -160,6 +152,14 @@
                 }
             });
         {% elif action == 'edit' %}
+            let fecha_ingreso = new Date('{{ object.get_fecha_ingreso }}')
+            fecha_ingreso.setMinutes(fecha_ingreso.getMinutes() + fecha_ingreso.getTimezoneOffset());
+            selectFechaIngreso.datetimepicker({
+                "format": "DD/MM/YYYY",
+                "date": fecha_ingreso,
+                "minDate": "01/01/1900",
+                "maxDate": Date.now(),
+            });
             let listDataPersona = $('#list-data');
             listDataPersona.empty();
             listDataPersona.append('<li class="list-group-item list-group-item-secondary"><h5 class="m-0">Datos de la persona seleccionada</h5></li>');
@@ -187,8 +187,8 @@
                     if (!data.hasOwnProperty('error')) {
                         Swal.fire({
                             position: 'top-end',
-                            title: 'Socio agregado',
-                            text: 'El socio se agregó correctamente',
+                            title: data['swal_title'],
+                            text: data['swal_text'],
                             icon: 'success',
                             confirmButtonText: 'Imprimir comprobante de operación',
                             showCancelButton: true,

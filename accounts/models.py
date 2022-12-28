@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, OperationalError
 from django.forms import model_to_dict
 from django.urls import reverse
 from django_softdelete.models import SoftDeleteModel
@@ -17,7 +17,7 @@ from parameters.models import ClubParameters
 from socios.models import Socio
 
 
-class CustonUserManager(UserManager):
+class CustomUserManager(UserManager):
     def _create_user(self, email, password, **extra_fields):
         """
         Creates and saves a User with the given email and password.
@@ -67,7 +67,7 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nombre', 'apellido']
 
-    objects = CustonUserManager()
+    objects = CustomUserManager()
 
     def __str__(self):
         try:
@@ -75,6 +75,10 @@ class User(AbstractUser):
                 return self.socio.persona.get_full_name() + ' (Administrador)'
             return self.socio.persona.get_full_name()
         except AttributeError:
+            if self.is_admin():
+                return self.nombre + ' ' + self.apellido + ' (Administrador)'
+            return self.nombre + ' ' + self.apellido
+        except OperationalError:
             if self.is_admin():
                 return self.nombre + ' ' + self.apellido + ' (Administrador)'
             return self.nombre + ' ' + self.apellido
@@ -173,7 +177,7 @@ class Persona(SoftDeleteModel):
         """
         Devuelve la fecha de nacimiento de la persona.
         """
-        return self.fecha_nacimiento.strftime('%d/%m/%Y')
+        return self.fecha_nacimiento.strftime('%Y-%m-%d')
 
     def es_titular(self):
         """

@@ -52,6 +52,11 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
         context['action'] = 'add'
         return context
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['persona'].queryset = Persona.objects.filter(socio__isnull=True)
+        return form
+
     def post(self, request, *args, **kwargs):
         data = {}
         try:
@@ -98,7 +103,10 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
                                 )
                                 email.send()
                                 messages.success(self.request, 'Se ha enviado un email para establecer la contraseña.')
-                        data = {'persona': socio.persona.toJSON(), 'socio': socio.toJSON()}
+                        data = {'persona': socio.persona.toJSON(),
+                                'socio': socio.toJSON(),
+                                'swal_title': 'Socio creado',
+                                'swal_text': 'El socio ha sido creado exitosamente.'}
                 else:
                     data['error'] = form.errors
         except Exception as e:
@@ -149,8 +157,9 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         form.fields['persona'].queryset = Persona.objects.filter(pk=self.get_object().persona.pk)
-        form.fields['persona'].widget.attrs['disabled'] = True
-        form.fields['email'].initial = self.get_object().get_user().email
+        form.fields['persona'].widget.attrs['hidden'] = True
+        if self.get_object().get_user():
+            form.fields['email'].initial = self.get_object().get_user().email
         return form
 
     def post(self, request, *args, **kwargs):
@@ -163,7 +172,10 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
                 if form.is_valid():
                     with transaction.atomic():
                         form.save()
-                        messages.success(request, 'Socio actualizado correctamente')
+                        data = {'persona': self.get_object().persona.toJSON(),
+                                'socio': self.get_object().toJSON(),
+                                'swal_title': 'Socio editado',
+                                'swal_text': 'El socio ha sido editado exitosamente.'}
                 else:
                     data['error'] = form.errors
             else:
