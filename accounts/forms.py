@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth import authenticate, password_validation
 from django.contrib.auth.forms import UserCreationForm, UsernameField, AuthenticationForm
+from django.db.utils import OperationalError
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import User, Persona
@@ -12,13 +13,28 @@ class PersonaAdminForm(forms.ModelForm):
     """
     Formulario para registrar los datos de una Persona. Se utiliza en el formulario de registro de un nuevo usuario.
     """
-    edad_minima_titular = ClubParameters.objects.get(club_id=1).edad_minima_titular
-    es_menor = forms.BooleanField(
-        label='Es menor de {} años?'.format(edad_minima_titular),
-        required=False,
-        widget=forms.CheckboxInput(),
-        help_text='Marque esta casilla si la persona es menor de {} años.'.format(edad_minima_titular)
-    )
+    try:
+        edad_minima_titular = ClubParameters.objects.get(club_id=1).edad_minima_titular
+        es_menor = forms.BooleanField(
+            label='Es menor de {} años?'.format(edad_minima_titular),
+            required=False,
+            widget=forms.CheckboxInput(),
+            help_text='Marque esta casilla si la persona es menor de {} años.'.format(edad_minima_titular)
+        )
+    except OperationalError:
+        es_menor = forms.BooleanField(
+            label='Es menor?',
+            required=False,
+            widget=forms.CheckboxInput(),
+            help_text='Marque esta casilla si la persona es menor.'
+        )
+    except ClubParameters.DoesNotExist:
+        es_menor = forms.BooleanField(
+            label='Es menor?',
+            required=False,
+            widget=forms.CheckboxInput(),
+            help_text='Marque esta casilla si la persona es menor.'
+        )
     cuil = forms.CharField(
         max_length=13,
         label='CUIL',
