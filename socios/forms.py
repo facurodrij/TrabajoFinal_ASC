@@ -9,6 +9,10 @@ class SocioAdminForm(forms.ModelForm):
     Formulario para crear un socio.
     """
     persona = forms.Select(attrs={'class': 'form-control select2'})
+    user = forms.CharField(required=False,
+                           label='Usuario',
+                           widget=forms.TextInput(attrs={'readonly': 'readonly',
+                                                         'class': 'form-control'}))
     email = forms.EmailField(required=False,
                              label='Email',
                              widget=forms.EmailInput(attrs={'class': 'form-control',
@@ -24,6 +28,11 @@ class SocioAdminForm(forms.ModelForm):
                 'data-target': '#id_fecha_ingreso',
             }
         ))
+
+    # user toma el valor del socio
+    def __init__(self, *args, **kwargs):
+        super(SocioAdminForm, self).__init__(*args, **kwargs)
+        self.fields['user'].initial = self.instance.get_user().email if self.instance.get_user() else None
 
     class Meta:
         model = Socio

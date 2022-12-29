@@ -83,10 +83,11 @@
                                     <div class="input-group">
                                         {{ form.persona_titular }}
                                         <div class="input-group-append">
-                                            <a href="{% url 'admin-persona-crear' %}?titular=true"
-                                               class="btn btn-primary">
-                                                <i class="fas fa-user-plus"></i>
-                                            </a>
+                                            <span class="input-group-text">
+                                                <a href="{% url 'admin-persona-crear' %}?titular=true">
+                                                    <i class="fas fa-user-plus"></i>
+                                                </a>
+                                            </span>
                                         </div>
                                     </div>
                                 </div>

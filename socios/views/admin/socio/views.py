@@ -41,6 +41,7 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
 
 class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """ Vista para crear un socio """
     model = Socio
     form_class = SocioAdminForm
     template_name = 'admin/socio/form.html'
@@ -88,7 +89,7 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
                                 socio.save()
                                 # Enviar email para cambiar la contraseña
                                 current_site = get_current_site(self.request)
-                                mail_subject = 'Activación de cuenta.'
+                                mail_subject = 'Establecer contraseña.'
                                 message = render_to_string('email/change_password.html', {
                                     'user': user,
                                     'domain': current_site.domain,
@@ -102,7 +103,8 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
                                     mail_subject, message, to=[to_email]
                                 )
                                 email.send()
-                                messages.success(self.request, 'Se ha enviado un email para establecer la contraseña.')
+                                messages.success(self.request, 'Se ha creado un nuevo usuario con el email ingresado y '
+                                                               'se ha enviado un email para establecer la contraseña.')
                         data = {'persona': socio.persona.toJSON(),
                                 'socio': socio.toJSON(),
                                 'swal_title': 'Socio creado',
@@ -139,7 +141,6 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
 class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Vista para editar un socio, solo para administradores
-    TODO: Actualizar vista de actualizar socio
     TODO: Si el socio esta eliminado, redirigir a la vista de detalle de socio
     """
     model = Socio
@@ -171,7 +172,47 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
                 form = self.form_class(request.POST, instance=self.get_object())
                 if form.is_valid():
                     with transaction.atomic():
-                        form.save()
+                        socio = form.save()
+                        if not socio.get_user():
+                            email = request.POST['email']
+                            if email:
+                                try:
+                                    user = User.objects.get(email=email)
+                                    if user.get_socio(global_object=True):
+                                        raise ValidationError('El email ingresado ya está en uso por el '
+                                                              'socio {}.'.format(user.get_socio(global_object=True)))
+                                    else:
+                                        socio.user = user
+                                        socio.save()
+                                        messages.success(request, 'Al socio editado se lo ha vinculado con el'
+                                                                  ' usuario {} existente.'.format(user))
+                                except User.DoesNotExist:
+                                    user = User.objects.create_user(email=email,
+                                                                    password=User.objects.make_random_password(),
+                                                                    nombre=socio.persona.nombre,
+                                                                    apellido=socio.persona.apellido,
+                                                                    is_active=True)
+                                    socio.user = user
+                                    socio.save()
+                                    # Enviar email para cambiar la contraseña
+                                    current_site = get_current_site(self.request)
+                                    mail_subject = 'Establecer contraseña.'
+                                    message = render_to_string('email/change_password.html', {
+                                        'user': user,
+                                        'domain': current_site.domain,
+                                        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                                        'token': PasswordResetTokenGenerator().make_token(user),
+                                        'protocol': 'https' if self.request.is_secure() else 'http',
+                                        'club': Club.objects.first(),
+                                    })
+                                    to_email = user.email
+                                    email = EmailMessage(
+                                        mail_subject, message, to=[to_email]
+                                    )
+                                    email.send()
+                                    messages.success(self.request,
+                                                     'Se ha creado un nuevo usuario con el email ingresado'
+                                                     ' y se ha enviado un email para establecer la contraseña.')
                         data = {'persona': self.get_object().persona.toJSON(),
                                 'socio': self.get_object().toJSON(),
                                 'swal_title': 'Socio editado',
