@@ -20,191 +20,207 @@
 
 {% block content %}
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-4 col-md-12">
-                <div class="d-flex flex-column align-items-center mb-3">
-                    <img class="rounded-circle mt-3"
-                         src="{{ socio.persona.get_imagen }}" alt="" style="max-width: 200px; max-height: 200px">
-                </div>
-                <div class="d-flex flex-column align-items-center mb-3">
-                    <a id="btn-print" href="">
-                        <div id="socio_carnet" class="card" style="width: 8.56cm; height: 5.398cm; background: rgb(254,255,0);
-background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rgba(9,39,121,1) 100%);">
-                            <div class="card-body">
-                                <div class="row" style="height: 40%">
-                                    <h4 style="color: yellow">Club Atlético Bartolomé Mitre</h4>
-                                    <h5 style="color: white">
-                                        <strong>{{ socio.persona.apellido }}, {{ socio.persona.nombre }}</strong>
-                                    </h5>
-                                </div>
-                                <div class="row">
-                                    <div class="col-3">
-                                        <img src="{{ socio.persona.get_imagen }}" alt=""
-                                             style="max-width: 85px; max-height: 85px">
-                                    </div>
-                                    <div class="col-9 p-0">
-                                        <ul style="list-style: none;">
-                                            <li style="color: yellow"><strong>Socio N°: {{ socio.pk }}</strong></li>
-                                            <li style="color: white">
-                                                <strong>CUIL: {{ socio.persona.cuil_completo }}</strong></li>
-                                            <li class="text-right"><img
-                                                    src="https://es.qr-code-generator.com/wp-content/themes/qr/new_structure/markets/core_market/generator/dist/generator/assets/images/websiteQRCode_noFrame.png"
-                                                    alt=""
-                                                    style="max-width: 60px">
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
+        {% if socio.is_deleted %}
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Socio dado de baja</h4>
+                <p>El socio {{ socio }} se encuentra dado de baja. Para editarlo debe restaurarlo presionando el botón
+                    de restaurar.</p>
+                <hr>
+                <form action="{% url 'admin-socio-restaurar' socio.pk %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        Restaurar
+                    </button>
+                </form>
             </div>
-            <div class="col-lg-8 col-md-12">
-                <div class="card">
-                    <div class="card-header bg-primary">
-                        <h4 class="card-title">{{ title }}</h4>
+        {% else %}
+            <div class="row">
+                <div class="col-lg-4 col-md-12">
+                    <div class="d-flex flex-column align-items-center mb-3">
+                        <img class="rounded-circle mt-3"
+                             src="{{ socio.persona.get_imagen }}" alt="" style="max-width: 200px; max-height: 200px">
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col">
-                                <h5>Información Personal</h5>
-                                <ul class="list-group mb-1">
-                                    <li class="list-group-item"><b>CUIL: </b>{{ socio.persona.cuil_completo }}</li>
-                                    <li class="list-group-item"><b>Nombre
-                                        completo: </b>{{ socio.persona.get_full_name }}</li>
-                                    <li class="list-group-item"><b>Sexo: </b>{{ socio.persona.sexo }}</li>
-                                    <li class="list-group-item"><b>Edad: </b>{{ socio.persona.get_edad }}
-                                        ({{ socio.persona.fecha_nacimiento }})
-                                    </li>
-                                    {% if not socio.persona.es_titular %}
-                                        <li class="list-group-item"><b>Persona a cargo: </b>
-                                            {{ socio.persona.persona_titular }}<br>
-                                        </li>
-                                    {% endif %}
-                                </ul>
-                                <a href="{% url 'admin-persona-editar' socio.persona.pk %}"
-                                   class="btn btn-sm btn-warning">
-                                    <i class="fa-solid fa-edit"></i>
-                                </a>
+                    <div class="d-flex flex-column align-items-center mb-3">
+                        <a id="btn-print" href="">
+                            <div id="socio_carnet" class="card" style="width: 8.56cm; height: 5.398cm; background: rgb(254,255,0);
+background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rgba(9,39,121,1) 100%);">
+                                <div class="card-body">
+                                    <div class="row" style="height: 40%">
+                                        <h4 style="color: yellow">Club Atlético Bartolomé Mitre</h4>
+                                        <h5 style="color: white">
+                                            <strong>{{ socio.persona.apellido }}, {{ socio.persona.nombre }}</strong>
+                                        </h5>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <img src="{{ socio.persona.get_imagen }}" alt=""
+                                                 style="max-width: 85px; max-height: 85px">
+                                        </div>
+                                        <div class="col-9 p-0">
+                                            <ul style="list-style: none;">
+                                                <li style="color: yellow"><strong>Socio N°: {{ socio.pk }}</strong></li>
+                                                <li style="color: white">
+                                                    <strong>CUIL: {{ socio.persona.cuil_completo }}</strong></li>
+                                                <li class="text-right"><img
+                                                        src="https://es.qr-code-generator.com/wp-content/themes/qr/new_structure/markets/core_market/generator/dist/generator/assets/images/websiteQRCode_noFrame.png"
+                                                        alt=""
+                                                        style="max-width: 60px">
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col">
-                                <h5>Información de Socio</h5>
-                                <ul class="list-group mb-1">
-                                    <li class="list-group-item"><b>Categoria: </b>{{ socio.get_categoria }}</li>
-                                    <li class="list-group-item"><b>Antigüedad: </b>{{ socio.get_antiguedad }}
-                                        ({{ socio.fecha_ingreso }})
-                                    </li>
-                                    <li class="list-group-item"><b>Estado de socio: </b>{{ socio.get_estado }}</li>
-                                    {% if socio.user %}
-                                        <li class="list-group-item"><b>Email: </b>{{ socio.user.email }}</li>
-                                        <li class="list-group-item">
-                                            <b>Estado de usuario: </b>{{ socio.user.get_estado }}
-                                        </li>
-                                        <li class="list-group-item">
-                                            <b>Fecha de creación de usuario: </b>{{ socio.user.date_joined }}
-                                        </li>
-                                        <li class="list-group-item">
-                                            <b>Último inicio de sesión: </b>
-                                            {% if not socio.user.last_login %}
-                                                <span>Aún no ha iniciado sesión</span>
-                                            {% else %}
-                                                {{ socio.user.last_login }}
-                                            {% endif %}
-                                        </li>
-                                    {% endif %}
-                                </ul>
-                                <a href="{% url 'admin-socio-editar' socio.pk %}" class="btn btn-sm btn-warning">
-                                    <i class="fa-solid fa-edit"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <a href="{% url 'admin-socio-listado' %}" class="btn btn-secondary float-right">
-                            <i class="fa-solid fa-rotate-left"></i> Volver
                         </a>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header bg-primary">
-                        <h3 class="card-title">Grupo Familiar</h3>
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                <i class="fas fa-minus"></i>
-                            </button>
+                <div class="col-lg-8 col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-primary">
+                            <h4 class="card-title">{{ title }}</h4>
                         </div>
-                    </div>
-                    <div class="card-body">
-                        {% if socio.persona.es_titular %}
-                            <button id="open-ModalAddMiembro" class="btn btn-success mb-3">
-                                <i class="fas fa-plus pr-1"></i> Agregar Miembro
-                            </button>
-                        {% endif %}
-                        <table id="dataTable" class="table table-bordered table-striped dataTable">
-                            <thead>
-                            <tr>
-                                <th scope="col" style="">#</th>
-                                <th scope="col" style="">CUIL</th>
-                                <th scope="col" style="">Nombre completo</th>
-                                <th scope="col" style="">Edad</th>
-                                <th scope="col" style="">Categoría</th>
-                                <th></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for miembro in grupo_familiar %}
-                                <tr>
-                                    <td>{{ miembro.pk }}</td>
-                                    <td>{{ miembro.persona.cuil_completo }}</td>
-                                    <td>{{ miembro.persona.get_full_name }}</td>
-                                    <td>{{ miembro.persona.get_edad }}</td>
-                                    <td>{{ miembro.get_categoria }}</td>
-                                    {% if not miembro.is_deleted %}
-                                        <td>
-                                            <a href="{% url 'admin-socio-detalle' miembro.pk %}"
-                                               class="btn btn-info btn-sm">
-                                                <i class="fa-solid fa-eye"></i>
-                                            </a>
-                                            <a href="{% url 'admin-socio-editar' miembro.pk %}"
-                                               class="btn btn-warning btn-sm">
-                                                <i class="fa-solid fa-edit"></i>
-                                            </a>
-                                            <a href="{% url 'admin-socio-baja' miembro.pk %}"
-                                               class="btn btn-danger btn-sm">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </a>
-                                        </td>
-                                    {% else %}
-                                        <td>
-                                            <a href="{% url 'admin-socio-detalle' miembro.pk %}"
-                                               class="btn btn-info btn-sm">
-                                                <i class="fa-solid fa-eye"></i>
-                                            </a>
-                                        </td>
-                                    {% endif %}
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                            <tfoot>
-                            <tr>
-                                <th scope="col" style="">#</th>
-                                <th scope="col" style="">CUIL</th>
-                                <th scope="col" style="">Nombre completo</th>
-                                <th scope="col" style="">Edad</th>
-                                <th scope="col" style="">Categoría</th>
-                                <th></th>
-                            </tr>
-                            </tfoot>
-                        </table>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col">
+                                    <h5>Información Personal</h5>
+                                    <ul class="list-group mb-1">
+                                        <li class="list-group-item"><b>CUIL: </b>{{ socio.persona.cuil_completo }}</li>
+                                        <li class="list-group-item"><b>Nombre
+                                            completo: </b>{{ socio.persona.get_full_name }}</li>
+                                        <li class="list-group-item"><b>Sexo: </b>{{ socio.persona.sexo }}</li>
+                                        <li class="list-group-item"><b>Edad: </b>{{ socio.persona.get_edad }}
+                                            ({{ socio.persona.fecha_nacimiento }})
+                                        </li>
+                                        {% if not socio.persona.es_titular %}
+                                            <li class="list-group-item"><b>Persona a cargo: </b>
+                                                {{ socio.persona.persona_titular }}<br>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                    <a href="{% url 'admin-persona-editar' socio.persona.pk %}"
+                                       class="btn btn-sm btn-warning">
+                                        <i class="fa-solid fa-edit"></i>
+                                    </a>
+                                </div>
+                                <div class="col">
+                                    <h5>Información de Socio</h5>
+                                    <ul class="list-group mb-1">
+                                        <li class="list-group-item"><b>Categoria: </b>{{ socio.get_categoria }}</li>
+                                        <li class="list-group-item"><b>Antigüedad: </b>{{ socio.get_antiguedad }}
+                                            ({{ socio.fecha_ingreso }})
+                                        </li>
+                                        <li class="list-group-item"><b>Estado de socio: </b>{{ socio.get_estado }}</li>
+                                        {% if socio.user %}
+                                            <li class="list-group-item"><b>Email: </b>{{ socio.user.email }}</li>
+                                            <li class="list-group-item">
+                                                <b>Estado de usuario: </b>{{ socio.user.get_estado }}
+                                            </li>
+                                            <li class="list-group-item">
+                                                <b>Fecha de creación de usuario: </b>{{ socio.user.date_joined }}
+                                            </li>
+                                            <li class="list-group-item">
+                                                <b>Último inicio de sesión: </b>
+                                                {% if not socio.user.last_login %}
+                                                    <span>Aún no ha iniciado sesión</span>
+                                                {% else %}
+                                                    {{ socio.user.last_login }}
+                                                {% endif %}
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                    <a href="{% url 'admin-socio-editar' socio.pk %}" class="btn btn-sm btn-warning">
+                                        <i class="fa-solid fa-edit"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'admin-socio-listado' %}" class="btn btn-secondary float-right">
+                                <i class="fa-solid fa-rotate-left"></i> Volver
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-primary">
+                            <h3 class="card-title">Grupo Familiar</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% if socio.persona.es_titular %}
+                                <button id="open-ModalAddMiembro" class="btn btn-success mb-3">
+                                    <i class="fas fa-plus pr-1"></i> Agregar Miembro
+                                </button>
+                            {% endif %}
+                            <table id="dataTable" class="table table-bordered table-striped dataTable">
+                                <thead>
+                                <tr>
+                                    <th scope="col" style="">#</th>
+                                    <th scope="col" style="">CUIL</th>
+                                    <th scope="col" style="">Nombre completo</th>
+                                    <th scope="col" style="">Edad</th>
+                                    <th scope="col" style="">Categoría</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for miembro in grupo_familiar %}
+                                    <tr>
+                                        <td>{{ miembro.pk }}</td>
+                                        <td>{{ miembro.persona.cuil_completo }}</td>
+                                        <td>{{ miembro.persona.get_full_name }}</td>
+                                        <td>{{ miembro.persona.get_edad }}</td>
+                                        <td>{{ miembro.get_categoria }}</td>
+                                        {% if not miembro.is_deleted %}
+                                            <td>
+                                                <a href="{% url 'admin-socio-detalle' miembro.pk %}"
+                                                   class="btn btn-info btn-sm">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </a>
+                                                <a href="{% url 'admin-socio-editar' miembro.pk %}"
+                                                   class="btn btn-warning btn-sm">
+                                                    <i class="fa-solid fa-edit"></i>
+                                                </a>
+                                                <a href="{% url 'admin-socio-baja' miembro.pk %}"
+                                                   class="btn btn-danger btn-sm">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        {% else %}
+                                            <td>
+                                                <a href="{% url 'admin-socio-detalle' miembro.pk %}"
+                                                   class="btn btn-info btn-sm">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    <th scope="col" style="">#</th>
+                                    <th scope="col" style="">CUIL</th>
+                                    <th scope="col" style="">Nombre completo</th>
+                                    <th scope="col" style="">Edad</th>
+                                    <th scope="col" style="">Categoría</th>
+                                    <th></th>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </div>
 {% endblock content %}
 

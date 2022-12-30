@@ -14,7 +14,8 @@ from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView
+from django.views import View
+from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView, TemplateView, FormView
 from weasyprint import HTML, CSS
 
 from accounts.decorators import admin_required
@@ -276,6 +277,29 @@ class SocioAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteVi
         except Exception as e:
             data['error'] = e.args[0]
         print('SocioAdminDeleteView: ', data)
+        return JsonResponse(data, safe=False)
+
+
+class SocioAdminRestoreView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    """
+    Vista para restaurar un socio, solo para administradores
+    """
+    permission_required = 'socios.restore_socio'
+
+    def get_success_url(self):
+        return reverse_lazy('admin-socio-detalle', kwargs={'pk': self.kwargs['pk']})
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            with transaction.atomic():
+                socio = Socio.deleted_objects.get(pk=kwargs['pk'])
+                socio.restore()
+                messages.success(request, 'El socio ha sido restaurado exitosamente.')
+            return redirect(self.get_success_url())
+        except Exception as e:
+            data['error'] = e.args[0]
+        print('SocioAdminRestoreView: ', data)
         return JsonResponse(data, safe=False)
 
 
