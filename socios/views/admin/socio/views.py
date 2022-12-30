@@ -27,8 +27,6 @@ from socios.models import Socio
 
 class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """ Vista para listar los socios """
-    # TODO: Permitir filtrar por eliminados
-    # TODO: Agregar todos los filtros
     model = Socio
     template_name = 'admin/socio/list.html'
     permission_required = 'socios.view_socio'
@@ -39,7 +37,7 @@ class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Listado de socios'
+        context['title'] = 'Listado de Socios'
         return context
 
 
@@ -123,8 +121,6 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
 class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """
     Vista para mostrar un socio, solo para administradores
-    TODO: Si esta eliminado, mostrar un mensaje de que esta eliminado y mostrar el botón de restaurar
-    TODO: Agregar todos los filtros
     """
     model = Socio
     template_name = 'admin/socio/detail.html'
