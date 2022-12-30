@@ -8,7 +8,7 @@ class SocioAdminForm(forms.ModelForm):
     """
     Formulario para crear un socio.
     """
-    persona = forms.Select(attrs={'class': 'form-control select2'})
+    persona = forms.Select()
     user = forms.CharField(required=False,
                            label='Usuario',
                            widget=forms.TextInput(attrs={'readonly': 'readonly',
