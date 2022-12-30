@@ -77,10 +77,9 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                     <li class="list-group-item"><b>Edad: </b>{{ socio.persona.get_edad }}
                                         ({{ socio.persona.fecha_nacimiento }})
                                     </li>
-                                    {% if socio.es_miembro %}
-                                        <li class="list-group-item"><b>Titular del
-                                            grupo:</b> {{ socio.socio_titular }}<br>
-                                            <b>Parentesco:</b> {{ socio.parentesco }}
+                                    {% if not socio.persona.es_titular %}
+                                        <li class="list-group-item"><b>Persona a cargo: </b>
+                                            {{ socio.persona.persona_titular }}<br>
                                         </li>
                                     {% endif %}
                                 </ul>
@@ -141,9 +140,11 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                         </div>
                     </div>
                     <div class="card-body">
-                        <button id="open-ModalAddMiembro" class="btn btn-success mb-3">
-                            <i class="fas fa-plus pr-1"></i> Agregar Miembro
-                        </button>
+                        {% if socio.persona.es_titular %}
+                            <button id="open-ModalAddMiembro" class="btn btn-success mb-3">
+                                <i class="fas fa-plus pr-1"></i> Agregar Miembro
+                            </button>
+                        {% endif %}
                         <table id="dataTable" class="table table-bordered table-striped dataTable">
                             <thead>
                             <tr>
@@ -173,17 +174,17 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                                class="btn btn-warning btn-sm">
                                                 <i class="fa-solid fa-edit"></i>
                                             </a>
-                                            <button class="btn btn-danger btn-sm btn-delete"
-                                                    value="{{ miembro.pk }}">
+                                            <a href="{% url 'admin-socio-baja' miembro.pk %}"
+                                               class="btn btn-danger btn-sm">
                                                 <i class="fa-solid fa-trash"></i>
-                                            </button>
+                                            </a>
                                         </td>
                                     {% else %}
                                         <td>
-                                            <button class="btn btn-success btn-sm btn-restore"
-                                                    value="{{ miembro.pk }}">
-                                                <i class="fa-solid fa-rotate-left"></i>
-                                            </button>
+                                            <a href="{% url 'admin-socio-detalle' miembro.pk %}"
+                                               class="btn btn-info btn-sm">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </a>
                                         </td>
                                     {% endif %}
                                 </tr>
