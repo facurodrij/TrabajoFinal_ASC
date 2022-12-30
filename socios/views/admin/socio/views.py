@@ -9,10 +9,12 @@ from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
+from django.shortcuts import redirect
 from django.template.loader import render_to_string
+from django.urls import reverse_lazy
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import ListView, DetailView, UpdateView, CreateView
+from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView
 from weasyprint import HTML, CSS
 
 from accounts.decorators import admin_required
@@ -113,7 +115,7 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
                     data['error'] = form.errors
         except Exception as e:
             data['error'] = e.args[0]
-        print(data)
+        print('SocioAdminCreateView: ', data)
         return JsonResponse(data)
 
 
@@ -141,13 +143,21 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
 class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Vista para editar un socio, solo para administradores
-    TODO: Si el socio esta eliminado, redirigir a la vista de detalle de socio
     """
     model = Socio
     form_class = SocioAdminForm
     template_name = 'admin/socio/form.html'
     permission_required = 'socios.change_socio'
     context_object_name = 'socio'
+
+    def get_object(self, queryset=None):
+        return Socio.global_objects.get(pk=self.kwargs['pk'])
+
+    def dispatch(self, request, *args, **kwargs):
+        # Si el socio esta eliminado, redirigir a la vista de detalle de socio
+        if self.get_object().is_deleted:
+            return redirect('admin-socio-detalle', pk=self.get_object().pk)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -223,7 +233,49 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
                 data['error'] = 'Ha ocurrido un error, intente nuevamente'
         except Exception as e:
             data['error'] = e.args[0]
-        print(data)
+        print('SocioAdminUpdateView: ', data)
+        return JsonResponse(data, safe=False)
+
+
+class SocioAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """
+    Vista para eliminar un socio, solo para administradores
+    """
+    model = Socio
+    template_name = 'admin/socio/delete.html'
+    permission_required = 'socios.delete_socio'
+    context_object_name = 'socio'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Baja de Socio'
+        context['action'] = 'delete'
+        context['miembros'] = self.object.get_miembros()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'delete':
+                # Si la acción es delete, se elimina únicamente al socio
+                with transaction.atomic():
+                    socio = self.get_object()
+                    socio.delete(cascade=False)
+                    data['swal_title'] = 'Socio dado de baja'
+                    data['swal_text'] = 'El socio ha sido dado de baja exitosamente.'
+            elif action == 'delete_cascade':
+                # Si la acción es delete_cascade, se elimina al socio y a todos sus miembros
+                with transaction.atomic():
+                    socio = self.get_object()
+                    socio.delete(cascade=True)
+                    data['swal_title'] = 'Socio dado de baja'
+                    data['swal_text'] = 'El socio y todos sus miembros han sido dados de baja exitosamente.'
+            else:
+                data['error'] = 'Ha ocurrido un error, intente nuevamente'
+        except Exception as e:
+            data['error'] = e.args[0]
+        print('SocioAdminDeleteView: ', data)
         return JsonResponse(data, safe=False)
 
 
@@ -270,17 +322,6 @@ def socio_admin_ajax(request):
             except Persona.DoesNotExist:
                 pass
     elif request.method == 'POST':
-        action = request.POST['action']
-        if action == 'add_persona':
-            # Si la acción es add_persona, se crea una nueva persona
-            form = PersonaAdminForm(request.POST, request.FILES)
-            if form.is_valid():
-                with transaction.atomic():
-                    persona = form.save(commit=False)
-                    persona.club = Club.objects.get(pk=1)
-                    persona.save()
-                    data = {'persona': persona.toJSON()}
-            else:
-                data['error'] = form.errors
+        pass
     print('socio_admin_ajax: ', data)
     return JsonResponse(data, safe=False)

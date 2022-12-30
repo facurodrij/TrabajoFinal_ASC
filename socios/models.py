@@ -7,8 +7,9 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.forms import model_to_dict
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django_softdelete.models import SoftDeleteModel
+from django_softdelete.models import SoftDeleteModel, get_settings
 from num2words import num2words
 from simple_history.models import HistoricalRecords
 
@@ -51,7 +52,7 @@ class Socio(SoftDeleteModel):
         """
         Devuelve los socios miembros del titular.
         """
-        personas = self.persona.get_personas_dependientes().exclude(socio__isnull=True)
+        personas = self.persona.get_personas_dependientes().exclude(socio__is_deleted=True)
         return [persona.socio for persona in personas]
 
     def grupo_familiar(self):
@@ -62,7 +63,9 @@ class Socio(SoftDeleteModel):
             return [self] + self.get_miembros()
         else:
             try:
-                return [self.persona.persona_titular.socio] + self.persona.persona_titular.socio.get_miembros()
+                if not self.persona.persona_titular.socio.is_deleted:
+                    return [self.persona.persona_titular.socio] + self.persona.persona_titular.socio.get_miembros()
+                return [self]
             except ObjectDoesNotExist:
                 return [self]
 
@@ -83,6 +86,22 @@ class Socio(SoftDeleteModel):
             return '{} años'.format(datetime.now().year - self.fecha_ingreso.year)
         else:
             return '{} meses'.format(datetime.now().month - self.fecha_ingreso.month)
+
+    def delete(self, cascade=None, *args, **kwargs):
+        self.is_deleted = True
+        self.deleted_at = timezone.now()
+        self.save()
+        self.after_delete()
+        if cascade:
+            self.delete_related_objects()
+
+    def restore(self, cascade=None):
+        self.is_deleted = False
+        self.deleted_at = None
+        self.save()
+        self.after_restore()
+        if cascade:
+            self.restore_related_objects()
 
     def toJSON(self):
         item = model_to_dict(self)
