@@ -101,8 +101,8 @@ class User(AbstractUser):
         """
         try:
             if global_object:
-                return Socio.global_objects.get(persona=self.socio.persona)
-            return self.socio
+                return Socio.global_objects.get(user=self)
+            return self.socio if not self.socio.is_deleted else None
         except ObjectDoesNotExist:
             return False
 

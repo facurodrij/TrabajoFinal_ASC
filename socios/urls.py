@@ -3,8 +3,8 @@ from django.urls import path
 from socios.views.admin.categoria.views import *
 from socios.views.admin.cuota.views import *
 from socios.views.admin.socio.views import *
-from socios.views.cuota.views import *
-from socios.views.socio.views import *
+from socios.views.user.cuota.views import *
+from socios.views.user.socio.views import *
 
 urlpatterns = [
     # # URLs de socios (administración)

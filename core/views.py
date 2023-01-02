@@ -23,19 +23,6 @@ class IndexView(TemplateView):
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         return context
 
-    def get(self, request, *args, **kwargs):
-        # Si action es search, se realiza la búsqueda
-        if request.GET.get('action') == 'search':
-            try:
-                persona = Persona.objects.get(dni=request.GET.get('dni'))
-                socio = persona.get_socio()
-                return JsonResponse({
-                    'socio_dni': socio.persona.dni,
-                })
-            except Persona.DoesNotExist:
-                pass
-        return super().get(request, *args, **kwargs)
-
 
 class IndexAdminView(TemplateView):
     """Vista para la página de inicio de administración."""

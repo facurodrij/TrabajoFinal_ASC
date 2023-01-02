@@ -63,34 +63,29 @@
 
 <body class="sidebar-mini layout-fixed sidebar-mini-md sidebar-mini-xs control-sidebar-slide-open sidebar-collapse">
 <div class="wrapper">
-    {% if user.is_authenticated and user.is_admin %}
-        {% include 'includes/admin/navbar.html' %}
-        {% include 'includes/admin/sidebar.html' %}
-        <div class="content-wrapper" style="min-height: 824px;">
-            <div class="content-header">
-                <div class="container-fluid">
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            <h1 class="m-0">{{ title }}</h1>
-                        </div>
-                        <div class="col-sm-6">
-                            {% block breadcrumbs %}
-                                <!-- Establecer las migas de pan en cada vista -->
-                            {% endblock %}
-                        </div>
+    {% include 'includes/admin/navbar.html' %}
+    {% include 'includes/admin/sidebar.html' %}
+    <div class="content-wrapper" style="min-height: 824px;">
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">{{ title }}</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        {% block breadcrumbs %}
+                            <!-- Establecer las migas de pan en cada vista -->
+                        {% endblock %}
                     </div>
                 </div>
             </div>
-            <section class="content">
-                {% block content %}
-                    <!-- Contenido general de la aplicacion -->
-                {% endblock content %}
-            </section>
         </div>
-    {% else %}
-        {#        {% include 'includes/navbar.html' %}#}
-        {#        {% include 'includes/sidebar.html' %}#}
-    {% endif %}
+        <section class="content">
+            {% block content %}
+                <!-- Contenido general de la aplicacion -->
+            {% endblock content %}
+        </section>
+    </div>
 </div>
 <!-- Todos los templates que extienden de base.html podrán recibir los mensajes que envían las vistas -->
 {% include 'includes/message.html' %}

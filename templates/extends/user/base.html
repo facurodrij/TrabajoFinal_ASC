@@ -1,0 +1,78 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block head_meta %}
+    {% endblock head_meta %}
+
+    <title>{{ title }} - RESERVÁ</title>
+    <!-- Bootstrap 4.6 CSS -->
+    <link rel="stylesheet" href="{% static 'libs/bootstrap-4.6.2/bootstrap.min.css' %}">
+    <!-- Font Awesome -->
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
+    <!-- AdminLTE 3 CSS -->
+    <link rel="stylesheet" href="{% static 'libs/adminlte-3.2/adminlte.min.css' %}">
+    <!-- SweetAlert2 Theme Borderless CSS -->
+    <link rel="stylesheet" href="{% static 'libs/sweetalert2/borderless.min.css' %}">
+    <!-- iCheck Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'libs/icheck-bootstrap-3.0.1/icheck-bootstrap.min.css' %}">
+    <!-- Select2 Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'libs/select2-4.1/select2.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'libs/select2-4.1/select2-bootstrap4.min.css' %}">
+    <!-- jQuery JS -->
+    <script src="{% static 'libs/jquery-3.6.1/jquery-3.6.1.min.js' %}"></script>
+    <!-- Bootstrap 4.6 JS -->
+    <script src="{% static 'libs/bootstrap-4.6.2/bootstrap.bundle.min.js' %}"></script>
+    <!-- AdminLTE 3 JS -->
+    <script src="{% static 'libs/adminlte-3.2/adminlte.min.js' %}"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="{% static 'libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+    <!-- Select2 JS -->
+    <script src="{% static 'libs/select2-4.1/select2.min.js' %}"></script>
+    <!-- BS Custom File Input JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    <style>
+        body {
+            background-color: #aeaeae;
+        }
+
+        #login-img:hover {
+            transform: scale(1.1);
+        }
+    </style>
+    <style>
+        /* Todos los h3 con clase card-title deben ser mayúscula negrita */
+        h3.card-title {
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+    </style>
+    {% block head_css %}
+    {% endblock head_css %}
+    {% block head_js %}
+    {% endblock head_js %}
+</head>
+
+<body class="layout-fixed">
+<div class="wrapper">
+    {% include 'includes/user/navbar.html' %}
+    <div class="content" style="min-height: 824px;">
+        <section class="content">
+            {% block content %}
+                <!-- Contenido general de la aplicacion -->
+            {% endblock content %}
+        </section>
+    </div>
+</div>
+<!-- Todos los templates que extienden de base.html podrán recibir los mensajes que envían las vistas -->
+{% include 'includes/message.html' %}
+{% block body_js %}
+{% endblock body_js %}
+</body>
+</html>
