@@ -8,7 +8,6 @@ from django.core.files.storage import FileSystemStorage
 from django.core.mail import EmailMessage
 from django.db import transaction
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.encoding import force_bytes, force_str
@@ -19,7 +18,6 @@ from weasyprint import HTML
 from accounts.decorators import *
 from accounts.forms import *
 from accounts.tokens import account_activation_token
-from parameters.models import ClubParameters
 
 User = get_user_model()
 
@@ -48,7 +46,7 @@ class SignUpView(FormView):
             user = form.save()
             current_site = get_current_site(self.request)
             mail_subject = 'Active su cuenta.'
-            message = render_to_string('email/activate_account.html', {
+            message = render_to_string('registration/activate_account_email.html', {
                 'user': user,
                 'domain': current_site.domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
@@ -67,7 +65,7 @@ class SignUpView(FormView):
 
 class CustomLoginView(LoginView):
     form_class = LoginForm
-    sucess_url = reverse_lazy('index')
+    success_url = reverse_lazy('index')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -82,17 +80,6 @@ class CustomLoginView(LoginView):
             # Set session as modified to force data updates/cookie to be saved.
             self.request.session.modified = True
         return super().form_valid(form)
-
-
-@login_required
-def persona_view(request):
-    """
-    Vista para ver los datos personales del usuario.
-    """
-    context = {
-        'title': 'Datos Personales',
-    }
-    return render(request, 'persona_detail.html', context)
 
 
 def activate_account(request, uidb64, token):

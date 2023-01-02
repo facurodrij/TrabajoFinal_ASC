@@ -4,18 +4,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.files.storage import FileSystemStorage
 from django.core.exceptions import ValidationError
+from django.core.files.storage import FileSystemStorage
 from django.core.mail import EmailMessage
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views import View
-from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView, TemplateView, FormView
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView, FormView
 from weasyprint import HTML, CSS
 
 from accounts.decorators import admin_required
@@ -91,14 +90,15 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
                                 # Enviar email para cambiar la contraseña
                                 current_site = get_current_site(self.request)
                                 mail_subject = 'Establecer contraseña.'
-                                message = render_to_string('email/change_password.html', {
-                                    'user': user,
-                                    'domain': current_site.domain,
-                                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                                    'token': PasswordResetTokenGenerator().make_token(user),
-                                    'protocol': 'https' if self.request.is_secure() else 'http',
-                                    'club': Club.objects.first(),
-                                })
+                                message = render_to_string(
+                                    'registration/change_password_email.html', {
+                                        'user': user,
+                                        'domain': current_site.domain,
+                                        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                                        'token': PasswordResetTokenGenerator().make_token(user),
+                                        'protocol': 'https' if self.request.is_secure() else 'http',
+                                        'club': Club.objects.first(),
+                                    })
                                 to_email = user.email
                                 email = EmailMessage(
                                     mail_subject, message, to=[to_email]
@@ -204,14 +204,15 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
                                     # Enviar email para cambiar la contraseña
                                     current_site = get_current_site(self.request)
                                     mail_subject = 'Establecer contraseña.'
-                                    message = render_to_string('email/change_password.html', {
-                                        'user': user,
-                                        'domain': current_site.domain,
-                                        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                                        'token': PasswordResetTokenGenerator().make_token(user),
-                                        'protocol': 'https' if self.request.is_secure() else 'http',
-                                        'club': Club.objects.first(),
-                                    })
+                                    message = render_to_string(
+                                        'registration/change_password_email.html', {
+                                            'user': user,
+                                            'domain': current_site.domain,
+                                            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                                            'token': PasswordResetTokenGenerator().make_token(user),
+                                            'protocol': 'https' if self.request.is_secure() else 'http',
+                                            'club': Club.objects.first(),
+                                        })
                                     to_email = user.email
                                     email = EmailMessage(
                                         mail_subject, message, to=[to_email]
