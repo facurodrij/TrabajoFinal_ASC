@@ -11,17 +11,6 @@
 
         <!-- Sidebar -->
         <div class="sidebar">
-            <!-- Sidebar user panel (optional) -->
-            {% if not user.is_admin %}
-                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                    <div class="image">
-                        <img src="{{ user.persona.get_imagen }}" class="img-circle elevation-2" alt="User Imagen">
-                    </div>
-                    <div class="info">
-                        <a href="{% url 'persona' %}" class="d-block">{{ user.persona.get_short_name }}</a>
-                    </div>
-                </div>
-            {% endif %}
             <!-- Sidebar Menu -->
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
@@ -119,7 +108,7 @@
                             </ul>
                         </li>
                     {% endif %}
-                    {% if user.is_socio %}
+                    {% if user.get_socio %}
                         <li class="nav-item">
                             <a href="{% url 'persona' %}"
                                class="nav-link {% active_link 'persona' %}">
@@ -128,7 +117,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{% url 'socio-datos' %}"
+                            <a href="{% url 'socio-perfil' %}"
                                class="nav-link {% active_link 'socio-datos' %}">
                                 <i class="fa-solid fa-id-card nav-icon"></i>
                                 <p>Mi Socio</p>

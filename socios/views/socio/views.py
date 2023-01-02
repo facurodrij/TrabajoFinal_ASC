@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import FormView
+from django.views.generic import FormView, TemplateView
 
 from core.models import Club
 from socios.forms import SocioAdminForm
@@ -7,16 +7,16 @@ from socios.mixins import SocioRequiredMixin
 from socios.models import Socio
 
 
-class SocioFormView(LoginRequiredMixin, SocioRequiredMixin, FormView):
+class SocioUserView(LoginRequiredMixin, TemplateView):
     """
-    Vista para obtener los datos del socio autenticado.
+    Vista para obtener los datos personales del socio autenticado.
     """
     model = Socio
     form_class = SocioAdminForm
-    template_name = 'socio/info.html'
+    template_name = 'socio/user.html'
 
     def get_context_data(self, **kwargs):
-        context = super(SocioFormView, self).get_context_data(**kwargs)
-        context['title'] = 'Información del socio'
-        context['club'] = Club.objects.get(pk=1)
+        context = super(SocioUserView, self).get_context_data(**kwargs)
+        context['title'] = 'Perfil de Socio'
+        context['socio'] = Socio.objects.get(user=self.request.user)
         return context

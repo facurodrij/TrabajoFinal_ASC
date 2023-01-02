@@ -20,7 +20,7 @@ urlpatterns = [
     path('admin/socios/ajax/', socio_admin_ajax, name='admin-socio-ajax'),
 
     # URLs de socios (usuarios)
-    path('socio/mis_datos/', SocioFormView.as_view(), name='socio-datos'),
+    path('socio/perfil/', SocioUserView.as_view(), name='socio-perfil'),
 
     # URLs de cuotas de socios (administración)
     path('admin/cuotas/', lambda request: redirect('admin-cuota-listado', permanent=True), name='admin-cuota'),
