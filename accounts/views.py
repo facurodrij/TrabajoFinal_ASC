@@ -247,5 +247,26 @@ def persona_history_pdf(request):
                 print(e.args[0])
                 return HttpResponse('Error al generar el PDF')
 
+
 # TODO: PersonaAdminDetailView
 # TODO: PersonaAdminDeleteView
+
+class ProfileUserView(LoginRequiredMixin, UpdateView):
+    """ Vista para el perfil de usuario """
+    model = User
+    template_name = 'user/profile.html'
+    form_class = ProfileForm
+    success_url = reverse_lazy('user-perfil')
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Perfil de Usuario'
+        context['club_logo'] = Club.objects.get(pk=1).get_imagen()
+        return context
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Usuario actualizado correctamente.')
+        return super().form_valid(form)

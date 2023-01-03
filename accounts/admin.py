@@ -12,8 +12,7 @@ class CustomUserAdmin(UserAdmin):
     Excluir los campos 'first_name' y 'last_name'.
     """
     fieldsets = (
-        ("Usuario info", {"fields": ("email", "password")}),
-        (_("Socio info"), {"fields": ["socio"]}),
+        ("Usuario info", {"fields": ("nombre", "apellido", "email", "password")}),
         (_("Permissions"),
          {
              "fields": (
@@ -30,7 +29,7 @@ class CustomUserAdmin(UserAdmin):
         (
             None,
             {
-                "fields": ("socio", "email", "password1", "password2"),
+                "fields": ("nombre", "apellido", "email", "password1", "password2"),
             },
         ),
     )

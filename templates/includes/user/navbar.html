@@ -17,8 +17,7 @@
                                 <i class="fas fa-cogs pr-2"></i> Administración
                             </a>
                         {% endif %}
-                        <a class="dropdown-item" href="#">
-                            {# TODO: Crear sitio de perfil de usuario #}
+                        <a class="dropdown-item" href="{% url 'user-perfil' %}">
                             <i class="fas fa-circle-user pr-2"></i> Mi perfil de usuario
                         </a>
                         {% if user.get_socio %}

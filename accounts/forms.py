@@ -202,3 +202,55 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ('email', 'nombre', 'apellido')
         field_classes = {'email': UsernameField}
+
+
+class ProfileForm(forms.ModelForm):
+    """
+    Formulario para el perfil de usuarios.
+    """
+    email = forms.EmailField(
+        max_length=100,
+        required=True,
+        widget=forms.EmailInput(attrs={'placeholder': 'Ingrese su email',
+                                       'class': 'form-control',
+                                       'autocomplete': 'off',
+                                       }))
+    nombre = forms.CharField(
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(
+            attrs={'placeholder': 'Ingrese su nombre',
+                   'class': 'form-control',
+                   'autocomplete': 'off',
+                   }))
+    apellido = forms.CharField(
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(
+            attrs={'placeholder': 'Ingrese su apellido',
+                   'class': 'form-control',
+                   'autocomplete': 'off',
+                   }))
+    password = forms.CharField(
+        label=_("Password"),
+        strip=False,
+        widget=forms.PasswordInput(attrs={"autocomplete": "current-password",
+                                          'class': 'form-control',
+                                          'placeholder': 'Contraseña'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['nombre'].widget.attrs['autofocus'] = True
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        if not self.instance.check_password(password):
+            raise forms.ValidationError('Contraseña incorrecta')
+        pass
+
+    class Meta:
+        model = User
+        exclude = ['password', 'last_login', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'groups',
+                   'user_permissions']
+        field_classes = {'email': UsernameField}

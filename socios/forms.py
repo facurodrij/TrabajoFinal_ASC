@@ -1,6 +1,5 @@
 from django import forms
 
-from accounts.models import Persona
 from socios.models import Categoria, Socio, CuotaSocial
 
 
@@ -28,11 +27,6 @@ class SocioAdminForm(forms.ModelForm):
                 'data-target': '#id_fecha_ingreso',
             }
         ))
-
-    # user toma el valor del socio
-    def __init__(self, *args, **kwargs):
-        super(SocioAdminForm, self).__init__(*args, **kwargs)
-        self.fields['user'].initial = self.instance.get_user().email if self.instance.get_user() else None
 
     class Meta:
         model = Socio

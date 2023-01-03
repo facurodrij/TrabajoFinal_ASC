@@ -8,7 +8,7 @@ urlpatterns = [
     path('activate/<uidb64>/<token>/', activate_account, name='activate'),
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
-    # TODO: path('user/perfil/', UserView.as_view(), name='user-perfil'),
+    path('user/perfil/', ProfileUserView.as_view(), name='user-perfil'),
 
     # Password urls
     path('password_change/', views.PasswordChangeView.as_view(), name='password_change'),
