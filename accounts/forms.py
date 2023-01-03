@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import authenticate, password_validation
 from django.contrib.auth.forms import UserCreationForm, UsernameField, AuthenticationForm
-from django.db.utils import OperationalError
+from django.db.utils import OperationalError, ProgrammingError
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import User, Persona
@@ -21,14 +21,8 @@ class PersonaAdminForm(forms.ModelForm):
             widget=forms.CheckboxInput(),
             help_text='Marque esta casilla si la persona es menor de {} años.'.format(edad_minima_titular)
         )
-    except OperationalError:
-        es_menor = forms.BooleanField(
-            label='Es menor?',
-            required=False,
-            widget=forms.CheckboxInput(),
-            help_text='Marque esta casilla si la persona es menor.'
-        )
-    except ClubParameters.DoesNotExist:
+    except (OperationalError, ProgrammingError, ClubParameters.DoesNotExist) as e:
+        print(e)
         es_menor = forms.BooleanField(
             label='Es menor?',
             required=False,
