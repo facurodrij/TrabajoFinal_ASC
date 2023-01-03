@@ -167,7 +167,7 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
         form.fields['persona'].queryset = Persona.objects.filter(pk=self.get_object().persona.pk)
         form.fields['persona'].widget.attrs['hidden'] = True
         if self.get_object().get_user():
-            form.fields['email'].initial = self.get_object().get_user().email
+            form.fields['user'].initial = self.get_object().get_user().email
         return form
 
     def post(self, request, *args, **kwargs):
