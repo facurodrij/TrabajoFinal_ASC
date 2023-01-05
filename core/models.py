@@ -1,5 +1,6 @@
 from PIL import Image
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django_softdelete.models import SoftDeleteModel
@@ -148,3 +149,53 @@ class HoraLaboral(models.Model):
         verbose_name = 'Hora laboral'
         verbose_name_plural = "Horas laborales"
         ordering = ['hora']
+
+
+class Reserva(SoftDeleteModel):
+    """
+    Modelo de la reserva.
+    """
+    cancha = models.ForeignKey('Cancha', on_delete=models.PROTECT)
+    usuario = models.ForeignKey('accounts.User', on_delete=models.PROTECT)
+    fecha = models.DateField(verbose_name='Fecha')
+    hora = models.TimeField(verbose_name='Hora')
+    con_luz = models.BooleanField(default=False, verbose_name='Con luz')
+    precio = models.DecimalField(max_digits=6, decimal_places=2, verbose_name='Precio por hora')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
+
+    def __str__(self):
+        return 'Reserva #{}'.format(self.id)
+
+    def clean(self):
+        """Método clean() sobrescrito para validar la reserva."""
+        super(Reserva, self).clean()
+        # La hora debe ser una HoraLaboral del club de la cancha.
+        if not HoraLaboral.objects.filter(club=self.cancha.club, hora=self.hora).exists():
+            raise ValidationError({'hora': 'La hora no es válida.'})
+
+    class Meta:
+        verbose_name = 'Reserva'
+        verbose_name_plural = "Reservas"
+        constraints = [
+            # Validar que no exista una reserva con la misma cancha, fecha, hora y is_deleted=False,
+            # pero si con is_deleted=True.
+            models.UniqueConstraint(fields=['cancha', 'fecha', 'hora'],
+                                    condition=models.Q(is_deleted=False),
+                                    name='reserva_unico')
+        ]
+
+
+class PagoReserva(models.Model):
+    """
+    Modelo del pago de la reserva.
+    """
+    reserva = models.OneToOneField('Reserva', on_delete=models.PROTECT, verbose_name='Reserva')
+    fecha = models.DateField(auto_now_add=True, verbose_name='Fecha')
+    monto = models.DecimalField(max_digits=6, decimal_places=2, verbose_name='Monto')
+
+    def __str__(self):
+        return 'Pago de reserva #{}'.format(self.reserva.id)
+
+    class Meta:
+        verbose_name = 'Pago de reserva'
+        verbose_name_plural = "Pagos de reservas"
