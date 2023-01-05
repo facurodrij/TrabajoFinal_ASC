@@ -368,11 +368,6 @@ class DetalleCuotaSocial(SoftDeleteModel):
         item['socio'] = self.socio.toJSON()
         return item
 
-    def clean(self):
-        super(DetalleCuotaSocial, self).clean()
-        if self.cuota_social.fecha_pago:
-            raise ValidationError('No se puede modificar un detalle de cuota social que ya ha sido pagada.')
-
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.cuota = self.socio.categoria.cuota
         self.total_parcial = self.cuota + self.cargo_extra
@@ -419,11 +414,6 @@ class PagoCuotaSocial(SoftDeleteModel):
         item = model_to_dict(self)
         item['cuota_social'] = self.cuota_social.toJSON()
         return item
-
-    def clean(self):
-        super(PagoCuotaSocial, self).clean()
-        if self.cuota_social.fecha_pago:
-            raise ValidationError('No se puede modificar un pago de cuota social que ya ha sido pagada.')
 
     class Meta:
         verbose_name = 'Pago de cuota social'

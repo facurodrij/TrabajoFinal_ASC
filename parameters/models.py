@@ -147,3 +147,27 @@ class Localidad(models.Model):
     class Meta:
         verbose_name_plural = "Localidades"
         unique_together = ("nombre", "provincia", "departamento", "municipio")
+
+
+class Deporte(models.Model):
+    """Modelo para almacenar los deportes."""
+    nombre = models.CharField(max_length=100, unique=True, verbose_name=_('Nombre'))
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        verbose_name = _('Deporte')
+        verbose_name_plural = _('Deportes')
+
+
+class Superficie(models.Model):
+    """Modelo para almacenar las superficies."""
+    nombre = models.CharField(max_length=100, unique=True, verbose_name=_('Nombre'))
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        verbose_name = _('Superficie')
+        verbose_name_plural = _('Superficies')

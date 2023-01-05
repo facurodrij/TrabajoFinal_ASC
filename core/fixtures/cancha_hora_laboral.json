@@ -1,0 +1,586 @@
+[
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 1,
+    "fields": {
+      "cancha": 1,
+      "hora_laboral": 4,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 2,
+    "fields": {
+      "cancha": 1,
+      "hora_laboral": 5,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 3,
+    "fields": {
+      "cancha": 1,
+      "hora_laboral": 6,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 4,
+    "fields": {
+      "cancha": 1,
+      "hora_laboral": 7,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 5,
+    "fields": {
+      "cancha": 1,
+      "hora_laboral": 8,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 6,
+    "fields": {
+      "cancha": 1,
+      "hora_laboral": 9,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 7,
+    "fields": {
+      "cancha": 1,
+      "hora_laboral": 10,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 8,
+    "fields": {
+      "cancha": 1,
+      "hora_laboral": 11,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 9,
+    "fields": {
+      "cancha": 1,
+      "hora_laboral": 12,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 10,
+    "fields": {
+      "cancha": 1,
+      "hora_laboral": 13,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 11,
+    "fields": {
+      "cancha": 1,
+      "hora_laboral": 14,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 12,
+    "fields": {
+      "cancha": 1,
+      "hora_laboral": 15,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 13,
+    "fields": {
+      "cancha": 1,
+      "hora_laboral": 16,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 14,
+    "fields": {
+      "cancha": 1,
+      "hora_laboral": 1,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 15,
+    "fields": {
+      "cancha": 1,
+      "hora_laboral": 2,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 16,
+    "fields": {
+      "cancha": 1,
+      "hora_laboral": 3,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 17,
+    "fields": {
+      "cancha": 2,
+      "hora_laboral": 4,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 18,
+    "fields": {
+      "cancha": 2,
+      "hora_laboral": 5,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 19,
+    "fields": {
+      "cancha": 2,
+      "hora_laboral": 6,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 20,
+    "fields": {
+      "cancha": 2,
+      "hora_laboral": 7,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 21,
+    "fields": {
+      "cancha": 2,
+      "hora_laboral": 8,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 22,
+    "fields": {
+      "cancha": 2,
+      "hora_laboral": 9,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 23,
+    "fields": {
+      "cancha": 2,
+      "hora_laboral": 10,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 24,
+    "fields": {
+      "cancha": 2,
+      "hora_laboral": 11,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 25,
+    "fields": {
+      "cancha": 2,
+      "hora_laboral": 12,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 26,
+    "fields": {
+      "cancha": 2,
+      "hora_laboral": 13,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 27,
+    "fields": {
+      "cancha": 2,
+      "hora_laboral": 14,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 28,
+    "fields": {
+      "cancha": 2,
+      "hora_laboral": 15,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 29,
+    "fields": {
+      "cancha": 2,
+      "hora_laboral": 16,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 30,
+    "fields": {
+      "cancha": 2,
+      "hora_laboral": 1,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 31,
+    "fields": {
+      "cancha": 2,
+      "hora_laboral": 2,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 32,
+    "fields": {
+      "cancha": 2,
+      "hora_laboral": 3,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 33,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 4,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 34,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 5,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 35,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 6,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 36,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 7,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 37,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 8,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 38,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 9,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 39,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 10,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 40,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 11,
+      "con_luz": false
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 41,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 12,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 41,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 13,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 42,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 14,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 43,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 15,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 44,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 16,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 45,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 1,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 46,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 2,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "core.canchahoralaboral",
+    "pk": 47,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 3,
+      "con_luz": true
+    }
+  },
+    {
+        "model": "core.canchahoralaboral",
+        "pk": 48,
+        "fields": {
+        "cancha": 4,
+        "hora_laboral": 4,
+        "con_luz": false
+        }
+    },
+    {
+        "model": "core.canchahoralaboral",
+        "pk": 49,
+        "fields": {
+        "cancha": 4,
+        "hora_laboral": 5,
+        "con_luz": false
+        }
+    },
+    {
+        "model": "core.canchahoralaboral",
+        "pk": 50,
+        "fields": {
+        "cancha": 4,
+        "hora_laboral": 6,
+        "con_luz": false
+        }
+    },
+    {
+        "model": "core.canchahoralaboral",
+        "pk": 51,
+        "fields": {
+        "cancha": 4,
+        "hora_laboral": 7,
+        "con_luz": false
+        }
+    },
+    {
+        "model": "core.canchahoralaboral",
+        "pk": 52,
+        "fields": {
+        "cancha": 4,
+        "hora_laboral": 8,
+        "con_luz": false
+        }
+    },
+    {
+        "model": "core.canchahoralaboral",
+        "pk": 53,
+        "fields": {
+        "cancha": 4,
+        "hora_laboral": 9,
+        "con_luz": false
+        }
+    },
+    {
+        "model": "core.canchahoralaboral",
+        "pk": 54,
+        "fields": {
+        "cancha": 4,
+        "hora_laboral": 10,
+        "con_luz": false
+        }
+    },
+    {
+        "model": "core.canchahoralaboral",
+        "pk": 55,
+        "fields": {
+        "cancha": 4,
+        "hora_laboral": 11,
+        "con_luz": false
+        }
+    },
+    {
+        "model": "core.canchahoralaboral",
+        "pk": 56,
+        "fields": {
+        "cancha": 4,
+        "hora_laboral": 12,
+        "con_luz": true
+        }
+    },
+    {
+        "model": "core.canchahoralaboral",
+        "pk": 57,
+        "fields": {
+        "cancha": 4,
+        "hora_laboral": 13,
+        "con_luz": true
+        }
+    },
+    {
+        "model": "core.canchahoralaboral",
+        "pk": 58,
+        "fields": {
+        "cancha": 4,
+        "hora_laboral": 14,
+        "con_luz": true
+        }
+    },
+    {
+        "model": "core.canchahoralaboral",
+        "pk": 59,
+        "fields": {
+        "cancha": 4,
+        "hora_laboral": 15,
+        "con_luz": true
+        }
+    },
+    {
+        "model": "core.canchahoralaboral",
+        "pk": 60,
+        "fields": {
+        "cancha": 4,
+        "hora_laboral": 16,
+        "con_luz": true
+        }
+    },
+    {
+        "model": "core.canchahoralaboral",
+        "pk": 61,
+        "fields": {
+        "cancha": 4,
+        "hora_laboral": 1,
+        "con_luz": true
+        }
+    },
+    {
+        "model": "core.canchahoralaboral",
+        "pk": 62,
+        "fields": {
+        "cancha": 4,
+        "hora_laboral": 2,
+        "con_luz": true
+        }
+    },
+    {
+        "model": "core.canchahoralaboral",
+        "pk": 63,
+        "fields": {
+        "cancha": 4,
+        "hora_laboral": 3,
+        "con_luz": true
+        }
+    },
+  {
+    "model": "core.horalaboral",
+    "pk": 1,
+    "fields": {
+      "club": 1,
+      "hora": "00:00:00"
+    }
+  }
+]
