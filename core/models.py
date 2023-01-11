@@ -1,8 +1,11 @@
+from datetime import timedelta
+
 from PIL import Image
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.utils import timezone
 from django_softdelete.models import SoftDeleteModel
 
 
@@ -156,22 +159,28 @@ class Reserva(SoftDeleteModel):
     Modelo de la reserva.
     """
     cancha = models.ForeignKey('Cancha', on_delete=models.PROTECT)
-    usuario = models.ForeignKey('accounts.User', on_delete=models.PROTECT)
+    nombre = models.CharField(max_length=50, verbose_name='Nombre (cliente)')
+    email = models.EmailField(verbose_name='Email (cliente)')
     fecha = models.DateField(verbose_name='Fecha')
     hora = models.TimeField(verbose_name='Hora')
     con_luz = models.BooleanField(default=False, verbose_name='Con luz')
-    precio = models.DecimalField(max_digits=6, decimal_places=2, verbose_name='Precio por hora')
+    nota = models.TextField(null=True, blank=True, verbose_name='Nota')
+    is_pagado = models.BooleanField(default=False, verbose_name='Pagado')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
+    asistido = models.BooleanField(default=False, verbose_name='Asistido')
 
     def __str__(self):
         return 'Reserva #{}'.format(self.id)
 
+    # TODO: Crear en el modelo User un método para obtener las reservas realizadas a partir del email.
+
     def clean(self):
         """Método clean() sobrescrito para validar la reserva."""
         super(Reserva, self).clean()
-        # La hora debe ser una HoraLaboral del club de la cancha.
-        if not HoraLaboral.objects.filter(club=self.cancha.club, hora=self.hora).exists():
-            raise ValidationError({'hora': 'La hora no es válida.'})
+        # Si pasaron 10 minutos desde la creación de la reserva y no se ha pagado, se cancela.
+        if self.created_at + timedelta(minutes=10) < timezone.now() and not self.is_pagado:
+            self.delete()
+            raise ValidationError('La reserva ha expirado.')
 
     class Meta:
         verbose_name = 'Reserva'
@@ -187,7 +196,8 @@ class Reserva(SoftDeleteModel):
 
 class PagoReserva(models.Model):
     """
-    Modelo del pago de la reserva.
+    Modelo del pago de la seña de la reserva.
+    TODO: Agregar los campos que trae el modelo de Pago de MercadoPago.
     """
     reserva = models.OneToOneField('Reserva', on_delete=models.PROTECT, verbose_name='Reserva')
     fecha = models.DateField(auto_now_add=True, verbose_name='Fecha')

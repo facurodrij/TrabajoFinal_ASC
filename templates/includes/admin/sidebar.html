@@ -26,7 +26,7 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{% url 'club-detalles' %}"
+                            <a href="{% url 'admin-club-detalles' %}"
                                class="nav-link {% active_link 'club-detalles' %}">
                                 <i class="fa-solid fa-info nav-icon"></i>
                                 <p>
@@ -100,6 +100,24 @@
                         <li class="nav-item">
                             <a href="{% url 'admin-cuota-listado' %}"
                                class="nav-link {% active_link 'admin-cuota-listado' %}">
+                                <i class="fa-solid fa-rectangle-list nav-icon"></i>
+                                <p>Listado</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="#"
+                       class="nav-link {% active_link 'admin-reservas' %}">
+                        <i class="fa-solid fa-calendar-alt nav-icon"></i>
+                        <p>Reservas
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{% url 'admin-reservas-listado' %}"
+                               class="nav-link {% active_link 'admin-reservas-listado' %}">
                                 <i class="fa-solid fa-rectangle-list nav-icon"></i>
                                 <p>Listado</p>
                             </a>

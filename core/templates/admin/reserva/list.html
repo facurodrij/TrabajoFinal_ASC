@@ -1,0 +1,97 @@
+{% extends "extends/admin/base.html" %}
+{% load static %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="d-flex flex-column align-items-center text-center mb-3">
+                    <img class="rounded-circle mt-5"
+                         src="{{ object.get_imagen }}" alt="" style="max-width: 300px">
+                    <span class="font-weight-bold mt-3">{{ object.nombre }}</span>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div id="calendar">
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.0.2/index.global.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'es',
+                events: [
+                    {
+                        title: 'All Day Event',
+                        start: '2021-06-01'
+                    },
+                    {
+                        title: 'Long Event',
+                        start: '2021-06-07',
+                        end: '2021-06-10'
+                    },
+                    {
+                        groupId: 999,
+                        title: 'Repeating Event',
+                        start: '2021-06-09T16:00:00'
+                    },
+                    {
+                        groupId: 999,
+                        title: 'Repeating Event',
+                        start: '2021-06-16T16:00:00'
+                    },
+                    {
+                        title: 'Conference',
+                        start: '2021-06-11',
+                        end: '2021-06-13'
+                    },
+                    {
+                        title: 'Meeting',
+                        start: '2021-06-12T10:30:00',
+                        end: '2021-06-12T12:30:00'
+                    },
+                    {
+                        title: 'Lunch',
+                        start: '2021-06-12T12:00:00'
+                    },
+                    {
+                        title: 'Meeting',
+                        start: '2021-06-12T14:30:00'
+                    },
+                    {
+                        title: 'Happy Hour',
+                        start: '2021-06-12T17:30:00'
+                    },
+                    {
+                        title: 'Dinner',
+                        start: '2021-06-12T20:00:00'
+                    },
+                    {
+                        title: 'Birthday Party',
+                        start: '2021-06-13T07:00:00'
+                    },
+                    {
+                        title: 'Click for Google',
+                        url: 'http://google.com/',
+                        start: '2021-06-28'
+                    }
+                ]
+            });
+            calendar.render();
+        });
+    </script>
+{% endblock body_js %}
