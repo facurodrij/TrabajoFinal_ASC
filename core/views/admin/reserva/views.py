@@ -29,7 +29,6 @@ class ReservaAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView
 class ReservaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """
     Vista para crear una reserva.
-    TODO: Implementar esta vista.
     """
     model = Reserva
     template_name = 'admin/reserva/form.html'
@@ -52,11 +51,10 @@ class ReservaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
                     with transaction.atomic():
                         # Obtener la hora
                         hora = form.cleaned_data['hora']
-                        # Convertir la hora a datetime
                         reserva = form.save(commit=False)
-                        # reserva.hora = hora.hora
-                        # con_luz = hora.canchahoralaboral_set.first().con_luz
-                        # reserva.con_luz = con_luz
+                        reserva.hora = hora.hora
+                        con_luz = hora.canchahoralaboral_set.first().con_luz
+                        reserva.con_luz = con_luz
                         reserva.save()
                 else:
                     data['error'] = form.errors
@@ -71,16 +69,17 @@ class ReservaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
 class ReservaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Vista para actualizar una reserva.
-    TODO: Implementar esta vista.
+    TODO: Crear reestricción que no permita editar una reserva que ya fue jugada o pasado 1 día de crearla.
     """
     model = Reserva
     template_name = 'admin/reserva/form.html'
-    fields = ('cancha', 'usuario', 'fecha', 'hora', 'con_luz', 'precio')
+    form_class = ReservaAdminForm
     permission_required = 'core.change_reserva'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Actualizar reserva'
+        context['title'] = 'Editar Reserva'
+        context['action'] = 'edit'
         return context
 
 

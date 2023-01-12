@@ -72,7 +72,7 @@ class Socio(SoftDeleteModel):
     def get_user(self):
         try:
             return self.user if self.user.is_active else None
-        except ObjectDoesNotExist:
+        except (AttributeError, ObjectDoesNotExist):
             return None
 
     def get_related_objects(self):

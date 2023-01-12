@@ -153,8 +153,8 @@
                 "format": "L",
                 "locale": "es-AR",
                 "date": fecha,
-                "minDate": "1900-01-01",
-                "maxDate": Date.now(),
+                "minDate": fecha,
+                "maxDate": moment().add(2, 'weeks'),
             });
         {% endif %}
 
@@ -206,11 +206,13 @@
                     if (!data.hasOwnProperty('error')) {
                         Swal.fire({
                             position: 'top-end',
-                            title: 'Persona agregada',
-                            text: 'La persona se agregó correctamente',
+                            title: 'Reserva agregada',
+                            text: 'La reserva se agregó correctamente',
                             icon: 'success',
-                            showConfirmButton: false,
-                            timer: 1500
+                            timer: 3000,
+                            timerProgressBar: true,
+                        }).then((result) => {
+                            window.location.href = "{% url 'admin-reservas-listado' %}";
                         });
                     } else {
                         let errors = []

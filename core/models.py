@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from PIL import Image
 from django.conf import settings
@@ -172,15 +172,37 @@ class Reserva(SoftDeleteModel):
     def __str__(self):
         return 'Reserva #{}'.format(self.id)
 
+    def get_fecha(self):
+        """
+        Devuelve la fecha de nacimiento de la persona.
+        """
+        return self.fecha.strftime('%Y-%m-%d')
+
+    def start(self):
+        """Método para obtener la fecha y hora de inicio de la reserva."""
+        return datetime.combine(self.fecha, self.hora).isoformat()
+
+    def end(self):
+        """Método para obtener la fecha y hora de fin de la reserva."""
+        return (datetime.combine(self.fecha, self.hora) + timedelta(hours=1)).isoformat()
+
+    def color(self):
+        """Método para obtener el color de la reserva."""
+        if datetime.combine(self.fecha, self.hora) + timedelta(hours=1) < datetime.now():
+            return '#8496a9'
+        else:
+            return '#0275d8'
+
     # TODO: Crear en el modelo User un método para obtener las reservas realizadas a partir del email.
 
     def clean(self):
         """Método clean() sobrescrito para validar la reserva."""
         super(Reserva, self).clean()
         # Si pasaron 10 minutos desde la creación de la reserva y no se ha pagado, se cancela.
-        if self.created_at + timedelta(minutes=10) < timezone.now() and not self.is_pagado:
-            self.delete()
-            raise ValidationError('La reserva ha expirado.')
+        if self.created_at:
+            if self.created_at + timedelta(minutes=10) < timezone.now() and not self.is_pagado:
+                self.delete()
+                raise ValidationError('La reserva ha expirado.')
 
     class Meta:
         verbose_name = 'Reserva'

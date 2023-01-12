@@ -10,19 +10,7 @@
 
 {% block content %}
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="d-flex flex-column align-items-center text-center mb-3">
-                    <img class="rounded-circle mt-5"
-                         src="{{ object.get_imagen }}" alt="" style="max-width: 300px">
-                    <span class="font-weight-bold mt-3">{{ object.nombre }}</span>
-                </div>
-            </div>
-            <div class="col-md-7">
-                <div id="calendar">
-                </div>
-            </div>
-        </div>
+        <div id="calendar"></div>
     </div>
 {% endblock content %}
 
@@ -32,63 +20,55 @@
         document.addEventListener('DOMContentLoaded', function () {
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
+                themeSystem: 'bootstrap',
+                initialView: 'timeGridDay',
                 locale: 'es',
-                events: [
-                    {
-                        title: 'All Day Event',
-                        start: '2021-06-01'
-                    },
-                    {
-                        title: 'Long Event',
-                        start: '2021-06-07',
-                        end: '2021-06-10'
-                    },
-                    {
-                        groupId: 999,
-                        title: 'Repeating Event',
-                        start: '2021-06-09T16:00:00'
-                    },
-                    {
-                        groupId: 999,
-                        title: 'Repeating Event',
-                        start: '2021-06-16T16:00:00'
-                    },
-                    {
-                        title: 'Conference',
-                        start: '2021-06-11',
-                        end: '2021-06-13'
-                    },
-                    {
-                        title: 'Meeting',
-                        start: '2021-06-12T10:30:00',
-                        end: '2021-06-12T12:30:00'
-                    },
-                    {
-                        title: 'Lunch',
-                        start: '2021-06-12T12:00:00'
-                    },
-                    {
-                        title: 'Meeting',
-                        start: '2021-06-12T14:30:00'
-                    },
-                    {
-                        title: 'Happy Hour',
-                        start: '2021-06-12T17:30:00'
-                    },
-                    {
-                        title: 'Dinner',
-                        start: '2021-06-12T20:00:00'
-                    },
-                    {
-                        title: 'Birthday Party',
-                        start: '2021-06-13T07:00:00'
-                    },
-                    {
-                        title: 'Click for Google',
-                        url: 'http://google.com/',
-                        start: '2021-06-28'
+                // headerToolbar left center right and today
+                customButtons: {
+                    addButton: {
+                        text: 'Crear reserva',
+                        click: function () {
+                            window.location.href = "{% url 'admin-reservas-crear' %}";
+                        }
                     }
+                },
+                headerToolbar: {
+                    left: 'prev,next today addButton',
+                    center: 'title',
+                    right: 'timeGridDay,timeGridWeek,dayGridMonth,listWeek'
+                },
+                // language buttons es
+                buttonText: {
+                    today: 'Hoy',
+                    month: 'Mes',
+                    week: 'Semana',
+                    day: 'Día',
+                    list: 'Lista'
+                },
+                // no mostrar all-day
+                allDaySlot: false,
+                // no mostrar el titulo de la hora
+                slotLabelFormat: {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    omitZeroMinute: false,
+                    meridiem: 'short'
+                },
+                // events
+                events: [
+                    {% for reserva in reservas %}
+                        {
+                            title: '{{ reserva.cancha }} - {{ reserva.nombre }}',
+                            start: '{{ reserva.start }}',
+                            end: '{{ reserva.end }}',
+                            url: '{% url 'admin-reservas-editar' reserva.id %}',
+                            allDay: false,
+                            color: '{{ reserva.color }}',
+                            {% if reserva.asistido %}
+                                borderColor: '#5cb85c',
+                            {% endif %}
+                        },
+                    {% endfor %}
                 ]
             });
             calendar.render();
