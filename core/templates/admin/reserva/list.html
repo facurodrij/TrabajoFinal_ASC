@@ -21,7 +21,7 @@
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 themeSystem: 'bootstrap',
-                initialView: 'timeGridDay',
+                initialView: 'listWeek',
                 locale: 'es',
                 // headerToolbar left center right and today
                 customButtons: {
@@ -59,9 +59,9 @@
                     {% for reserva in reservas %}
                         {
                             title: '{{ reserva.cancha }} - {{ reserva.nombre }}',
-                            start: '{{ reserva.start }}',
-                            end: '{{ reserva.end }}',
-                            url: '{% url 'admin-reservas-editar' reserva.id %}',
+                            start: '{{ reserva.start_datetime }}',
+                            end: '{{ reserva.end_datetime }}',
+                            url: '{% url 'admin-reservas-detalle' reserva.id %}',
                             allDay: false,
                             color: '{{ reserva.color }}',
                             {% if reserva.asistido %}

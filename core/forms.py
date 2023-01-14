@@ -1,6 +1,6 @@
 from django import forms
 
-from core.models import Club, Reserva, HoraLaboral
+from core.models import Club, Reserva
 
 
 class UpdateClubForm(forms.ModelForm):
@@ -22,18 +22,25 @@ class UpdateClubForm(forms.ModelForm):
 
 class ReservaAdminForm(forms.ModelForm):
     """Formulario para crear una reserva."""
-    hora = forms.ModelChoiceField(
-        queryset=HoraLaboral.objects.all(),
-        widget=forms.Select())
+    # Campo forma de pago sean radio buttons
+    forma_pago = forms.ChoiceField(
+        label='Forma de pago',
+        choices=Reserva.FORMA_PAGO,
+        widget=forms.RadioSelect())
+    # Campo hora un number input
+    hora = forms.TimeField(
+        label='Hora',
+        widget=forms.TimeInput(
+            attrs={'type': 'time', 'class': 'form-control'}))
 
     class Meta:
         model = Reserva
-        fields = ['cancha', 'nombre', 'email', 'fecha', 'nota', 'is_pagado']
+        fields = ['cancha', 'nombre', 'email', 'fecha', 'hora', 'nota', 'forma_pago', 'con_luz']
         widgets = {
             'cancha': forms.Select(attrs={'disabled': True}),
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el nombre'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el email'}),
             'fecha': forms.DateInput(attrs={'class': 'form-control'}),
             'nota': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'is_pagado': forms.CheckboxInput(),
+            'con_luz': forms.CheckboxInput(),
         }

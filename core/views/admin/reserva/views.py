@@ -1,7 +1,10 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db import transaction
 from django.http import JsonResponse
-from django.views.generic import ListView, CreateView, UpdateView
+from django.shortcuts import redirect
+from django.utils import timezone
+from django.views.generic import ListView, CreateView, UpdateView, DetailView
 
 from core.forms import ReservaAdminForm
 from core.models import Reserva, Cancha
@@ -10,7 +13,7 @@ from core.models import Reserva, Cancha
 class ReservaAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """
     Vista para listar las reservas.
-    TODO: Implementar esta vista.
+    TODO: Mostrar referencia de colores.
     """
     model = Reserva
     template_name = 'admin/reserva/list.html'
@@ -37,7 +40,7 @@ class ReservaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Crear reserva'
+        context['title'] = 'Crear Reserva'
         context['action'] = 'add'
         return context
 
@@ -49,13 +52,7 @@ class ReservaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
                 form = self.form_class(request.POST)
                 if form.is_valid():
                     with transaction.atomic():
-                        # Obtener la hora
-                        hora = form.cleaned_data['hora']
-                        reserva = form.save(commit=False)
-                        reserva.hora = hora.hora
-                        con_luz = hora.canchahoralaboral_set.first().con_luz
-                        reserva.con_luz = con_luz
-                        reserva.save()
+                        form.save()
                 else:
                     data['error'] = form.errors
             else:
@@ -66,15 +63,46 @@ class ReservaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
         return JsonResponse(data)
 
 
+class ReservaAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    """
+    Vista para mostrar los detalles de una reserva.
+    # TODO: Mostrar listado de pagos realizados.
+    """
+    model = Reserva
+    template_name = 'admin/reserva/detail.html'
+    context_object_name = 'reserva'
+    permission_required = 'core.view_reserva'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Detalle de Reserva'
+        return context
+
+
 class ReservaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Vista para actualizar una reserva.
-    TODO: Crear reestricción que no permita editar una reserva que ya fue jugada o pasado 1 día de crearla.
     """
     model = Reserva
     template_name = 'admin/reserva/form.html'
     form_class = ReservaAdminForm
     permission_required = 'core.change_reserva'
+
+    def dispatch(self, request, *args, **kwargs):
+        reserva = self.get_object()
+        # Si la reserva ya fue finalizada, no se puede editar.
+        if reserva.is_finished():
+            messages.error(request, 'No se puede editar una reserva que ya fue finalizada.')
+            return redirect('admin-reservas-detalle', pk=reserva.pk)
+        # Si la reserva ya fue pagada, no se puede editar
+        if reserva.is_paid():
+            messages.error(request, 'No se puede editar una reserva que ya fue pagada.')
+            return redirect('admin-reservas-detalle', pk=reserva.pk)
+        # Si la reserva ya fue creada hace 24 horas, no se puede editar
+        if reserva.created_at.hour < timezone.now().hour - 24:
+            messages.error(request, 'No se puede editar la reserva que fue creada hace más de 24 horas.')
+            return redirect('admin-reservas-detalle', pk=reserva.pk)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

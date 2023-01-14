@@ -20,6 +20,7 @@ urlpatterns = [
     path('admin/reservas/', lambda request: redirect('admin-reservas-listado', permanent=True), name='admin-reservas'),
     path('admin/reservas/listado', ReservaAdminListView.as_view(), name='admin-reservas-listado'),
     path('admin/reservas/crear', ReservaAdminCreateView.as_view(), name='admin-reservas-crear'),
+    path('admin/reservas/<int:pk>/', ReservaAdminDetailView.as_view(), name='admin-reservas-detalle'),
     path('admin/reservas/<int:pk>/editar', ReservaAdminUpdateView.as_view(), name='admin-reservas-editar'),
 
     path('admin/reservas/ajax/', reserva_admin_ajax, name='admin-reservas-ajax'),

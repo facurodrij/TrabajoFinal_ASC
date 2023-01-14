@@ -1,11 +1,11 @@
 from datetime import timedelta, datetime
 
+import pytz
 from PIL import Image
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from django.utils import timezone
 from django_softdelete.models import SoftDeleteModel
 
 
@@ -165,24 +165,40 @@ class Reserva(SoftDeleteModel):
     hora = models.TimeField(verbose_name='Hora')
     con_luz = models.BooleanField(default=False, verbose_name='Con luz')
     nota = models.TextField(null=True, blank=True, verbose_name='Nota')
-    is_pagado = models.BooleanField(default=False, verbose_name='Pagado')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
     asistido = models.BooleanField(default=False, verbose_name='Asistido')
+    FORMA_PAGO = (
+        (1, 'Presencial'),
+        (2, 'Online'),
+    )
+    forma_pago = models.PositiveSmallIntegerField(choices=FORMA_PAGO, default=1, verbose_name='Forma de pago')
 
     def __str__(self):
         return 'Reserva #{}'.format(self.id)
 
-    def get_fecha(self):
+    def is_paid(self):
+        """Método para saber si la reserva está pagada."""
+        if self.forma_pago == 2:
+            # TODO: Verificar si la reserva está pagada en el sistema de pagos.
+            return True
+        # else:
+        #     return self.pago_set.exists()
+
+    def is_finished(self):
+        """Método para saber si la reserva ya finalizó."""
+        return self.end_datetime() < datetime.now().isoformat()
+
+    def start_date(self):
         """
-        Devuelve la fecha de nacimiento de la persona.
+        Devuelve la fecha de la reserva en formato yyyy-mm-dd.
         """
         return self.fecha.strftime('%Y-%m-%d')
 
-    def start(self):
+    def start_datetime(self):
         """Método para obtener la fecha y hora de inicio de la reserva."""
         return datetime.combine(self.fecha, self.hora).isoformat()
 
-    def end(self):
+    def end_datetime(self):
         """Método para obtener la fecha y hora de fin de la reserva."""
         return (datetime.combine(self.fecha, self.hora) + timedelta(hours=1)).isoformat()
 
@@ -193,6 +209,15 @@ class Reserva(SoftDeleteModel):
         else:
             return '#0275d8'
 
+    def is_editable(self):
+        """Método para saber si la reserva es editable."""
+        if self.is_finished():
+            return False
+        return self.created_at + timedelta(days=1) > datetime.now(pytz.timezone('America/Argentina/Buenos_Aires'))
+
+    def get_FORMA_PAGO_display(self):
+        return dict(self.FORMA_PAGO)[self.forma_pago]
+
     # TODO: Crear en el modelo User un método para obtener las reservas realizadas a partir del email.
 
     def clean(self):
@@ -200,9 +225,9 @@ class Reserva(SoftDeleteModel):
         super(Reserva, self).clean()
         # Si pasaron 10 minutos desde la creación de la reserva y no se ha pagado, se cancela.
         if self.created_at:
-            if self.created_at + timedelta(minutes=10) < timezone.now() and not self.is_pagado:
+            if self.created_at + timedelta(minutes=10) < datetime.now() and not self.is_pagado:
                 self.delete()
-                raise ValidationError('La reserva ha expirado.')
+                raise ValidationError('La reserva {} ha expirado.'.format(self.id))
 
     class Meta:
         verbose_name = 'Reserva'
