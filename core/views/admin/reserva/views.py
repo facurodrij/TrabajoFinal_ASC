@@ -120,6 +120,13 @@ class ReservaAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, Delete
     permission_required = 'reservas.delete_reserva'
     context_object_name = 'reserva'
 
+    def dispatch(self, request, *args, **kwargs):
+        reserva = self.get_object()
+        # Si la reserva ya fue finalizada, no se puede eliminar.
+        if reserva.is_finished():
+            messages.error(request, 'No se puede cancelar una reserva que ya fue finalizada.')
+            return redirect('admin-reservas-detalle', pk=reserva.pk)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Baja de Reserva'
