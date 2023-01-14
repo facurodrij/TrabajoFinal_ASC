@@ -4,7 +4,7 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.utils import timezone
-from django.views.generic import ListView, CreateView, UpdateView, DetailView
+from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 
 from core.forms import ReservaAdminForm
 from core.models import Reserva, Cancha
@@ -109,6 +109,33 @@ class ReservaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
         context['title'] = 'Editar Reserva'
         context['action'] = 'edit'
         return context
+
+
+class ReservaAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """
+    Vista para eliminar un socio, solo para administradores
+    """
+    model = Reserva
+    template_name = 'admin/reserva/delete.html'
+    permission_required = 'reservas.delete_reserva'
+    context_object_name = 'reserva'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Baja de Reserva'
+        return context
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            with transaction.atomic():
+                reserva = self.get_object()
+                reserva.delete()
+                messages.success(request, 'Reserva dada de baja exitosamente.')
+        except Exception as e:
+            data['error'] = e.args[0]
+        print('ReservaAdminDeleteView: ', data)
+        return redirect('admin-reservas-listado')
 
 
 def reserva_admin_ajax(request):

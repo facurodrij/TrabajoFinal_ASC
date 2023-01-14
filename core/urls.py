@@ -1,4 +1,3 @@
-from django.shortcuts import redirect
 from django.urls import path
 
 from core.views.admin.club.views import club
@@ -22,6 +21,6 @@ urlpatterns = [
     path('admin/reservas/crear', ReservaAdminCreateView.as_view(), name='admin-reservas-crear'),
     path('admin/reservas/<int:pk>/', ReservaAdminDetailView.as_view(), name='admin-reservas-detalle'),
     path('admin/reservas/<int:pk>/editar', ReservaAdminUpdateView.as_view(), name='admin-reservas-editar'),
-
+    path('admin/reservas/<int:pk>/baja', ReservaAdminDeleteView.as_view(), name='admin-reservas-baja'),
     path('admin/reservas/ajax/', reserva_admin_ajax, name='admin-reservas-ajax'),
 ]
