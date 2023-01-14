@@ -1,0 +1,9 @@
+[
+  {
+    "model": "parameters.Deporte",
+    "pk": 1,
+    "fields": {
+      "nombre": "Futbol"
+    }
+  }
+]

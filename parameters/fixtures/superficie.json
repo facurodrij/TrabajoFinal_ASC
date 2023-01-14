@@ -1,0 +1,16 @@
+[
+  {
+    "model": "parameters.Superficie",
+    "pk": 1,
+    "fields": {
+      "nombre": "Césped artificial"
+    }
+  },
+  {
+    "model": "parameters.Superficie",
+    "pk": 2,
+    "fields": {
+      "nombre": "Césped natural"
+    }
+  }
+]
