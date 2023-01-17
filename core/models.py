@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.urls import reverse
 from django_softdelete.models import SoftDeleteModel
 
 
@@ -172,17 +173,24 @@ class Reserva(SoftDeleteModel):
         (2, 'Online'),
     )
     forma_pago = models.PositiveSmallIntegerField(choices=FORMA_PAGO, default=1, verbose_name='Forma de pago')
+    preference_id = models.CharField(max_length=255, null=True, blank=True, verbose_name='Preference ID',
+                                     help_text='ID de la preferencia de pago de Mercado Pago')
 
     def __str__(self):
         return 'Reserva #{}'.format(self.id)
 
     def is_paid(self):
         """Método para saber si la reserva está pagada."""
-        if self.forma_pago == 2:
-            # TODO: Verificar si la reserva está pagada en el sistema de pagos.
+        if self.forma_pago == 1:
             return True
-        # else:
-        #     return self.pago_set.exists()
+        if self.forma_pago == 2:
+            try:
+                if self.pagoreserva.status == 'approved':
+                    return True
+                else:
+                    return False
+            except (PagoReserva.DoesNotExist, AttributeError):
+                return False
 
     def is_finished(self):
         """Método para saber si la reserva ya finalizó."""
@@ -211,12 +219,29 @@ class Reserva(SoftDeleteModel):
 
     def is_editable(self):
         """Método para saber si la reserva es editable."""
-        if self.is_finished():
+        if self.is_paid():
+            return False
+        # Si la reserva esta en curso o ya finalizó, no es editable.
+        if self.is_finished() or self.start_datetime() < datetime.now().isoformat():
             return False
         return self.created_at + timedelta(days=1) > datetime.now(pytz.timezone('America/Argentina/Buenos_Aires'))
 
     def get_FORMA_PAGO_display(self):
+        """Método para obtener el nombre de la forma de pago."""
         return dict(self.FORMA_PAGO)[self.forma_pago]
+
+    def get_price(self):
+        """Método para obtener el precio de la reserva."""
+        if self.con_luz:
+            return self.cancha.precio_luz
+        return self.cancha.precio
+
+    def get_expiration_date(self):
+        """Método para obtener la fecha de expiración de la reserva, en caso de que la forma de pago sea online."""
+        if self.forma_pago == 2:
+            # TODO: Parametrizar la cantidad de minutos para que expire la reserva.
+            return self.created_at + timedelta(minutes=20)
+        return None
 
     # TODO: Crear en el modelo User un método para obtener las reservas realizadas a partir del email.
 
@@ -225,7 +250,7 @@ class Reserva(SoftDeleteModel):
         super(Reserva, self).clean()
         # Si pasaron 10 minutos desde la creación de la reserva y no se ha pagado, se cancela.
         if self.created_at:
-            if self.created_at + timedelta(minutes=10) < datetime.now() and not self.is_pagado:
+            if self.created_at + timedelta(minutes=10) < datetime.now() and not self.is_paid():
                 self.delete()
                 raise ValidationError('La reserva {} ha expirado.'.format(self.id))
 
@@ -244,11 +269,18 @@ class Reserva(SoftDeleteModel):
 class PagoReserva(models.Model):
     """
     Modelo del pago de la seña de la reserva.
-    TODO: Agregar los campos que trae el modelo de Pago de MercadoPago.
     """
-    reserva = models.OneToOneField('Reserva', on_delete=models.PROTECT, verbose_name='Reserva')
-    fecha = models.DateField(auto_now_add=True, verbose_name='Fecha')
-    monto = models.DecimalField(max_digits=6, decimal_places=2, verbose_name='Monto')
+    payment_id = models.CharField(max_length=255, verbose_name='ID de pago')
+    reserva = models.OneToOneField('Reserva', on_delete=models.CASCADE)
+    preference_id = models.CharField(max_length=255, verbose_name='ID de preferencia')
+    date_created = models.DateTimeField(verbose_name='Fecha de creación')
+    date_approved = models.DateTimeField(verbose_name='Fecha de aprobación')
+    date_last_updated = models.DateTimeField(verbose_name='Fecha de última actualización')
+    payment_method_id = models.CharField(max_length=50, verbose_name='Método de pago')
+    payment_type_id = models.CharField(max_length=50, verbose_name='Tipo de pago')
+    status = models.CharField(max_length=50, verbose_name='Estado')
+    status_detail = models.CharField(max_length=255, verbose_name='Detalle del estado')
+    transaction_amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Monto de la transacción')
 
     def __str__(self):
         return 'Pago de reserva #{}'.format(self.reserva.id)

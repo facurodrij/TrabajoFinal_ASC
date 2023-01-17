@@ -156,13 +156,16 @@
                 "maxDate": moment().add(2, 'weeks'),
             });
         {% endif %}
-        // Si inputFecha tiene como valor la fecha de hoy
-        if (inputFecha.val() === moment()) {
-            // Seleccionar la hora actual
-            alert('hola');
-        }
-        // inputHora solo permite ingresar horas, los minutos se setean en 0
+        inputFecha.on('change.datetimepicker', function (e) {
+            // Limpiar el select de canchas y deshabilitarlo
+            selectCancha.empty();
+            selectCancha.prop('disabled', true);
+            selectCancha.trigger('change');
+            // Limpiar el input de hora
+            inputHora.val('');
+        });
         inputHora.change(function () {
+            // inputHora solo permite ingresar horas, los minutos se setean en 0
             let hora = $(this).val();
             let horaSplit = hora.split(':');
             hora = horaSplit[0] + ':00';
@@ -170,6 +173,15 @@
             let fecha = inputFecha.val();
             // Cambiar el formato fecha de DD/MM/YYYY a YYYY-MM-DD
             fecha = fecha.split('/').reverse().join('-');
+            // Verificar que la fecha y hora seleccionada sea mayor a la actual
+            let fechaHora = moment(fecha + ' ' + hora).format('YYYY-MM-DD HH:mm');
+            let fechaHoraActual = moment().format('YYYY-MM-DD HH:mm');
+            if (fechaHora < fechaHoraActual) {
+                alert('La fecha y hora seleccionada debe ser mayor a la actual');
+                $(this).val('');
+                return false;
+                // TODO: Ver si no es mejor que solamente se deshabilite la opción de pago online
+            }
             $.ajax({
                 url: "{% url 'admin-reservas-ajax' %}",
                 type: "GET",

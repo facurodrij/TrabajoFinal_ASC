@@ -81,7 +81,7 @@
 
 {% block body_js %}
     <script>
-        {% if reserva.forma_pago == 1 %}
+        {% if reserva.is_paid %}
             $('#btn-linkPay').attr('disabled', true);
         {% endif %}
         {% if not reserva.is_editable %}
@@ -93,6 +93,23 @@
             $('#btn-checkAsis').attr('disabled', true);
         {% endif %}
 
+        $('#btn-linkPay').click(function () {
+            // Copiar en el portapapeles el link de pago
+            var link = "127.0.0.1:8000{% url 'reserva-pago' reserva.id %}";
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val(link).select();
+            document.execCommand("copy");
+            $temp.remove();
+            // Mostrar mensaje de éxito
+            Swal.fire({
+                position: 'top-end',
+                title: '¡Listo!',
+                text: 'El link de pago ha sido copiado al portapapeles',
+                icon: 'success',
+                confirmButtonText: 'Aceptar'
+            });
+        });
         $('#btn-edit').click(function () {
             window.location.href = "{% url 'admin-reservas-editar' reserva.id %}";
         });

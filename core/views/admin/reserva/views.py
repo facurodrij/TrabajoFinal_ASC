@@ -53,6 +53,7 @@ class ReservaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
                 if form.is_valid():
                     with transaction.atomic():
                         form.save()
+                        # TODO: Enviar correo con el link de pago.
                 else:
                     data['error'] = form.errors
             else:
@@ -99,6 +100,7 @@ class ReservaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
             messages.error(request, 'No se puede editar una reserva que ya fue pagada.')
             return redirect('admin-reservas-detalle', pk=reserva.pk)
         # Si la reserva ya fue creada hace 24 horas, no se puede editar
+        # TODO: Hacer que esto sea configurable.
         if reserva.created_at.hour < timezone.now().hour - 24:
             messages.error(request, 'No se puede editar la reserva que fue creada hace más de 24 horas.')
             return redirect('admin-reservas-detalle', pk=reserva.pk)
@@ -126,6 +128,7 @@ class ReservaAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, Delete
         if reserva.is_finished():
             messages.error(request, 'No se puede cancelar una reserva que ya fue finalizada.')
             return redirect('admin-reservas-detalle', pk=reserva.pk)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -139,6 +142,7 @@ class ReservaAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, Delete
                 reserva = self.get_object()
                 reserva.delete()
                 messages.success(request, 'Reserva dada de baja exitosamente.')
+                # TODO: Ejecutar proceso automatizado de enviar avisos sobre la cancelación de la reserva.
         except Exception as e:
             data['error'] = e.args[0]
         print('ReservaAdminDeleteView: ', data)
