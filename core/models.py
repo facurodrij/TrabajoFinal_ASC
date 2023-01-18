@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from django_softdelete.models import SoftDeleteModel
 
 
@@ -168,6 +169,7 @@ class Reserva(SoftDeleteModel):
     nota = models.TextField(null=True, blank=True, verbose_name='Nota')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
     asistido = models.BooleanField(default=False, verbose_name='Asistido')
+    expira = models.BooleanField(default=False, verbose_name='Expira (falta de pago)')
     FORMA_PAGO = (
         (1, 'Presencial'),
         (2, 'Online'),
@@ -217,15 +219,6 @@ class Reserva(SoftDeleteModel):
         else:
             return '#0275d8'
 
-    def is_editable(self):
-        """Método para saber si la reserva es editable."""
-        if self.is_paid():
-            return False
-        # Si la reserva esta en curso o ya finalizó, no es editable.
-        if self.is_finished() or self.start_datetime() < datetime.now().isoformat():
-            return False
-        return self.created_at + timedelta(days=1) > datetime.now(pytz.timezone('America/Argentina/Buenos_Aires'))
-
     def get_FORMA_PAGO_display(self):
         """Método para obtener el nombre de la forma de pago."""
         return dict(self.FORMA_PAGO)[self.forma_pago]
@@ -238,7 +231,8 @@ class Reserva(SoftDeleteModel):
 
     def get_expiration_date(self):
         """Método para obtener la fecha de expiración de la reserva, en caso de que la forma de pago sea online."""
-        if self.forma_pago == 2:
+        # TODO: Hacer que la reserva expire solamente si no es creada por el administrador.
+        if self.expira:
             # TODO: Parametrizar la cantidad de minutos para que expire la reserva.
             return self.created_at + timedelta(minutes=20)
         return None
@@ -248,9 +242,9 @@ class Reserva(SoftDeleteModel):
     def clean(self):
         """Método clean() sobrescrito para validar la reserva."""
         super(Reserva, self).clean()
-        # Si pasaron 10 minutos desde la creación de la reserva y no se ha pagado, se cancela.
+        # Si pasó la fecha de expiración de la reserva y no se ha pagado, se cancela.
         if self.created_at:
-            if self.created_at + timedelta(minutes=10) < datetime.now() and not self.is_paid():
+            if self.get_expiration_date() < datetime.now() and not self.is_paid():
                 self.delete()
                 raise ValidationError('La reserva {} ha expirado.'.format(self.id))
 

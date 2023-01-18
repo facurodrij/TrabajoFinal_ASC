@@ -89,23 +89,6 @@ class ReservaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
     form_class = ReservaAdminForm
     permission_required = 'core.change_reserva'
 
-    def dispatch(self, request, *args, **kwargs):
-        reserva = self.get_object()
-        # Si la reserva ya fue finalizada, no se puede editar.
-        if reserva.is_finished():
-            messages.error(request, 'No se puede editar una reserva que ya fue finalizada.')
-            return redirect('admin-reservas-detalle', pk=reserva.pk)
-        # Si la reserva ya fue pagada, no se puede editar
-        if reserva.is_paid():
-            messages.error(request, 'No se puede editar una reserva que ya fue pagada.')
-            return redirect('admin-reservas-detalle', pk=reserva.pk)
-        # Si la reserva ya fue creada hace 24 horas, no se puede editar
-        # TODO: Hacer que esto sea configurable.
-        if reserva.created_at.hour < timezone.now().hour - 24:
-            messages.error(request, 'No se puede editar la reserva que fue creada hace más de 24 horas.')
-            return redirect('admin-reservas-detalle', pk=reserva.pk)
-        return super().dispatch(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Editar Reserva'
@@ -121,14 +104,6 @@ class ReservaAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, Delete
     template_name = 'admin/reserva/delete.html'
     permission_required = 'reservas.delete_reserva'
     context_object_name = 'reserva'
-
-    def dispatch(self, request, *args, **kwargs):
-        reserva = self.get_object()
-        # Si la reserva ya fue finalizada, no se puede eliminar.
-        if reserva.is_finished():
-            messages.error(request, 'No se puede cancelar una reserva que ya fue finalizada.')
-            return redirect('admin-reservas-detalle', pk=reserva.pk)
-        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

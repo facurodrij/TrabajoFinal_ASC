@@ -26,14 +26,16 @@
                                     <li class="list-group-item"><b>Fecha y
                                         Hora:</b> {{ reserva.fecha }}, {{ reserva.hora }}
                                     </li>
-                                    <li class="list-group-item"><b>Nombre del Cliente:</b> {{ reserva.nombre }}
+                                    <li class="list-group-item"><b>Nombre del cliente:</b> {{ reserva.nombre }}
                                     </li>
-                                    <li class="list-group-item"><b>Correo del Cliente:</b> {{ reserva.email }}
+                                    <li class="list-group-item"><b>Correo del cliente:</b> {{ reserva.email }}
                                     </li>
-                                    <li class="list-group-item"><b>Cancha Reservada:</b> {{ reserva.cancha }}
+                                    <li class="list-group-item"><b>Cancha reservada:</b> {{ reserva.cancha }}
                                     </li>
                                     <li class="list-group-item"><b>Forma de
-                                        Pago:</b> {{ reserva.get_FORMA_PAGO_display }}
+                                        pago:</b> {{ reserva.get_FORMA_PAGO_display }}
+                                    </li>
+                                    <li class="list-group-item"><b>Monto a pagar:</b> ${{ reserva.get_price }}
                                     </li>
                                     <li class="list-group-item"><b>Nota:</b> {{ reserva.nota }}
                                     </li>
@@ -42,7 +44,7 @@
                                 </ul>
                             </div>
                             <div class="col">
-                                <h5>Opciones</h5>
+                                <h5>Opciones Disponibles</h5>
                                 <button id="btn-linkPay" type="button" class="btn btn-block btn-outline-primary">
                                     <i class="fas fa-dollar-sign"></i>
                                     Obtener Link de Pago
@@ -56,8 +58,8 @@
                                     Editar Reserva
                                 </button>
                                 <button id="btn-delete" type="button" class="btn btn-block btn-danger">
-                                    <i class="fa-solid fa-ban"></i>
-                                    Cancelar Reserva
+                                    <i class="fa-solid fa-trash"></i>
+                                    Dar de Baja
                                 </button>
                             </div>
                         </div>
@@ -82,15 +84,10 @@
 {% block body_js %}
     <script>
         {% if reserva.is_paid %}
-            $('#btn-linkPay').attr('disabled', true);
+            $('#btn-linkPay').hide();
         {% endif %}
-        {% if not reserva.is_editable %}
-            $('#btn-edit').attr('disabled', true);
-        {% endif %}
-        {% if reserva.is_finished %}
-            $('#btn-delete').attr('disabled', true);
-        {% else %}
-            $('#btn-checkAsis').attr('disabled', true);
+        {% if not reserva.is_finished %}
+            $('#btn-checkAsis').hide();
         {% endif %}
 
         $('#btn-linkPay').click(function () {

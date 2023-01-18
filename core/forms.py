@@ -82,7 +82,7 @@ class ReservaAdminForm(forms.ModelForm):
 
     class Meta:
         model = Reserva
-        fields = ['cancha', 'nombre', 'email', 'fecha', 'hora', 'nota', 'forma_pago', 'con_luz']
+        fields = ['cancha', 'nombre', 'email', 'fecha', 'hora', 'nota', 'forma_pago', 'con_luz', 'expira']
         widgets = {
             'cancha': forms.Select(attrs={'disabled': True}),
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el nombre'}),
@@ -90,4 +90,5 @@ class ReservaAdminForm(forms.ModelForm):
             'fecha': forms.DateInput(attrs={'class': 'form-control'}),
             'nota': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'con_luz': forms.CheckboxInput(),
+            'expira': forms.CheckboxInput(),
         }
