@@ -26,13 +26,13 @@ urlpatterns = [
     path('admin/reservas/ajax/', reserva_admin_ajax, name='admin-reservas-ajax'),
 
     # URLs de las reservas (usuarios)
-    path('reserva/', lambda request: redirect('reservas-listado', permanent=True), name='reserva'),
-    # path('reservas/listado', ReservaListView.as_view(), name='reservas-listado'),
-    path('reserva/crear/', ReservaUserCreateView.as_view(), name='reserva-crear'),
+    path('reservas/', lambda request: redirect('reservas-listado', permanent=True), name='reservas'),
+    path('reservas/listado/', ReservaUserListView.as_view(), name='reservas-listado'),
+    path('reservas/crear/', ReservaUserCreateView.as_view(), name='reservas-crear'),
     # path('reservas/<int:pk>/', ReservaDetailView.as_view(), name='reservas-detalle'),
     # path('reservas/<int:pk>/editar', ReservaUpdateView.as_view(), name='reservas-editar'),
-    path('reserva/<int:pk>/baja', ReservaUserDeleteView.as_view(), name='reserva-baja'),
+    path('reservas/<int:pk>/baja/', ReservaUserDeleteView.as_view(), name='reservas-baja'),
     # path('reservas/ajax/', reserva_ajax, name='reservas-ajax'),
-    path('reserva/<int:pk>/pago/', ReservaPaymentView.as_view(), name='reserva-pago'),
-    path('reserva/checkout/', ReservaCheckoutView.as_view(), name='reserva-checkout'),
+    path('reservas/<int:pk>/pago/', ReservaPaymentView.as_view(), name='reservas-pago'),
+    path('reservas/checkout/', ReservaCheckoutView.as_view(), name='reservas-checkout'),
 ]

@@ -52,7 +52,7 @@ class ReservaUserCreateView(CreateView):
                 with transaction.atomic():
                     reserva = form.save()
                     # TODO: Enviar correo con el link de pago.
-                return redirect('reserva-pago', pk=reserva.pk)
+                return redirect('reservas-pago', pk=reserva.pk)
             else:
                 data['error'] = form.errors
         except Exception as e:
@@ -61,7 +61,7 @@ class ReservaUserCreateView(CreateView):
         return JsonResponse(data, safe=False)
 
 
-class ReservaUserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class ReservaUserListView(LoginRequiredMixin, ListView):
     """
     Vista para listar las reservas activas del usuario.
     """
@@ -69,14 +69,14 @@ class ReservaUserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView)
     model = Reserva
     template_name = 'user/reserva/list.html'
     context_object_name = 'reservas'
-    permission_required = 'core.view_reserva'
 
     def get_queryset(self):
-        return Reserva.objects.filter(user=self.request.user).order_by('-created_at')
+        return Reserva.objects.filter(email=self.request.user.email)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Listado de Reservas'
+        context['title'] = 'Mis Reservas'
+        context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         return context
 
 

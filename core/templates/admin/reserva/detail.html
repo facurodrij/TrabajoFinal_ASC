@@ -118,7 +118,7 @@
 
         $('#btn-linkPay').click(function () {
             // Copiar en el portapapeles el link de pago
-            var link = "127.0.0.1:8000{% url 'reserva-pago' reserva.id %}";
+            var link = "127.0.0.1:8000{% url 'reservas-pago' reserva.id %}";
             var $temp = $("<input>");
             $("body").append($temp);
             $temp.val(link).select();

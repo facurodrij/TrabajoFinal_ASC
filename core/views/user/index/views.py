@@ -23,5 +23,5 @@ class IndexView(TemplateView):
             data['deporte'] = request.POST.get('deporte')
             data['fecha'] = request.POST.get('fecha')
             data['hora'] = request.POST.get('hora')
-            return redirect(reverse('reserva-crear') + '?fecha=' + data['fecha'] + '&hora=' + data['hora'] +
+            return redirect(reverse('reservas-crear') + '?fecha=' + data['fecha'] + '&hora=' + data['hora'] +
                             '&deporte=' + data['deporte'])

@@ -99,7 +99,7 @@
         }, 1000);
 
         $('#btn-delete').click(function () {
-            window.location.href = "{% url 'reserva-baja' reserva.id %}";
+            window.location.href = "{% url 'reservas-baja' reserva.id %}";
         });
     </script>
 {% endblock body_js %}

@@ -1,0 +1,91 @@
+{% extends "extends/user/base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">{{ title }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <a href="{% url 'reservas-crear' %}" class="btn btn-success">
+                            <i class="fas fa-plus pr-1"></i> Agregar Reserva
+                        </a>
+                        <hr>
+                        <table id="dataTable" class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th scope="col" style="">Fecha y Hora</th>
+                                <th scope="col" style="">Precio de la reserva</th>
+                                <th scope="col" style="">Cancha reservada</th>
+                                <th scope="col" style="">Estado</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for reserva in reservas %}
+                                <tr>
+                                    <td>{{ reserva.fecha }}, {{ reserva.hora }}</td>
+                                    <td>${{ reserva.get_price }}</td>
+                                    <td>{{ reserva.cancha }}</td>
+                                    <td>{{ reserva.estado }}</td>
+                                    <td>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th scope="col" style="">Fecha y Hora</th>
+                                <th scope="col" style="">Precio de la reserva</th>
+                                <th scope="col" style="">Cancha reservada</th>
+                                <th scope="col" style="">Estado</th>
+                                <th></th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+    {# DataTable #}
+    <link rel="stylesheet" type="text/css" href="{% static 'libs/DataTables/datatables.css' %}"/>
+    <script type="text/javascript" src="{% static 'libs/DataTables/datatables.js' %}"></script>
+    <script type="text/javascript" src="{% static 'libs/DataTables/Select-1.5.0/js/dataTables.select.js' %}"></script>
+    {# Datatable Internacionalización #}
+    <script src="{% static 'libs/datatables/es-ES.json' %}"></script>
+    <script>
+        let table = $('#dataTable');
+
+        table.DataTable({
+            responsive: true,
+            lengthChange: false,
+            order: [[0, 'desc']],
+            autoWidth: false,
+            // Quitarle estilos a la ultima columna
+            columnDefs: [
+                {"orderable": false, "targets": -1}
+            ],
+            language: {
+                search: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros por página",
+                zeroRecords: "No se encontraron reservas",
+                info: "Mostrando página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros disponibles",
+                infoFiltered: "(filtrado de _MAX_ registros totales)",
+                paginate: {
+                    first: "Primero",
+                    last: "Último",
+                    next: "Siguiente",
+                    previous: "Anterior"
+                },
+            }
+        });
+    </script>
+{% endblock body_js %}

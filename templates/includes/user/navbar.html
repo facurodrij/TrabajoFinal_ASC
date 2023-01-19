@@ -27,7 +27,10 @@
                         {% endif %}
                         <a class="dropdown-item" href="#">
                             {# TODO: Crear sitio para ver los pedidos #}
-                            <i class="fas fa-calendar-days pr-2"></i> Mis pedidos
+                            <i class="fas fa-calendar-days pr-2"></i> Mis entradas
+                        </a>
+                        <a class="dropdown-item" href="{% url 'reservas-listado' %}">
+                            <i class="fas fa-calendar-days pr-2"></i> Mis reservas
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-red" href="{% url 'logout' %}">
