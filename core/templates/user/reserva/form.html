@@ -32,6 +32,13 @@
                         {% csrf_token %}
                         <div class="card-body">
                             <div class="form-group row">
+                                <label for="id_deporte" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.deporte.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ form.deporte }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <label for="id_fecha" class="col-form-label col-md-3 col-sm-3 label-align">
                                     {{ form.fecha.label }} <span class="text-danger">*</span></label>
                                 <div class="col-sm-7">
@@ -99,13 +106,17 @@
     <script src="{% static 'libs/tempusdominus-bootstrap-5.39/moment-with-locales.min.js' %}"></script>
     <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
     <script>
-        // El sitio siempre debe recargarse
-
-
-
+        let selectDeporte = $('#id_deporte');
         let selectCancha = $('#id_cancha');
         let inputFecha = $('#id_fecha');
         let selectHora = $('#id_hora');
+        selectDeporte.select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione un deporte',
+            allowClear: true,
+            width: '100%',
+            language: 'es'
+        });
         selectCancha.select2({
             theme: 'bootstrap4',
             placeholder: 'Seleccione una cancha disponible',
@@ -148,6 +159,7 @@
                 type: "GET",
                 data: {
                     'action': 'get_canchas_disponibles',
+                    'deporte_id': selectDeporte.val(),
                     'fecha': fecha,
                     'hora': hora,
                 },
@@ -188,6 +200,7 @@
                 type: "GET",
                 data: {
                     'action': 'get_canchas_disponibles',
+                    'deporte_id': selectDeporte.val(),
                     'fecha': fecha,
                     'hora': hora,
                 },

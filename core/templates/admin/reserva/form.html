@@ -40,6 +40,13 @@
                         {% csrf_token %}
                         <div class="card-body">
                             <div class="form-group row">
+                                <label for="id_deporte" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.deporte.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ form.deporte }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <label for="id_fecha" class="col-form-label col-md-3 col-sm-3 label-align">
                                     {{ form.fecha.label }} <span class="text-danger">*</span></label>
                                 <div class="col-sm-7">
@@ -141,12 +148,27 @@
     <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
     <script src="{% static 'libs/inputmask/jquery.inputmask.js' %}"></script>
     <script>
+        let selectDeporte = $('#id_deporte');
         let selectCancha = $('#id_cancha');
         let inputFecha = $('#id_fecha');
-        let inputHora = $('#id_hora');
+        let selectHora = $('#id_hora');
+        selectDeporte.select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione un deporte',
+            allowClear: true,
+            width: '100%',
+            language: 'es'
+        });
         selectCancha.select2({
             theme: 'bootstrap4',
             placeholder: 'Seleccione una cancha disponible',
+            allowClear: true,
+            width: '100%',
+            language: 'es',
+        });
+        selectHora.select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione una hora',
             allowClear: true,
             width: '100%',
             language: 'es',
@@ -175,15 +197,11 @@
             selectCancha.empty();
             selectCancha.prop('disabled', true);
             selectCancha.trigger('change');
-            // Limpiar el input de hora
-            inputHora.val('');
+            // Limpiar el select de hora
+            selectHora.val(null).trigger('change');
         });
-        inputHora.change(function () {
-            // inputHora solo permite ingresar horas, los minutos se setean en 0
+        selectHora.change(function () {
             let hora = $(this).val();
-            let horaSplit = hora.split(':');
-            hora = horaSplit[0] + ':00:00';
-            $(this).val(hora);
             let fecha = inputFecha.val();
             // Cambiar el formato fecha de DD/MM/YYYY a YYYY-MM-DD
             fecha = fecha.split('/').reverse().join('-');
@@ -201,6 +219,7 @@
                 type: "GET",
                 data: {
                     'action': 'get_canchas_disponibles',
+                    'deporte_id': selectDeporte.val(),
                     'fecha': fecha,
                     'hora': hora,
                 },

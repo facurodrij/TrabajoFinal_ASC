@@ -156,6 +156,7 @@ def reserva_admin_ajax(request):
         if request.method == 'GET':
             action = request.GET['action']
             if action == 'get_canchas_disponibles':
+                deporte_id = request.GET['deporte_id']
                 hora = request.GET['hora']
                 fecha = request.GET['fecha']
                 fecha = datetime.strptime(fecha, '%Y-%m-%d')
@@ -174,7 +175,10 @@ def reserva_admin_ajax(request):
                         return JsonResponse(data, safe=False)
                 # Excluir las canchas que tengan reservas en esa hora y fecha y no esten eliminadas
                 canchas_disp = Cancha.objects.all()
-                for reserva in Reserva.objects.filter(hora=hora, fecha=fecha, is_deleted=False):
+                for reserva in Reserva.objects.filter(cancha__deporte_id=deporte_id,
+                                                      hora=hora,
+                                                      fecha=fecha,
+                                                      is_deleted=False):
                     canchas_disp = canchas_disp.exclude(id=reserva.cancha.id)
                 if canchas_disp:
                     data['canchas'] = list(canchas_disp.values_list('id'))

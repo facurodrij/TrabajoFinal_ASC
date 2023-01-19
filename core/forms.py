@@ -32,16 +32,47 @@ class UpdateClubForm(forms.ModelForm):
 class ReservaAdminForm(forms.ModelForm):
     """Formulario para crear una reserva."""
     # TODO: Mirar esto https://docs.djangoproject.com/es/4.1/ref/forms/validation/ para validar el formulario.
+    HORAS = (
+        ('00:00:00', '00:00 hs'),
+        ('01:00:00', '01:00 hs'),
+        ('02:00:00', '02:00 hs'),
+        ('03:00:00', '03:00 hs'),
+        ('04:00:00', '04:00 hs'),
+        ('05:00:00', '05:00 hs'),
+        ('06:00:00', '06:00 hs'),
+        ('07:00:00', '07:00 hs'),
+        ('08:00:00', '08:00 hs'),
+        ('09:00:00', '09:00 hs'),
+        ('10:00:00', '10:00 hs'),
+        ('11:00:00', '11:00 hs'),
+        ('12:00:00', '12:00 hs'),
+        ('13:00:00', '13:00 hs'),
+        ('14:00:00', '14:00 hs'),
+        ('15:00:00', '15:00 hs'),
+        ('16:00:00', '16:00 hs'),
+        ('17:00:00', '17:00 hs'),
+        ('18:00:00', '18:00 hs'),
+        ('19:00:00', '19:00 hs'),
+        ('20:00:00', '20:00 hs'),
+        ('21:00:00', '21:00 hs'),
+        ('22:00:00', '22:00 hs'),
+        ('23:00:00', '23:00 hs'),
+    )
+    deporte = forms.ChoiceField(
+        label='Deporte',
+        choices=Deporte.objects.all().values_list('id', 'nombre'),
+        widget=forms.Select()
+    )
     # Campo forma de pago sean radio buttons
     forma_pago = forms.ChoiceField(
         label='Forma de pago',
         choices=Reserva.FORMA_PAGO,
         widget=forms.RadioSelect())
     # Campo hora un number input
-    hora = forms.TimeField(
+    hora = forms.ChoiceField(
         label='Hora',
-        widget=forms.TimeInput(
-            attrs={'type': 'time', 'class': 'form-control'}))
+        choices=HORAS,
+        widget=forms.Select())
 
     def save(self, commit=True):
         reserva = super().save(commit=False)
@@ -120,6 +151,11 @@ class ReservaIndexForm(Form):
 
 class ReservaUserForm(forms.ModelForm):
     """Formulario para crear una reserva. Se usa en el index para que el usuario pueda elegir la cancha."""
+    deporte = forms.ChoiceField(
+        label='Deporte',
+        choices=Deporte.objects.all().values_list('id', 'nombre'),
+        widget=forms.Select()
+    )
     hora = forms.ChoiceField(
         label='Hora',
         choices=HoraLaboral.objects.all().values_list('hora', 'hora'),
