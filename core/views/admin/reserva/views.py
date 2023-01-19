@@ -8,7 +8,7 @@ from django.shortcuts import redirect
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 
 from core.forms import ReservaAdminForm
-from core.models import Reserva, Cancha
+from core.models import Reserva, Cancha, PagoReserva
 
 
 class ReservaAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -68,7 +68,6 @@ class ReservaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
 class ReservaAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """
     Vista para mostrar los detalles de una reserva.
-    # TODO: Mostrar listado de pagos realizados.
     """
     model = Reserva
     template_name = 'admin/reserva/detail.html'
@@ -78,6 +77,11 @@ class ReservaAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, Detail
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Detalle de Reserva'
+        if self.object.forma_pago == 2:
+            try:
+                context['pago'] = self.object.pagoreserva
+            except PagoReserva.DoesNotExist:
+                pass
         return context
 
 

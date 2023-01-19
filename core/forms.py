@@ -31,6 +31,7 @@ class UpdateClubForm(forms.ModelForm):
 
 class ReservaAdminForm(forms.ModelForm):
     """Formulario para crear una reserva."""
+    # TODO: Mirar esto https://docs.djangoproject.com/es/4.1/ref/forms/validation/ para validar el formulario.
     # Campo forma de pago sean radio buttons
     forma_pago = forms.ChoiceField(
         label='Forma de pago',
