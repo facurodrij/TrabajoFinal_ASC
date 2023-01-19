@@ -99,7 +99,7 @@ class ReservaAdminForm(forms.ModelForm):
                     "binary_mode": True,
                     "expires": reserva.expira,
                     "expiration_date_from": reserva.created_at.isoformat(),
-                    "expiration_date_to": reserva.get_expiration_date().isoformat(),
+                    "expiration_date_to": reserva.get_expiration_date(),
                     "back_urls": {
                         "success": "http://127.0.0.1:8000/reserva/checkout/",
                         "failure": "http://127.0.0.1:8000/reserva/checkout/",
@@ -191,7 +191,7 @@ class ReservaUserForm(forms.ModelForm):
                 "binary_mode": True,
                 "expires": True,
                 "expiration_date_from": reserva.created_at.isoformat(),
-                "expiration_date_to": reserva.get_expiration_date().isoformat(),
+                "expiration_date_to": reserva.get_expiration_date(),
                 "back_urls": {
                     "success": "http://127.0.0.1:8000/reserva/checkout/",
                     "failure": "http://127.0.0.1:8000/reserva/checkout/",

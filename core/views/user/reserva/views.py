@@ -79,8 +79,7 @@ class ReservaPaymentView(TemplateView):
     Vista para realizar el pago de una reserva.
     """
     template_name = 'user/reserva/payment.html'
-    # TODO: Mostrar el tiempo restante para realizar el pago.
-    # TODO: Mostrar el detalle de la reserva.
+    # TODO: Implementar boton de cancelar reserva.
 
     def dispatch(self, request, *args, **kwargs):
         # Verificar que la reserva no haya sido pagada.
@@ -105,6 +104,7 @@ class ReservaPaymentView(TemplateView):
         context['public_key'] = public_key
         reserva = Reserva.objects.get(pk=self.kwargs['pk'])
         context['preference_id'] = reserva.preference_id
+        context['reserva'] = reserva
         return context
 
 

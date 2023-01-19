@@ -2,7 +2,61 @@
 {% load static %}
 
 {% block content %}
-    <div class="cho-container"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <!-- Datos de la reserva -->
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">{{ title }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-8 col-md-12">
+                                <h5>Información de la Reserva</h5>
+                                <ul class="list-group">
+                                    <li class="list-group-item"><b>Fecha y
+                                        Hora:</b> {{ reserva.fecha }}, {{ reserva.hora }}
+                                    </li>
+                                    <li class="list-group-item"><b>Nombre del cliente:</b> {{ reserva.nombre }}
+                                    </li>
+                                    <li class="list-group-item"><b>Correo del cliente:</b> {{ reserva.email }}
+                                    </li>
+                                    <li class="list-group-item"><b>Cancha reservada:</b> {{ reserva.cancha }}
+                                    </li>
+                                    <li class="list-group-item"><b>Precio de la reserva:</b> ${{ reserva.get_price }}
+                                    </li>
+                                    <li class="list-group-item"><b>Nota:</b> {{ reserva.nota }}
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-lg-4 col-md-12">
+                                <h5>Total a pagar</h5>
+                                <div class="alert alert-info" role="alert">
+                                    <h4 class="alert-heading text-right">${{ reserva.get_price }}</h4>
+                                </div>
+                                <h5>Esperando pago..</h5>
+                                <div class="alert alert-info" role="alert">
+                                    <!-- Cuenta atras -->
+                                    <div class="row">
+                                        <h4 class="col" id="countdown-text">Restante..</h4>
+                                        <h4 class=" col alert-heading text-right" id="countdown"></h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="cho-container float-right ml-2"></div>
+                        <button type="button" class="btn btn-danger float-right">
+                            <i class="fas fa-trash"></i>
+                            Cancelar Reserva
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
 
 {% block body_js %}
@@ -16,7 +70,34 @@
             preference: {
                 id: '{{ preference_id }}'
             },
-            autoOpen: true,
+            render: {
+                container: '.cho-container',
+                label: 'Pagar',
+            }
         });
+    </script>
+    <script>
+        var expiration_date = new Date("{{ reserva.get_expiration_date }}").getTime();
+
+        var x = setInterval(function () {
+
+            var now = new Date().getTime();
+
+            var distance = expiration_date - now;
+
+            // Time calculations for days, hours, minutes and seconds
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Display the result in the element with id="demo"
+            document.getElementById("countdown").innerHTML = minutes + "m " + seconds + "s ";
+
+            // If the count down is finished, write some text
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("countdown").innerHTML = "EXPIRADO";
+                document.getElementById("countdown-text").remove();
+            }
+        }, 1000);
     </script>
 {% endblock body_js %}

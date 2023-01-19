@@ -35,7 +35,7 @@
                                     <li class="list-group-item"><b>Forma de
                                         pago:</b> {{ reserva.get_FORMA_PAGO_display }}
                                     </li>
-                                    <li class="list-group-item"><b>Monto a pagar:</b> ${{ reserva.get_price }}
+                                    <li class="list-group-item"><b>Precio de la reserva:</b> ${{ reserva.get_price }}
                                     </li>
                                     <li class="list-group-item"><b>Nota:</b> {{ reserva.nota }}
                                     </li>
@@ -80,7 +80,7 @@
                                     <tr>
                                         <th>Fecha de creación</th>
                                         <th>Monto de la transacción</th>
-                                        <th>Estado</th>
+                                        <th>Estado del pago</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -106,7 +106,7 @@
 
 {% block body_js %}
     <script>
-        {% if reserva.is_paid %}
+        {% if reserva.is_paid or reserva.is_finished %}
             $('#btn-linkPay').hide();
         {% endif %}
         {% if not reserva.is_finished %}

@@ -1,12 +1,10 @@
 from datetime import timedelta, datetime
 
-import pytz
 from PIL import Image
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from django.urls import reverse
 from django.utils import timezone
 from django_softdelete.models import SoftDeleteModel
 
@@ -230,10 +228,12 @@ class Reserva(SoftDeleteModel):
             return self.cancha.precio_luz
         return self.cancha.precio
 
-    def get_expiration_date(self):
+    def get_expiration_date(self, isoformat=True):
         """Método para obtener la fecha de expiración de la reserva, en caso de que la forma de pago sea online."""
         # TODO: Hacer que la reserva expire solamente si no es creada por el administrador.
         # TODO: Parametrizar la cantidad de minutos para que expire la reserva.
+        if isoformat:
+            return (self.created_at + timedelta(minutes=20)).isoformat()
         return self.created_at + timedelta(minutes=20)
 
     # TODO: Crear en el modelo User un método para obtener las reservas realizadas a partir del email.
@@ -243,9 +243,8 @@ class Reserva(SoftDeleteModel):
         super(Reserva, self).clean()
         # Si pasó la fecha de expiración de la reserva y no se ha pagado, se cancela.
         if self.created_at:
-            if self.expira and self.get_expiration_date() < datetime.now() and not self.is_paid():
-                self.delete()
-                raise ValidationError('La reserva {} ha expirado.'.format(self.id))
+            if self.expira and self.get_expiration_date(isoformat=False) < timezone.now():
+                print('La reserva #{} ha expirado.'.format(self.id))
 
     class Meta:
         verbose_name = 'Reserva'
