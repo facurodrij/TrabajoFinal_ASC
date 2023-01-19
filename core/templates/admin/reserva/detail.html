@@ -37,6 +37,9 @@
                                     </li>
                                     <li class="list-group-item"><b>Precio de la reserva:</b> ${{ reserva.get_price }}
                                     </li>
+                                    <li class="list-group-item"><b>Expira por falta de pago:</b>
+                                        {{ reserva.get_EXPIRA_display }}
+                                    </li>
                                     <li class="list-group-item"><b>Nota:</b> {{ reserva.nota }}
                                     </li>
                                     <li class="list-group-item"><b>Fecha de creación:</b> {{ reserva.created_at }}

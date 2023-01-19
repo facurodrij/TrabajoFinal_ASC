@@ -255,16 +255,29 @@
                 processData: false,
                 success: function (data) {
                     if (!data.hasOwnProperty('error')) {
-                        Swal.fire({
-                            position: 'top-end',
-                            title: 'Reserva agregada',
-                            text: 'La reserva se agregó correctamente',
-                            icon: 'success',
-                            timer: 3000,
-                            timerProgressBar: true,
-                        }).then((result) => {
-                            window.location.href = "{% url 'admin-reservas-listado' %}";
-                        });
+                        {% if action == 'add' %}
+                            Swal.fire({
+                                position: 'top-end',
+                                title: 'Reserva agregada',
+                                text: 'La reserva se agregó correctamente',
+                                icon: 'success',
+                                timer: 3000,
+                                timerProgressBar: true,
+                            }).then((result) => {
+                                window.location.href = "{% url 'admin-reservas-listado' %}";
+                            });
+                        {% elif action == 'edit' %}
+                            Swal.fire({
+                                position: 'top-end',
+                                title: 'Reserva editada',
+                                text: 'La reserva se editó correctamente',
+                                icon: 'success',
+                                timer: 3000,
+                                timerProgressBar: true,
+                            }).then((result) => {
+                                window.location.href = "{% url 'admin-reservas-listado' %}";
+                            });
+                        {% endif %}
                     } else {
                         let errors = []
                         // Si data error es un objeto pushear los errores al array

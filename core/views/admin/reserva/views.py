@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect
@@ -74,6 +75,15 @@ class ReservaAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, Detail
     context_object_name = 'reserva'
     permission_required = 'core.view_reserva'
 
+    def dispatch(self, request, *args, **kwargs):
+        reserva = self.get_object()
+        try:
+            reserva.clean()
+        except ValidationError as e:
+            messages.error(request, e.args[0])
+            return redirect('admin-reservas-listado')
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Detalle de Reserva'
@@ -93,6 +103,14 @@ class ReservaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
     template_name = 'admin/reserva/form.html'
     form_class = ReservaAdminForm
     permission_required = 'core.change_reserva'
+
+    def dispatch(self, request, *args, **kwargs):
+        reserva = self.get_object()
+        # Si la reserva tiene como método de pago online, no se puede editar.
+        if reserva.forma_pago == 2:
+            messages.error(request, 'No se puede editar una reserva que tiene forma de pago online.')
+            return redirect('admin-reservas-detalle', pk=reserva.pk)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -179,7 +197,11 @@ def reserva_admin_ajax(request):
                                                       hora=hora,
                                                       fecha=fecha,
                                                       is_deleted=False):
-                    canchas_disp = canchas_disp.exclude(id=reserva.cancha.id)
+                    try:
+                        reserva.clean()
+                        canchas_disp = canchas_disp.exclude(id=reserva.cancha.id)
+                    except ValidationError:
+                        pass
                 if canchas_disp:
                     data['canchas'] = list(canchas_disp.values_list('id'))
                 else:

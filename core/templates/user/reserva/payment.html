@@ -35,20 +35,22 @@
                                 <div class="alert alert-info" role="alert">
                                     <h4 class="alert-heading text-right">${{ reserva.get_price }}</h4>
                                 </div>
+                                {% if reserva.expira %}
                                 <h5>Esperando pago..</h5>
-                                <div class="alert alert-info" role="alert">
-                                    <!-- Cuenta atras -->
-                                    <div class="row">
-                                        <h4 class="col" id="countdown-text">Restante..</h4>
-                                        <h4 class=" col alert-heading text-right" id="countdown"></h4>
+                                    <div class="alert alert-info" role="alert">
+                                        <!-- Cuenta atrás -->
+                                        <div class="row">
+                                            <h4 class="col" id="countdown-text">Restante..</h4>
+                                            <h4 class=" col alert-heading text-right" id="countdown"></h4>
+                                        </div>
                                     </div>
-                                </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
                     <div class="card-footer">
                         <div class="cho-container float-right ml-2"></div>
-                        <button type="button" class="btn btn-danger float-right">
+                        <button id="btn-delete" type="button" class="btn btn-danger float-right">
                             <i class="fas fa-trash"></i>
                             Cancelar Reserva
                         </button>
@@ -78,26 +80,24 @@
     </script>
     <script>
         var expiration_date = new Date("{{ reserva.get_expiration_date }}").getTime();
-
         var x = setInterval(function () {
-
             var now = new Date().getTime();
-
             var distance = expiration_date - now;
-
             // Time calculations for days, hours, minutes and seconds
             var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
             // Display the result in the element with id="demo"
             document.getElementById("countdown").innerHTML = minutes + "m " + seconds + "s ";
-
             // If the count down is finished, write some text
             if (distance < 0) {
                 clearInterval(x);
-                document.getElementById("countdown").innerHTML = "EXPIRADO";
+                document.getElementById("countdown").innerHTML = "RESERVA EXPIRADA";
                 document.getElementById("countdown-text").remove();
             }
         }, 1000);
+
+        $('#btn-delete').click(function () {
+            window.location.href = "{% url 'reserva-baja' reserva.id %}";
+        });
     </script>
 {% endblock body_js %}

@@ -354,13 +354,23 @@
                                     window.location.href = '{% url 'admin-socio-crear' %}';
                                 }
                             });
-                        {% endif %}
-                        {% if action == 'edit' %}
-                            if (name_submit === '_save') {
-                                window.location.href = '{% url 'admin-persona-listado' %}';
-                            } else if (name_submit === '_addsocio') {
-                                window.location.href = '{% url 'admin-socio-crear' %}';
-                            }
+                        {% elif action == 'edit' %}
+                            Swal.fire({
+                                position: 'top-end',
+                                title: 'Persona editada',
+                                text: 'La persona se editó correctamente',
+                                icon: 'success',
+                                timer: 3000,
+                                timerProgressBar: true,
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    if (name_submit === '_save') {
+                                        window.location.href = '{% url 'admin-persona-listado' %}';
+                                    } else if (name_submit === '_addsocio') {
+                                        window.location.href = '{% url 'admin-socio-crear' %}';
+                                    }
+                                }
+                            });
                         {% endif %}
                     } else {
                         let errors = []

@@ -167,7 +167,7 @@ class Reserva(SoftDeleteModel):
     # Campos para el administrador.
     con_luz = models.BooleanField(default=False, verbose_name='Con luz')
     asistido = models.BooleanField(default=False, verbose_name='Asistido')
-    expira = models.BooleanField(default=False, verbose_name='Expira (falta de pago)')
+    expira = models.BooleanField(default=True, verbose_name='Expira (falta de pago)')
     FORMA_PAGO = (
         (1, 'Presencial'),
         (2, 'Online'),
@@ -232,9 +232,15 @@ class Reserva(SoftDeleteModel):
         """Método para obtener la fecha de expiración de la reserva, en caso de que la forma de pago sea online."""
         # TODO: Hacer que la reserva expire solamente si no es creada por el administrador.
         # TODO: Parametrizar la cantidad de minutos para que expire la reserva.
-        if isoformat:
-            return (self.created_at + timedelta(minutes=20)).isoformat()
-        return self.created_at + timedelta(minutes=20)
+        if self.expira:
+            if isoformat:
+                return (self.created_at + timedelta(minutes=20)).isoformat()
+            return self.created_at + timedelta(minutes=20)
+        return None
+
+    def get_EXPIRA_display(self):
+        """Método para mostrar si la reserva expira por falta de pago."""
+        return 'Si' if self.expira else 'No'
 
     # TODO: Crear en el modelo User un método para obtener las reservas realizadas a partir del email.
 
@@ -243,8 +249,17 @@ class Reserva(SoftDeleteModel):
         super(Reserva, self).clean()
         # Si pasó la fecha de expiración de la reserva y no se ha pagado, se cancela.
         if self.created_at:
-            if self.expira and self.get_expiration_date(isoformat=False) < timezone.now():
+            if self.expira and self.get_expiration_date(isoformat=False) < timezone.now() and not self.is_paid():
                 print('La reserva #{} ha expirado.'.format(self.id))
+                self.delete()
+                raise ValidationError('La reserva {} ha expirado por falta de pago.'.format(self.id),
+                                      code='invalid', params={'id': self.id})
+
+    def after_delete(self):
+        """Método after_delete() sobrescrito para eliminar la preferencia de pago de Mercado Pago."""
+        # TODO: Eliminar la preferencia de pago de Mercado Pago.
+        # TODO: Enviar avisos a los usuarios sobre la cancha que queda libre.
+        #  Cuando la reserva está a pocas horas de comenzar. (Parametrizar la cantidad de horas)
 
     class Meta:
         verbose_name = 'Reserva'

@@ -1,10 +1,11 @@
 import mercadopago
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from django.views.generic import ListView, TemplateView, CreateView
+from django.views.generic import ListView, TemplateView, CreateView, DeleteView
 
 from core.forms import ReservaUserForm
 from core.models import Reserva, PagoReserva, Club
@@ -74,18 +75,56 @@ class ReservaUserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView)
         return context
 
 
+class ReservaUserDeleteView(DeleteView):
+    """
+    Vista para eliminar una reserva.
+    """
+    model = Reserva
+    template_name = 'user/reserva/delete.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        reserva = self.get_object()
+        if reserva.is_finished():
+            messages.error(request, 'La reserva ya ha sido finalizada.')
+            return redirect('index')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Baja de Reserva'
+        context['club_logo'] = Club.objects.get(pk=1).get_imagen()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            with transaction.atomic():
+                reserva = self.get_object()
+                reserva.delete()
+                messages.success(request, 'Reserva dada de baja exitosamente.')
+                # TODO: Ejecutar proceso autamatizado de aviso de baja de reserva.
+        except Exception as e:
+            data['error'] = e.args[0]
+        print('ReservaUserDeleteView: ', data)
+        return redirect('index')
+
+
 class ReservaPaymentView(TemplateView):
     """
     Vista para realizar el pago de una reserva.
     """
     template_name = 'user/reserva/payment.html'
+
     # TODO: Implementar boton de cancelar reserva.
 
     def dispatch(self, request, *args, **kwargs):
-        # Verificar que la reserva no haya sido pagada.
         try:
             reserva = Reserva.objects.get(pk=self.kwargs['pk'])
-            # TODO: reserva.clean()
+            try:
+                reserva.clean()
+            except ValidationError as e:
+                messages.error(request, e.args[0])
+                return redirect('index')
             if reserva.is_paid():
                 messages.error(request, 'La reserva ya ha sido pagada.')
                 return redirect('index')
