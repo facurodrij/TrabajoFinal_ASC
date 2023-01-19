@@ -168,18 +168,23 @@
                     if (!data.hasOwnProperty('error')) {
                         let canchas = data['canchas'];
                         selectCancha.empty();
-                        // Recorrer lista de canchas
-                        for (let i = 0; i < canchas.length; i++) {
-                            let cancha = canchas[i];
-                            console.log(cancha);
-                            // Agregar cancha al select
-                            selectCancha.append(new Option('Cancha #' + cancha, cancha));
-                        }
-                        selectCancha.trigger('change');
+                        canchas.forEach(function (cancha) {
+                            let option = new Option('Cancha #' + cancha, cancha, false, false);
+                            selectCancha.append(option);
+                        });
                         selectCancha.prop('disabled', false);
+                        selectCancha.trigger('change');
                     } else {
-                        alert(data['error']);
-                        selectCancha.empty().prop('disabled', true).trigger('change');
+                        selectCancha.empty();
+                        selectCancha.prop('disabled', true);
+                        selectCancha.trigger('change');
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: data['error'],
+                            confirmButtonText: 'Aceptar',
+                        });
                     }
                 }
             });
