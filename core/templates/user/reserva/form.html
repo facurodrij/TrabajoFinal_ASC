@@ -1,13 +1,5 @@
-{% extends "extends/admin/base.html" %}
+{% extends "extends/user/base.html" %}
 {% load static %}
-
-{% block breadcrumbs %}
-    <ol class="breadcrumb float-sm-right">
-        <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'admin-reservas-listado' %}">Reservas</a></li>
-        <li class="breadcrumb-item active">{{ title }}</li>
-    </ol>
-{% endblock %}
 
 {% block head_css %}
     <style>
@@ -83,39 +75,6 @@
                             </div>
                             <div class="form-group row">
                                 <label for="id_nota" class="col-form-label col-md-3 col-sm-3 label-align">
-                                    {{ form.forma_pago.label }} <span class="text-danger">*</span></label>
-                                <div class="col-sm-7">
-                                    {{ form.forma_pago }}
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <div class="col-sm-7 offset-sm-3">
-                                    <div class="icheck-primary d-inline">
-                                        {{ form.expira }}
-                                        <label for="id_expira">
-                                            {{ form.expira.label }}</label>
-                                        <small id="expiraHelp" class="form-text text-muted">
-                                            Si marca esta opción, la reserva expirará automáticamente por falta de pago.
-                                            De lo contrario, la reserva quedará activa hasta que el cliente realice el pago.
-                                            (Solo aplica para reservas con forma de pago online)
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <div class="col-sm-7 offset-sm-3">
-                                    <div class="icheck-primary d-inline">
-                                        {{ form.con_luz }}
-                                        <label for="id_con_luz">
-                                            {{ form.con_luz.label }}</label>
-                                        <small id="is_pagadoHelp" class="form-text text-muted">
-                                            Si marca esta opción, se le cobrará el precio de la cancha con luz.
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label for="id_nota" class="col-form-label col-md-3 col-sm-3 label-align">
                                     {{ form.nota.label }}</label>
                                 <div class="col-sm-7">
                                     {{ form.nota }}
@@ -139,11 +98,14 @@
           rel="stylesheet">
     <script src="{% static 'libs/tempusdominus-bootstrap-5.39/moment-with-locales.min.js' %}"></script>
     <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
-    <script src="{% static 'libs/inputmask/jquery.inputmask.js' %}"></script>
     <script>
+        // El sitio siempre debe recargarse
+
+
+
         let selectCancha = $('#id_cancha');
         let inputFecha = $('#id_fecha');
-        let inputHora = $('#id_hora');
+        let selectHora = $('#id_hora');
         selectCancha.select2({
             theme: 'bootstrap4',
             placeholder: 'Seleccione una cancha disponible',
@@ -151,51 +113,36 @@
             width: '100%',
             language: 'es',
         });
-        {% if action == 'add' %}
-            inputFecha.datetimepicker({
-                "format": "L",
-                "locale": "es-AR",
-                "date": moment(),
-                "minDate": moment().startOf('day'),
-                "maxDate": moment().add(2, 'weeks'),
-            });
-        {% elif action == 'edit' %}
-            let fecha = new Date('{{ object.start_date }}')
-            fecha.setMinutes(fecha.getMinutes() + fecha.getTimezoneOffset());
-            inputFecha.datetimepicker({
-                "format": "L",
-                "locale": "es-AR",
-                "date": fecha,
-                "minDate": fecha,
-                "maxDate": moment().add(2, 'weeks'),
-            });
-        {% endif %}
+        selectHora.select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione una hora',
+            allowClear: true,
+            width: '100%',
+            language: 'es',
+        });
+        let fecha = new Date('{{ form.fecha.value }}');
+        fecha.setMinutes(fecha.getMinutes() + fecha.getTimezoneOffset());
+        inputFecha.datetimepicker({
+            "format": "L",
+            "locale": "es-AR",
+            "date": fecha,
+            "minDate": moment().startOf('day'),
+            "maxDate": moment().add(2, 'weeks'),
+        });
         inputFecha.on('change.datetimepicker', function (e) {
             // Limpiar el select de canchas y deshabilitarlo
-            selectCancha.empty();
-            selectCancha.prop('disabled', true);
-            selectCancha.trigger('change');
-            // Limpiar el input de hora
-            inputHora.val('');
+            selectCancha.empty().prop('disabled', true).trigger('change');
+            selectHora.val(null).trigger('change');
         });
-        inputHora.change(function () {
+        selectHora.change(function () {
             // inputHora solo permite ingresar horas, los minutos se setean en 0
             let hora = $(this).val();
-            let horaSplit = hora.split(':');
-            hora = horaSplit[0] + ':00:00';
-            $(this).val(hora);
             let fecha = inputFecha.val();
+            if (fecha === '' || hora === null) {
+                return;
+            }
             // Cambiar el formato fecha de DD/MM/YYYY a YYYY-MM-DD
             fecha = fecha.split('/').reverse().join('-');
-            // Verificar que la fecha y hora seleccionada sea mayor a la actual
-            let fechaHora = moment(fecha + ' ' + hora).format('YYYY-MM-DD HH:mm');
-            let fechaHoraActual = moment().format('YYYY-MM-DD HH:mm');
-            if (fechaHora < fechaHoraActual) {
-                alert('La fecha y hora seleccionada debe ser mayor a la actual');
-                $(this).val('');
-                return false;
-                // TODO: Ver si no es mejor que solamente se deshabilite la opción de pago online
-            }
             $.ajax({
                 url: "{% url 'admin-reservas-ajax' %}",
                 type: "GET",
@@ -218,55 +165,50 @@
                         }
                         selectCancha.trigger('change');
                         selectCancha.prop('disabled', false);
+                    } else {
+                        alert(data['error']);
+                        selectCancha.empty().prop('disabled', true).trigger('change');
                     }
                 }
             });
         });
-
-        $('#formReserva').on('submit', function (e) {
-            e.preventDefault();
-            let form = new FormData(this);
-            form.append('action', '{{ action }}');
+    </script>
+    <script>
+        $(document).ready(function () {
+            let hora = selectHora.val();
+            let fecha = inputFecha.val();
+            // Si fecha el vacío retornar para que no se ejecute el ajax
+            if (fecha === '') {
+                return;
+            }
+            // Cambiar el formato fecha de DD/MM/YYYY a YYYY-MM-DD
+            fecha = fecha.split('/').reverse().join('-');
             $.ajax({
-                url: window.location.pathname,
-                type: 'POST',
-                data: form,
-                dataType: 'json',
-                contentType: false,
-                processData: false,
+                url: "{% url 'admin-reservas-ajax' %}",
+                type: "GET",
+                data: {
+                    'action': 'get_canchas_disponibles',
+                    'fecha': fecha,
+                    'hora': hora,
+                },
+                dataType: "json",
                 success: function (data) {
                     if (!data.hasOwnProperty('error')) {
-                        Swal.fire({
-                            position: 'top-end',
-                            title: 'Reserva agregada',
-                            text: 'La reserva se agregó correctamente',
-                            icon: 'success',
-                            timer: 3000,
-                            timerProgressBar: true,
-                        }).then((result) => {
-                            window.location.href = "{% url 'admin-reservas-listado' %}";
-                        });
-                    } else {
-                        let errors = []
-                        // Si data error es un objeto pushear los errores al array
-                        if (typeof data.error === 'object') {
-                            $.each(data.error, function (key, value) {
-                                errors.push(value);
-                            });
-                        } else {
-                            errors = data.error
+                        let canchas = data['canchas'];
+                        selectCancha.empty();
+                        // Recorrer lista de canchas
+                        for (let i = 0; i < canchas.length; i++) {
+                            let cancha = canchas[i];
+                            console.log(cancha);
+                            // Agregar cancha al select
+                            selectCancha.append(new Option('Cancha #' + cancha, cancha));
                         }
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'Ocurrió un error',
-                            text: errors,
-                            showConfirmButton: true,
-                        });
+                        selectCancha.trigger('change');
+                        selectCancha.prop('disabled', false);
+                    } else {
+                        alert(data['error']);
+                        selectCancha.empty().prop('disabled', true).trigger('change');
                     }
-                },
-                error: function () {
-                    alert('Error al guardar la reserva');
                 }
             });
         });

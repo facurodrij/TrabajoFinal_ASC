@@ -9,7 +9,12 @@
                     <div class="card-header">
                         <h3 class="card-title">Reservas</h3>
                     </div>
-                    <div class="card-body text-center">
+                    <div class="card-body">
+                        <form id="reserva_form" method="post">
+                            {% csrf_token %}
+                            {{ reserva_form.as_p }}
+                            <button type="submit" class="btn btn-success float-right">Ver Disponibilidad</button>
+                        </form>
                     </div>
                 </div>
             </div>

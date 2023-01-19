@@ -1,9 +1,10 @@
+from datetime import datetime, timedelta
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from django.utils import timezone
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 
 from core.forms import ReservaAdminForm
@@ -61,7 +62,7 @@ class ReservaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
         except Exception as e:
             data['error'] = e.args[0]
         print('ReservaAdminCreateView: ', data)
-        return JsonResponse(data)
+        return JsonResponse(data, safe=False)
 
 
 class ReservaAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
@@ -95,6 +96,25 @@ class ReservaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
         context['action'] = 'edit'
         return context
 
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'edit':
+                form = self.form_class(request.POST, instance=self.get_object())
+                if form.is_valid():
+                    with transaction.atomic():
+                        form.save()
+                        # TODO: Enviar correo con aviso de cambio de reserva.
+                else:
+                    data['error'] = form.errors
+            else:
+                data['error'] = 'No ha ingresado a ninguna opción'
+        except Exception as e:
+            data['error'] = e.args[0]
+        print('ReservaAdminUpdateView: ', data)
+        return JsonResponse(data, safe=False)
+
 
 class ReservaAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     """
@@ -118,6 +138,7 @@ class ReservaAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, Delete
                 reserva.delete()
                 messages.success(request, 'Reserva dada de baja exitosamente.')
                 # TODO: Ejecutar proceso automatizado de enviar avisos sobre la cancelación de la reserva.
+                # TODO: Enviar aviso sobre la cancelación de la reserva.
         except Exception as e:
             data['error'] = e.args[0]
         print('ReservaAdminDeleteView: ', data)
@@ -127,24 +148,37 @@ class ReservaAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, Delete
 def reserva_admin_ajax(request):
     data = {}
     # Obtener si el GET o POST
-    if request.method == 'GET':
-        action = request.GET['action']
-        if action == 'get_canchas_disponibles':
-            hora = request.GET['hora']
-            fecha = request.GET['fecha']
-            try:
+    try:
+        if request.method == 'GET':
+            action = request.GET['action']
+            if action == 'get_canchas_disponibles':
+                hora = request.GET['hora']
+                fecha = request.GET['fecha']
+                fecha = datetime.strptime(fecha, '%Y-%m-%d')
+                hora = datetime.strptime(hora, '%H:%M:%S')
+                start_date = datetime.combine(fecha, hora.time())
+                # Fecha de inicio de la reserva debe ser con al menos 2 horas de anticipación
+                # TODO: Hacer que esto sea configurable.
+                # Si el usuario no es anónimo, se le permite reservar con 2 hora de anticipación.
+                if request.user.is_anonymous:
+                    if start_date < datetime.now() + timedelta(hours=2):
+                        data['error'] = 'El inicio de la reserva debe ser con al menos 2 horas de anticipación.'
+                        return JsonResponse(data, safe=False)
+                elif not request.user.is_admin():
+                    if start_date < datetime.now() + timedelta(hours=2):
+                        data['error'] = 'El inicio de la reserva debe ser con al menos 2 horas de anticipación.'
+                        return JsonResponse(data, safe=False)
                 # Excluir las canchas que tengan reservas en esa hora y fecha y no esten eliminadas
                 canchas_disp = Cancha.objects.all()
                 for reserva in Reserva.objects.filter(hora=hora, fecha=fecha, is_deleted=False):
                     canchas_disp = canchas_disp.exclude(id=reserva.cancha.id)
                 if canchas_disp:
-                    print(canchas_disp)
                     data['canchas'] = list(canchas_disp.values_list('id'))
                 else:
                     data['error'] = 'No hay canchas disponibles para la fecha y hora seleccionada.'
-            except Exception as e:
-                data['error'] = e.args[0]
-    elif request.method == 'POST':
-        pass
+        elif request.method == 'POST':
+            pass
+    except Exception as e:
+        data['error'] = e.args[0]
     print('socio_admin_ajax: ', data)
     return JsonResponse(data, safe=False)

@@ -165,9 +165,9 @@ class Reserva(SoftDeleteModel):
     email = models.EmailField(verbose_name='Email (cliente)')
     fecha = models.DateField(verbose_name='Fecha')
     hora = models.TimeField(verbose_name='Hora')
-    con_luz = models.BooleanField(default=False, verbose_name='Con luz')
     nota = models.TextField(null=True, blank=True, verbose_name='Nota')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
+    # Campos para el administrador.
+    con_luz = models.BooleanField(default=False, verbose_name='Con luz')
     asistido = models.BooleanField(default=False, verbose_name='Asistido')
     expira = models.BooleanField(default=False, verbose_name='Expira (falta de pago)')
     FORMA_PAGO = (
@@ -177,6 +177,7 @@ class Reserva(SoftDeleteModel):
     forma_pago = models.PositiveSmallIntegerField(choices=FORMA_PAGO, default=1, verbose_name='Forma de pago')
     preference_id = models.CharField(max_length=255, null=True, blank=True, verbose_name='Preference ID',
                                      help_text='ID de la preferencia de pago de Mercado Pago')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
 
     def __str__(self):
         return 'Reserva #{}'.format(self.id)
@@ -232,10 +233,8 @@ class Reserva(SoftDeleteModel):
     def get_expiration_date(self):
         """Método para obtener la fecha de expiración de la reserva, en caso de que la forma de pago sea online."""
         # TODO: Hacer que la reserva expire solamente si no es creada por el administrador.
-        if self.expira:
-            # TODO: Parametrizar la cantidad de minutos para que expire la reserva.
-            return self.created_at + timedelta(minutes=20)
-        return None
+        # TODO: Parametrizar la cantidad de minutos para que expire la reserva.
+        return self.created_at + timedelta(minutes=20)
 
     # TODO: Crear en el modelo User un método para obtener las reservas realizadas a partir del email.
 
@@ -244,7 +243,7 @@ class Reserva(SoftDeleteModel):
         super(Reserva, self).clean()
         # Si pasó la fecha de expiración de la reserva y no se ha pagado, se cancela.
         if self.created_at:
-            if self.get_expiration_date() < datetime.now() and not self.is_paid():
+            if self.expira and self.get_expiration_date() < datetime.now() and not self.is_paid():
                 self.delete()
                 raise ValidationError('La reserva {} ha expirado.'.format(self.id))
 

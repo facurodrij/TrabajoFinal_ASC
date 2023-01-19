@@ -4,38 +4,56 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from django.views.generic import ListView, TemplateView, FormView
-from static.credentials import MercadoPagoCredentials  # Aquí debería insertar sus credenciales de MercadoPago
+from django.views.generic import ListView, TemplateView, CreateView
 
-from core.models import Cancha, Reserva, PagoReserva, Club
+from core.forms import ReservaUserForm
+from core.models import Reserva, PagoReserva, Club
+from static.credentials import MercadoPagoCredentials  # Aquí debería insertar sus credenciales de MercadoPago
 
 public_key = MercadoPagoCredentials.get_public_key()
 access_token = MercadoPagoCredentials.get_access_token()
 sdk = mercadopago.SDK(access_token)
 
 
-# Vista para obtener canchas disponibles en una fecha y hora.
-class CanchasDisponiblesView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+# Vista para que el usuario pueda reservar una cancha
+class ReservaUserCreateView(CreateView):
     """
-    Vista para obtener canchas disponibles en una fecha y hora.
-    TODO: Implementar esta vista.
+    Vista para obtener canchas disponibles en una fecha y hora determinada.
     """
-    model = Cancha
-    template_name = 'user/reserva/canchas_disponibles.html'
-    context_object_name = 'canchas'
-    permission_required = 'core.view_reserva'
+    model = Reserva
+    template_name = 'user/reserva/form.html'
+    form_class = ReservaUserForm
 
-    def get_queryset(self):
-        fecha = self.request.GET.get('fecha')
-        hora = self.request.GET.get('hora')
-        return Cancha.objects.filter(canchahoralaboral__hora_laboral__hora=hora,
-                                     canchahoralaboral__reserva__fecha=fecha,
-                                     canchahoralaboral__reserva__isnull=True)
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        try:
+            form.fields['fecha'].initial = self.request.GET['fecha']
+            form.fields['hora'].initial = self.request.GET['hora']
+        except KeyError:
+            pass
+        return form
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Canchas disponibles'
+        context['title'] = 'Reservar Cancha'
+        context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         return context
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            form = self.form_class(request.POST)
+            if form.is_valid():
+                with transaction.atomic():
+                    reserva = form.save()
+                    # TODO: Enviar correo con el link de pago.
+                return redirect('reserva-pago', pk=reserva.pk)
+            else:
+                data['error'] = form.errors
+        except Exception as e:
+            data['error'] = e.args[0]
+        print('ReservaUserCreateView: ', data)
+        return JsonResponse(data, safe=False)
 
 
 class ReservaUserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -61,6 +79,8 @@ class ReservaPaymentView(TemplateView):
     Vista para realizar el pago de una reserva.
     """
     template_name = 'user/reserva/payment.html'
+    # TODO: Mostrar el tiempo restante para realizar el pago.
+    # TODO: Mostrar el detalle de la reserva.
 
     def dispatch(self, request, *args, **kwargs):
         # Verificar que la reserva no haya sido pagada.

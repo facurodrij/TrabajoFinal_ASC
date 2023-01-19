@@ -28,7 +28,7 @@ urlpatterns = [
     # URLs de las reservas (usuarios)
     path('reserva/', lambda request: redirect('reservas-listado', permanent=True), name='reserva'),
     # path('reservas/listado', ReservaListView.as_view(), name='reservas-listado'),
-    # path('reservas/crear', ReservaCreateView.as_view(), name='reservas-crear'),
+    path('reserva/crear/', ReservaUserCreateView.as_view(), name='reserva-crear'),
     # path('reservas/<int:pk>/', ReservaDetailView.as_view(), name='reservas-detalle'),
     # path('reservas/<int:pk>/editar', ReservaUpdateView.as_view(), name='reservas-editar'),
     # path('reservas/<int:pk>/baja', ReservaDeleteView.as_view(), name='reservas-baja'),
