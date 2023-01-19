@@ -126,7 +126,8 @@ class ReservaAdminForm(forms.ModelForm):
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el nombre'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el email'}),
             'fecha': forms.DateInput(attrs={'class': 'form-control'}),
-            'nota': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'nota': forms.Textarea(attrs={'class': 'form-control', 'rows': 3,
+                                          'placeholder': 'Ingrese una nota (opcional)'}),
             'con_luz': forms.CheckboxInput(),
             'expira': forms.CheckboxInput(),
         }
@@ -211,7 +212,8 @@ class ReservaUserForm(forms.ModelForm):
         widgets = {
             'cancha': forms.Select(attrs={'disabled': True}),
             'fecha': forms.DateInput(attrs={'class': 'form-control'}),
-            'nota': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'nota': forms.Textarea(attrs={'class': 'form-control', 'rows': 3,
+                                          'placeholder': 'Ingrese una nota (opcional)'}),
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su nombre'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su email'}),
             # TODO: Si el usuario esta autenticado, que se complete el email y el nombre

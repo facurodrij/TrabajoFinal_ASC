@@ -76,12 +76,18 @@ class User(AbstractUser):
             return self.socio.persona.get_full_name()
         except AttributeError:
             if self.is_admin():
-                return self.nombre + ' ' + self.apellido + ' (Administrador)'
-            return self.nombre + ' ' + self.apellido
+                return self.get_full_name() + ' (Administrador)'
+            return self.get_full_name()
         except OperationalError:
             if self.is_admin():
-                return self.nombre + ' ' + self.apellido + ' (Administrador)'
-            return self.nombre + ' ' + self.apellido
+                return self.get_full_name() + ' (Administrador)'
+            return self.get_full_name()
+
+    def get_full_name(self):
+        return self.nombre + ' ' + self.apellido
+
+    def get_short_name(self):
+        return self.nombre
 
     def is_admin(self):
         """

@@ -32,6 +32,10 @@ class ReservaUserCreateView(CreateView):
             form.fields['hora'].initial = self.request.GET['hora']
         except KeyError:
             pass
+        # Si el usuario está autenticado completa el campo email y nombre con los datos del usuario
+        if self.request.user.is_authenticated:
+            form.fields['email'].initial = self.request.user.email
+            form.fields['nombre'].initial = self.request.user.get_full_name()
         return form
 
     def get_context_data(self, **kwargs):
@@ -61,6 +65,7 @@ class ReservaUserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView)
     """
     Vista para listar las reservas activas del usuario.
     """
+    # TODO: Implementar esta vista.
     model = Reserva
     template_name = 'user/reserva/list.html'
     context_object_name = 'reservas'
@@ -114,8 +119,6 @@ class ReservaPaymentView(TemplateView):
     Vista para realizar el pago de una reserva.
     """
     template_name = 'user/reserva/payment.html'
-
-    # TODO: Implementar boton de cancelar reserva.
 
     def dispatch(self, request, *args, **kwargs):
         try:
