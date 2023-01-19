@@ -242,6 +242,10 @@ class Reserva(SoftDeleteModel):
         """Método para mostrar si la reserva expira por falta de pago."""
         return 'Si' if self.expira else 'No'
 
+    def get_CON_LUZ_display(self):
+        """Método para mostrar si la reserva es con luz."""
+        return 'Si' if self.con_luz else 'No'
+
     # TODO: Crear en el modelo User un método para obtener las reservas realizadas a partir del email.
 
     def clean(self):

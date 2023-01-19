@@ -15,7 +15,6 @@ class IndexView(TemplateView):
         context['title'] = 'Inicio'
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         context['reserva_form'] = ReservaIndexForm()
-        # TODO: Customizar el formulario de reserva.
         return context
 
     def post(self, request, *args, **kwargs):

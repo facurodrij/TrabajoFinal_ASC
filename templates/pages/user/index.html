@@ -1,6 +1,22 @@
 {% extends 'extends/user/base.html' %}
 {% load static %}
 
+{% block head_css %}
+    <style>
+        @media (max-width: 576px) {
+            .label-align {
+                text-align: left;
+            }
+        }
+
+        @media (min-width: 576px) {
+            .label-align {
+                text-align: right;
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
     <div class="container-fluid">
         <div class="row">
@@ -9,13 +25,42 @@
                     <div class="card-header">
                         <h3 class="card-title">Reservas</h3>
                     </div>
-                    <div class="card-body">
-                        <form id="reserva_form" method="post">
-                            {% csrf_token %}
-                            {{ reserva_form.as_p }}
+                    <form id="reserva_form" method="post" class="form-horizontal">
+                        {% csrf_token %}
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label for="id_deporte" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ reserva_form.deporte.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ reserva_form.deporte }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_fecha" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ reserva_form.fecha.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    <div class="input-group" id="div_id_fecha"
+                                         data-target-input="nearest">
+                                        {{ reserva_form.fecha }}
+                                        <div class="input-group-append" data-target="#id_fecha"
+                                             data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_hora" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ reserva_form.hora.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ reserva_form.hora }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
                             <button type="submit" class="btn btn-success float-right">Ver Disponibilidad</button>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
             </div>
             <div class="col">
@@ -32,4 +77,44 @@
 {% endblock content %}
 
 {% block body_js %}
+    <!-- Tempus Dominus -->
+    <link href="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.css' %}" media="all"
+          rel="stylesheet">
+    <script src="{% static 'libs/tempusdominus-bootstrap-5.39/moment-with-locales.min.js' %}"></script>
+    <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
+    <script>
+        let selectDeporte = $('#id_deporte');
+        let selectCancha = $('#id_cancha');
+        let inputFecha = $('#id_fecha');
+        let selectHora = $('#id_hora');
+        selectDeporte.select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione un deporte',
+            allowClear: true,
+            width: '100%',
+            language: 'es',
+            required: true,
+        });
+        selectCancha.select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione una cancha disponible',
+            allowClear: true,
+            width: '100%',
+            language: 'es',
+        });
+        selectHora.select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione una hora',
+            allowClear: true,
+            width: '100%',
+            language: 'es',
+        });
+        inputFecha.datetimepicker({
+            "format": "L",
+            "locale": "es-AR",
+            "date": new Date(),
+            "minDate": moment().startOf('day'),
+            "maxDate": moment().add(2, 'weeks'),
+        });
+    </script>
 {% endblock body_js %}

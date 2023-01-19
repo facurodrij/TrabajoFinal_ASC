@@ -137,14 +137,17 @@ class ReservaIndexForm(Form):
     """Formulario para crear una reserva. Se usa en el index para que el usuario pueda elegir la cancha."""
     deporte = forms.ChoiceField(
         label='Deporte',
+        required=True,
         choices=Deporte.objects.all().values_list('id', 'nombre'),
         widget=forms.Select()
     )
     fecha = forms.DateField(
+        required=True,
         label='Fecha',
         widget=forms.DateInput(
-            attrs={'type': 'date', 'class': 'form-control'}))
+            attrs={'class': 'form-control'}))
     hora = forms.ChoiceField(
+        required=True,
         label='Hora',
         choices=HoraLaboral.objects.all().values_list('hora', 'hora'),
         widget=forms.Select()
@@ -216,5 +219,4 @@ class ReservaUserForm(forms.ModelForm):
                                           'placeholder': 'Ingrese una nota (opcional)'}),
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su nombre'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su email'}),
-            # TODO: Si el usuario esta autenticado, que se complete el email y el nombre
         }
