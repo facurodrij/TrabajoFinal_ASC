@@ -1,0 +1,58 @@
+{% extends "extends/user/base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="card">
+            <!-- Datos de la reserva -->
+            <div class="card-header bg-primary">
+                <h3 class="card-title">{{ title }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5>Información de la Reserva</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item"><b>Fecha y
+                                Hora:</b> {{ reserva.fecha }}, {{ reserva.hora }}
+                            </li>
+                            <li class="list-group-item"><b>Nombre del cliente:</b> {{ reserva.nombre }}
+                            </li>
+                            <li class="list-group-item"><b>Correo del cliente:</b> {{ reserva.email }}
+                            </li>
+                            <li class="list-group-item"><b>Cancha reservada:</b> {{ reserva.cancha }}
+                            </li>
+                            <li class="list-group-item"><b>Precio de la reserva:</b> ${{ reserva.get_price }}
+                            </li>
+                            <li class="list-group-item"><b>Nota:</b> {{ reserva.nota }}
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col">
+                        <h5>Opciones Disponibles</h5>
+                        <button id="btn-linkPay" type="button" class="btn btn-block btn-outline-primary">
+                            <i class="fas fa-dollar-sign"></i>
+                            Pagar reserva
+                        </button>
+                        <button id="btn-delete" type="button" class="btn btn-block btn-danger">
+                            <i class="fa-solid fa-trash"></i>
+                            Cancelar reserva
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+    <script>
+        {% if reserva.is_finished %}
+            $('#btn-linkPay').hide()
+            $('#btn-delete').hide()
+        {% endif %}
+        $('#btn-delete').click(function () {
+            window.location.href = "{% url 'reservas-baja' reserva.id %}";
+        });
+    </script>
+{% endblock body_js %}

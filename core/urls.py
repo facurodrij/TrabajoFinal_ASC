@@ -29,7 +29,7 @@ urlpatterns = [
     path('reservas/', lambda request: redirect('reservas-listado', permanent=True), name='reservas'),
     path('reservas/listado/', ReservaUserListView.as_view(), name='reservas-listado'),
     path('reservas/crear/', ReservaUserCreateView.as_view(), name='reservas-crear'),
-    # path('reservas/<int:pk>/', ReservaDetailView.as_view(), name='reservas-detalle'),
+    path('reservas/<int:pk>/', ReservaUserDetailView.as_view(), name='reservas-detalle'),
     # path('reservas/<int:pk>/editar', ReservaUpdateView.as_view(), name='reservas-editar'),
     path('reservas/<int:pk>/baja/', ReservaUserDeleteView.as_view(), name='reservas-baja'),
     # path('reservas/ajax/', reserva_ajax, name='reservas-ajax'),

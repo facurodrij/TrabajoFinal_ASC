@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from django.views.generic import ListView, TemplateView, CreateView, DeleteView
+from django.views.generic import ListView, TemplateView, CreateView, DeleteView, DetailView
 
 from core.forms import ReservaUserForm
 from core.models import Reserva, PagoReserva, Club
@@ -76,6 +76,28 @@ class ReservaUserListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Mis Reservas'
+        context['club_logo'] = Club.objects.get(pk=1).get_imagen()
+        return context
+
+
+class ReservaUserDetailView(LoginRequiredMixin, DetailView):
+    """
+    Vista para mostrar los detalles de una reserva.
+    """
+    model = Reserva
+    template_name = 'user/reserva/detail.html'
+    context_object_name = 'reserva'
+
+    def dispatch(self, request, *args, **kwargs):
+        reserva = self.get_object()
+        if reserva.email != request.user.email:
+            messages.error(request, 'No tiene permiso para ver esta página.')
+            return redirect('index')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Detalle de Reserva'
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         return context
 

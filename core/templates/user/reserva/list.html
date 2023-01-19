@@ -32,6 +32,9 @@
                                     <td>{{ reserva.cancha }}</td>
                                     <td>{{ reserva.estado }}</td>
                                     <td>
+                                        <a href="{% url 'reservas-detalle' reserva.id %}" class="btn btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             {% endfor %}
