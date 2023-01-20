@@ -160,6 +160,7 @@ class Reserva(SoftDeleteModel):
     """
     Modelo de la reserva.
     """
+    # TODO: Cambiar pk por uuid
     cancha = models.ForeignKey('Cancha', on_delete=models.PROTECT)
     nombre = models.CharField(max_length=50, verbose_name='Nombre (cliente)')
     email = models.EmailField(verbose_name='Email (cliente)')

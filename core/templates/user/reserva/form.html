@@ -189,6 +189,53 @@
                 }
             });
         });
+        $('#formReserva').submit(function (e) {
+            e.preventDefault();
+            // Swal de confirmación y luego submit default del form
+            $.ajax({
+                url: "{% url 'admin-reservas-ajax' %}",
+                type: "GET",
+                data: {
+                    'action': 'get_precio_cancha',
+                    'cancha_id': selectCancha.val(),
+                    'hora': selectHora.val(),
+                },
+                dataType: "json",
+                success: function (data) {
+                    if (!data.hasOwnProperty('error')) {
+                        // Crear un input con id_precio y guardar el precio de la cancha
+                        Swal.fire({
+                            title: 'Información de la reserva',
+                            text: 'Se realizará la siguiente reserva: \n' +
+                                'Deporte: ' + selectDeporte.find('option:selected').text() + '\n' +
+                                'Cancha: ' + selectCancha.find('option:selected').text() + '\n' +
+                                'Fecha: ' + inputFecha.val() + '\n' +
+                                'Hora: ' + selectHora.find('option:selected').text() + '\n' +
+                                'Precio: $' + data['precio'] + '\n' +
+                                '¿Desea continuar?',
+                            icon: 'info',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Si, guardar',
+                            cancelButtonText: 'Cancelar',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $('#formReserva').unbind('submit').submit();
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: data['error'],
+                            confirmButtonText: 'Aceptar',
+                        });
+                    }
+                }
+            });
+        });
     </script>
     <script>
         $(document).ready(function () {
