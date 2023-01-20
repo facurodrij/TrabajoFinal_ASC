@@ -70,7 +70,7 @@ class Cancha(SoftDeleteModel):
     cantidad_jugadores = models.PositiveSmallIntegerField(default=5,
                                                           verbose_name='Cantidad de jugadores',
                                                           help_text='Cantidad de jugadores por equipo',
-                                                          validators=[MinValueValidator(4), MaxValueValidator(11)],
+                                                          validators=[MinValueValidator(1), MaxValueValidator(20)],
                                                           null=True, blank=True)
     precio = models.DecimalField(max_digits=6, decimal_places=2, verbose_name='Precio por hora')
     precio_luz = models.DecimalField(max_digits=6,

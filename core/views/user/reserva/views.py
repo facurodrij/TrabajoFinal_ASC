@@ -17,7 +17,7 @@ sdk = mercadopago.SDK(access_token)
 
 
 # Vista para que el usuario pueda reservar una cancha
-class ReservaUserCreateView(CreateView):
+class ReservaUserCreateView(LoginRequiredMixin, CreateView):
     """
     Vista para obtener canchas disponibles en una fecha y hora determinada.
     """
@@ -25,9 +25,12 @@ class ReservaUserCreateView(CreateView):
     template_name = 'user/reserva/form.html'
     form_class = ReservaUserForm
 
+    # TODO: Establecer un limite de reservas por usuario.
+
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         try:
+            form.fields['deporte'].initial = self.request.GET['deporte']
             form.fields['fecha'].initial = self.request.GET['fecha']
             form.fields['hora'].initial = self.request.GET['hora']
         except KeyError:
@@ -52,6 +55,7 @@ class ReservaUserCreateView(CreateView):
                 with transaction.atomic():
                     reserva = form.save()
                     # TODO: Enviar correo con el link de pago.
+                messages.success(request, 'Reserva creada exitosamente.')
                 return redirect('reservas-pago', pk=reserva.pk)
             else:
                 data['error'] = form.errors

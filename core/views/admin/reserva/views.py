@@ -195,7 +195,7 @@ def reserva_admin_ajax(request):
                                         'anticipación.'.format(cant_horas)
                         return JsonResponse(data, safe=False)
                 # Excluir las canchas que tengan reservas en esa hora y fecha y no estén eliminadas
-                canchas_disp = Cancha.objects.all()
+                canchas_disp = Cancha.objects.filter(deporte_id=deporte_id, hora_laboral__hora=hora.time())
                 for reserva in Reserva.objects.filter(cancha__deporte_id=deporte_id,
                                                       hora=hora,
                                                       fecha=fecha,
