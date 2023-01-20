@@ -39,6 +39,16 @@ class ReservaParameters(models.Model):
                                                         help_text=_(
                                                             'La cantidad máxima de reservas que puede hacer un'
                                                             ' cliente por día.'))
+    avisar_cancha_libre = models.BooleanField(default=True,
+                                              verbose_name=_('Avisar cancha libre'),
+                                              help_text=_(
+                                                  'Enviar avisos a los usuarios sobre la cancha que queda libre,'
+                                                  ' cuando una reserva que está a pocas horas de comenzar se cancela.'))
+    horas_avisar_cancha_libre = models.PositiveSmallIntegerField(default=5,
+                                                                 verbose_name=_('Horas para avisar cancha libre'),
+                                                                 help_text=_(
+                                                                     'La reserva debe estar a menos de esta cantidad '
+                                                                     'de horas de comenzar para enviar los avisos.'))
 
 
 class ClubParameters(models.Model):

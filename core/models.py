@@ -247,8 +247,6 @@ class Reserva(SoftDeleteModel):
         """Método para mostrar si la reserva es con luz."""
         return 'Si' if self.con_luz else 'No'
 
-    # TODO: Crear en el modelo User un método para obtener las reservas realizadas a partir del email.
-
     def clean(self):
         """Método clean() sobrescrito para validar la reserva."""
         super(Reserva, self).clean()

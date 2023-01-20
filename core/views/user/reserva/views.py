@@ -65,7 +65,6 @@ class ReservaUserListView(LoginRequiredMixin, ListView):
     """
     Vista para listar las reservas activas del usuario.
     """
-    # TODO: Implementar esta vista.
     model = Reserva
     template_name = 'user/reserva/list.html'
     context_object_name = 'reservas'
