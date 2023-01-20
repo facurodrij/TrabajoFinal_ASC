@@ -19,6 +19,28 @@ class Parentesco(models.Model):
         verbose_name_plural = _('Parentescos')
 
 
+class ReservaParameters(models.Model):
+    """
+    Modelo para almacenar los parámetros para las reservas.
+    """
+    club = models.OneToOneField('core.Club', on_delete=models.CASCADE, verbose_name=_('Club'))
+    horas_anticipacion = models.PositiveSmallIntegerField(default=2,
+                                                          verbose_name=_('Horas de anticipación'),
+                                                          help_text=_(
+                                                              'La fecha de inicio de la reserva debe ser al menos esta'
+                                                              ' cantidad de horas mayor a la fecha actual.'))
+    minutos_expiracion = models.PositiveSmallIntegerField(default=20,
+                                                          verbose_name=_('Minutos de expiración'),
+                                                          help_text=_(
+                                                              'La reserva debe ser pagada en este tiempo, de lo'
+                                                              ' contrario se cancelará.'))
+    max_reservas_dia = models.PositiveSmallIntegerField(default=2,
+                                                        verbose_name=_('Máximo de reservas por día'),
+                                                        help_text=_(
+                                                            'La cantidad máxima de reservas que puede hacer un'
+                                                            ' cliente por día.'))
+
+
 class ClubParameters(models.Model):
     """
     Modelo para almacenar las reglas establecidas para los socios.

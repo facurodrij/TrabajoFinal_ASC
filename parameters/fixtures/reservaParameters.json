@@ -1,0 +1,12 @@
+[
+  {
+    "model": "parameters.ReservaParameters",
+    "pk": 1,
+    "fields": {
+      "club": 1,
+      "horas_anticipacion": 2,
+      "minutos_expiracion": 20,
+      "max_reservas_dia": 2
+    }
+  }
+]

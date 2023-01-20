@@ -22,6 +22,8 @@
                             </li>
                             <li class="list-group-item"><b>Cancha reservada:</b> {{ reserva.cancha }}
                             </li>
+                            <li class="list-group-item"><b>Con luz:</b> {{ reserva.get_CON_LUZ_display }}
+                            </li>
                             <li class="list-group-item"><b>Precio de la reserva:</b> ${{ reserva.get_price }}
                             </li>
                             <li class="list-group-item"><b>Nota:</b> {{ reserva.nota }}
@@ -30,10 +32,11 @@
                     </div>
                     <div class="col">
                         <h5>Opciones Disponibles</h5>
-                        <button id="btn-linkPay" type="button" class="btn btn-block btn-outline-primary">
+                        <a id="btn-linkPay" href="{% url 'reservas-pago' reserva.id %}"
+                           class="btn btn-block btn-outline-primary">
                             <i class="fas fa-dollar-sign"></i>
                             Pagar reserva
-                        </button>
+                        </a>
                         <button id="btn-delete" type="button" class="btn btn-block btn-danger">
                             <i class="fa-solid fa-trash"></i>
                             Cancelar reserva

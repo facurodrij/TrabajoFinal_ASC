@@ -10,6 +10,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView, D
 
 from core.forms import ReservaAdminForm
 from core.models import Reserva, Cancha, PagoReserva
+from parameters.models import ReservaParameters
 
 
 class ReservaAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -181,17 +182,19 @@ def reserva_admin_ajax(request):
                 hora = datetime.strptime(hora, '%H:%M:%S')
                 start_date = datetime.combine(fecha, hora.time())
                 # Fecha de inicio de la reserva debe ser con al menos 2 horas de anticipación
-                # TODO: Hacer que esto sea configurable.
                 # Si el usuario no es anónimo, se le permite reservar con 2 hora de anticipación.
+                cant_horas = ReservaParameters.objects.get(club_id=1).horas_anticipacion
                 if request.user.is_anonymous:
-                    if start_date < datetime.now() + timedelta(hours=2):
-                        data['error'] = 'El inicio de la reserva debe ser con al menos 2 horas de anticipación.'
+                    if start_date < datetime.now() + timedelta(hours=cant_horas):
+                        data['error'] = 'El inicio de la reserva debe ser con al menos {} horas de ' \
+                                        'anticipación.'.format(cant_horas)
                         return JsonResponse(data, safe=False)
                 elif not request.user.is_admin():
-                    if start_date < datetime.now() + timedelta(hours=2):
-                        data['error'] = 'El inicio de la reserva debe ser con al menos 2 horas de anticipación.'
+                    if start_date < datetime.now() + timedelta(hours=cant_horas):
+                        data['error'] = 'El inicio de la reserva debe ser con al menos {} horas de ' \
+                                        'anticipación.'.format(cant_horas)
                         return JsonResponse(data, safe=False)
-                # Excluir las canchas que tengan reservas en esa hora y fecha y no esten eliminadas
+                # Excluir las canchas que tengan reservas en esa hora y fecha y no estén eliminadas
                 canchas_disp = Cancha.objects.all()
                 for reserva in Reserva.objects.filter(cancha__deporte_id=deporte_id,
                                                       hora=hora,

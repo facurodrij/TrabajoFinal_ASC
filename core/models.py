@@ -8,6 +8,8 @@ from django.db import models
 from django.utils import timezone
 from django_softdelete.models import SoftDeleteModel
 
+from parameters.models import ReservaParameters
+
 
 class Club(SoftDeleteModel):
     """
@@ -230,12 +232,11 @@ class Reserva(SoftDeleteModel):
 
     def get_expiration_date(self, isoformat=True):
         """Método para obtener la fecha de expiración de la reserva, en caso de que la forma de pago sea online."""
-        # TODO: Hacer que la reserva expire solamente si no es creada por el administrador.
-        # TODO: Parametrizar la cantidad de minutos para que expire la reserva.
+        minutos = ReservaParameters.objects.get(club=self.cancha.club).minutos_expiracion
         if self.expira:
             if isoformat:
-                return (self.created_at + timedelta(minutes=20)).isoformat()
-            return self.created_at + timedelta(minutes=20)
+                return (self.created_at + timedelta(minutes=minutos)).isoformat()
+            return self.created_at + timedelta(minutes=minutos)
         return None
 
     def get_EXPIRA_display(self):
