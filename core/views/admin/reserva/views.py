@@ -99,6 +99,7 @@ class ReservaAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, Detail
 class ReservaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Vista para actualizar una reserva.
+    # TODO: Revisar la implementación de la edición de una reserva.
     """
     model = Reserva
     template_name = 'admin/reserva/form.html'

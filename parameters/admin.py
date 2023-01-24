@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from parameters.models import Sexo, Pais, Provincia, Localidad, Departamento, Municipio, Deporte, Superficie
+from parameters.models import *
 
-for model in [Sexo, Pais, Provincia, Localidad, Departamento, Municipio, Deporte, Superficie]:
+for model in [Sexo, Pais, Provincia, Localidad, Departamento, Municipio, Deporte, Superficie, ReservaParameters]:
     admin.site.register(model)

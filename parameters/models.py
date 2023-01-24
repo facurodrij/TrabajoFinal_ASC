@@ -56,6 +56,10 @@ class ReservaParameters(models.Model):
                                                     'Finalizar la reserva al comenzar, de lo contrario finalizará al'
                                                     ' terminar.'))
 
+    class Meta:
+        verbose_name = _('Parámetro de reserva')
+        verbose_name_plural = _('Parámetros de reservas')
+
 
 class ClubParameters(models.Model):
     """
