@@ -1,10 +1,14 @@
 from datetime import timedelta, datetime
+from smtplib import SMTPException
 
 from PIL import Image
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMessage
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.forms import model_to_dict
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django_softdelete.models import SoftDeleteModel
 
@@ -248,6 +252,43 @@ class Reserva(SoftDeleteModel):
         """Método para mostrar si la reserva es con luz."""
         return 'Si' if self.con_luz else 'No'
 
+    def get_ESTADO_display(self):
+        """Método para mostrar el estado de la reserva."""
+        if self.is_paid():
+            if self.is_finished():
+                return 'Finalizada'
+            else:
+                return 'Activa'
+        elif self.is_finished():
+            return 'Expirada'
+        return 'Pendiente de pago'
+
+    def send_email(self, subject, template, context):
+        """Método para enviar un email."""
+        try:
+            message = render_to_string(template, context)
+            email = EmailMessage(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [self.email],
+            )
+            email.content_subtype = 'html'
+            email.send()
+        except SMTPException as e:
+            print('Ha ocurrido un error al enviar el correo electrónico: ', e)
+            raise e
+
+    def toJSON(self):
+        """Método para convertir la reserva a JSON."""
+        item = model_to_dict(self)
+        item['deporte'] = self.cancha.deporte.nombre
+        item['precio'] = self.get_price()
+        item['start'] = self.start_datetime()
+        item['end'] = self.end_datetime()
+        item['con_luz_display'] = self.get_CON_LUZ_display()
+        return item
+
     def clean(self):
         """Método clean() sobrescrito para validar la reserva."""
         super(Reserva, self).clean()
@@ -295,6 +336,22 @@ class PagoReserva(models.Model):
 
     def __str__(self):
         return 'Pago de reserva #{}'.format(self.reserva.id)
+
+    def send_email(self, subject, template, context):
+        """Método para enviar un email."""
+        try:
+            message = render_to_string(template, context)
+            email = EmailMessage(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [self.reserva.email],
+            )
+            email.content_subtype = 'html'
+            email.send()
+        except SMTPException as e:
+            print('Ha ocurrido un error al enviar el correo electrónico: ', e)
+            raise e
 
     class Meta:
         verbose_name = 'Pago de reserva'

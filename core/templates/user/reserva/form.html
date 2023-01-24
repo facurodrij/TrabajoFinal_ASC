@@ -24,7 +24,7 @@
                 <div class="card">
                     <div class="card-header bg-primary">
                         <h4 class="card-title">
-                            <i class="fas fa-user-pen"></i>
+                            <i class="fas fa-calendar-plus"></i>
                             {{ title }}
                         </h4>
                     </div>
@@ -89,8 +89,8 @@
                             </div>
                         </div>
                         <div class="card-footer">
-                            <button class="btn btn-primary float-right ml-2" type="submit" name="_save">
-                                <i class="fa fa-save"></i> GUARDAR
+                            <button class="btn btn-primary float-right ml-2" type="submit">
+                                <i class="fa fa-circle-info"></i> Ver detalle
                             </button>
                         </div>
                     </form>
@@ -191,37 +191,72 @@
         });
         $('#formReserva').submit(function (e) {
             e.preventDefault();
+            let form = new FormData(this);
+            form.append('action', 'detail');
             // Swal de confirmación y luego submit default del form
             $.ajax({
-                url: "{% url 'admin-reservas-ajax' %}",
-                type: "GET",
-                data: {
-                    'action': 'get_precio_cancha',
-                    'cancha_id': selectCancha.val(),
-                    'hora': selectHora.val(),
-                },
+                url: window.location.href,
+                type: "POST",
+                data: form,
                 dataType: "json",
+                processData: false,
+                contentType: false,
                 success: function (data) {
                     if (!data.hasOwnProperty('error')) {
+                        // Crear una lista con estilo bootstrap para mostrar los datos
+                        let html = '<ul class="list-group">';
+                        html += '<li class="list-group-item"><b>Deporte:</b> ' + data['reserva']['deporte'] + '</li>';
+                        html += '<li class="list-group-item"><b>Cancha:</b> ' + data['reserva']['cancha'] + '</li>';
+                        html += '<li class="list-group-item"><b>Fecha:</b> ' + data['reserva']['fecha'] + '</li>';
+                        html += '<li class="list-group-item"><b>Hora:</b> ' + data['reserva']['hora'] + '</li>';
+                        html += '<li class="list-group-item"><b>Con luz:</b> ' + data['reserva']['con_luz_display'] + '</li>';
+                        html += '<li class="list-group-item"><b>Precio:</b> $' + data['reserva']['precio'] + '</li>';
+                        html += '</ul>';
                         // Crear un input con id_precio y guardar el precio de la cancha
                         Swal.fire({
+                            position: 'top-end',
                             title: 'Información de la reserva',
-                            text: 'Se realizará la siguiente reserva: \n' +
-                                'Deporte: ' + selectDeporte.find('option:selected').text() + '\n' +
-                                'Cancha: ' + selectCancha.find('option:selected').text() + '\n' +
-                                'Fecha: ' + inputFecha.val() + '\n' +
-                                'Hora: ' + selectHora.find('option:selected').text() + '\n' +
-                                'Precio: $' + data['precio'] + '\n' +
-                                '¿Desea continuar?',
+                            html: html,
                             icon: 'info',
                             showCancelButton: true,
                             confirmButtonColor: '#3085d6',
                             cancelButtonColor: '#d33',
-                            confirmButtonText: 'Si, guardar',
+                            confirmButtonText: 'Confirmar',
                             cancelButtonText: 'Cancelar',
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                $('#formReserva').unbind('submit').submit();
+                                form.append('action', 'add');
+                                $.ajax({
+                                    url: window.location.href,
+                                    type: "POST",
+                                    data: form,
+                                    dataType: "json",
+                                    processData: false,
+                                    contentType: false,
+                                    success: function (data) {
+                                        if (!data.hasOwnProperty('error')) {
+                                            Swal.fire({
+                                                position: 'top-end',
+                                                icon: 'success',
+                                                title: 'Reserva realizada con éxito',
+                                                text: 'Se ha enviado un correo electrónico con la información de la reserva',
+                                                confirmButtonText: 'Aceptar',
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    window.location.href = data['url_pago'];
+                                                }
+                                            });
+                                        } else {
+                                            Swal.fire({
+                                                position: 'top-end',
+                                                icon: 'error',
+                                                title: 'Ocurrió un error',
+                                                text: data['error'],
+                                                confirmButtonText: 'Aceptar',
+                                            });
+                                        }
+                                    }
+                                });
                             }
                         });
                     } else {

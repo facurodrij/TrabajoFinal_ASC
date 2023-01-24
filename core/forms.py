@@ -102,8 +102,8 @@ class ReservaAdminForm(forms.ModelForm):
                     "expiration_date_from": reserva.created_at.isoformat(),
                     "expiration_date_to": reserva.get_expiration_date(),
                     "back_urls": {
-                        "success": "http://127.0.0.1:8000/reserva/checkout/",
-                        "failure": "http://127.0.0.1:8000/reserva/checkout/",
+                        "success": "http://127.0.0.1:8000/reservas/checkout/",
+                        "failure": "http://127.0.0.1:8000/reservas/checkout/",
                     },
                     "auto_return": "approved",
                     "external_reference": str(reserva.pk),
@@ -170,43 +170,43 @@ class ReservaUserForm(forms.ModelForm):
     def save(self, commit=True):
         reserva = super().save(commit=False)
         with transaction.atomic():
-            hora = self.cleaned_data['hora']
             hora_laboral = HoraLaboral.objects.get(hora=self.cleaned_data['hora'])
             reserva.con_luz = reserva.cancha.canchahoralaboral_set.get(hora_laboral=hora_laboral).con_luz
             reserva.forma_pago = 2
-            reserva.save()
-            preference_data = {
-                "items": [
-                    {
-                        "title": reserva.__str__(),
-                        "quantity": 1,
-                        "currency_id": "ARS",
-                        "unit_price": float(reserva.get_price()),
-                        "description": "Reserva de cancha {}".format(reserva.cancha.club)
-                    }
-                ],
-                "statement_descriptor": "Reserva de cancha {}".format(reserva.cancha.club),
-                "excluded_payment_types": [
-                    {
-                        "id": "ticket"
-                    }
-                ],
-                "installments": 1,
-                "binary_mode": True,
-                "expires": True,
-                "expiration_date_from": reserva.created_at.isoformat(),
-                "expiration_date_to": reserva.get_expiration_date(),
-                "back_urls": {
-                    "success": "http://127.0.0.1:8000/reserva/checkout/",
-                    "failure": "http://127.0.0.1:8000/reserva/checkout/",
-                },
-                "auto_return": "approved",
-                "external_reference": str(reserva.pk),
-            }
-            preference_response = sdk.preference().create(preference_data)
-            preference = preference_response["response"]
-            reserva.preference_id = preference["id"]
-            reserva.save()
+            if commit:
+                reserva.save()
+                preference_data = {
+                    "items": [
+                        {
+                            "title": reserva.__str__(),
+                            "quantity": 1,
+                            "currency_id": "ARS",
+                            "unit_price": float(reserva.get_price()),
+                            "description": "Reserva de cancha {}".format(reserva.cancha.club)
+                        }
+                    ],
+                    "statement_descriptor": "Reserva de cancha {}".format(reserva.cancha.club),
+                    "excluded_payment_types": [
+                        {
+                            "id": "ticket"
+                        }
+                    ],
+                    "installments": 1,
+                    "binary_mode": True,
+                    "expires": True,
+                    "expiration_date_from": reserva.created_at.isoformat(),
+                    "expiration_date_to": reserva.get_expiration_date(),
+                    "back_urls": {
+                        "success": "http://127.0.0.1:8000/reservas/checkout/",
+                        "failure": "http://127.0.0.1:8000/reservas/checkout/",
+                    },
+                    "auto_return": "approved",
+                    "external_reference": str(reserva.pk),
+                }
+                preference_response = sdk.preference().create(preference_data)
+                preference = preference_response["response"]
+                reserva.preference_id = preference["id"]
+                reserva.save()
         return reserva
 
     class Meta:

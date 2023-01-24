@@ -1,6 +1,8 @@
 import mercadopago
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import JsonResponse
@@ -16,7 +18,6 @@ access_token = MercadoPagoCredentials.get_access_token()
 sdk = mercadopago.SDK(access_token)
 
 
-# Vista para que el usuario pueda reservar una cancha
 class ReservaUserCreateView(LoginRequiredMixin, CreateView):
     """
     Vista para obtener canchas disponibles en una fecha y hora determinada.
@@ -50,15 +51,28 @@ class ReservaUserCreateView(LoginRequiredMixin, CreateView):
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            form = self.form_class(request.POST)
-            if form.is_valid():
-                with transaction.atomic():
-                    reserva = form.save()
-                    # TODO: Enviar correo con el link de pago.
-                messages.success(request, 'Reserva creada exitosamente.')
-                return redirect('reservas-pago', pk=reserva.pk)
+            action = request.POST['action']
+            if action == 'detail':
+                form = self.form_class(request.POST)
+                if form.is_valid():
+                    with transaction.atomic():
+                        reserva = form.save(commit=False)
+                        data['reserva'] = reserva.toJSON()
+            elif action == 'add':
+                form = self.form_class(request.POST)
+                if form.is_valid():
+                    with transaction.atomic():
+                        reserva = form.save()
+                        # Enviar correo con el link de pago.
+                        subject = 'Reserva de Cancha - Pago Pendiente'
+                        template = 'user/reserva/email/payment_link.html'
+                        context = {'reserva': reserva,
+                                   'protocol': 'https' if self.request.is_secure() else 'http',
+                                   'domain': get_current_site(request)}
+                        reserva.send_email(subject=subject, template=template, context=context)
+                        data['url_pago'] = redirect('reservas-pago', reserva.pk).url
             else:
-                data['error'] = form.errors
+                data['error'] = 'Ha ocurrido un error al procesar la solicitud.'
         except Exception as e:
             data['error'] = e.args[0]
         print('ReservaUserCreateView: ', data)
@@ -92,10 +106,11 @@ class ReservaUserDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'reserva'
 
     def dispatch(self, request, *args, **kwargs):
-        reserva = self.get_object()
-        if reserva.email != request.user.email:
-            messages.error(request, 'No tiene permiso para ver esta página.')
-            return redirect('index')
+        if not request.user.is_anonymous:
+            reserva = self.get_object()
+            if reserva.email != request.user.email:
+                messages.error(request, 'No tiene permiso para ver esta página.')
+                return redirect('index')
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -155,7 +170,7 @@ class ReservaPaymentView(TemplateView):
                 return redirect('index')
             if reserva.is_paid():
                 messages.error(request, 'La reserva ya ha sido pagada.')
-                return redirect('index')
+                return redirect('reservas-detalle', reserva.pk)
             if reserva.is_finished():
                 messages.error(request, 'La reserva ya ha finalizado.')
                 return redirect('index')
@@ -205,8 +220,18 @@ class ReservaCheckoutView(TemplateView):
                             transaction_amount=payment_info['response']['transaction_amount'],
                         )
                         pago_reserva.save()
-                        messages.success(request, 'El pago se ha realizado con éxito.')
-                        # TODO: Enviar correo de confirmación de pago.
+                        # Enviar correo de confirmación de pago.
+                        subject = 'Reserva de Cancha - Pago Aprobado'
+                        template = 'user/reserva/email/payment_success.html'
+                        context = {
+                            'reserva': reserva,
+                            'pago_reserva': pago_reserva,
+                            'protocol': 'https' if request.is_secure() else 'http',
+                            'domain': get_current_site(request)
+                        }
+                        pago_reserva.send_email(subject, template, context)
+                        messages.success(request, 'El pago se ha realizado con éxito. '
+                                                  'Se ha enviado un correo de confirmación.')
                         return redirect('index')
                 except Exception as e:
                     messages.error(request, 'El pago no se ha realizado con éxito.')

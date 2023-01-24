@@ -54,6 +54,9 @@
             $('#btn-linkPay').hide()
             $('#btn-delete').hide()
         {% endif %}
+        {% if reserva.is_paid %}
+            $('#btn-linkPay').hide()
+        {% endif %}
         $('#btn-delete').click(function () {
             window.location.href = "{% url 'reservas-baja' reserva.id %}";
         });
