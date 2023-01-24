@@ -210,7 +210,22 @@ def reserva_admin_ajax(request):
                 else:
                     data['error'] = 'No hay canchas disponibles para la fecha y hora seleccionada.'
         elif request.method == 'POST':
-            pass
+            action = request.POST['action']
+            if action == 'check_asistencia':
+                reserva_id = request.POST['reserva_id']
+                reserva = Reserva.objects.get(pk=reserva_id)
+                if reserva.is_finished():
+                    if not reserva.asistencia and reserva.forma_pago == 1:
+                        reserva.pagado = True
+                        reserva.asistencia = True
+                        reserva.save()
+                    elif not reserva.asistencia and reserva.forma_pago == 2:
+                        reserva.asistencia = True
+                        reserva.save()
+                    else:
+                        data['error'] = 'La asistencia ya fue registrada.'
+                else:
+                    data['error'] = 'No se puede registrar la asistencia de una reserva que no haya finalizado.'
     except Exception as e:
         data['error'] = e.args[0]
     print('socio_admin_ajax: ', data)

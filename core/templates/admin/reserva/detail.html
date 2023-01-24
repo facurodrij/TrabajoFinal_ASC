@@ -54,10 +54,6 @@
                                     <i class="fas fa-dollar-sign"></i>
                                     Obtener Link de Pago
                                 </button>
-                                <button id="btn-checkPay" type="button" class="btn btn-block btn-primary">
-                                    <i class="fas fa-cash-register"></i>
-                                    Marcar como Pagada
-                                </button>
                                 <button id="btn-checkAsis" type="button" class="btn btn-block btn-success">
                                     <i class="fas fa-calendar-check"></i>
                                     Marcar como Asistida
@@ -70,6 +66,71 @@
                                     <i class="fa-solid fa-trash"></i>
                                     Dar de Baja
                                 </button>
+                                <hr>
+                                <h5>Línea de tiempo</h5>
+                                <div class="timeline">
+                                    <div>
+                                        <i class="fas fa-calendar-check bg-success"></i>
+                                        <div class="timeline-item">
+                                            <span class="time"><i
+                                                    class="fas fa-clock"></i> {{ reserva.created_at }}</span>
+                                            <h3 class="timeline-header"><b>Reserva creada</b></h3>
+                                        </div>
+                                    </div>
+                                    {% if reserva.forma_pago == 2 %}
+                                        <div>
+                                            <i class="fas fa-dollar-sign bg-success"></i>
+                                            <div class="timeline-item">
+                                                <span class="time"><i class="fas fa-clock"></i> {{ reserva.created_at }}</span>
+                                                <h3 class="timeline-header"><b>Link de pago generado</b></h3>
+                                            </div>
+                                        </div>
+                                        {% if reserva.pagado %}
+                                            <div>
+                                                <i class="fas fa-cash-register bg-success"></i>
+                                                <div class="timeline-item">
+                                                    <span class="time"><i
+                                                            class="fas fa-clock"></i> {{ reserva.pagoreserva.date_created }}</span>
+                                                    <h3 class="timeline-header"><b>Reserva pagada</b></h3>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div>
+                                                <i class="fas fa-cash-register"></i>
+                                                <div class="timeline-item">
+                                                    <h3 class="timeline-header"><span>Reserva pagada</span></h3>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if reserva.is_finished and reserva.asistencia %}
+                                        <div>
+                                            <i class="fas fa-calendar-check bg-success"></i>
+                                            <div class="timeline-item">
+                                                <h3 class="timeline-header"><b>Reserva asistida</b></h3>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-check-circle bg-success"></i>
+                                            <div class="timeline-item">
+                                                <h3 class="timeline-header"><b>Reserva completada</b></h3>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div>
+                                            <i class="fas fa-calendar-check"></i>
+                                            <div class="timeline-item">
+                                                <h3 class="timeline-header"><span>Reserva asistida</span></h3>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-check-circle"></i>
+                                            <div class="timeline-item">
+                                                <h3 class="timeline-header"><span>Reserva completada</span></h3>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -103,7 +164,12 @@
                             </div>
                         {% else %}
                             <div class="alert alert-info" role="alert">
-                                No se han realizado pagos para esta reserva.
+                                {% if reserva.forma_pago == 1 %}
+                                    Está reserva tiene como forma de pago presencial. Por lo tanto, se pagará en el
+                                    momento de la asistencia.
+                                {% else %}
+                                    No se han realizado pagos para esta reserva.
+                                {% endif %}
                             </div>
                         {% endif %}
                     </div>
@@ -115,8 +181,8 @@
 
 {% block body_js %}
     <script>
-        {% if reserva.forma_pago != 1 %}
-            $('#btn-checkPay').hide();
+        {% if reserva.forma_pago == 1 %}
+            $('#btn-linkPay').hide();
         {% endif %}
 
         $('#btn-linkPay').click(function () {
@@ -136,6 +202,65 @@
                 confirmButtonText: 'Aceptar'
             });
         });
+        $('#btn-checkAsis').click(function () {
+            Swal.fire({
+                position: 'top-end',
+                title: '¿Está seguro?',
+                text: "La reserva será marcada como asistida",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, marcar como asistida',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{% url 'admin-reservas-ajax' %}",
+                        type: 'POST',
+                        data: {
+                            'csrfmiddlewaretoken': '{{ csrf_token }}',
+                            'action': 'check_asistencia',
+                            'reserva_id': '{{ reserva.id }}',
+                        },
+                        success: function (data) {
+                            if (!data.hasOwnProperty('error')) {
+                                Swal.fire({
+                                    position: 'top-end',
+                                    title: '¡Listo!',
+                                    text: 'La reserva ha sido marcada como asistida',
+                                    icon: 'success',
+                                    // Cerrar con 5 seg y mostrar linea de tiempo
+                                    timer: 5000,
+                                    timerProgressBar: true,
+                                    showConfirmButton: false,
+                                }).then((result) => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    position: 'top-end',
+                                    title: '¡Error!',
+                                    text: data.error,
+                                    icon: 'error',
+                                    confirmButtonText: 'Aceptar'
+                                });
+                            }
+                        },
+                        error: function (data) {
+                            Swal.fire({
+                                position: 'top-end',
+                                title: '¡Error!',
+                                text: 'Ha ocurrido un error al marcar la reserva como asistida',
+                                icon: 'error',
+                                confirmButtonText: 'Aceptar'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
         $('#btn-edit').click(function () {
             window.location.href = "{% url 'admin-reservas-editar' reserva.id %}";
         });

@@ -229,6 +229,8 @@ class ReservaCheckoutView(TemplateView):
                             transaction_amount=payment_info['response']['transaction_amount'],
                         )
                         pago_reserva.save()
+                        reserva.pagado = True
+                        reserva.save()
                         # Enviar correo de confirmación de pago.
                         subject = 'Reserva de Cancha - Pago Aprobado'
                         template = 'user/reserva/email/payment_success.html'
