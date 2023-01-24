@@ -154,7 +154,7 @@ class ReservaUserDeleteView(DeleteView):
         return redirect('index')
 
 
-class ReservaPaymentView(TemplateView):
+class ReservaUserPaymentView(TemplateView):
     """
     Vista para realizar el pago de una reserva.
     """
@@ -168,11 +168,20 @@ class ReservaPaymentView(TemplateView):
             except ValidationError as e:
                 messages.error(request, e.args[0])
                 return redirect('index')
-            if reserva.is_paid():
+            if reserva.pagado:
                 messages.error(request, 'La reserva ya ha sido pagada.')
+                if request.user.is_admin():
+                    return redirect('admin-reservas-detalle', reserva.pk)
+                return redirect('reservas-detalle', reserva.pk)
+            if reserva.forma_pago == 1:
+                messages.error(request, 'La reserva tiene forma de pago presencial.')
+                if request.user.is_admin():
+                    return redirect('admin-reservas-detalle', reserva.pk)
                 return redirect('reservas-detalle', reserva.pk)
             if reserva.is_finished():
                 messages.error(request, 'La reserva ya ha finalizado.')
+                if request.user.is_admin():
+                    return redirect('admin-reservas-detalle', reserva.pk)
                 return redirect('index')
         except Reserva.DoesNotExist:
             messages.error(request, 'La reserva no existe o ha expirado.')

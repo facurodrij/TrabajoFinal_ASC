@@ -50,13 +50,6 @@
 
 {% block body_js %}
     <script>
-        {% if reserva.is_finished %}
-            $('#btn-linkPay').hide()
-            $('#btn-delete').hide()
-        {% endif %}
-        {% if reserva.is_paid %}
-            $('#btn-linkPay').hide()
-        {% endif %}
         $('#btn-delete').click(function () {
             window.location.href = "{% url 'reservas-baja' reserva.id %}";
         });

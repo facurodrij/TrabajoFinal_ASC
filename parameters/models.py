@@ -34,11 +34,11 @@ class ReservaParameters(models.Model):
                                                           help_text=_(
                                                               'La reserva debe ser pagada en este tiempo, de lo'
                                                               ' contrario se cancelará.'))
-    max_reservas_dia = models.PositiveSmallIntegerField(default=2,
-                                                        verbose_name=_('Máximo de reservas por día'),
-                                                        help_text=_(
-                                                            'La cantidad máxima de reservas que puede hacer un'
-                                                            ' cliente por día.'))
+    max_reservas_user = models.PositiveSmallIntegerField(default=2,
+                                                         verbose_name=_('Máximo de reservas activas por usuario'),
+                                                         help_text=_(
+                                                             'La cantidad máxima de reservas activas que puede tener un'
+                                                             ' usuario.'))
     avisar_cancha_libre = models.BooleanField(default=True,
                                               verbose_name=_('Avisar cancha libre'),
                                               help_text=_(
@@ -49,6 +49,12 @@ class ReservaParameters(models.Model):
                                                                  help_text=_(
                                                                      'La reserva debe estar a menos de esta cantidad '
                                                                      'de horas de comenzar para enviar los avisos.'))
+    # Campos para definir cuando finaliza una reserva, al comenzar o al terminar.
+    finalizar_al_comenzar = models.BooleanField(default=True,
+                                                verbose_name=_('Finalizar al comenzar'),
+                                                help_text=_(
+                                                    'Finalizar la reserva al comenzar, de lo contrario finalizará al'
+                                                    ' terminar.'))
 
 
 class ClubParameters(models.Model):

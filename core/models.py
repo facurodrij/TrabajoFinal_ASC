@@ -1,3 +1,4 @@
+import uuid
 from datetime import timedelta, datetime
 from smtplib import SMTPException
 
@@ -11,6 +12,7 @@ from django.forms import model_to_dict
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django_softdelete.models import SoftDeleteModel
+from simple_history.models import HistoricalRecords
 
 from parameters.models import ReservaParameters
 
@@ -164,7 +166,11 @@ class Reserva(SoftDeleteModel):
     """
     Modelo de la reserva.
     """
-    # TODO: Cambiar pk por uuid
+    FORMA_PAGO = (
+        (1, 'Presencial'),
+        (2, 'Online'),
+    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     cancha = models.ForeignKey('Cancha', on_delete=models.PROTECT)
     nombre = models.CharField(max_length=50, verbose_name='Nombre (cliente)')
     email = models.EmailField(verbose_name='Email (cliente)')
@@ -172,36 +178,27 @@ class Reserva(SoftDeleteModel):
     hora = models.TimeField(verbose_name='Hora')
     nota = models.TextField(null=True, blank=True, verbose_name='Nota')
     # Campos para el administrador.
-    con_luz = models.BooleanField(default=False, verbose_name='Con luz')
-    asistido = models.BooleanField(default=False, verbose_name='Asistido')
-    expira = models.BooleanField(default=True, verbose_name='Expira (falta de pago)')
-    FORMA_PAGO = (
-        (1, 'Presencial'),
-        (2, 'Online'),
-    )
+    precio = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Precio')
+    con_luz = models.BooleanField(default=False, verbose_name='Con luz', help_text='Marcar si la reserva es con luz')
+    expira = models.BooleanField(default=True, verbose_name='Expira (falta de pago)',
+                                 help_text='Marcar si expira por falta de pago')
     forma_pago = models.PositiveSmallIntegerField(choices=FORMA_PAGO, default=1, verbose_name='Forma de pago')
+    pagado = models.BooleanField(default=False, verbose_name='Pagado', help_text='Marcar si el cliente ya pagó')
     preference_id = models.CharField(max_length=255, null=True, blank=True, verbose_name='Preference ID',
                                      help_text='ID de la preferencia de pago de Mercado Pago')
+    asistencia = models.BooleanField(default=False, verbose_name='Asistencia', help_text='Asistencia del cliente')
+    # Campos para el historial.
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
+    history = HistoricalRecords()
 
     def __str__(self):
-        return 'Reserva #{}'.format(self.id)
-
-    def is_paid(self):
-        """Método para saber si la reserva está pagada."""
-        if self.forma_pago == 1:
-            return True
-        if self.forma_pago == 2:
-            try:
-                if self.pagoreserva.status == 'approved':
-                    return True
-                else:
-                    return False
-            except (PagoReserva.DoesNotExist, AttributeError):
-                return False
+        return 'Reserva de cancha #{} - {} - {}'.format(self.cancha.id, self.fecha, self.hora)
 
     def is_finished(self):
         """Método para saber si la reserva ya finalizó."""
+        if ReservaParameters.objects.get(club=self.cancha.club).finalizar_al_comenzar:
+            return self.start_datetime() < datetime.now().isoformat()
         return self.end_datetime() < datetime.now().isoformat()
 
     def start_date(self):
@@ -225,16 +222,6 @@ class Reserva(SoftDeleteModel):
         else:
             return '#0275d8'
 
-    def get_FORMA_PAGO_display(self):
-        """Método para obtener el nombre de la forma de pago."""
-        return dict(self.FORMA_PAGO)[self.forma_pago]
-
-    def get_price(self):
-        """Método para obtener el precio de la reserva."""
-        if self.con_luz:
-            return self.cancha.precio_luz
-        return self.cancha.precio
-
     def get_expiration_date(self, isoformat=True):
         """Método para obtener la fecha de expiración de la reserva, en caso de que la forma de pago sea online."""
         minutos = ReservaParameters.objects.get(club=self.cancha.club).minutos_expiracion
@@ -243,6 +230,10 @@ class Reserva(SoftDeleteModel):
                 return (self.created_at + timedelta(minutes=minutos)).isoformat()
             return self.created_at + timedelta(minutes=minutos)
         return None
+
+    def get_FORMA_PAGO_display(self):
+        """Método para obtener el nombre de la forma de pago."""
+        return dict(self.FORMA_PAGO)[self.forma_pago]
 
     def get_EXPIRA_display(self):
         """Método para mostrar si la reserva expira por falta de pago."""
@@ -283,7 +274,6 @@ class Reserva(SoftDeleteModel):
         """Método para convertir la reserva a JSON."""
         item = model_to_dict(self)
         item['deporte'] = self.cancha.deporte.nombre
-        item['precio'] = self.get_price()
         item['start'] = self.start_datetime()
         item['end'] = self.end_datetime()
         item['con_luz_display'] = self.get_CON_LUZ_display()
@@ -294,10 +284,10 @@ class Reserva(SoftDeleteModel):
         super(Reserva, self).clean()
         # Si pasó la fecha de expiración de la reserva y no se ha pagado, se cancela.
         if self.created_at:
-            if self.expira and self.get_expiration_date(isoformat=False) < timezone.now() and not self.is_paid():
-                print('La reserva #{} ha expirado.'.format(self.id))
+            if self.expira and self.get_expiration_date(isoformat=False) < timezone.now() and not self.pagado:
+                print('La reserva #{} ha expirado por falta de pago'.format(self.id))
                 self.delete()
-                raise ValidationError('La reserva {} ha expirado por falta de pago.'.format(self.id),
+                raise ValidationError('La reserva #{} ha expirado por falta de pago.'.format(self.id),
                                       code='invalid', params={'id': self.id})
 
     def after_delete(self):
@@ -314,7 +304,17 @@ class Reserva(SoftDeleteModel):
             # pero si con is_deleted=True.
             models.UniqueConstraint(fields=['cancha', 'fecha', 'hora'],
                                     condition=models.Q(is_deleted=False),
-                                    name='reserva_unico')
+                                    name='reserva_unico',
+                                    violation_error_message='Ya existe una reserva con la misma cancha, fecha y hora.'),
+            # Precio debe ser positivo.
+            models.CheckConstraint(check=models.Q(precio__gte=0),
+                                   name='precio_positivo',
+                                   violation_error_message='El precio debe ser positivo.'),
+            # Asistencia no puede ser true si pagado es false.
+            models.CheckConstraint(check=~models.Q(asistencia=True, pagado=False),
+                                   name='asistencia_pagado',
+                                   violation_error_message='No se puede marcar asistencia si la reserva no está'
+                                                           ' pagada.'),
         ]
 
 
@@ -323,7 +323,7 @@ class PagoReserva(models.Model):
     Modelo del pago de la seña de la reserva.
     """
     payment_id = models.CharField(max_length=255, verbose_name='ID de pago')
-    reserva = models.OneToOneField('Reserva', on_delete=models.CASCADE)
+    reserva = models.OneToOneField('Reserva', on_delete=models.PROTECT, verbose_name='Reserva')
     preference_id = models.CharField(max_length=255, verbose_name='ID de preferencia')
     date_created = models.DateTimeField(verbose_name='Fecha de creación')
     date_approved = models.DateTimeField(verbose_name='Fecha de aprobación')

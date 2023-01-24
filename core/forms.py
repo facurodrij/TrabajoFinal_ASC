@@ -1,6 +1,6 @@
 import mercadopago
 from django import forms
-from django.db import transaction
+from django.db import transaction, ProgrammingError, OperationalError
 from django.forms import Form
 
 from core.models import Club, Reserva, HoraLaboral
@@ -31,7 +31,6 @@ class UpdateClubForm(forms.ModelForm):
 
 class ReservaAdminForm(forms.ModelForm):
     """Formulario para crear una reserva."""
-    # TODO: Mirar esto https://docs.djangoproject.com/es/4.1/ref/forms/validation/ para validar el formulario.
     HORAS = (
         ('00:00:00', '00:00 hs'),
         ('01:00:00', '01:00 hs'),
@@ -58,26 +57,36 @@ class ReservaAdminForm(forms.ModelForm):
         ('22:00:00', '22:00 hs'),
         ('23:00:00', '23:00 hs'),
     )
-    deporte = forms.ChoiceField(
-        label='Deporte',
-        choices=Deporte.objects.all().values_list('id', 'nombre'),
-        widget=forms.Select()
-    )
-    # Campo forma de pago sean radio buttons
-    forma_pago = forms.ChoiceField(
-        label='Forma de pago',
-        choices=Reserva.FORMA_PAGO,
-        widget=forms.RadioSelect())
-    # Campo hora un number input
-    hora = forms.ChoiceField(
-        label='Hora',
-        choices=HORAS,
-        widget=forms.Select())
+    try:
+        deporte = forms.ChoiceField(
+            label='Deporte',
+            choices=Deporte.objects.all().values_list('id', 'nombre'),
+            widget=forms.Select()
+        )
+        # Campo forma de pago sean radio buttons
+        forma_pago = forms.ChoiceField(
+            label='Forma de pago',
+            choices=Reserva.FORMA_PAGO,
+            widget=forms.RadioSelect())
+        # Campo hora un number input
+        hora = forms.ChoiceField(
+            label='Hora',
+            choices=HORAS,
+            widget=forms.Select())
+        precio = forms.DecimalField(
+            required=False,
+            label='Precio',
+            help_text='Si no se ingresa un precio, el sistema utilizará el precio definido en la cancha.',
+            widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el precio (opcional)'}))
+    except (ProgrammingError, OperationalError):
+        pass
 
     def save(self, commit=True):
         reserva = super().save(commit=False)
         with transaction.atomic():
             reserva.expira = False if reserva.forma_pago == 1 else self.instance.expira
+            if reserva.precio is None:
+                reserva.precio = reserva.cancha.precio_luz if reserva.con_luz else reserva.cancha.precio
             reserva.save()
             if reserva.forma_pago == 2:
                 preference_data = {
@@ -86,10 +95,14 @@ class ReservaAdminForm(forms.ModelForm):
                             "title": reserva.__str__(),
                             "quantity": 1,
                             "currency_id": "ARS",
-                            "unit_price": float(reserva.get_price()),
+                            "unit_price": float(reserva.precio),
                             "description": "Reserva de cancha {}".format(reserva.cancha.club)
                         }
                     ],
+                    "payer": {
+                        "name": reserva.nombre,
+                        "email": reserva.email,
+                    },
                     "statement_descriptor": "Reserva de cancha {}".format(reserva.cancha.club),
                     "excluded_payment_types": [
                         {
@@ -120,7 +133,7 @@ class ReservaAdminForm(forms.ModelForm):
 
     class Meta:
         model = Reserva
-        fields = ['cancha', 'nombre', 'email', 'fecha', 'hora', 'nota', 'forma_pago', 'con_luz', 'expira']
+        fields = ['cancha', 'nombre', 'email', 'fecha', 'hora', 'nota', 'forma_pago', 'con_luz', 'expira', 'precio']
         widgets = {
             'cancha': forms.Select(attrs={'disabled': True}),
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el nombre'}),
@@ -130,48 +143,56 @@ class ReservaAdminForm(forms.ModelForm):
                                           'placeholder': 'Ingrese una nota (opcional)'}),
             'con_luz': forms.CheckboxInput(),
             'expira': forms.CheckboxInput(),
+            'precio': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el precio'}),
         }
 
 
 class ReservaIndexForm(Form):
     """Formulario para crear una reserva. Se usa en el index para que el usuario pueda elegir la cancha."""
-    deporte = forms.ChoiceField(
-        label='Deporte',
-        required=True,
-        choices=Deporte.objects.all().values_list('id', 'nombre'),
-        widget=forms.Select()
-    )
-    fecha = forms.DateField(
-        required=True,
-        label='Fecha',
-        widget=forms.DateInput(
-            attrs={'class': 'form-control'}))
-    hora = forms.ChoiceField(
-        required=True,
-        label='Hora',
-        choices=HoraLaboral.objects.all().values_list('hora', 'hora'),
-        widget=forms.Select()
-    )
+    try:
+        deporte = forms.ChoiceField(
+            label='Deporte',
+            required=True,
+            choices=Deporte.objects.all().values_list('id', 'nombre'),
+            widget=forms.Select()
+        )
+        fecha = forms.DateField(
+            required=True,
+            label='Fecha',
+            widget=forms.DateInput(
+                attrs={'class': 'form-control'}))
+        hora = forms.ChoiceField(
+            required=True,
+            label='Hora',
+            choices=HoraLaboral.objects.all().values_list('hora', 'hora'),
+            widget=forms.Select()
+        )
+    except (ProgrammingError, OperationalError):
+        pass
 
 
 class ReservaUserForm(forms.ModelForm):
     """Formulario para crear una reserva. Se usa en el index para que el usuario pueda elegir la cancha."""
-    deporte = forms.ChoiceField(
-        label='Deporte',
-        choices=Deporte.objects.all().values_list('id', 'nombre'),
-        widget=forms.Select()
-    )
-    hora = forms.ChoiceField(
-        label='Hora',
-        choices=HoraLaboral.objects.all().values_list('hora', 'hora'),
-        widget=forms.Select()
-    )
+    try:
+        deporte = forms.ChoiceField(
+            label='Deporte',
+            choices=Deporte.objects.all().values_list('id', 'nombre'),
+            widget=forms.Select()
+        )
+        hora = forms.ChoiceField(
+            label='Hora',
+            choices=HoraLaboral.objects.all().values_list('hora', 'hora'),
+            widget=forms.Select()
+        )
+    except (ProgrammingError, OperationalError):
+        pass
 
     def save(self, commit=True):
         reserva = super().save(commit=False)
         with transaction.atomic():
             hora_laboral = HoraLaboral.objects.get(hora=self.cleaned_data['hora'])
             reserva.con_luz = reserva.cancha.canchahoralaboral_set.get(hora_laboral=hora_laboral).con_luz
+            reserva.precio = reserva.cancha.precio_luz if reserva.con_luz else reserva.cancha.precio
             reserva.forma_pago = 2
             if commit:
                 reserva.save()
@@ -181,10 +202,14 @@ class ReservaUserForm(forms.ModelForm):
                             "title": reserva.__str__(),
                             "quantity": 1,
                             "currency_id": "ARS",
-                            "unit_price": float(reserva.get_price()),
+                            "unit_price": float(reserva.precio),
                             "description": "Reserva de cancha {}".format(reserva.cancha.club)
                         }
                     ],
+                    "payer": {
+                        "name": reserva.nombre,
+                        "email": reserva.email,
+                    },
                     "statement_descriptor": "Reserva de cancha {}".format(reserva.cancha.club),
                     "excluded_payment_types": [
                         {

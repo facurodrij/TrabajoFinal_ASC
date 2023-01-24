@@ -209,15 +209,6 @@ def reserva_admin_ajax(request):
                     data['canchas'] = list(canchas_disp.values_list('id'))
                 else:
                     data['error'] = 'No hay canchas disponibles para la fecha y hora seleccionada.'
-            elif action == 'get_precio_cancha':
-                cancha_id = request.GET['cancha_id']
-                hora = request.GET['hora']
-                cancha = Cancha.objects.get(id=cancha_id)
-                hora = datetime.strptime(hora, '%H:%M:%S')
-                if cancha.canchahoralaboral_set.get(hora_laboral__hora=hora).con_luz:
-                    data['precio'] = str(cancha.precio_luz)
-                else:
-                    data['precio'] = str(cancha.precio)
         elif request.method == 'POST':
             pass
     except Exception as e:

@@ -32,10 +32,12 @@
                                     </li>
                                     <li class="list-group-item"><b>Cancha reservada:</b> {{ reserva.cancha }}
                                     </li>
+                                    <li class="list-group-item"><b>Con luz:</b> {{ reserva.get_CON_LUZ_display }}
+                                    </li>
                                     <li class="list-group-item"><b>Forma de
                                         pago:</b> {{ reserva.get_FORMA_PAGO_display }}
                                     </li>
-                                    <li class="list-group-item"><b>Precio de la reserva:</b> ${{ reserva.get_price }}
+                                    <li class="list-group-item"><b>Precio de la reserva:</b> ${{ reserva.precio }}
                                     </li>
                                     <li class="list-group-item"><b>Expira por falta de pago:</b>
                                         {{ reserva.get_EXPIRA_display }}
@@ -51,6 +53,10 @@
                                 <button id="btn-linkPay" type="button" class="btn btn-block btn-outline-primary">
                                     <i class="fas fa-dollar-sign"></i>
                                     Obtener Link de Pago
+                                </button>
+                                <button id="btn-checkPay" type="button" class="btn btn-block btn-primary">
+                                    <i class="fas fa-cash-register"></i>
+                                    Marcar como Pagada
                                 </button>
                                 <button id="btn-checkAsis" type="button" class="btn btn-block btn-success">
                                     <i class="fas fa-calendar-check"></i>
@@ -109,11 +115,8 @@
 
 {% block body_js %}
     <script>
-        {% if reserva.is_paid or reserva.is_finished %}
-            $('#btn-linkPay').hide();
-        {% endif %}
-        {% if not reserva.is_finished %}
-            $('#btn-checkAsis').hide();
+        {% if reserva.forma_pago != 1 %}
+            $('#btn-checkPay').hide();
         {% endif %}
 
         $('#btn-linkPay').click(function () {

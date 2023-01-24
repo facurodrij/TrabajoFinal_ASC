@@ -75,6 +75,16 @@
                                 </div>
                             </div>
                             <div class="form-group row">
+                                <label for="id_precio" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.precio.label }} <span class="text-danger"></span></label>
+                                <div class="col-sm-7">
+                                    {{ form.precio }}
+                                    <small class="form-text text-muted">
+                                        {{ form.precio.help_text }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <label for="id_email" class="col-form-label col-md-3 col-sm-3 label-align">
                                     {{ form.email.label }} <span class="text-danger">*</span></label>
                                 <div class="col-sm-7">
@@ -101,7 +111,7 @@
                                         {{ form.expira }}
                                         <label for="id_expira">
                                             {{ form.expira.label }}</label>
-                                        <small id="expiraHelp" class="form-text text-muted">
+                                        <small class="form-text text-muted">
                                             Si marca esta opción, la reserva expirará automáticamente por falta de pago.
                                             De lo contrario, la reserva quedará activa hasta que el cliente realice el
                                             pago.
@@ -116,8 +126,9 @@
                                         {{ form.con_luz }}
                                         <label for="id_con_luz">
                                             {{ form.con_luz.label }}</label>
-                                        <small id="is_pagadoHelp" class="form-text text-muted">
-                                            Si marca esta opción, se le cobrará el precio de la cancha con luz.
+                                        <small class="form-text text-muted">
+                                            Si marca esta opción, se le cobrará el precio de la cancha con luz, a
+                                            menos que haya definido el precio de la reserva.
                                         </small>
                                     </div>
                                 </div>
