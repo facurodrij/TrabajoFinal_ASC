@@ -30,6 +30,9 @@ class CuotaSocialListView(LoginRequiredMixin, SocioRequiredMixin, ListView):
     """
     Vista para obtener el listado de cuotas sociales del socio logueado
     """
+    # TODO: Para mostrar la lista de Cuotas Sociales no utilizar DataTables
+    # TODO: Permitir seleccionar varias Cuotas Sociales para ser pagadas.
+    # TODO: Controlar que las cuotas sean pagadas ordenado por periodos, primero la mas antigua
     model = CuotaSocial
     template_name = 'cuota/list.html'
     context_object_name = 'cuotas_sociales'

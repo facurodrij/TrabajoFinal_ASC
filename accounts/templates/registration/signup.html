@@ -84,7 +84,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                <div class="icheck-primary">
+                    {{ form.notificaciones }}
+                    <label for="id_notificaciones">
+                        <small class="form-text text-muted">
+                            {{ form.notificaciones.help_text }}
+                        </small>
+                    </label>
+                </div>
+                <div class="row mt-3">
                     <div class="col-12">
                         <div class="input-group mb-2">
                             <button type="submit" class="btn btn-primary btn-block">Registrarse</button>

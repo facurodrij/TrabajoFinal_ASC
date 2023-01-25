@@ -194,8 +194,11 @@ class SignUpForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('email', 'nombre', 'apellido')
+        fields = ('email', 'nombre', 'apellido', 'notificaciones')
         field_classes = {'email': UsernameField}
+        widgets = {
+            'notificaciones': forms.CheckboxInput(),
+        }
 
 
 class ProfileForm(forms.ModelForm):
@@ -248,3 +251,6 @@ class ProfileForm(forms.ModelForm):
         exclude = ['password', 'last_login', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'groups',
                    'user_permissions']
         field_classes = {'email': UsernameField}
+        widgets = {
+            'notificaciones': forms.CheckboxInput(),
+        }
