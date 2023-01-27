@@ -206,15 +206,15 @@
         {% endif %}
         inputFecha.on('change.datetimepicker', function (e) {
             // Limpiar el select de canchas y deshabilitarlo
-            selectCancha.empty();
-            selectCancha.prop('disabled', true);
-            selectCancha.trigger('change');
-            // Limpiar el select de hora
+            selectCancha.empty().prop('disabled', true).trigger('change');
             selectHora.val(null).trigger('change');
         });
         selectHora.change(function () {
             let hora = $(this).val();
             let fecha = inputFecha.val();
+            if (fecha === '' || hora === null) {
+                return;
+            }
             // Cambiar el formato fecha de DD/MM/YYYY a YYYY-MM-DD
             fecha = fecha.split('/').reverse().join('-');
             // Verificar que la fecha y hora seleccionada sea mayor a la actual
@@ -244,12 +244,9 @@
                             let option = new Option('Cancha #' + cancha, cancha, false, false);
                             selectCancha.append(option);
                         });
-                        selectCancha.prop('disabled', false);
-                        selectCancha.trigger('change');
+                        selectCancha.prop('disabled', false).trigger('change');
                     } else {
-                        selectCancha.empty();
-                        selectCancha.prop('disabled', true);
-                        selectCancha.trigger('change');
+                        selectCancha.empty().prop('disabled', true).trigger('change');
                         Swal.fire({
                             position: 'top-end',
                             icon: 'error',
@@ -261,7 +258,6 @@
                 }
             });
         });
-
         $('#formReserva').on('submit', function (e) {
             e.preventDefault();
             let form = new FormData(this);

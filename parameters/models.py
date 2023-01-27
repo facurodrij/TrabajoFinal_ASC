@@ -47,8 +47,9 @@ class ReservaParameters(models.Model):
     horas_avisar_cancha_libre = models.PositiveSmallIntegerField(default=5,
                                                                  verbose_name=_('Horas para avisar cancha libre'),
                                                                  help_text=_(
-                                                                     'La reserva debe estar a menos de esta cantidad '
-                                                                     'de horas de comenzar para enviar los avisos.'))
+                                                                     'Si una reserva se cancela dentro de estas horas, '
+                                                                     'se enviará un aviso a los usuarios que tengan '
+                                                                     'activada la opción de notificaciones.'))
     # Campos para definir cuando finaliza una reserva, al comenzar o al terminar.
     finalizar_al_comenzar = models.BooleanField(default=True,
                                                 verbose_name=_('Finalizar al comenzar'),

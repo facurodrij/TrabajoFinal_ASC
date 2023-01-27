@@ -15,6 +15,7 @@ from django_softdelete.models import SoftDeleteModel
 from simple_history.models import HistoricalRecords
 
 from parameters.models import ReservaParameters
+from accounts.models import User
 
 
 class Club(SoftDeleteModel):
@@ -295,6 +296,40 @@ class Reserva(SoftDeleteModel):
         # TODO: Eliminar la preferencia de pago de Mercado Pago.
         # TODO: Enviar avisos a los usuarios sobre la cancha que queda libre.
         #  Cuando la reserva está a pocas horas de comenzar. (Parametrizar la cantidad de horas)
+        # TODO: Ejecutar proceso automatizado de enviar avisos sobre la cancelación de la reserva.
+        #  Revisar si la reserva se canceló dentro del plazo necesario para que se ejecutara el proceso
+        #  Filtrar por los usuarios que tienen la opción de recibir avisos de cancelación de reservas.
+        #  Teniendo esos usuarios, enviarles un correo con el aviso de la liberación de la cancha en
+        #  el horario de la reserva cancelada y la opción de reservarla nuevamente con un descuento.
+        horas_avisar_cancha_libre = ReservaParameters.objects.get(pk=1).horas_avisar_cancha_libre
+        horas_anticipacion = ReservaParameters.objects.get(pk=1).horas_anticipacion
+        if not self.is_finished() and datetime.combine(self.fecha, self.hora) - timedelta(
+                hours=horas_avisar_cancha_libre) < datetime.now() + timedelta(hours=horas_anticipacion):
+            print('La reserva #{} se ha cancelado a pocas horas de comenzar'.format(self.id))
+            for user in User.objects.filter(is_active=True, notificaciones=True, is_staff=False, is_superuser=False):
+                subject = 'Cancha liberada'
+                template = 'email/cancha_liberada.html'
+                context = {
+                    'cancha': self.cancha,
+                    'fecha': self.fecha,
+                    'hora': self.hora,
+                    'precio': self.precio,
+                    'email': user.email,
+                    'nombre': user.nombre,
+                }
+                try:
+                    message = render_to_string(template, context)
+                    email = EmailMessage(
+                        subject,
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [user.email],
+                    )
+                    email.content_subtype = 'html'
+                    email.send()
+                except SMTPException as e:
+                    print('Ha ocurrido un error al enviar el correo electrónico: ', e)
+                    raise e
 
     class Meta:
         verbose_name = 'Reserva'

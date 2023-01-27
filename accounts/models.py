@@ -12,7 +12,6 @@ from django.urls import reverse
 from django_softdelete.models import SoftDeleteModel
 from simple_history.models import HistoricalRecords
 
-from core.models import Club
 from parameters.models import ClubParameters
 from socios.models import Socio
 

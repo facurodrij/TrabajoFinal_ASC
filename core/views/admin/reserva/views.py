@@ -161,11 +161,6 @@ class ReservaAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, Delete
                 reserva_deleted = self.get_object()
                 reserva_deleted.delete()
                 messages.success(request, 'Reserva dada de baja exitosamente.')
-                # TODO: Ejecutar proceso automatizado de enviar avisos sobre la cancelación de la reserva.
-                #  Revisar si la reserva se canceló dentro del plazo necesario para que se ejecutara el proceso
-                #  Filtrar por los usuarios que tienen la opción de recibir avisos de cancelación de reservas.
-                #  Teniendo esos usuarios, enviarles un correo con el aviso de la liberación de la cancha en
-                #  el horario de la reserva cancelada y la opción de reservarla nuevamente con un descuento.
                 # TODO: Enviar aviso sobre la cancelación de la reserva.
         except Exception as e:
             data['error'] = e.args[0]

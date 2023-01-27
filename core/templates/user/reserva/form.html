@@ -146,7 +146,6 @@
             selectHora.val(null).trigger('change');
         });
         selectHora.change(function () {
-            // inputHora solo permite ingresar horas, los minutos se setean en 0
             let hora = $(this).val();
             let fecha = inputFecha.val();
             if (fecha === '' || hora === null) {
@@ -172,12 +171,9 @@
                             let option = new Option('Cancha #' + cancha, cancha, false, false);
                             selectCancha.append(option);
                         });
-                        selectCancha.prop('disabled', false);
-                        selectCancha.trigger('change');
+                        selectCancha.prop('disabled', false).trigger('change');
                     } else {
-                        selectCancha.empty();
-                        selectCancha.prop('disabled', true);
-                        selectCancha.trigger('change');
+                        selectCancha.empty().prop('disabled', true).trigger('change');
                         Swal.fire({
                             position: 'top-end',
                             icon: 'error',
@@ -277,7 +273,7 @@
             let hora = selectHora.val();
             let fecha = inputFecha.val();
             // Si fecha el vacío retornar para que no se ejecute el ajax
-            if (fecha === '') {
+            if (fecha === '' || hora === null) {
                 return;
             }
             // Cambiar el formato fecha de DD/MM/YYYY a YYYY-MM-DD
@@ -300,12 +296,9 @@
                             let option = new Option('Cancha #' + cancha, cancha, false, false);
                             selectCancha.append(option);
                         });
-                        selectCancha.prop('disabled', false);
-                        selectCancha.trigger('change');
+                        selectCancha.prop('disabled', false).trigger('change');
                     } else {
-                        selectCancha.empty();
-                        selectCancha.prop('disabled', true);
-                        selectCancha.trigger('change');
+                        selectCancha.empty().prop('disabled', true).trigger('change');
                         Swal.fire({
                             position: 'top-end',
                             icon: 'error',

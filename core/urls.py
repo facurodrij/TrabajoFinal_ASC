@@ -35,4 +35,7 @@ urlpatterns = [
     # path('reservas/ajax/', reserva_ajax, name='reservas-ajax'),
     path('reservas/<uuid:pk>/pago/', ReservaUserPaymentView.as_view(), name='reservas-pago'),
     path('reservas/checkout/', ReservaCheckoutView.as_view(), name='reservas-checkout'),
+
+    # URLs para el proceso automatizado de reserva de cancha liberada.
+    path('reservas/automatizado/', reserva_automatizada, name='reservas-automatizado'),
 ]

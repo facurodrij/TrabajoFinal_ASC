@@ -253,3 +253,17 @@ class ReservaCheckoutView(TemplateView):
                 return redirect('index')
         else:
             return super().get(request, *args, **kwargs)
+
+
+def reserva_automatizada(request):
+    """
+    Función para ejecutar proceso automatizado de reserva.
+    """
+    data = {}
+    # Obtener de la url la cancha, fecha, hora y precio.
+    cancha = request.GET.get('cancha')
+    fecha = request.GET.get('fecha')
+    hora = request.GET.get('hora')
+    precio = request.GET.get('precio')
+    email = request.GET.get('email')
+    nombre = request.GET.get('nombre')
