@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -9,7 +9,7 @@ from django.shortcuts import redirect
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 
 from core.forms import ReservaAdminForm
-from core.models import Reserva, Cancha, PagoReserva
+from core.models import Reserva, Cancha, PagoReserva, HoraLaboral
 from parameters.models import ReservaParameters
 
 
@@ -178,30 +178,26 @@ def reserva_admin_ajax(request):
                 deporte_id = request.GET['deporte_id']
                 hora = request.GET['hora']
                 fecha = request.GET['fecha']
-                fecha = datetime.strptime(fecha, '%Y-%m-%d')
-                hora = datetime.strptime(hora, '%H:%M:%S')
-                start_date = datetime.combine(fecha, hora.time())
+                fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
+                hora = datetime.strptime(hora, '%H:%M:%S').time()
+                start_date = datetime.combine(fecha, hora)
                 # Fecha de inicio de la reserva debe ser con al menos 2 horas de anticipación
-                # Si el usuario no es anónimo, se le permite reservar con 2 hora de anticipación.
-                cant_horas = ReservaParameters.objects.get(club_id=1).horas_anticipacion
-                if request.user.is_anonymous:
-                    if start_date < datetime.now() + timedelta(hours=cant_horas):
+                horas_anticipacion = ReservaParameters.objects.get(club_id=1).horas_anticipacion
+                if request.user.is_admin():
+                    canchas_disp = Cancha.objects.filter(deporte_id=deporte_id)
+                else:
+                    if start_date < datetime.now() + timedelta(hours=horas_anticipacion):
                         data['error'] = 'El inicio de la reserva debe ser con al menos {} horas de ' \
-                                        'anticipación.'.format(cant_horas)
+                                        'anticipación.'.format(horas_anticipacion)
                         return JsonResponse(data, safe=False)
-                elif not request.user.is_admin():
-                    if start_date < datetime.now() + timedelta(hours=cant_horas):
-                        data['error'] = 'El inicio de la reserva debe ser con al menos {} horas de ' \
-                                        'anticipación.'.format(cant_horas)
-                        return JsonResponse(data, safe=False)
-                # Excluir las canchas que tengan reservas en esa hora y fecha y no estén eliminadas
-                canchas_disp = Cancha.objects.filter(deporte_id=deporte_id, hora_laboral__hora=hora.time())
-                for reserva in Reserva.objects.filter(cancha__deporte_id=deporte_id,
-                                                      hora=hora,
-                                                      fecha=fecha,
-                                                      is_deleted=False):
+                    # Excluir las canchas que tengan reservas en esa hora y fecha y no estén eliminadas
+                    canchas_disp = Cancha.objects.filter(deporte_id=deporte_id, hora_laboral__hora=hora)
+                for reserva in Reserva.global_objects.filter(cancha__deporte_id=deporte_id,
+                                                             hora=hora,
+                                                             fecha=fecha,
+                                                             is_deleted=False):
                     try:
-                        reserva.clean()
+                        reserva.clean()  # TODO: Revisar si esto funciona
                         canchas_disp = canchas_disp.exclude(id=reserva.cancha.id)
                     except ValidationError:
                         pass
@@ -209,6 +205,28 @@ def reserva_admin_ajax(request):
                     data['canchas'] = list(canchas_disp.values_list('id'))
                 else:
                     data['error'] = 'No hay canchas disponibles para la fecha y hora seleccionada.'
+            elif action == 'search_horas_disponibles':
+                deporte_id = request.GET['deporte_id']
+                fecha = request.GET['fecha']
+                fecha = datetime.strptime(fecha, '%Y-%m-%d')
+                horas_anticipacion = ReservaParameters.objects.get(club_id=1).horas_anticipacion
+                horas_disponibles = []
+                for i in range(24):
+                    hora = datetime.combine(fecha, time(hour=i))
+                    if hora < datetime.now() + timedelta(hours=horas_anticipacion):
+                        continue
+                    if hora.date() > fecha.date():
+                        break
+                    canchas_disp = Cancha.objects.filter(deporte_id=deporte_id, hora_laboral__hora=hora.time()).exclude(
+                        reserva__hora=hora,
+                        reserva__fecha=fecha,
+                        reserva__is_deleted=False)
+                    if canchas_disp:
+                        horas_disponibles.append(hora.strftime('%H:%M:%S'))
+                if horas_disponibles:
+                    data['horas_disponibles'] = horas_disponibles
+                else:
+                    data['error'] = 'No hay canchas disponibles para la fecha seleccionada.'
         elif request.method == 'POST':
             action = request.POST['action']
             if action == 'check_asistencia':

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import mercadopago
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -35,7 +37,7 @@ class ReservaUserCreateView(LoginRequiredMixin, CreateView):
             form.fields['fecha'].initial = self.request.GET['fecha']
             form.fields['hora'].initial = self.request.GET['hora']
         except KeyError:
-            pass
+            form.fields['fecha'].initial = datetime.now().date()
         # Si el usuario está autenticado completa el campo email y nombre con los datos del usuario
         if self.request.user.is_authenticated:
             form.fields['email'].initial = self.request.user.email

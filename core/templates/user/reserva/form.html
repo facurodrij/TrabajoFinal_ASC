@@ -113,7 +113,7 @@
         selectDeporte.select2({
             theme: 'bootstrap4',
             placeholder: 'Seleccione un deporte',
-            allowClear: true,
+            allowClear: false,
             width: '100%',
             language: 'es'
         });
@@ -144,11 +144,9 @@
             // Limpiar el select de canchas y deshabilitarlo
             selectCancha.empty().prop('disabled', true).trigger('change');
             selectHora.val(null).trigger('change');
-        });
-        selectHora.change(function () {
-            let hora = $(this).val();
             let fecha = inputFecha.val();
-            if (fecha === '' || hora === null) {
+            // Si fecha el vacío retornar para que no se ejecute el ajax
+            if (fecha === '') {
                 return;
             }
             // Cambiar el formato fecha de DD/MM/YYYY a YYYY-MM-DD
@@ -157,23 +155,23 @@
                 url: "{% url 'admin-reservas-ajax' %}",
                 type: "GET",
                 data: {
-                    'action': 'get_canchas_disponibles',
+                    'action': 'search_horas_disponibles',
                     'deporte_id': selectDeporte.val(),
                     'fecha': fecha,
-                    'hora': hora,
                 },
                 dataType: "json",
                 success: function (data) {
                     if (!data.hasOwnProperty('error')) {
-                        let canchas = data['canchas'];
-                        selectCancha.empty();
-                        canchas.forEach(function (cancha) {
-                            let option = new Option('Cancha #' + cancha, cancha, false, false);
-                            selectCancha.append(option);
+                        let horas = data['horas_disponibles'];
+                        selectHora.empty();
+                        horas.forEach(function (hora) {
+                            // Cambiar el formato de la hora de HH:MM:SS a HH:MM
+                            let hora_text = hora.split(':').slice(0, 2).join(':');
+                            let option = new Option(hora_text, hora, false, false);
+                            selectHora.append(option);
                         });
-                        selectCancha.prop('disabled', false).trigger('change');
+                        selectHora.trigger('change');
                     } else {
-                        selectCancha.empty().prop('disabled', true).trigger('change');
                         Swal.fire({
                             position: 'top-end',
                             icon: 'error',
@@ -184,6 +182,9 @@
                     }
                 }
             });
+        });
+        selectHora.change(function () {
+            get_canchas_disponibles()
         });
         $('#formReserva').submit(function (e) {
             e.preventDefault();
@@ -267,9 +268,11 @@
                 }
             });
         });
-    </script>
-    <script>
         $(document).ready(function () {
+            get_canchas_disponibles()
+        });
+
+        function get_canchas_disponibles() {
             let hora = selectHora.val();
             let fecha = inputFecha.val();
             // Si fecha el vacío retornar para que no se ejecute el ajax
@@ -304,11 +307,54 @@
                             icon: 'error',
                             title: 'Ocurrió un error',
                             text: data['error'],
-                            confirmButtonText: 'Aceptar',
+                            confirmButtonText: 'Buscar horarios disponibles',
+                            showCancelButton: true,
+                            cancelButtonText: 'Cerrar',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    url: "{% url 'admin-reservas-ajax' %}",
+                                    type: "GET",
+                                    data: {
+                                        'action': 'search_horas_disponibles',
+                                        'deporte_id': selectDeporte.val(),
+                                        'fecha': fecha,
+                                    },
+                                    dataType: "json",
+                                    success: function (data) {
+                                        if (!data.hasOwnProperty('error')) {
+                                            let horas = data['horas_disponibles'];
+                                            selectHora.empty();
+                                            horas.forEach(function (hora) {
+                                                // Cambiar el formato de la hora de HH:MM:SS a HH:MM
+                                                let hora_text = hora.split(':').slice(0, 2).join(':');
+                                                let option = new Option(hora_text, hora, false, false);
+                                                selectHora.append(option);
+                                            });
+                                            selectHora.trigger('change');
+                                            Swal.fire({
+                                                position: 'top-end',
+                                                icon: 'info',
+                                                title: 'Horarios disponibles encontrados',
+                                                text: 'Se encontraron horarios disponibles para el deporte seleccionado.',
+                                                confirmButtonText: 'Aceptar',
+                                            });
+                                        } else {
+                                            Swal.fire({
+                                                position: 'top-end',
+                                                icon: 'error',
+                                                title: 'Ocurrió un error',
+                                                text: data['error'],
+                                                confirmButtonText: 'Aceptar',
+                                            });
+                                        }
+                                    }
+                                });
+                            }
                         });
                     }
                 }
             });
-        });
+        }
     </script>
 {% endblock body_js %}
