@@ -7,13 +7,16 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db import models
+from django.db import models, transaction
 from django.forms import model_to_dict
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from django_softdelete.models import SoftDeleteModel
 from simple_history.models import HistoricalRecords
 
+from core.tokens import reserva_create_token
 from parameters.models import ReservaParameters
 from accounts.models import User
 
@@ -127,6 +130,25 @@ class Cancha(SoftDeleteModel):
                                    violation_error_message='El precio por hora con luz no '
                                                            'puede ser menor al precio por hora.')
         ]
+
+    def is_available(self, fecha, hora_inicio):
+        """Método para verificar si la cancha está disponible en una fecha y hora determinada."""
+        # Se obtiene la hora laboral de la cancha.
+        hora_laboral = self.hora_laboral.filter(hora=hora_inicio)
+
+        # Si no existe una hora laboral para la fecha, la cancha no está disponible.
+        if not hora_laboral:
+            return False
+
+        # Se obtienen las reservas de la cancha para la fecha y hora.
+        try:
+            reserva = self.reserva_set.get(fecha=fecha, hora=hora_inicio, is_deleted=False)
+            reserva.clean()
+        except (Reserva.DoesNotExist, ValidationError):
+            return True
+
+        if reserva:
+            return False
 
 
 class CanchaHoraLaboral(models.Model):
@@ -246,7 +268,7 @@ class Reserva(SoftDeleteModel):
 
     def get_ESTADO_display(self):
         """Método para mostrar el estado de la reserva."""
-        if self.is_paid():
+        if self.pagado:
             if self.is_finished():
                 return 'Finalizada'
             else:
@@ -254,6 +276,10 @@ class Reserva(SoftDeleteModel):
         elif self.is_finished():
             return 'Expirada'
         return 'Pendiente de pago'
+
+    def get_NOTA_display(self):
+        """Método para mostrar la nota de la reserva."""
+        return self.nota if self.nota else ''
 
     def send_email(self, subject, template, context):
         """Método para enviar un email."""
@@ -293,43 +319,38 @@ class Reserva(SoftDeleteModel):
 
     def after_delete(self):
         """Método after_delete() sobrescrito para eliminar la preferencia de pago de Mercado Pago."""
-        # TODO: Eliminar la preferencia de pago de Mercado Pago.
-        # TODO: Enviar avisos a los usuarios sobre la cancha que queda libre.
-        #  Cuando la reserva está a pocas horas de comenzar. (Parametrizar la cantidad de horas)
-        # TODO: Ejecutar proceso automatizado de enviar avisos sobre la cancelación de la reserva.
-        #  Revisar si la reserva se canceló dentro del plazo necesario para que se ejecutara el proceso
-        #  Filtrar por los usuarios que tienen la opción de recibir avisos de cancelación de reservas.
-        #  Teniendo esos usuarios, enviarles un correo con el aviso de la liberación de la cancha en
-        #  el horario de la reserva cancelada y la opción de reservarla nuevamente con un descuento.
+        # TODO: Agregar la opción de descuento.
         horas_avisar_cancha_libre = ReservaParameters.objects.get(pk=1).horas_avisar_cancha_libre
         horas_anticipacion = ReservaParameters.objects.get(pk=1).horas_anticipacion
-        if not self.is_finished() and datetime.combine(self.fecha, self.hora) - timedelta(
+        if not self.is_finished() and self.pagado and datetime.combine(self.fecha, self.hora) - timedelta(
                 hours=horas_avisar_cancha_libre) < datetime.now() + timedelta(hours=horas_anticipacion):
             print('La reserva #{} se ha cancelado a pocas horas de comenzar'.format(self.id))
-            for user in User.objects.filter(is_active=True, notificaciones=True, is_staff=False, is_superuser=False):
-                subject = 'Cancha liberada'
-                template = 'email/cancha_liberada.html'
-                context = {
-                    'cancha': self.cancha,
-                    'fecha': self.fecha,
-                    'hora': self.hora,
-                    'precio': self.precio,
-                    'email': user.email,
-                    'nombre': user.nombre,
-                }
-                try:
-                    message = render_to_string(template, context)
-                    email = EmailMessage(
-                        subject,
-                        message,
-                        settings.DEFAULT_FROM_EMAIL,
-                        [user.email],
-                    )
-                    email.content_subtype = 'html'
-                    email.send()
-                except SMTPException as e:
-                    print('Ha ocurrido un error al enviar el correo electrónico: ', e)
-                    raise e
+            with transaction.atomic():
+                for user in User.objects.filter(is_active=True, notificaciones=True, is_staff=False,
+                                                is_superuser=False).exclude(email=self.email):
+                    subject = 'Cancha liberada'
+                    template = 'email/cancha_liberada.html'
+                    context = {
+                        'user': user,
+                        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                        'token': reserva_create_token.make_token(user),
+                        'reserva': self,
+                        'protocol': 'http' if settings.DEBUG else 'https',
+                        'domain': '127.0.0.1:8000/'
+                    }
+                    try:
+                        message = render_to_string(template, context)
+                        email = EmailMessage(
+                            subject,
+                            message,
+                            settings.DEFAULT_FROM_EMAIL,
+                            [user.email],
+                        )
+                        email.content_subtype = 'html'
+                        email.send()
+                    except SMTPException as e:
+                        print('Ha ocurrido un error al enviar el correo electrónico: ', e)
+                        raise e
 
     class Meta:
         verbose_name = 'Reserva'

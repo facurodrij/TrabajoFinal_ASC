@@ -28,9 +28,9 @@
                             {% for reserva in reservas %}
                                 <tr>
                                     <td>{{ reserva.fecha }}, {{ reserva.hora }}</td>
-                                    <td>${{ reserva.get_price }}</td>
+                                    <td>${{ reserva.precio }}</td>
                                     <td>{{ reserva.cancha }}</td>
-                                    <td>{{ reserva.estado }}</td>
+                                    <td>{{ reserva.get_ESTADO_display }}</td>
                                     <td>
                                         <a href="{% url 'reservas-detalle' reserva.id %}" class="btn btn-info">
                                             <i class="fas fa-eye"></i>

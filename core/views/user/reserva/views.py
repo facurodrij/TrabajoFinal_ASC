@@ -2,22 +2,34 @@ from datetime import datetime
 
 import mercadopago
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.views import PasswordResetConfirmView, INTERNAL_RESET_SESSION_TOKEN
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import redirect
-from django.views.generic import ListView, TemplateView, CreateView, DeleteView, DetailView
+from django.shortcuts import redirect, get_object_or_404
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
+from django.views.decorators.cache import never_cache
+from django.views.decorators.debug import sensitive_post_parameters
+from django.views.generic import ListView, TemplateView, CreateView, DeleteView, DetailView, FormView
 
+from accounts.views import User
 from core.forms import ReservaUserForm
-from core.models import Reserva, PagoReserva, Club
+from core.models import Reserva, PagoReserva, Club, Cancha, HoraLaboral
+from core.tokens import reserva_create_token
 from static.credentials import MercadoPagoCredentials  # Aquí debería insertar sus credenciales de MercadoPago
 
 public_key = MercadoPagoCredentials.get_public_key()
 access_token = MercadoPagoCredentials.get_access_token()
 sdk = mercadopago.SDK(access_token)
+
+UserModel = get_user_model()
 
 
 class ReservaUserCreateView(LoginRequiredMixin, CreateView):
@@ -124,7 +136,7 @@ class ReservaUserDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class ReservaUserDeleteView(DeleteView):
+class ReservaUserDeleteView(LoginRequiredMixin, DeleteView):
     """
     Vista para eliminar una reserva.
     """
@@ -137,6 +149,13 @@ class ReservaUserDeleteView(DeleteView):
             messages.error(request, 'La reserva ya ha sido finalizada.')
             return redirect('index')
         return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        reserva = self.get_object()
+        if reserva.email != request.user.email:
+            messages.error(request, 'No tiene permiso para ver esta página.')
+            return redirect('index')
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -258,15 +277,71 @@ class ReservaCheckoutView(TemplateView):
             return super().get(request, *args, **kwargs)
 
 
-def reserva_automatizada(request):
+def reserva_liberada_activate(request, uidb64, token):
     """
-    Función para ejecutar proceso automatizado de reserva.
+    Vista para reservar en una cancha liberada.
     """
-    data = {}
-    # Obtener de la url la cancha, fecha, hora y precio.
-    cancha = request.GET.get('cancha')
-    fecha = request.GET.get('fecha')
-    hora = request.GET.get('hora')
-    precio = request.GET.get('precio')
-    email = request.GET.get('email')
-    nombre = request.GET.get('nombre')
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and reserva_create_token.check_token(user, token):
+        with transaction.atomic():
+            cancha = Cancha.objects.get(pk=request.GET['cancha_pk'])
+            fecha = datetime.strptime(request.GET['fecha'], '%Y-%m-%d').date()
+            hora = datetime.strptime(request.GET['hora'], '%H:%M').time()
+            if not cancha.is_available(fecha, hora):
+                messages.error(request, 'La cancha ya no se encuentra disponible.')
+                return redirect('index')
+            reserva = Reserva(
+                cancha=cancha,
+                nombre=user.get_full_name(),
+                email=user.email,
+                fecha=fecha,
+                hora=hora)
+            hora_laboral = HoraLaboral.objects.get(hora=hora)
+            reserva.con_luz = reserva.cancha.canchahoralaboral_set.get(hora_laboral=hora_laboral).con_luz
+            reserva.precio = reserva.cancha.precio_luz if reserva.con_luz else reserva.cancha.precio
+            reserva.forma_pago = 2
+            reserva.save()
+            preference_data = {
+                "items": [
+                    {
+                        "title": reserva.__str__(),
+                        "quantity": 1,
+                        "currency_id": "ARS",
+                        "unit_price": float(reserva.precio),
+                        "description": "Reserva de cancha {}".format(reserva.cancha.club)
+                    }
+                ],
+                "payer": {
+                    "name": reserva.nombre,
+                    "email": reserva.email,
+                },
+                "statement_descriptor": "Reserva de cancha {}".format(reserva.cancha.club),
+                "excluded_payment_types": [
+                    {
+                        "id": "ticket"
+                    }
+                ],
+                "installments": 1,
+                "binary_mode": True,
+                "expires": True,
+                "expiration_date_from": reserva.created_at.isoformat(),
+                "expiration_date_to": reserva.get_expiration_date(),
+                "back_urls": {
+                    "success": "http://127.0.0.1:8000/reservas/checkout/",
+                    "failure": "http://127.0.0.1:8000/reservas/checkout/",
+                },
+                "auto_return": "approved",
+                "external_reference": str(reserva.pk),
+            }
+            preference_response = sdk.preference().create(preference_data)
+            preference = preference_response["response"]
+            reserva.preference_id = preference["id"]
+            reserva.save()
+            return redirect('reservas-pago', pk=reserva.pk)
+    else:
+        messages.error(request, 'El link de creación de reserva no es válido.')
+        return redirect('login')

@@ -37,5 +37,5 @@ urlpatterns = [
     path('reservas/checkout/', ReservaCheckoutView.as_view(), name='reservas-checkout'),
 
     # URLs para el proceso automatizado de reserva de cancha liberada.
-    path('reservas/automatizado/', reserva_automatizada, name='reservas-automatizado'),
+    path('reservas/<uidb64>/<token>/', reserva_liberada_activate, name='reserva-liberada-activate'),
 ]
