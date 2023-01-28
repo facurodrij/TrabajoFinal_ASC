@@ -28,8 +28,6 @@ class ReservaUserCreateView(LoginRequiredMixin, CreateView):
     template_name = 'user/reserva/form.html'
     form_class = ReservaUserForm
 
-    # TODO: Establecer un limite de reservas por usuario.
-
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         try:
@@ -60,6 +58,8 @@ class ReservaUserCreateView(LoginRequiredMixin, CreateView):
                     with transaction.atomic():
                         reserva = form.save(commit=False)
                         data['reserva'] = reserva.toJSON()
+                else:
+                    data['error'] = form.errors
             elif action == 'add':
                 form = self.form_class(request.POST)
                 if form.is_valid():
@@ -73,6 +73,8 @@ class ReservaUserCreateView(LoginRequiredMixin, CreateView):
                                    'domain': get_current_site(request)}
                         reserva.send_email(subject=subject, template=template, context=context)
                         data['url_pago'] = redirect('reservas-pago', reserva.pk).url
+                else:
+                    data['error'] = form.errors
             else:
                 data['error'] = 'Ha ocurrido un error al procesar la solicitud.'
         except Exception as e:
@@ -149,7 +151,6 @@ class ReservaUserDeleteView(DeleteView):
                 reserva = self.get_object()
                 reserva.delete()
                 messages.success(request, 'Reserva dada de baja exitosamente.')
-                # TODO: Ejecutar proceso autamatizado de aviso de baja de reserva.
         except Exception as e:
             data['error'] = e.args[0]
         print('ReservaUserDeleteView: ', data)

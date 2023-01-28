@@ -1,10 +1,12 @@
+from datetime import datetime
+
 import mercadopago
 from django import forms
 from django.db import transaction, ProgrammingError, OperationalError
 from django.forms import Form
 
 from core.models import Club, Reserva, HoraLaboral
-from parameters.models import Deporte
+from parameters.models import Deporte, ReservaParameters
 from static.credentials import MercadoPagoCredentials
 
 public_key = MercadoPagoCredentials.get_public_key()
@@ -233,6 +235,18 @@ class ReservaUserForm(forms.ModelForm):
                 reserva.preference_id = preference["id"]
                 reserva.save()
         return reserva
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        max_reservas_user = ReservaParameters.objects.get(pk=1).max_reservas_user
+        reservas = Reserva.objects.filter(email=self.data.get('email'),
+                                          fecha__gte=datetime.now().date(),
+                                          hora__gte=datetime.now().time())
+        if reservas.count() >= max_reservas_user:
+            self._errors['email'] = self.error_class(
+                ['Ya tiene {} reservas activas, no puede hacer más.'.format(max_reservas_user)])
+            del cleaned_data['email']
+        return cleaned_data
 
     class Meta:
         model = Reserva

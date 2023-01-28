@@ -218,7 +218,7 @@
                             showCancelButton: true,
                             confirmButtonColor: '#3085d6',
                             cancelButtonColor: '#d33',
-                            confirmButtonText: 'Confirmar',
+                            confirmButtonText: 'Confirmar reserva',
                             cancelButtonText: 'Cancelar',
                         }).then((result) => {
                             if (result.isConfirmed) {
@@ -230,6 +230,17 @@
                                     dataType: "json",
                                     processData: false,
                                     contentType: false,
+                                    beforeSend: function () {
+                                        Swal.fire({
+                                            position: 'top-end',
+                                            title: 'Realizando reserva',
+                                            html: 'Por favor espere...',
+                                            allowOutsideClick: false,
+                                            didOpen: () => {
+                                                Swal.showLoading()
+                                            },
+                                        });
+                                    },
                                     success: function (data) {
                                         if (!data.hasOwnProperty('error')) {
                                             Swal.fire({
@@ -237,11 +248,10 @@
                                                 icon: 'success',
                                                 title: 'Reserva realizada con éxito',
                                                 text: 'Se ha enviado un correo electrónico con la información de la reserva',
-                                                confirmButtonText: 'Aceptar',
-                                            }).then((result) => {
-                                                if (result.isConfirmed) {
-                                                    window.location.href = data['url_pago'];
-                                                }
+                                                timer: 5000,
+                                                timerProgressBar: true,
+                                            }).then(function () {
+                                                window.location.href = data['url_pago'];
                                             });
                                         } else {
                                             Swal.fire({
@@ -257,12 +267,21 @@
                             }
                         });
                     } else {
+                        let errors = []
+                        // Si data error es un objeto pushear los errores al array
+                        if (typeof data.error === 'object') {
+                            $.each(data.error, function (key, value) {
+                                errors.push(value);
+                            });
+                        } else {
+                            errors = data.error
+                        }
                         Swal.fire({
                             position: 'top-end',
                             icon: 'error',
                             title: 'Ocurrió un error',
-                            text: data['error'],
-                            confirmButtonText: 'Aceptar',
+                            text: errors,
+                            showConfirmButton: true,
                         });
                     }
                 }
