@@ -1,6 +1,7 @@
 from django.urls import path
 
 from core.views.admin.club.views import club
+from core.views.admin.evento.views import *
 from core.views.admin.index.views import IndexAdminView
 from core.views.admin.reserva.views import *
 from core.views.user.index.views import IndexView
@@ -38,4 +39,10 @@ urlpatterns = [
 
     # URLs para el proceso automatizado de reserva de cancha liberada.
     path('reservas/<uidb64>/<token>/', reserva_liberada_activate, name='reserva-liberada-activate'),
+
+    # URLs de los evetos (administración)
+    path('admin/eventos/', lambda request: redirect('admin-eventos-listado', permanent=True), name='admin-eventos'),
+    path('admin/eventos/listado/', EventoAdminListView.as_view(), name='admin-eventos-listado'),
+    path('admin/eventos/crear/', EventoAdminCreateView.as_view(), name='admin-eventos-crear'),
+    # path('admin/eventos/<int:pk>/editar/', EventoAdminUpdateView.as_view(), name='admin-eventos-editar'),
 ]

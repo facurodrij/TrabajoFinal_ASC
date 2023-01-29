@@ -412,3 +412,71 @@ class PagoReserva(models.Model):
     class Meta:
         verbose_name = 'Pago de reserva'
         verbose_name_plural = "Pagos de reservas"
+
+
+class Evento(SoftDeleteModel):
+    """
+    Modelo de los eventos.
+    """
+    nombre = models.CharField(max_length=255, verbose_name='Nombre')
+    descripcion = models.TextField(verbose_name='Descripción')
+    fecha_inicio = models.DateField(verbose_name='Fecha de inicio')
+    hora_inicio = models.TimeField(verbose_name='Hora de inicio')
+    fecha_fin = models.DateField(verbose_name='Fecha de finalización')
+    hora_fin = models.TimeField(verbose_name='Hora de finalización')
+    ticket_limitados = models.BooleanField(verbose_name='Ticket limitados', default=False,
+                                           help_text='Si se activa, se debe especificar el límite de cada variante de'
+                                                     ' ticket. Caso contrario, el límite por defecto es 100.000 por'
+                                                     ' variante.')
+    registro_deadline = models.DateField(verbose_name='Fecha límite de registro', null=True, blank=True,
+                                         help_text='Fecha límite para registrarse al evento. Si no se especifica, '
+                                                   'no hay límite.')
+    is_active = models.BooleanField(verbose_name='Activo', default=True)
+    date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
+    date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
+
+    def image_directory_path(self, filename):
+        """
+        Devuelve la ruta de la imagen de perfil del usuario.
+        """
+        return 'img/{0}/{1}/{2}'.format(self._meta.model_name, datetime.now().strftime('%Y-%m-%d'), filename)
+
+    imagen = models.ImageField(upload_to=image_directory_path, verbose_name='Imagen')
+
+    def __str__(self):
+        return self.nombre
+
+    def save(self, *args, **kwargs):
+        """Método save() sobrescrito para redimensionar la imagen."""
+        super().save(*args, **kwargs)
+        try:
+            img = Image.open(self.imagen.path)
+            if img.height > 300 or img.width > 300:
+                output_size = (300, 300)
+                img.thumbnail(output_size)
+                img.save(self.imagen.path)
+        except FileNotFoundError:
+            pass
+
+    class Meta:
+        verbose_name = 'Evento'
+        verbose_name_plural = "Eventos"
+
+
+class TicketVariante(SoftDeleteModel):
+    """
+    Modelo de las variantes de los tickets.
+    """
+    evento = models.ForeignKey('Evento', on_delete=models.PROTECT, verbose_name='Evento')
+    nombre = models.CharField(max_length=255, verbose_name='Nombre')
+    precio = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Precio')
+    total_tickets = models.PositiveIntegerField(verbose_name='Total de tickets')
+    date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
+    date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
+
+    def __str__(self):
+        return '{} - {}'.format(self.evento.nombre, self.nombre)
+
+    class Meta:
+        verbose_name = 'Variante de ticket'
+        verbose_name_plural = "Variantes de tickets"

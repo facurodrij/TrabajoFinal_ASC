@@ -2,10 +2,10 @@ from datetime import datetime
 
 import mercadopago
 from django import forms
+from django.forms import inlineformset_factory
 from django.db import transaction, ProgrammingError, OperationalError
-from django.forms import Form
 
-from core.models import Club, Reserva, HoraLaboral
+from core.models import Club, Reserva, HoraLaboral, Evento, TicketVariante
 from parameters.models import Deporte, ReservaParameters
 from static.credentials import MercadoPagoCredentials
 
@@ -149,7 +149,7 @@ class ReservaAdminForm(forms.ModelForm):
         }
 
 
-class ReservaIndexForm(Form):
+class ReservaIndexForm(forms.Form):
     """Formulario para crear una reserva. Se usa en el index para que el usuario pueda elegir la cancha."""
     try:
         deporte = forms.ChoiceField(
@@ -259,3 +259,42 @@ class ReservaUserForm(forms.ModelForm):
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su nombre'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su email'}),
         }
+
+
+class EventoForm(forms.ModelForm):
+    """Formulario para crear un evento."""
+
+    class Meta:
+        model = Evento
+        fields = '__all__'
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el nombre del evento'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Ingrese una descripción'}),
+            'fecha_inicio': forms.DateInput(attrs={'class': 'form-control'}),
+            'hora_inicio': forms.TimeInput(attrs={'class': 'form-control'}),
+            'fecha_fin': forms.DateInput(attrs={'class': 'form-control'}),
+            'hora_fin': forms.TimeInput(attrs={'class': 'form-control'}),
+            'ticket_limitados': forms.CheckboxInput(),
+            'registro_deadline': forms.DateInput(attrs={'class': 'form-control'}),
+            'imagen': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+
+
+class TicketVarianteForm(forms.ModelForm):
+    """Formulario para crear una variante de ticket."""
+
+    class Meta:
+        model = TicketVariante
+        exclude = ['is_deleted', 'deleted_at']
+        widgets = {
+            'evento': forms.Select(attrs={'disabled': True}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el nombre del ticket'}),
+            'precio': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el precio del ticket'}),
+            'total_tickets': forms.NumberInput(
+                attrs={'class': 'form-control', 'placeholder': 'Ingrese la cantidad de tickets'}),
+        }
+
+
+TicketVarianteFormSet = inlineformset_factory(
+    Evento, TicketVariante, form=TicketVarianteForm, extra=0,
+    can_delete=True, can_delete_extra=True, min_num=1, validate_min=True)
