@@ -4,6 +4,7 @@ from core.views.admin.club.views import club
 from core.views.admin.evento.views import *
 from core.views.admin.index.views import IndexAdminView
 from core.views.admin.reserva.views import *
+from core.views.user.evento.views import EventoUserDetailView
 from core.views.user.index.views import IndexView
 from core.views.user.reserva.views import *
 from parameters.views import ParametersClubFormView
@@ -38,10 +39,13 @@ urlpatterns = [
     # URLs para el proceso automatizado de reserva de cancha liberada.
     path('reservas/<uidb64>/<token>/', reserva_liberada_activate, name='reserva-liberada-activate'),
 
-    # URLs de los evetos (administración)
+    # URLs de los eventos (administración)
     path('admin/eventos/', lambda request: redirect('admin-eventos-listado', permanent=True), name='admin-eventos'),
     path('admin/eventos/listado/', EventoAdminListView.as_view(), name='admin-eventos-listado'),
     path('admin/eventos/crear/', EventoAdminCreateView.as_view(), name='admin-eventos-crear'),
     path('admin/eventos/<int:pk>/editar/', EventoAdminUpdateView.as_view(), name='admin-eventos-editar'),
     path('admin/eventos/<int:pk>/baja/', EventoAdminDeleteView.as_view(), name='admin-eventos-baja'),
+
+    # URLs de los eventos (usuarios)
+    path('eventos/<int:pk>/', EventoUserDetailView.as_view(), name='eventos-detalle'),
 ]

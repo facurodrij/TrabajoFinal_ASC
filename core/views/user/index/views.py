@@ -1,9 +1,11 @@
+from datetime import datetime
+
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
 
 from core.forms import ReservaIndexForm
-from core.models import Club
+from core.models import Club, Evento
 
 
 class IndexView(TemplateView):
@@ -15,6 +17,7 @@ class IndexView(TemplateView):
         context['title'] = 'Inicio'
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         context['reserva_form'] = ReservaIndexForm()
+        context['eventos'] = Evento.objects.filter(fecha_inicio__gte=datetime.now().date())
         return context
 
     def post(self, request, *args, **kwargs):

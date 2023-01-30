@@ -458,8 +458,8 @@ class Evento(SoftDeleteModel):
         super().save(*args, **kwargs)
         try:
             img = Image.open(self.imagen.path)
-            if img.height > 300 or img.width > 300:
-                output_size = (300, 300)
+            if img.height > 2000 or img.width > 2000:
+                output_size = (2000, 2000)
                 img.thumbnail(output_size)
                 img.save(self.imagen.path)
         except FileNotFoundError:

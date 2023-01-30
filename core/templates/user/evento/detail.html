@@ -1,0 +1,28 @@
+{% extends "extends/user/base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header bg-primary">
+                <h3 class="card-title">{{ title }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h2>{{ evento }}</h2>
+                        <!-- Imagen del Evento -->
+                        <img src="{{ evento.get_imagen }}" alt="Imagen del Evento" class="img-fluid">
+                        <p>{{ evento.descripcion }}</p>
+                    </div>
+                    <div class="col">
+                        <h5>Comprar Tickets</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+{% endblock body_js %}
