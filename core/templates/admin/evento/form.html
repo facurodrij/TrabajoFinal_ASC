@@ -22,6 +22,30 @@
                 text-align: right;
             }
         }
+
+        .image-area {
+            border: 2px dashed rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            position: relative;
+        }
+
+        .image-area::before {
+            content: 'Resultado de la imagen subida';
+            color: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            text-transform: uppercase;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8rem;
+            z-index: 1;
+        }
+
+        .image-area img {
+            z-index: 2;
+            position: relative;
+        }
     </style>
 {% endblock %}
 
@@ -139,10 +163,24 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="id_imagen" class="col-form-label col-md-3 col-sm-3 label-align">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">
                                     {{ form.imagen.label }} <span class="text-danger">*</span></label>
                                 <div class="col-sm-7">
-                                    {{ form.imagen }}
+                                    <div class="custom-file" id="customFile" lang="es">
+                                        {{ form.imagen }}
+                                        <label class="custom-file-label" for="id_imagen">
+                                            <span class="text-black-50">Seleccione una imagen</span>
+                                        </label>
+                                    </div>
+                                    <!-- Uploaded image area-->
+                                    <p class="font-italic text-black-50 text-center mt-2">
+                                        La imagen subida se representará dentro del siguiente cuadro.
+                                    </p>
+                                    <div class="image-area mt-3">
+                                        <img id="imageResult" src="#" alt=""
+                                             style="max-height: 300px; max-width: 300px;"
+                                             class="img-fluid rounded mx-auto d-block"/>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -166,8 +204,7 @@
                                     <th>Nombre <span style="color: red;" class="required">*</span></th>
                                     <th>Precio <span style="color: red;" class="required">*</span></th>
                                     <th>Total de tickets <span style="color: red;" class="required">*</span></th>
-                                    <th>Delete?</th>
-                                    <th>Custom Delete btn</th>
+                                    <th></th>
                                     </thead>
                                     <tbody id="item-variants">  <!-- id="item-inlineformsetname" -->
                                     {% for formss in formset %}
@@ -181,42 +218,15 @@
                                                     {% for error in field.errors %}
                                                         <span style="color: red">{{ error }}</span>
                                                     {% endfor %}
-                                                    {% comment %} {{ field.DELETE }} {% endcomment %}
                                                 </td>
                                             {% endfor %}
                                             {% if formss.instance.pk %}
                                                 <td>
-                                                    <button type="button" class="btn btn-danger" data-toggle="modal"
-                                                            data-target="#exampleModal{{ formss.instance.pk }}">
-                                                        Delete
+                                                    <button type="button" class="btn btn-danger"
+                                                            value="{{ formss.instance.pk }}"
+                                                            name="delete_ticketvariante">
+                                                        <i class="fa fa-trash"></i>
                                                     </button>
-                                                    <!-- Modal -->
-                                                    <div class="modal fade" id="exampleModal{{ formss.instance.pk }}"
-                                                         tabindex="-1" role="dialog"
-                                                         aria-labelledby="exampleModalLabel{{ formss.instance.pk }}"
-                                                         aria-hidden="true">
-                                                        <div class="modal-dialog" role="document">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title"
-                                                                        id="exampleModalLabel{{ formss.instance.pk }}">
-                                                                        Are Your Sure You Want To Delete This?</h5>
-                                                                    <button type="button" class="close"
-                                                                            data-dismiss="modal" aria-label="Close">
-                                                                        <span aria-hidden="true">&times;</span>
-                                                                    </button>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <a href="{% url 'products:delete_variant' formss.instance.pk %}"
-                                                                       type="button" class="btn btn-primary">Yes,
-                                                                        Delete</a>
-                                                                    <button type="button" class="btn btn-secondary"
-                                                                            data-dismiss="modal">Close
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
                                                 </td>
                                             {% endif %}
                                         </tr>
@@ -322,30 +332,26 @@
                 "date": registro_deadline,
             });
         {% endif %}
-        {#// evento_form on submit#}
-        {#$('#evento_form').on('submit', function (e) {#}
-        {#    e.preventDefault();#}
-        {#    let form = new FormData(this);#}
-        {#    form.append('action', '{{ action }}');#}
-        {#    $.ajax({#}
-        {#        url: '{% url 'admin-eventos-crear' %}',#}
-        {#        type: 'POST',#}
-        {#        data: form,#}
-        {#        dataType: 'json',#}
-        {#        processData: false,#}
-        {#        contentType: false,#}
-        {#        success: function (data) {#}
-        {#            if (!data.hasOwnProperty('error')) {#}
-        {#                location.reload();#}
-        {#            } else {#}
-        {#                alert(data.error);#}
-        {#            }#}
-        {#        },#}
-        {#        error: function (data) {#}
-        {#            alert(data.message);#}
-        {#        }#}
-        {#    });#}
-        {# });#}
+        // Imagen preview
+        document.querySelector('.custom-file-input').addEventListener('change', function (e) {
+            const fileName = document.getElementById("id_imagen").files[0].name;
+            const nextSibling = e.target.nextElementSibling;
+            nextSibling.innerText = fileName
+            const reader = new FileReader();
+            reader.onload = function () {
+                const output = document.getElementById('imageResult');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        });
+        {% if action == 'edit' %}
+            // Obtener el nombre del archivo de la imagen
+            const imagen = "{{ object.get_imagen | default_if_none:'' }}";
+            const filename = imagen.split('\\').pop().split('/').pop();
+
+            $('#id_imagen').val('').next().html('<span class="text-muted"> ' + filename + '</span>');
+            $('#imageResult').attr('src', '{{ object.get_imagen }}');
+        {% endif %}
     </script>
     <script>
         $(document).ready(function () {

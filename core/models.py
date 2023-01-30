@@ -446,6 +446,17 @@ class Evento(SoftDeleteModel):
     def __str__(self):
         return self.nombre
 
+    def get_imagen(self):
+        """
+        Devuelve la imagen de la persona.
+        """
+        try:
+            # Si existe una imagen en self.imagen.url, la devuelve.
+            Image.open(self.imagen.path)
+            return self.imagen.url
+        except FileNotFoundError:
+            return settings.STATIC_URL + 'img/empty.svg'
+
     def save(self, *args, **kwargs):
         """Método save() sobrescrito para redimensionar la imagen."""
         super().save(*args, **kwargs)

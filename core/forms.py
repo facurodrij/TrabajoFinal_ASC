@@ -263,6 +263,9 @@ class ReservaUserForm(forms.ModelForm):
 
 class EventoForm(forms.ModelForm):
     """Formulario para crear un evento."""
+    imagen = forms.ImageField(
+        required=True,
+        widget=forms.FileInput(attrs={'class': 'custom-file-input'}))
 
     class Meta:
         model = Evento
@@ -276,7 +279,6 @@ class EventoForm(forms.ModelForm):
             'hora_fin': forms.TimeInput(attrs={'class': 'form-control'}),
             'ticket_limitados': forms.CheckboxInput(),
             'registro_deadline': forms.DateInput(attrs={'class': 'form-control'}),
-            'imagen': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
 
@@ -297,4 +299,4 @@ class TicketVarianteForm(forms.ModelForm):
 
 TicketVarianteFormSet = inlineformset_factory(
     Evento, TicketVariante, form=TicketVarianteForm, extra=0,
-    can_delete=True, can_delete_extra=True, min_num=1, validate_min=True)
+    can_delete=False, can_delete_extra=False, min_num=1, validate_min=True)
