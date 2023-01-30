@@ -32,6 +32,9 @@
                                         <a href="{% url 'admin-eventos-editar' evento.pk %}" class="btn btn-warning">
                                             <i class="fas fa-edit"></i>
                                         </a>
+                                        <a href="{% url 'admin-eventos-baja' evento.pk %}" class="btn btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             {% endfor %}

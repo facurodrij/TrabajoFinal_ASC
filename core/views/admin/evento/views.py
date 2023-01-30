@@ -94,3 +94,23 @@ class EventoAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, EventoI
         else:
             return {'ticketvariante': TicketVarianteFormSet(self.request.POST or None, instance=self.object,
                                                             prefix='ticketvariante')}
+
+
+class EventoAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = Evento
+    template_name = 'admin/evento/delete.html'
+    context_object_name = 'evento'
+    permission_required = 'core.delete_evento'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Baja de Evento'
+        return context
+
+    def post(self, request, *args, **kwargs):
+        evento = self.get_object()
+        with transaction.atomic():
+            TicketVariante.objects.filter(evento=evento).delete()
+            evento.delete()
+            messages.success(request, 'Evento dado de baja correctamente')
+        return redirect('admin-eventos-listado')

@@ -31,9 +31,7 @@ urlpatterns = [
     path('reservas/listado/', ReservaUserListView.as_view(), name='reservas-listado'),
     path('reservas/crear/', ReservaUserCreateView.as_view(), name='reservas-crear'),
     path('reservas/<uuid:pk>/', ReservaUserDetailView.as_view(), name='reservas-detalle'),
-    # path('reservas/<int:pk>/editar', ReservaUpdateView.as_view(), name='reservas-editar'),
     path('reservas/<uuid:pk>/baja/', ReservaUserDeleteView.as_view(), name='reservas-baja'),
-    # path('reservas/ajax/', reserva_ajax, name='reservas-ajax'),
     path('reservas/<uuid:pk>/pago/', ReservaUserPaymentView.as_view(), name='reservas-pago'),
     path('reservas/checkout/', ReservaCheckoutView.as_view(), name='reservas-checkout'),
 
@@ -45,4 +43,5 @@ urlpatterns = [
     path('admin/eventos/listado/', EventoAdminListView.as_view(), name='admin-eventos-listado'),
     path('admin/eventos/crear/', EventoAdminCreateView.as_view(), name='admin-eventos-crear'),
     path('admin/eventos/<int:pk>/editar/', EventoAdminUpdateView.as_view(), name='admin-eventos-editar'),
+    path('admin/eventos/<int:pk>/baja/', EventoAdminDeleteView.as_view(), name='admin-eventos-baja'),
 ]

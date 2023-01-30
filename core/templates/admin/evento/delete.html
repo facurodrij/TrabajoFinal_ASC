@@ -1,0 +1,42 @@
+{% extends "extends/admin/base.html" %}
+{% load static %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin-eventos-listado' %}">Eventos</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-outline card-danger">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fa-solid fa-trash"></i>
+                            {{ title }}
+                        </h3>
+                    </div>
+                    <form id="deleteForm" method="post">
+                        <div class="card-body">
+                            {% csrf_token %}
+                            <p>¿Está seguro que desea dar de baja al evento <strong>{{ evento }}</strong>?</p>
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-danger float-right">
+                                <i class="fa-solid fa-trash"></i>
+                                Dar de baja
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+{% endblock body_js %}
