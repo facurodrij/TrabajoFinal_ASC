@@ -56,7 +56,7 @@
                 <div class="card">
                     <div class="card-header bg-primary">
                         <h4 class="card-title">
-                            <i class="fas fa-calendar-plus"></i>
+                            <i class="fas fa-ticket"></i>
                             {{ title }}
                         </h4>
                     </div>
@@ -151,18 +151,6 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <div class="col-sm-7 offset-sm-3">
-                                    <div class="icheck-primary d-inline">
-                                        {{ form.ticket_limitados }}
-                                        <label for="id_ticket_limitados">
-                                            {{ form.ticket_limitados.label }}</label>
-                                        <small class="form-text text-muted">
-                                            {{ form.ticket_limitados.help_text }}
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group row">
                                 <label class="col-form-label col-md-3 col-sm-3 label-align">
                                     {{ form.imagen.label }} <span class="text-danger">*</span></label>
                                 <div class="col-sm-7">
@@ -198,9 +186,9 @@
                                 </tr>
                             </script>
                             <div class="p-3">
-                                <h4 class="ml-3">Variantes de ticket</h4>
+                                <h2 class="ml-1">Variación de Tickets</h2>
                                 <table class="table table-bordered">
-                                    <thead class="text-secondary">
+                                    <thead class="text-secondary thead-light">
                                     <th>Nombre <span style="color: red;" class="required">*</span></th>
                                     <th>Precio <span style="color: red;" class="required">*</span></th>
                                     <th>Total de tickets <span style="color: red;" class="required">*</span></th>
@@ -368,4 +356,20 @@
             });
         });
     </script>
+    {% if form.errors %}
+        <script type="text/javascript">
+            let errors = []
+            {% for key, value in form.errors.items %}
+                errors.push('{{ value|join:" " }}')
+            {% endfor %}
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Ocurrió un error',
+                text: errors.join('\n'),
+                showConfirmButton: true,
+            })
+            document.body.classList.remove('swal2-height-auto');
+        </script>
+    {% endif %}
 {% endblock body_js %}

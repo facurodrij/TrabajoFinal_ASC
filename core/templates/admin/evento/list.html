@@ -29,6 +29,9 @@
                                         <a href="#" class="btn btn-info">
                                             <i class="fas fa-eye"></i>
                                         </a>
+                                        <a href="{% url 'admin-eventos-editar' evento.pk %}" class="btn btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             {% endfor %}

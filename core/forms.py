@@ -272,12 +272,12 @@ class EventoForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el nombre del evento'}),
-            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Ingrese una descripción'}),
+            'descripcion': forms.Textarea(
+                attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Ingrese una descripción'}),
             'fecha_inicio': forms.DateInput(attrs={'class': 'form-control'}),
             'hora_inicio': forms.TimeInput(attrs={'class': 'form-control'}),
             'fecha_fin': forms.DateInput(attrs={'class': 'form-control'}),
             'hora_fin': forms.TimeInput(attrs={'class': 'form-control'}),
-            'ticket_limitados': forms.CheckboxInput(),
             'registro_deadline': forms.DateInput(attrs={'class': 'form-control'}),
         }
 

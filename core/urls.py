@@ -44,5 +44,5 @@ urlpatterns = [
     path('admin/eventos/', lambda request: redirect('admin-eventos-listado', permanent=True), name='admin-eventos'),
     path('admin/eventos/listado/', EventoAdminListView.as_view(), name='admin-eventos-listado'),
     path('admin/eventos/crear/', EventoAdminCreateView.as_view(), name='admin-eventos-crear'),
-    # path('admin/eventos/<int:pk>/editar/', EventoAdminUpdateView.as_view(), name='admin-eventos-editar'),
+    path('admin/eventos/<int:pk>/editar/', EventoAdminUpdateView.as_view(), name='admin-eventos-editar'),
 ]

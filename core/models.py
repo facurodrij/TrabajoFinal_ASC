@@ -424,10 +424,6 @@ class Evento(SoftDeleteModel):
     hora_inicio = models.TimeField(verbose_name='Hora de inicio')
     fecha_fin = models.DateField(verbose_name='Fecha de finalización')
     hora_fin = models.TimeField(verbose_name='Hora de finalización')
-    ticket_limitados = models.BooleanField(verbose_name='Ticket limitados', default=False,
-                                           help_text='Si se activa, se debe especificar el límite de cada variante de'
-                                                     ' ticket. Caso contrario, el límite por defecto es 100.000 por'
-                                                     ' variante.')
     registro_deadline = models.DateField(verbose_name='Fecha límite de registro', null=True, blank=True,
                                          help_text='Fecha límite para registrarse al evento. Si no se especifica, '
                                                    'no hay límite.')
@@ -472,6 +468,13 @@ class Evento(SoftDeleteModel):
     class Meta:
         verbose_name = 'Evento'
         verbose_name_plural = "Eventos"
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(fecha_inicio__lte=models.F('fecha_fin')),
+                name='fecha_inicio_menor_fecha_fin',
+                violation_error_message='La fecha de inicio debe ser menor o igual a la fecha de finalización.'
+            )
+        ]
 
 
 class TicketVariante(SoftDeleteModel):

@@ -75,3 +75,22 @@ class EventoAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, EventoI
             return {'ticketvariante': TicketVarianteFormSet(prefix='ticketvariante')}
         else:
             return {'ticketvariante': TicketVarianteFormSet(self.request.POST or None, prefix='ticketvariante')}
+
+
+class EventoAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, EventoInline, UpdateView):
+    permission_required = 'core.change_evento'
+    success_url = reverse_lazy('admin-eventos-listado')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Editar Evento'
+        context['named_formsets'] = self.get_named_formsets()
+        context['action'] = 'edit'
+        return context
+
+    def get_named_formsets(self):
+        if self.request.method == "GET":
+            return {'ticketvariante': TicketVarianteFormSet(instance=self.object, prefix='ticketvariante')}
+        else:
+            return {'ticketvariante': TicketVarianteFormSet(self.request.POST or None, instance=self.object,
+                                                            prefix='ticketvariante')}
