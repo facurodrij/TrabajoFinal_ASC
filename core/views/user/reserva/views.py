@@ -121,6 +121,8 @@ class ReservaUserDetailView(LoginRequiredMixin, DetailView):
     template_name = 'user/reserva/detail.html'
     context_object_name = 'reserva'
 
+    # TODO: Agregar comprobante del pago si existe.
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_anonymous:
             reserva = self.get_object()
@@ -226,6 +228,7 @@ class ReservaCheckoutView(TemplateView):
     Vista para realizar el pago de una reserva con MercadoPago.
     """
     template_name = 'user/reserva/checkout.html'
+    # TODO: Revisar si es necesario el template
 
     def get(self, request, *args, **kwargs):
         if 'status' in request.GET:
@@ -274,7 +277,8 @@ class ReservaCheckoutView(TemplateView):
                 messages.error(request, 'Su pago ha sido rechazado.')
                 return redirect('index')
         else:
-            return super().get(request, *args, **kwargs)
+            messages.error(request, 'Error al realizar el pago.')
+            return redirect('index')
 
 
 def reserva_liberada_activate(request, uidb64, token):

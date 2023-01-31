@@ -4,7 +4,7 @@ from core.views.admin.club.views import club
 from core.views.admin.evento.views import *
 from core.views.admin.index.views import IndexAdminView
 from core.views.admin.reserva.views import *
-from core.views.user.evento.views import EventoUserDetailView
+from core.views.user.evento.views import EventoUserDetailView, EventoUserPaymentView, EventoCheckoutView
 from core.views.user.index.views import IndexView
 from core.views.user.reserva.views import *
 from parameters.views import ParametersClubFormView
@@ -48,4 +48,8 @@ urlpatterns = [
 
     # URLs de los eventos (usuarios)
     path('eventos/<int:pk>/', EventoUserDetailView.as_view(), name='eventos-detalle'),
+
+    # URLs para la compra de entradas de eventos.
+    path('eventos/<int:pk>/pago/', EventoUserPaymentView.as_view(), name='eventos-pago'),
+    path('eventos/<int:pk>/checkout/', EventoCheckoutView.as_view(), name='eventos-checkout'),
 ]

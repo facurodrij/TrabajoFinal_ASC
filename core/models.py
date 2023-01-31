@@ -453,6 +453,14 @@ class Evento(SoftDeleteModel):
         except FileNotFoundError:
             return settings.STATIC_URL + 'img/empty.svg'
 
+    def get_expiration_date(self, isoformat=True):
+        """
+        Devuelve la fecha de expiración del evento.
+        """
+        if isoformat:
+            return self.registro_deadline.isoformat() if self.registro_deadline else self.fecha_inicio.isoformat()
+        return self.registro_deadline if self.registro_deadline else self.fecha_inicio
+
     def save(self, *args, **kwargs):
         """Método save() sobrescrito para redimensionar la imagen."""
         super().save(*args, **kwargs)
@@ -489,8 +497,99 @@ class TicketVariante(SoftDeleteModel):
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
 
     def __str__(self):
-        return '{} - {}'.format(self.evento.nombre, self.nombre)
+        return '{} - ${}'.format(self.nombre, self.precio)
 
     class Meta:
         verbose_name = 'Variante de ticket'
         verbose_name_plural = "Variantes de tickets"
+
+
+class VentaTicket(SoftDeleteModel):
+    """
+    Modelo de las ventas de tickets.
+    """
+    email = models.EmailField(verbose_name='Email')
+    total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total')
+    pagado = models.BooleanField(default=False, verbose_name='Pagado', help_text='Marcar si el cliente ya pagó')
+    preference_id = models.CharField(max_length=255, null=True, blank=True, verbose_name='Preference ID',
+                                     help_text='ID de la preferencia de pago de Mercado Pago')
+    date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
+    date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
+
+    def __str__(self):
+        return self.pk
+
+    def toJSON(self):
+        """
+        Devuelve el modelo en formato JSON.
+        """
+        item = model_to_dict(self, exclude=['total'])
+        item['total'] = str(self.total)
+        return item
+
+    class Meta:
+        verbose_name = 'Venta de ticket'
+        verbose_name_plural = "Ventas de tickets"
+
+
+class DetalleVentaTicket(SoftDeleteModel):
+    """
+    Modelo de los detalles de las ventas de tickets.
+    """
+    venta_ticket = models.ForeignKey('VentaTicket', on_delete=models.PROTECT, verbose_name='Venta')
+    ticket_variante = models.ForeignKey('TicketVariante', on_delete=models.PROTECT, verbose_name='Variante')
+    cantidad = models.PositiveIntegerField(verbose_name='Cantidad')
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Subtotal')
+    date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
+    date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
+
+    def __str__(self):
+        return self.pk
+
+    def toJSON(self):
+        """
+        Devuelve el modelo en formato JSON.
+        """
+        item = model_to_dict(self, exclude=['subtotal'])
+        item['subtotal'] = str(self.subtotal)
+        return item
+
+    class Meta:
+        verbose_name = 'Detalle de venta de ticket'
+        verbose_name_plural = "Detalles de ventas de tickets"
+
+
+class Ticket(SoftDeleteModel):
+    """
+    Modelo de los tickets.
+    """
+    venta = models.ForeignKey('VentaTicket', on_delete=models.PROTECT, verbose_name='Venta')
+    variante = models.ForeignKey('TicketVariante', on_delete=models.PROTECT, verbose_name='Variante')
+    nombre = models.CharField(max_length=255, verbose_name='Nombre')
+    is_used = models.BooleanField(default=False, verbose_name='Usado')
+    date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
+    date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
+
+    def __str__(self):
+        return self.pk
+
+    # Generar código qr del ticket con el enlace al detalle del ticket.
+    # def get_qr_code(self):
+    #     """
+    #     Devuelve el código qr del ticket.
+    #     """
+    #     qr = qrcode.QRCode(
+    #         version=1,
+    #         error_correction=qrcode.constants.ERROR_CORRECT_L,
+    #         box_size=10,
+    #         border=4,
+    #     )
+    #     qr.add_data('http://localhost:8000/ticket/detalle/{}'.format(self.pk))
+    #     qr.make(fit=True)
+    #     img = qr.make_image(fill_color="black", back_color="white")
+    #     img.save('media/img/ticket/{}.png'.format(self.pk))
+    #     return 'img/ticket/{}.png'.format(self.pk)
+
+    class Meta:
+        verbose_name = 'Ticket'
+        verbose_name_plural = "Tickets"

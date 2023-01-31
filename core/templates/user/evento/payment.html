@@ -1,0 +1,22 @@
+{% extends "extends/user/base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="cho-container"></div>
+{% endblock content %}
+
+{% block body_js %}
+        <!-- MercadoPago SDK -->
+        <script src="https://sdk.mercadopago.com/js/v2"></script>
+        <script>
+            const mercadopago = new MercadoPago('{{ public_key }}', {
+                locale: 'es-AR'
+            });
+            mercadopago.checkout({
+                preference: {
+                    id: '{{ preference_id }}'
+                },
+                autoOpen: true,
+            });
+        </script>
+{% endblock body_js %}

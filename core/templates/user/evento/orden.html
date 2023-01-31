@@ -16,21 +16,20 @@
                         <p>{{ evento.descripcion }}</p>
                     </div>
                     <div class="col">
-                        <h3>Comprar Tickets</h3>
+                        <h3>Detalle de la Compra</h3>
+                        {% for item in items %}
+                            <p>{{ item.ticket_variante }}</p>
+                            <p>{{ item.cantidad }}</p>
+                            <p>{{ item.subtotal }}</p>
+                        {% endfor %}
+                        <p>Total: {{ total }}</p>
                         <form method="post">
+                            <input type="hidden" name="action" value="pago">
                             {% csrf_token %}
-                            <!-- Input action con value orden -->
-                            <input type="hidden" name="action" value="orden">
-                            {% for ticket_variante in ticket_variante_list %}
-                                <label for="ticket_variante">
-                                    <!-- Input de cantidad con referencia al ticket_variante -->
-                                    <input type="number" name="cantidad_{{ ticket_variante.id }}" min="0" value="0" required>
-                                    {{ ticket_variante.nombre }} - ${{ ticket_variante.precio }}
-                                </label>
-                                <br>
+                            {% for item in items %}
+                                <input type="hidden" name="cantidad_{{ item.ticket_variante_id }}" value="{{ item.cantidad }}">
                             {% endfor %}
-                            <br>
-                            <input type="submit" value="Comprar" class="btn btn-primary">
+                            <input type="submit" value="Pagar" class="btn btn-primary">
                         </form>
                     </div>
                 </div>
