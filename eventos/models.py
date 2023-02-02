@@ -1,10 +1,24 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from PIL import Image
 from django.conf import settings
 from django.db import models
 from django.forms import model_to_dict
 from django_softdelete.models import SoftDeleteModel
+
+
+class Parameters(models.Model):
+    club = models.OneToOneField('core.Club', on_delete=models.PROTECT, verbose_name='Club',
+                                related_name='evento_parameters')
+    minutos_expiracion_venta = models.PositiveSmallIntegerField(default=5,
+                                                                verbose_name='Minutos de expiración por falta de pago',
+                                                                help_text=
+                                                                'La venta de tickets debe ser pagada dentro de esta cantidad de'
+                                                                ' minutos, de lo contrario se cancelará.')
+
+    class Meta:
+        verbose_name = 'Parámetro de evento'
+        verbose_name_plural = "Parámetros de eventos"
 
 
 class Evento(SoftDeleteModel):
@@ -80,6 +94,14 @@ class Evento(SoftDeleteModel):
         except FileNotFoundError:
             pass
 
+    def toJSON(self):
+        """
+        Devuelve el objeto en formato JSON.
+        """
+        item = model_to_dict(self, exclude=['imagen'])
+        item['imagen'] = self.get_imagen()
+        return item
+
     class Meta:
         verbose_name = 'Evento'
         verbose_name_plural = "Eventos"
@@ -106,6 +128,15 @@ class TicketVariante(SoftDeleteModel):
     def __str__(self):
         return '{} - ${}'.format(self.nombre, self.precio)
 
+    def toJSON(self):
+        """
+        Devuelve el objeto en formato JSON.
+        """
+        item = model_to_dict(self, exclude=['precio'])
+        item['evento'] = self.evento.toJSON()
+        item['precio'] = self.precio.__str__()
+        return item
+
     class Meta:
         verbose_name = 'Variante de ticket'
         verbose_name_plural = "Variantes de tickets"
@@ -115,7 +146,7 @@ class Ticket(SoftDeleteModel):
     """
     Modelo de los tickets.
     """
-    venta = models.ForeignKey('eventos.Venta', on_delete=models.PROTECT, verbose_name='Venta')
+    venta_ticket = models.ForeignKey('eventos.VentaTicket', on_delete=models.PROTECT, verbose_name='Venta')
     ticket_variante = models.ForeignKey('eventos.TicketVariante', on_delete=models.PROTECT,
                                         verbose_name='Variante de ticket')
     nombre = models.CharField(max_length=255, verbose_name='Nombre del cliente')
@@ -126,12 +157,18 @@ class Ticket(SoftDeleteModel):
     def __str__(self):
         return self.pk
 
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['venta_ticket'] = self.venta_ticket.toJSON()
+        item['ticket_variante'] = self.ticket_variante.toJSON()
+        return item
+
     class Meta:
         verbose_name = 'Ticket'
         verbose_name_plural = "Tickets"
 
 
-class Venta(SoftDeleteModel):
+class VentaTicket(SoftDeleteModel):
     """
     Modelo de las ventas de tickets.
     """
@@ -146,13 +183,26 @@ class Venta(SoftDeleteModel):
     def __str__(self):
         return self.pk
 
+    def get_expiration_date(self, isoformat=True):
+        """
+        Devuelve la fecha de expiración de la venta.
+        """
+        minutos = Parameters.objects.get(club_id=1).minutos_expiracion_venta
+        return (self.date_created + timedelta(minutes=minutos)).isoformat() if isoformat else \
+            self.date_created + timedelta(minutes=minutos)
+
+    def get_related_objects(self):
+        """
+        Devuelve los objetos relacionados con la venta.
+        """
+        return self.ticket_set.all()
+
     def toJSON(self):
         """
         Devuelve el modelo en formato JSON.
         """
         item = model_to_dict(self, exclude=['total'])
-        item['total'] = str(self.total)
-
+        item['total'] = self.total.__str__()
         return item
 
     class Meta:
@@ -160,11 +210,11 @@ class Venta(SoftDeleteModel):
         verbose_name_plural = "Ventas de tickets"
 
 
-class ItemVenta(models.Model):
+class ItemVentaTicket(models.Model):
     """
     Modelo de los detalles de las ventas de tickets.
     """
-    venta_ticket = models.ForeignKey('eventos.Venta', on_delete=models.PROTECT, verbose_name='Venta')
+    venta_ticket = models.ForeignKey('eventos.VentaTicket', on_delete=models.PROTECT, verbose_name='Venta')
     ticket_variante = models.ForeignKey('eventos.TicketVariante', on_delete=models.PROTECT,
                                         verbose_name='Variantes de ticket')
     cantidad = models.PositiveIntegerField(verbose_name='Cantidad')
@@ -178,20 +228,38 @@ class ItemVenta(models.Model):
         Devuelve el modelo en formato JSON.
         """
         item = model_to_dict(self, exclude=['subtotal'])
-        item['subtotal'] = str(self.subtotal)
+        item['subtotal'] = self.subtotal.__str__()
         return item
 
     class Meta:
         verbose_name = 'Item de venta de ticket'
         verbose_name_plural = "Items de ventas de tickets"
 
-# Modelo para la configuración de los eventos. Cada club puede tener una configuración de eventos.
-# class Parameters(models.Model):
-#     club = models.OneToOneField('core.Club', on_delete=models.PROTECT, verbose_name='Club')
-#
-#     def __str__(self):
-#         return self.club.nombre
-#
-#     class Meta:
-#         verbose_name = 'Parámetro'
-#         verbose_name_plural = "Parámetros"
+
+class PagoVentaTicket(models.Model):
+    """
+    Modelo de los pagos de las ventas de tickets.
+    """
+    venta_ticket = models.OneToOneField('eventos.VentaTicket', on_delete=models.PROTECT, verbose_name='Venta de ticket')
+    payment_id = models.CharField(max_length=255, verbose_name='Payment ID')
+    status = models.CharField(max_length=50, verbose_name='Estado')
+    status_detail = models.CharField(max_length=255, verbose_name='Detalle del estado')
+    transaction_amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Monto de la transacción')
+    date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
+    date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
+    date_approved = models.DateTimeField(verbose_name='Fecha de aprobación')
+
+    def __str__(self):
+        return self.pk
+
+    def toJSON(self):
+        """
+        Devuelve el modelo en formato JSON.
+        """
+        item = model_to_dict(self)
+        item['venta_ticket'] = self.venta_ticket.toJSON()
+        return item
+
+    class Meta:
+        verbose_name = 'Pago de venta de ticket'
+        verbose_name_plural = "Pagos de ventas de tickets"

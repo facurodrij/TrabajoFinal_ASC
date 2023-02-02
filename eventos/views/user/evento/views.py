@@ -1,6 +1,9 @@
+from datetime import datetime
+
 import mercadopago
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.sites.shortcuts import get_current_site
 from django.db import transaction
 from django.shortcuts import redirect, render
 from django.views import View
@@ -8,7 +11,8 @@ from django.views.generic import TemplateView, DetailView
 from num2words import num2words
 
 from core.models import Club
-from eventos.models import Evento, TicketVariante, Venta, Ticket, ItemVenta
+from core.utilities import send_email
+from eventos.models import Evento, TicketVariante, VentaTicket, Ticket, ItemVentaTicket, PagoVentaTicket
 from static.credentials import MercadoPagoCredentials  # Aquí debería insertar sus credenciales de MercadoPago
 
 public_key = MercadoPagoCredentials.get_public_key()
@@ -104,6 +108,32 @@ class EventoUserPaymentView(LoginRequiredMixin, TemplateView):
         if items is None or tickets is None or total is None:
             messages.error(request, 'El pago del ticket no se encuentra disponible.')
             return redirect('index')
+        with transaction.atomic():
+            # Se crea la venta
+            venta = VentaTicket.objects.create(
+                email=request.user.email,
+                total=total,
+                pagado=False,
+            )
+            # Se crean los items de la venta
+            for item in items:
+                ItemVentaTicket.objects.create(
+                    venta_ticket=venta,
+                    ticket_variante_id=item['ticket_variante_id'],
+                    cantidad=item['cantidad'],
+                    subtotal=item['subtotal']
+                )
+            # Se crean los tickets
+            for ticket in tickets:
+                Ticket.objects.create(
+                    venta_ticket=venta,
+                    ticket_variante_id=ticket['ticket_variante_id'],
+                    nombre=ticket['nombre'],
+                    is_used=False
+                )
+            # Se guarda la venta en la sesión
+            request.session['venta_id'] = venta.pk
+
         # Se crea el pago en MercadoPago
         preference = {
             "items": [
@@ -127,13 +157,14 @@ class EventoUserPaymentView(LoginRequiredMixin, TemplateView):
             "installments": 1,
             "binary_mode": True,
             "expires": True,
-            "expiration_date_from": evento.date_created.isoformat(),
-            "expiration_date_to": evento.get_expiration_date(),
+            "expiration_date_from": venta.date_created.isoformat(),
+            "expiration_date_to": venta.get_expiration_date(),
             "back_urls": {
                 "success": "http://127.0.0.1:8000/eventos/{}/checkout/".format(evento.pk),
                 "failure": "http://127.0.0.1:8000/eventos/{}/checkout/".format(evento.pk),
             },
             "auto_return": "approved",
+            "external_reference": venta.pk
         }
         preference_result = sdk.preference().create(preference)
         preference_id = preference_result['response']['id']
@@ -145,47 +176,72 @@ class EventoUserPaymentView(LoginRequiredMixin, TemplateView):
             'club_logo': Club.objects.get(pk=1).get_imagen()})
 
 
-class EventoCheckoutView(LoginRequiredMixin, View):
+class EventoCheckoutView(View):
+    """
+    Vista para obtener el pago de un evento y crear el pago en la base de datos.
+    """
 
     def get(self, request, *args, **kwargs):
-        items = request.session.get('items')
-        tickets = request.session.get('tickets')
-        total = request.session.get('total')
-        evento = Evento.objects.get(pk=kwargs['pk'])
-        if items is None or tickets is None or total is None:
-            messages.error(request, 'El pago del ticket no se encuentra disponible.')
-            return redirect('index')
         try:
             if 'status' in request.GET:
                 if request.GET['status'] == 'approved':
                     with transaction.atomic():
-                        venta_ticket = Venta.objects.create(
-                            email=request.user.email,
-                            total=total,
-                            preference_id=request.GET['preference_id'],
-                            pagado=True,
+                        venta_ticket = VentaTicket.objects.get(pk=request.GET['external_reference'])
+                        payment_info = sdk.payment().get(request.GET['payment_id'])
+                        pago_venta_ticket = PagoVentaTicket.objects.create(
+                            venta_ticket=venta_ticket,
+                            payment_id=request.GET['payment_id'],
+                            status=payment_info['response']['status'],
+                            status_detail=payment_info['response']['status_detail'],
+                            transaction_amount=payment_info['response']['transaction_amount'],
+                            date_approved=payment_info['response']['date_approved'],
                         )
-                        for item in items:
-                            ticket_variante = TicketVariante.objects.get(pk=item['ticket_variante_id'])
-                            ItemVenta.objects.create(
-                                venta_ticket=venta_ticket,
-                                ticket_variante=ticket_variante,
-                                cantidad=item['cantidad'],
-                                subtotal=item['subtotal'],
-                            )
-                        for ticket in tickets:
-                            ticket_variante = TicketVariante.objects.get(pk=ticket['ticket_variante_id'])
-                            Ticket.objects.create(
-                                venta=venta_ticket,
-                                variante=ticket_variante,
-                                nombre=ticket['nombre'],
-                            )
-                        messages.success(request, 'El pago se ha realizado correctamente.')
-                        # TODO: Generar ticket y enviar qr por mail
+                        venta_ticket.pagado = True
+                        venta_ticket.save()
+                        subject = 'Compra de tickets - Pago Aprobado'
+                        template = 'email/payment_approved.html'
+                        context = {
+                            'venta_ticket': venta_ticket,
+                            'pago_venta_ticket': pago_venta_ticket,
+                            'protocol': 'https' if request.is_secure() else 'http',
+                            'domain': get_current_site(request)
+                        }
+                        send_email(subject, template, context, venta_ticket.email)
+                        messages.success(request, 'El pago se ha realizado correctamente. '
+                                                  'Se ha enviado un correo de confirmación.')
+                    return redirect('index')
+                else:
+                    messages.error(request, 'Error al realizar el pago.')
                     return redirect('index')
             else:
                 messages.error(request, 'Error al realizar el pago.')
                 return redirect('index')
         except Exception as e:
             messages.error(request, 'Error al realizar el pago.')
+            return redirect('index')
+
+
+class VentaTicketUserReceiptView(TemplateView):
+    """
+    Vista para obtener el comprobante de pago de una venta de tickets.
+    """
+    template_name = 'user/evento/receipt.html'
+
+    def get(self, request, *args, **kwargs):
+        try:
+            venta_ticket = VentaTicket.objects.get(pk=kwargs['pk'])
+            pago_venta_ticket = PagoVentaTicket.objects.get(venta_ticket=venta_ticket)
+            if venta_ticket.pagado:
+                return render(request, 'user/evento/receipt.html', {
+                    'title': 'Comprobante de Pago',
+                    'club': Club.objects.get(pk=1),
+                    'venta_ticket': venta_ticket,
+                    'pago_venta_ticket': pago_venta_ticket,
+                    'fecha_actual': datetime.now()
+                })
+            else:
+                messages.error(request, 'El comprobante de pago no se encuentra disponible.')
+                return redirect('index')
+        except (VentaTicket.DoesNotExist, PagoVentaTicket.DoesNotExist):
+            messages.error(request, 'El comprobante de pago no se encuentra disponible.')
             return redirect('index')

@@ -3,7 +3,8 @@ from django.urls import path
 
 from eventos.views.admin.evento.views import EventoAdminListView, EventoAdminCreateView, EventoAdminUpdateView, \
     EventoAdminDeleteView
-from eventos.views.user.evento.views import EventoUserDetailView, EventoUserPaymentView, EventoCheckoutView
+from eventos.views.user.evento.views import EventoUserDetailView, EventoUserPaymentView, EventoCheckoutView, \
+    VentaTicketUserReceiptView
 
 urlpatterns = [
     # URLs de los eventos (administración)
@@ -19,4 +20,6 @@ urlpatterns = [
     # URLs para la compra de entradas de eventos.
     path('eventos/<int:pk>/pago/', EventoUserPaymentView.as_view(), name='eventos-pago'),
     path('eventos/<int:pk>/checkout/', EventoCheckoutView.as_view(), name='eventos-checkout'),
+
+    path('venta_ticket/<int:pk>/comprobante/', VentaTicketUserReceiptView.as_view(), name='venta-ticket-comprobante'),
 ]

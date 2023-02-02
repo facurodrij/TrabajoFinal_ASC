@@ -31,11 +31,11 @@ class Parameters(models.Model):
                                                           help_text=
                                                           'La fecha de inicio de la reserva debe ser al menos esta'
                                                           ' cantidad de horas mayor a la fecha actual.')
-    minutos_expiracion = models.PositiveSmallIntegerField(default=20,
-                                                          verbose_name='Minutos de expiración',
-                                                          help_text=
-                                                          'La reserva debe ser pagada en este tiempo, de lo'
-                                                          ' contrario se cancelará.')
+    minutos_expiracion_reserva = models.PositiveSmallIntegerField(default=5,
+                                                                  verbose_name='Minutos de expiración por falta de pago',
+                                                                  help_text=
+                                                                  'La reserva debe ser pagada dentro de esta cantidad de'
+                                                                  ' minutos, de lo contrario se cancelará.')
     max_reservas_user = models.PositiveSmallIntegerField(default=2,
                                                          verbose_name='Máximo de reservas activas por usuario',
                                                          help_text=
@@ -126,11 +126,11 @@ class Reserva(SoftDeleteModel):
 
     def get_expiration_date(self, isoformat=True):
         """Método para obtener la fecha de expiración de la reserva, en caso de que la forma de pago sea online."""
-        minutos = Parameters.objects.get(club=self.cancha.club).minutos_expiracion
+        minutos = Parameters.objects.get(club=self.cancha.club).minutos_expiracion_reserva
         if self.expira:
-            if isoformat:
-                return (self.created_at + timedelta(minutes=minutos)).isoformat()
-            return self.created_at + timedelta(minutes=minutos)
+            return (self.created_at + timedelta(
+                minutes=minutos)).isoformat() if isoformat else self.created_at + timedelta(
+                minutes=minutos)
         return None
 
     def get_FORMA_PAGO_display(self):
