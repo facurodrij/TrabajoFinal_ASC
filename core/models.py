@@ -16,9 +16,9 @@ from django.utils.http import urlsafe_base64_encode
 from django_softdelete.models import SoftDeleteModel
 from simple_history.models import HistoricalRecords
 
+from accounts.models import User
 from core.tokens import reserva_create_token
 from parameters.models import ReservaParameters
-from accounts.models import User
 
 
 class Club(SoftDeleteModel):

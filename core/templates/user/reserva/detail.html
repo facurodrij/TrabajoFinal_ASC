@@ -28,15 +28,27 @@
                             </li>
                             <li class="list-group-item"><b>Nota:</b> {{ reserva.get_NOTA_display }}
                             </li>
+                            <li class="list-group-item"><b>Estado de la reserva:</b> {{ reserva.get_ESTADO_display }}
+                            </li>
                         </ul>
                     </div>
                     <div class="col">
                         <h5>Opciones Disponibles</h5>
-                        <a id="btn-linkPay" href="{% url 'reservas-pago' reserva.id %}"
-                           class="btn btn-block btn-outline-primary">
-                            <i class="fas fa-dollar-sign"></i>
-                            Pagar reserva
-                        </a>
+                        {% if reserva.forma_pago == 2 %}
+                            {% if pago_reserva %}
+                                <a href="{% url 'reservas-comprobante' reserva.id %}"
+                                   class="btn btn-block btn-outline-primary">
+                                    <i class="fas fa-receipt"></i>
+                                    Comprobante de pago
+                                </a>
+                            {% else %}
+                                <a href="{% url 'reservas-pago' reserva.id %}"
+                                   class="btn btn-block btn-outline-primary">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    Pagar reserva
+                                </a>
+                            {% endif %}
+                        {% endif %}
                         <button id="btn-delete" type="button" class="btn btn-block btn-danger">
                             <i class="fa-solid fa-trash"></i>
                             Cancelar reserva

@@ -3,21 +3,15 @@ from datetime import datetime
 import mercadopago
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth.views import PasswordResetConfirmView, INTERNAL_RESET_SESSION_TOKEN
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.exceptions import ValidationError, ImproperlyConfigured
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import redirect, get_object_or_404
-from django.urls import reverse_lazy
-from django.utils.decorators import method_decorator
+from django.shortcuts import redirect
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
-from django.views.decorators.cache import never_cache
-from django.views.decorators.debug import sensitive_post_parameters
-from django.views.generic import ListView, TemplateView, CreateView, DeleteView, DetailView, FormView
+from django.views.generic import ListView, TemplateView, CreateView, DeleteView, DetailView
 
 from accounts.views import User
 from core.forms import ReservaUserForm
@@ -135,6 +129,10 @@ class ReservaUserDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Detalle de Reserva'
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
+        try:
+            context['pago_reserva'] = self.get_object().pagoreserva
+        except PagoReserva.DoesNotExist:
+            pass
         return context
 
 
@@ -279,6 +277,36 @@ class ReservaCheckoutView(TemplateView):
         else:
             messages.error(request, 'Error al realizar el pago.')
             return redirect('index')
+
+
+class ReservaUserReceiptView(TemplateView):
+    """
+    Vista para mostrar el recibo de una reserva.
+    """
+    template_name = 'user/reserva/receipt.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            reserva = Reserva.objects.get(pk=self.kwargs['pk'])
+            pago_reserva = PagoReserva.objects.get(reserva=reserva)
+            if not reserva.pagado:
+                messages.error(self.request, 'La reserva no ha sido pagada.')
+                return redirect('reservas-detalle', reserva.pk)
+        except (Reserva.DoesNotExist, PagoReserva.DoesNotExist):
+            messages.error(self.request, 'La reserva no existe o no tiene un pago asociado.')
+            return redirect('index')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        reserva = Reserva.objects.get(pk=self.kwargs['pk'])
+        pago_reserva = PagoReserva.objects.get(reserva=reserva)
+        context['title'] = 'Comprobante de Pago'
+        context['club'] = Club.objects.get(pk=1)
+        context['reserva'] = reserva
+        context['pago_reserva'] = pago_reserva
+        context['fecha_actual'] = datetime.now()
+        return context
 
 
 def reserva_liberada_activate(request, uidb64, token):

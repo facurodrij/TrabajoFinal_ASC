@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Email</title>
+    <title>Pago Aprobado</title>
 </head>
 <body>
 <p>Hola cliente</p>
@@ -11,7 +11,9 @@
 
 {% autoescape off %}
     <p>Para ver el detalle de su reserva, ingrese a su cuenta en el siguiente link:
-        <a href="{{ protocol }}://{{ domain }}{% url 'reservas-detalle' reserva.pk %}" target="_blank">Ver Reserva</a>
+        <a href="{{ protocol }}://{{ domain }}{% url 'reservas-comprobante' reserva.pk %}" target="_blank">
+            Ver Comprobante de Pago
+        </a>
     </p>
 {% endautoescape %}
 </body>
