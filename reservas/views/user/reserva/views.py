@@ -8,13 +8,15 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
+from django.views import View
 from django.views.generic import ListView, TemplateView, CreateView, DeleteView, DetailView
 
 from accounts.views import User
 from core.models import Club
+from core.utilities import send_email
 from reservas.forms import ReservaUserForm
 from reservas.models import Reserva, PagoReserva, Cancha, HoraLaboral
 from reservas.tokens import reserva_create_token
@@ -78,7 +80,7 @@ class ReservaUserCreateView(LoginRequiredMixin, CreateView):
                         context = {'reserva': reserva,
                                    'protocol': 'https' if self.request.is_secure() else 'http',
                                    'domain': get_current_site(request)}
-                        reserva.send_email(subject=subject, template=template, context=context)
+                        send_email(subject, template, context, reserva.email)
                         data['url_pago'] = redirect('reservas-pago', reserva.pk).url
                 else:
                     data['error'] = form.errors
@@ -121,6 +123,11 @@ class ReservaUserDetailView(LoginRequiredMixin, DetailView):
             reserva = self.get_object()
             if reserva.email != request.user.email:
                 messages.error(request, 'No tiene permiso para ver esta página.')
+                return redirect('index')
+            try:
+                reserva.clean()
+            except ValidationError as e:
+                messages.error(request, e.args[0])
                 return redirect('index')
         return super().dispatch(request, *args, **kwargs)
 
@@ -220,93 +227,76 @@ class ReservaUserPaymentView(TemplateView):
         return context
 
 
-class ReservaCheckoutView(TemplateView):
+class ReservaCheckoutView(View):
     """
-    Vista para realizar el pago de una reserva con MercadoPago.
+    Vista para obtener el pago de una reserva y crear el pago en la base de datos.
     """
-    template_name = 'user/reserva/checkout.html'
-
-    # TODO: Revisar si es necesario el template
 
     def get(self, request, *args, **kwargs):
-        if 'status' in request.GET:
-            if request.GET['status'] == 'approved':
-                payment_id = request.GET['payment_id']
-                preference_id = request.GET['preference_id']
-                payment_info = sdk.payment().get(payment_id)
-                reserva_id = payment_info['response']['external_reference']
-                try:
+        try:
+            if 'status' in request.GET:
+                if request.GET['status'] == 'approved':
                     with transaction.atomic():
-                        reserva = Reserva.objects.get(id=reserva_id)
-                        pago_reserva = PagoReserva(
-                            payment_id=payment_id,
+                        reserva = Reserva.objects.get(pk=request.GET['external_reference'])
+                        payment_info = sdk.payment().get(request.GET['payment_id'])
+                        pago_reserva = PagoReserva.objects.create(
                             reserva=reserva,
-                            preference_id=preference_id,
-                            date_created=payment_info['response']['date_created'],
-                            date_approved=payment_info['response']['date_approved'],
-                            date_last_updated=payment_info['response']['date_last_updated'],
-                            payment_method_id=payment_info['response']['payment_method_id'],
-                            payment_type_id=payment_info['response']['payment_type_id'],
+                            payment_id=request.GET['payment_id'],
                             status=payment_info['response']['status'],
                             status_detail=payment_info['response']['status_detail'],
                             transaction_amount=payment_info['response']['transaction_amount'],
+                            date_approved=payment_info['response']['date_approved'],
                         )
-                        pago_reserva.save()
                         reserva.pagado = True
                         reserva.save()
                         # Enviar correo de confirmación de pago.
                         subject = 'Reserva de Cancha - Pago Aprobado'
-                        template = 'email/payment_success.html'
+                        template = 'email/payment_approved.html'
                         context = {
                             'reserva': reserva,
                             'pago_reserva': pago_reserva,
                             'protocol': 'https' if request.is_secure() else 'http',
                             'domain': get_current_site(request)
                         }
-                        pago_reserva.send_email(subject, template, context)
-                        messages.success(request, 'El pago se ha realizado con éxito. '
+                        send_email(subject, template, context, reserva.email)
+                        messages.success(request, 'El pago se ha realizado correctamente. '
                                                   'Se ha enviado un correo de confirmación.')
-                        return redirect('index')
-                except Exception as e:
-                    messages.error(request, 'El pago no se ha realizado con éxito.')
-                    # TODO: Cancelar o reembolsar el pago.
+                    return redirect('index')
+                else:
+                    messages.error(request, 'Error al realizar el pago.')
                     return redirect('index')
             else:
-                messages.error(request, 'Su pago ha sido rechazado.')
+                messages.error(request, 'Error al realizar el pago.')
                 return redirect('index')
-        else:
+        except Exception as e:
             messages.error(request, 'Error al realizar el pago.')
             return redirect('index')
 
 
 class ReservaUserReceiptView(TemplateView):
     """
-    Vista para mostrar el recibo de una reserva.
+    Vista para obtener el comprobante de pago de una reserva.
     """
     template_name = 'user/reserva/receipt.html'
 
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         try:
             reserva = Reserva.objects.get(pk=self.kwargs['pk'])
             pago_reserva = PagoReserva.objects.get(reserva=reserva)
-            if not reserva.pagado:
-                messages.error(self.request, 'La reserva no ha sido pagada.')
-                return redirect('reservas-detalle', reserva.pk)
+            if reserva.pagado:
+                return render(request, 'user/reserva/receipt.html', {
+                    'title': 'Comprobante de Pago',
+                    'club': Club.objects.get(pk=1),
+                    'reserva': reserva,
+                    'pago_reserva': pago_reserva,
+                    'fecha_actual': datetime.now()
+                })
+            else:
+                messages.error(request, 'El comprobante de pago no se encuentra disponible.')
+                return redirect('index')
         except (Reserva.DoesNotExist, PagoReserva.DoesNotExist):
-            messages.error(self.request, 'La reserva no existe o no tiene un pago asociado.')
+            messages.error(request, 'El comprobante de pago no se encuentra disponible.')
             return redirect('index')
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        reserva = Reserva.objects.get(pk=self.kwargs['pk'])
-        pago_reserva = PagoReserva.objects.get(reserva=reserva)
-        context['title'] = 'Comprobante de Pago'
-        context['club'] = Club.objects.get(pk=1)
-        context['reserva'] = reserva
-        context['pago_reserva'] = pago_reserva
-        context['fecha_actual'] = datetime.now()
-        return context
 
 
 def reserva_liberada_activate(request, uidb64, token):

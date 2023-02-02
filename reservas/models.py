@@ -257,36 +257,25 @@ class PagoReserva(models.Model):
     """
     Modelo del pago de la seña de la reserva.
     """
-    payment_id = models.CharField(max_length=255, verbose_name='ID de pago')
     reserva = models.OneToOneField('reservas.Reserva', on_delete=models.PROTECT, verbose_name='Reserva')
-    preference_id = models.CharField(max_length=255, verbose_name='ID de preferencia')
-    date_created = models.DateTimeField(verbose_name='Fecha de creación')
-    date_approved = models.DateTimeField(verbose_name='Fecha de aprobación')
-    date_last_updated = models.DateTimeField(verbose_name='Fecha de última actualización')
-    payment_method_id = models.CharField(max_length=50, verbose_name='Método de pago')
-    payment_type_id = models.CharField(max_length=50, verbose_name='Tipo de pago')
+    payment_id = models.CharField(max_length=255, verbose_name='ID de pago')
     status = models.CharField(max_length=50, verbose_name='Estado')
     status_detail = models.CharField(max_length=255, verbose_name='Detalle del estado')
     transaction_amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Monto de la transacción')
+    date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
+    date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
+    date_approved = models.DateTimeField(verbose_name='Fecha de aprobación')
 
     def __str__(self):
         return 'Pago de reserva #{}'.format(self.reserva.id)
 
-    def send_email(self, subject, template, context):
-        """Método para enviar un email."""
-        try:
-            message = render_to_string(template, context)
-            email = EmailMessage(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [self.reserva.email],
-            )
-            email.content_subtype = 'html'
-            email.send()
-        except SMTPException as e:
-            print('Ha ocurrido un error al enviar el correo electrónico: ', e)
-            raise e
+    def toJSON(self):
+        """
+        Devuelve el modelo en formato JSON.
+        """
+        item = model_to_dict(self)
+        item['reserva'] = self.reserva.toJSON()
+        return item
 
     class Meta:
         verbose_name = 'Pago de reserva'
