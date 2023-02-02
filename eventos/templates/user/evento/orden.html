@@ -1,0 +1,136 @@
+{% extends "extends/user/base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8 col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">{{ title }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <h5>Detalle de la Compra</h5>
+                        <div class="table-responsive-sm">
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th class="center">#</th>
+                                    <th><strong>Ticket</strong></th>
+                                    <th class="text-right"><strong>Precio Unitario</strong></th>
+                                    <th class="text-right"><strong>Cantidad</strong></th>
+                                    <th class="text-right"><strong>Total</strong></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for item in items %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td class="left strong">{{ item.ticket_variante }}</td>
+                                        <td class="text-right">${{ item.precio_unit }}</td>
+                                        <td class="text-right">{{ item.cantidad }}</td>
+                                        <td class="text-right">${{ item.subtotal }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row">
+                            <div class="col-5"></div>
+                            <div class="col-7 ml-auto table-responsive">
+                                <table class="table table-clear">
+                                    <tbody>
+                                    <tr>
+                                        <td class="left">
+                                            <strong>Subtotal</strong>
+                                        </td>
+                                        <td class="text-right">${{ total }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="left">
+                                            <strong>Descuento (0%)</strong>
+                                        </td>
+                                        <td class="text-right">$0,00</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="left">
+                                            <strong>Total</strong>
+                                        </td>
+                                        <td class="text-right">
+                                            <strong>${{ total }}</strong><br>
+                                            <p class="text-muted text-right">{{ total_letras }}</p>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="button" class="btn btn-primary float-right" data-toggle="modal"
+                                data-target="#tickets">
+                            Pagar
+                        </button>
+                        <a href="{% url 'eventos-detalle' evento.pk %}"
+                           class="btn btn-secondary float-right mr-2">Cancelar</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Información del Evento</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-sm" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <img src="{{ evento.get_imagen }}" alt="Imagen del Evento"
+                             class="img-fluid rounded mx-auto d-block mb-3">
+                        <ul class="list-group">
+                            <li class="list-group-item"><b>Nombre:</b> {{ evento.nombre }}</li>
+                            <li class="list-group-item"><b>Fecha de inicio:</b> {{ evento.get_start_datetime }}</li>
+                            <li class="list-group-item"><b>Fecha de finalización:</b> {{ evento.get_end_datetime }}</li>
+                            <li class="list-group-item"><b>Descripción:</b> {{ evento.descripcion }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="tickets" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Información de los Tickets</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="post">
+                    <div class="modal-body">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="pago">
+                        {% for ticket in tickets %}
+                            <label>{{ ticket.ticket_variante }}</label>
+                            <input type="text"
+                                   name="nombre_{{ ticket.ticket_variante_id }}_{{ forloop.counter0 }}"
+                                   placeholder="Nombre de la persona" class="form-control" required>
+                            <br>
+                        {% endfor %}
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" value="Pagar" class="btn btn-primary float-right">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+{% endblock body_js %}

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     # Aplicaciones locales
     'accounts',
     'core',
+    'eventos',
     'parameters',
     'socios',
 ]

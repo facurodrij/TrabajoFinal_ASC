@@ -1,13 +1,12 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db import transaction
-from django.http import JsonResponse, HttpResponseRedirect
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.contrib import messages
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
-from core.models import Evento, TicketVariante
-from core.forms import EventoForm, TicketVarianteFormSet
+from eventos.forms import EventoForm, TicketVarianteFormSet
+from eventos.models import Evento, TicketVariante
 
 
 class EventoAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
