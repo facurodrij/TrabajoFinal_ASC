@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'core',
     'eventos',
     'parameters',
+    'reservas',
     'socios',
 ]
 

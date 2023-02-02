@@ -16,9 +16,9 @@ from django.views.generic.list import ListView
 from weasyprint import HTML, CSS
 
 from core.models import Club
-from parameters.models import ClubParameters, MedioPago
+from parameters.models import MedioPago
 from socios.mixins import SocioRequiredMixin
-from socios.models import CuotaSocial, DetalleCuotaSocial, PagoCuotaSocial
+from socios.models import CuotaSocial, ItemCuotaSocial, PagoCuotaSocial, Parameters
 from static.credentials import MercadoPagoCredentials  # Aquí debería insertar sus credenciales de MercadoPago
 
 public_key = MercadoPagoCredentials.get_public_key()
@@ -67,7 +67,7 @@ class CuotaSocialListView(LoginRequiredMixin, SocioRequiredMixin, ListView):
                 if cuota_social == all_cuota_social.first():
                     # Calcular intereses
                     if cuota_social.is_atrasada():
-                        aumento_por_cuota_vencida = ClubParameters.objects.get(pk=1).aumento_por_cuota_vencida
+                        aumento_por_cuota_vencida = Parameters.objects.get(pk=1).aumento_por_cuota_vencida
                         # Calcular los meses de atraso
                         meses_atraso = cuota_social.meses_atraso()
                         interes = cuota_social.interes()
@@ -137,7 +137,7 @@ class CuotaSocialListView(LoginRequiredMixin, SocioRequiredMixin, ListView):
                 cuota_social = CuotaSocial.objects.get(pk=request.GET['external_reference'])
                 # Calcular intereses
                 if cuota_social.is_atrasada():
-                    aumento_por_cuota_vencida = ClubParameters.objects.get(pk=1).aumento_por_cuota_vencida
+                    aumento_por_cuota_vencida = Parameters.objects.get(pk=1).aumento_por_cuota_vencida
                     # Calcular los meses de atraso
                     meses_atraso = cuota_social.meses_atraso()
                     interes = cuota_social.interes()
@@ -167,7 +167,7 @@ class CuotaSocialListView(LoginRequiredMixin, SocioRequiredMixin, ListView):
 def cuota_social_pdf(request, pk):
     cuota = CuotaSocial.global_objects.get(pk=pk)
     club = Club.objects.get(pk=1)
-    detalle_cuota = DetalleCuotaSocial.global_objects.filter(cuota_social=cuota)
+    detalle_cuota = ItemCuotaSocial.global_objects.filter(cuota_social=cuota)
     html_string = render_to_string('cuota/pdf.html', {'cuota': cuota, 'club': club, 'detalle_cuota': detalle_cuota})
     html = HTML(string=html_string, base_url=request.build_absolute_uri())
     html.write_pdf(target='/tmp/cuota.pdf',

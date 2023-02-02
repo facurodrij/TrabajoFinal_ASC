@@ -8,14 +8,41 @@ from django.db import models
 from django.forms import model_to_dict
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
-from django_softdelete.models import SoftDeleteModel, get_settings
+from django_softdelete.models import SoftDeleteModel
 from num2words import num2words
 from simple_history.models import HistoricalRecords
 
-from parameters.models import ClubParameters
-
 locale.setlocale(locale.LC_ALL, 'es_AR.UTF-8')
+
+
+class Parameters(models.Model):
+    """
+    Modelo para almacenar las reglas establecidas para los socios.
+    """
+    club = models.OneToOneField('core.Club', on_delete=models.PROTECT, verbose_name='Club',
+                                related_name='socio_parameters')
+    edad_minima_titular = models.PositiveSmallIntegerField(
+        default=16,
+        verbose_name='Edad mínima para no necesitar tutor',
+        help_text='Edad mínima para no necesitar tutor')
+    dia_emision_cuota = models.PositiveSmallIntegerField(
+        default=7,
+        verbose_name='Día de emisión')
+    dia_vencimiento_cuota = models.PositiveSmallIntegerField(
+        default=28,
+        verbose_name='Día de vencimiento')
+    cantidad_maxima_cuotas_pendientes = models.PositiveSmallIntegerField(
+        default=3,
+        verbose_name='Cantidad máxima de cuotas pendientes')
+    aumento_por_cuota_vencida = models.DecimalField(
+        default=10.0,
+        max_digits=5,
+        decimal_places=2,
+        verbose_name='Porcentaje de aumento por cuota vencida')
+
+    class Meta:
+        verbose_name = 'Parámetro de socio'
+        verbose_name_plural = 'Parámetros de socios'
 
 
 class Socio(SoftDeleteModel):
@@ -228,7 +255,7 @@ class CuotaSocial(SoftDeleteModel):
         return 0
 
     def interes(self):
-        aumento_por_cuota_vencida = ClubParameters.objects.get(pk=1).aumento_por_cuota_vencida
+        aumento_por_cuota_vencida = Parameters.objects.get(pk=1).aumento_por_cuota_vencida
         if self.is_atrasada():
             return round(self.total * (aumento_por_cuota_vencida / 100) * self.meses_atraso(), 2)
         return 0
@@ -332,13 +359,13 @@ class CuotaSocial(SoftDeleteModel):
             # Validar que el total sea mayor o igual a 0.
             models.CheckConstraint(check=models.Q(total__gte=0),
                                    name='cuota_social_total_valido',
-                                   violation_error_message=_(
-                                       'Total: El total debe ser mayor o igual a 0.')),
+                                   violation_error_message=
+                                   'Total: El total debe ser mayor o igual a 0.'),
             # Validar que el cargo extra sea mayor o igual a 0.
             models.CheckConstraint(check=models.Q(cargo_extra__gte=0),
                                    name='cuota_social_cargo_extra_valido',
-                                   violation_error_message=_(
-                                       'Cargo extra: El cargo extra debe ser mayor o igual a 0.')),
+                                   violation_error_message=
+                                   'Cargo extra: El cargo extra debe ser mayor o igual a 0.'),
             # TODO: Consultar si es necesario validar esto.
             # Validar que Fecha de vencimiento no puede ser menor a la fecha de emisión.
             # models.CheckConstraint(check=models.Q(fecha_vencimiento__gte=models.F('fecha_emision')),
@@ -350,7 +377,7 @@ class CuotaSocial(SoftDeleteModel):
         ]
 
 
-class DetalleCuotaSocial(SoftDeleteModel):
+class ItemCuotaSocial(models.Model):
     """
     Modelo para almacenar los detalles de las cuotas sociales.
     """
@@ -371,7 +398,7 @@ class DetalleCuotaSocial(SoftDeleteModel):
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.cuota = self.socio.categoria.cuota
         self.total_parcial = self.cuota + self.cargo_extra
-        super(DetalleCuotaSocial, self).save(force_insert, force_update, using, update_fields)
+        super(ItemCuotaSocial, self).save(force_insert, force_update, using, update_fields)
 
     class Meta:
         verbose_name = 'Detalle de cuota social'
@@ -380,18 +407,18 @@ class DetalleCuotaSocial(SoftDeleteModel):
             # Validar que la cuota sea mayor o igual a 0.
             models.CheckConstraint(check=models.Q(cuota__gte=0),
                                    name='detalle_cuota_social_cuota_valida',
-                                   violation_error_message=_(
-                                       'Cuota: La cuota debe ser mayor o igual a 0.')),
+                                   violation_error_message=
+                                   'Cuota: La cuota debe ser mayor o igual a 0.'),
             # Validar que el cargo extra sea mayor o igual a 0.
             models.CheckConstraint(check=models.Q(cargo_extra__gte=0),
                                    name='detalle_cuota_social_cargo_extra_valido',
-                                   violation_error_message=_(
-                                       'Cargo extra: El cargo extra debe ser mayor o igual a 0.')),
+                                   violation_error_message=
+                                   'Cargo extra: El cargo extra debe ser mayor o igual a 0.'),
             # Validar que el total parcial sea mayor o igual a 0.
             models.CheckConstraint(check=models.Q(total_parcial__gte=0),
                                    name='detalle_cuota_social_total_parcial_valido',
-                                   violation_error_message=_(
-                                       'Total parcial: El total parcial debe ser mayor o igual a 0.')),
+                                   violation_error_message=
+                                   'Total parcial: El total parcial debe ser mayor o igual a 0.'),
         ]
 
 
@@ -422,6 +449,6 @@ class PagoCuotaSocial(SoftDeleteModel):
             # Validar que el total pagado sea mayor o igual a 0.
             models.CheckConstraint(check=models.Q(total_pagado__gte=0),
                                    name='pago_cuota_social_total_pagado_valido',
-                                   violation_error_message=_(
-                                       'Total pagado: El total pagado debe ser mayor o igual a 0.')),
+                                   violation_error_message=
+                                   'Total pagado: El total pagado debe ser mayor o igual a 0.'),
         ]

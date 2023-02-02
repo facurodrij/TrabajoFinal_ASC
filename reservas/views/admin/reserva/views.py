@@ -8,9 +8,8 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 
-from core.forms import ReservaAdminForm
-from core.models import Reserva, Cancha, PagoReserva, HoraLaboral
-from parameters.models import ReservaParameters
+from reservas.forms import ReservaAdminForm
+from reservas.models import Reserva, PagoReserva, Cancha, Parameters
 
 
 class ReservaAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -182,7 +181,7 @@ def reserva_admin_ajax(request):
                 hora = datetime.strptime(hora, '%H:%M:%S').time()
                 start_date = datetime.combine(fecha, hora)
                 # Fecha de inicio de la reserva debe ser con al menos 2 horas de anticipación
-                horas_anticipacion = ReservaParameters.objects.get(club_id=1).horas_anticipacion
+                horas_anticipacion = Parameters.objects.get(club_id=1).horas_anticipacion
                 if request.user.is_admin():
                     canchas_disp = Cancha.objects.filter(deporte_id=deporte_id)
                 else:
@@ -209,7 +208,7 @@ def reserva_admin_ajax(request):
                 deporte_id = request.GET['deporte_id']
                 fecha = request.GET['fecha']
                 fecha = datetime.strptime(fecha, '%Y-%m-%d')
-                horas_anticipacion = ReservaParameters.objects.get(club_id=1).horas_anticipacion
+                horas_anticipacion = Parameters.objects.get(club_id=1).horas_anticipacion
                 horas_disponibles = []
                 for i in range(24):
                     hora = datetime.combine(fecha, time(hour=i))

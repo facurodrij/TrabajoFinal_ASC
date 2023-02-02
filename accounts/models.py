@@ -12,8 +12,7 @@ from django.urls import reverse
 from django_softdelete.models import SoftDeleteModel
 from simple_history.models import HistoricalRecords
 
-from parameters.models import ClubParameters
-from socios.models import Socio
+from socios.models import Socio, Parameters
 
 
 class CustomUserManager(UserManager):
@@ -247,7 +246,7 @@ class Persona(SoftDeleteModel):
         """
         Este método debe ejecutarse después de guardar el formulario.
         """
-        edad_minima_titular = ClubParameters.objects.get(club=self.club).edad_minima_titular
+        edad_minima_titular = Parameters.objects.get(club=self.club).edad_minima_titular
         if self.es_titular():
             if self.get_edad() < edad_minima_titular:
                 raise ValidationError(

@@ -1,6 +1,5 @@
 from django.contrib import admin
 
-from core.models import Club, Cancha, HoraLaboral, CanchaHoraLaboral, Reserva
+from core.models import Club
 
-for model in [Club, Cancha, HoraLaboral, CanchaHoraLaboral, Reserva]:
-    admin.site.register(model)
+admin.site.register(Club)

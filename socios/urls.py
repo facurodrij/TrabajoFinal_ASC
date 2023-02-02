@@ -18,6 +18,7 @@ urlpatterns = [
     path('admin/socios/<int:pk>/restaurar/', SocioAdminRestoreView.as_view(), name='admin-socio-restaurar'),
     path('admin/socios/<int:socio_pk>/<int:history_pk>/', socio_history_pdf, name='socio-history-pdf'),
     path('admin/socios/ajax/', socio_admin_ajax, name='admin-socio-ajax'),
+    path('admin/socio/parametros/', ParametersSocioFormView.as_view(), name='admin-socio-parametros'),
 
     # URLs de socios (usuarios)
     path('socio/perfil/', SocioUserView.as_view(), name='socio-perfil'),

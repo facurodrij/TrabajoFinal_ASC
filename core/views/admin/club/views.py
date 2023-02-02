@@ -24,14 +24,14 @@ def club(request):
         pass
 
     if request.method == 'POST':
-        club_form = UpdateClubForm(request.POST, request.FILES, instance=club_object)
+        club_form = ClubForm(request.POST, request.FILES, instance=club_object)
 
         if club_form.is_valid():
             club_form.save()
             messages.success(request, 'Club actualizado exitosamente')
             return redirect(to='club')
     else:
-        club_form = UpdateClubForm(instance=club_object)
+        club_form = ClubForm(instance=club_object)
 
     context = {
         'title': 'Club',

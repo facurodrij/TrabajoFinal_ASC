@@ -1,6 +1,6 @@
 [
   {
-    "model": "core.cancha",
+    "model": "reservas.cancha",
     "pk": 1,
     "fields": {
       "is_deleted": false,
@@ -15,7 +15,7 @@
     }
   },
   {
-    "model": "core.cancha",
+    "model": "reservas.cancha",
     "pk": 2,
     "fields": {
       "is_deleted": false,
@@ -30,7 +30,7 @@
     }
   },
   {
-    "model": "core.cancha",
+    "model": "reservas.cancha",
     "pk": 3,
     "fields": {
       "is_deleted": false,
@@ -45,7 +45,7 @@
     }
   },
   {
-    "model": "core.cancha",
+    "model": "reservas.cancha",
     "pk": 4,
     "fields": {
       "is_deleted": false,

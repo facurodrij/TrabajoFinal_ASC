@@ -16,8 +16,8 @@ from weasyprint import HTML, CSS
 
 from accounts.decorators import admin_required
 from core.models import Club
-from parameters.models import ClubParameters, MedioPago
-from socios.models import CuotaSocial, PagoCuotaSocial, Socio, DetalleCuotaSocial
+from parameters.models import MedioPago
+from socios.models import CuotaSocial, PagoCuotaSocial, Socio, ItemCuotaSocial, Parameters
 
 
 class CuotaSocialAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -45,7 +45,7 @@ class CuotaSocialAdminListView(LoginRequiredMixin, PermissionRequiredMixin, List
                 cuota_social = CuotaSocial.objects.get(pk=request.POST['id'])
                 # Calcular intereses
                 if cuota_social.is_atrasada():
-                    aumento_por_cuota_vencida = ClubParameters.objects.get(pk=1).aumento_por_cuota_vencida
+                    aumento_por_cuota_vencida = Parameters.objects.get(pk=1).aumento_por_cuota_vencida
                     # Calcular los meses de atraso
                     meses_atraso = cuota_social.meses_atraso()
                     interes = cuota_social.interes()
@@ -75,7 +75,7 @@ class CuotaSocialAdminListView(LoginRequiredMixin, PermissionRequiredMixin, List
                 socios = Socio.objects.all()
                 periodo_mes = request.POST['periodo_mes']
                 periodo_anio = request.POST['periodo_anio']
-                parameters_dia_vencimiento = ClubParameters.objects.get(pk=1).dia_vencimiento_cuota
+                parameters_dia_vencimiento = Parameters.objects.get(pk=1).dia_vencimiento_cuota
                 for socio in socios:
                     if socio.es_titular():
                         with transaction.atomic():
@@ -90,14 +90,14 @@ class CuotaSocialAdminListView(LoginRequiredMixin, PermissionRequiredMixin, List
                             )
                             cuota_social.save()
                             # Agregar el detalle de la cuota social
-                            detalle = DetalleCuotaSocial()
+                            detalle = ItemCuotaSocial()
                             detalle.cuota_social = cuota_social
                             detalle.socio = socio
                             detalle.nombre_completo = socio.persona.get_full_name()
                             detalle.categoria = socio.categoria.__str__()
                             detalle.save()
                             for miembro in socio.get_miembros():
-                                detalle_miembro = DetalleCuotaSocial()
+                                detalle_miembro = ItemCuotaSocial()
                                 detalle_miembro.cuota_social = cuota_social
                                 detalle_miembro.socio = miembro
                                 detalle_miembro.nombre_completo = miembro.persona.get_full_name()

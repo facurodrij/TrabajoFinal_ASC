@@ -1,6 +1,6 @@
 [
   {
-    "model": "parameters.ReservaParameters",
+    "model": "reservas.Parameters",
     "pk": 1,
     "fields": {
       "club": 1,

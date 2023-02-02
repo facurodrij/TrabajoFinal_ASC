@@ -1,6 +1,6 @@
 [
   {
-    "model": "parameters.Deporte",
+    "model": "reservas.Deporte",
     "pk": 1,
     "fields": {
       "nombre": "Futbol"

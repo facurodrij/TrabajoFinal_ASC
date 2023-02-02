@@ -1,6 +1,6 @@
 from django import forms
 
-from socios.models import Categoria, Socio, CuotaSocial
+from socios.models import Categoria, Socio, CuotaSocial, Parameters
 
 
 class SocioAdminForm(forms.ModelForm):
@@ -68,4 +68,20 @@ class CategoriaForm(forms.ModelForm):
             'cuota': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el monto de la cuota'}),
             'edad_minima': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la edad minima'}),
             'edad_maxima': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la edad maxima'}),
+        }
+
+
+class SocioParametersForm(forms.ModelForm):
+    """Formulario para la edición de los parámetros de socios."""
+
+    class Meta:
+        model = Parameters
+        fields = '__all__'
+        widgets = {
+            'club': forms.HiddenInput(),
+            'edad_minima_titular': forms.NumberInput(attrs={'class': 'form-control'}),
+            'dia_emision_cuota': forms.NumberInput(attrs={'class': 'form-control'}),
+            'dia_vencimiento_cuota': forms.NumberInput(attrs={'class': 'form-control'}),
+            'cantidad_maxima_cuotas_pendientes': forms.NumberInput(attrs={'class': 'form-control'}),
+            'aumento_por_cuota_vencida': forms.NumberInput(attrs={'class': 'form-control'}),
         }

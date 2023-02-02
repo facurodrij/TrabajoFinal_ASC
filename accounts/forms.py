@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from accounts.models import User, Persona
 from core.models import Club
-from parameters.models import ClubParameters
+from socios.models import Parameters
 
 
 class PersonaAdminForm(forms.ModelForm):
@@ -14,14 +14,14 @@ class PersonaAdminForm(forms.ModelForm):
     Formulario para registrar los datos de una Persona. Se utiliza en el formulario de registro de un nuevo usuario.
     """
     try:
-        edad_minima_titular = ClubParameters.objects.get(club_id=1).edad_minima_titular
+        edad_minima_titular = Parameters.objects.get(club_id=1).edad_minima_titular
         es_menor = forms.BooleanField(
             label='Es menor de {} años?'.format(edad_minima_titular),
             required=False,
             widget=forms.CheckboxInput(),
             help_text='Marque esta casilla si la persona es menor de {} años.'.format(edad_minima_titular)
         )
-    except (OperationalError, ProgrammingError, ClubParameters.DoesNotExist) as e:
+    except (OperationalError, ProgrammingError, Parameters.DoesNotExist) as e:
         print(e)
         es_menor = forms.BooleanField(
             label='Es menor?',

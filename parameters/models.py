@@ -19,79 +19,6 @@ class Parentesco(models.Model):
         verbose_name_plural = _('Parentescos')
 
 
-class ReservaParameters(models.Model):
-    """
-    Modelo para almacenar los parámetros para las reservas.
-    """
-    club = models.OneToOneField('core.Club', on_delete=models.CASCADE, verbose_name=_('Club'))
-    horas_anticipacion = models.PositiveSmallIntegerField(default=2,
-                                                          verbose_name=_('Horas de anticipación'),
-                                                          help_text=_(
-                                                              'La fecha de inicio de la reserva debe ser al menos esta'
-                                                              ' cantidad de horas mayor a la fecha actual.'))
-    minutos_expiracion = models.PositiveSmallIntegerField(default=20,
-                                                          verbose_name=_('Minutos de expiración'),
-                                                          help_text=_(
-                                                              'La reserva debe ser pagada en este tiempo, de lo'
-                                                              ' contrario se cancelará.'))
-    max_reservas_user = models.PositiveSmallIntegerField(default=2,
-                                                         verbose_name=_('Máximo de reservas activas por usuario'),
-                                                         help_text=_(
-                                                             'La cantidad máxima de reservas activas que puede tener un'
-                                                             ' usuario.'))
-    avisar_cancha_libre = models.BooleanField(default=True,
-                                              verbose_name=_('Avisar cancha libre'),
-                                              help_text=_(
-                                                  'Enviar avisos a los usuarios sobre la cancha que queda libre,'
-                                                  ' cuando una reserva que está a pocas horas de comenzar se cancela.'))
-    horas_avisar_cancha_libre = models.PositiveSmallIntegerField(default=5,
-                                                                 verbose_name=_('Horas para avisar cancha libre'),
-                                                                 help_text=_(
-                                                                     'Si una reserva se cancela dentro de estas horas, '
-                                                                     'se enviará un aviso a los usuarios que tengan '
-                                                                     'activada la opción de notificaciones.'))
-    # Campos para definir cuando finaliza una reserva, al comenzar o al terminar.
-    finalizar_al_comenzar = models.BooleanField(default=True,
-                                                verbose_name=_('Finalizar al comenzar'),
-                                                help_text=_(
-                                                    'Finalizar la reserva al comenzar, de lo contrario finalizará al'
-                                                    ' terminar.'))
-
-    class Meta:
-        verbose_name = _('Parámetro de reserva')
-        verbose_name_plural = _('Parámetros de reservas')
-
-
-class ClubParameters(models.Model):
-    """
-    Modelo para almacenar las reglas establecidas para los socios.
-    Las reglas las establece el administrador del club.
-    """
-    club = models.OneToOneField('core.Club', on_delete=models.CASCADE, verbose_name=_('Club'))
-    edad_minima_titular = models.PositiveSmallIntegerField(
-        default=16,
-        verbose_name=_('Edad mínima para no necesitar tutor'),
-        help_text=_('Edad mínima para no necesitar tutor'))
-    dia_emision_cuota = models.PositiveSmallIntegerField(
-        default=7,
-        verbose_name=_('Día de emisión'))
-    dia_vencimiento_cuota = models.PositiveSmallIntegerField(
-        default=28,
-        verbose_name=_('Día de vencimiento'))
-    cantidad_maxima_cuotas_pendientes = models.PositiveSmallIntegerField(
-        default=3,
-        verbose_name=_('Cantidad máxima de cuotas pendientes'))
-    aumento_por_cuota_vencida = models.DecimalField(
-        default=10.0,
-        max_digits=5,
-        decimal_places=2,
-        verbose_name=_('Porcentaje de aumento por cuota vencida'))
-
-    class Meta:
-        verbose_name = _('Regla de socio')
-        verbose_name_plural = _('Reglas de socios')
-
-
 class MedioPago(models.Model):
     """
     Modelo para almacenar los medios de pago.
@@ -190,27 +117,3 @@ class Localidad(models.Model):
     class Meta:
         verbose_name_plural = "Localidades"
         unique_together = ("nombre", "provincia", "departamento", "municipio")
-
-
-class Deporte(models.Model):
-    """Modelo para almacenar los deportes."""
-    nombre = models.CharField(max_length=100, unique=True, verbose_name=_('Nombre'))
-
-    def __str__(self):
-        return self.nombre
-
-    class Meta:
-        verbose_name = _('Deporte')
-        verbose_name_plural = _('Deportes')
-
-
-class Superficie(models.Model):
-    """Modelo para almacenar las superficies."""
-    nombre = models.CharField(max_length=100, unique=True, verbose_name=_('Nombre'))
-
-    def __str__(self):
-        return self.nombre
-
-    class Meta:
-        verbose_name = _('Superficie')
-        verbose_name_plural = _('Superficies')

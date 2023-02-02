@@ -4,9 +4,9 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
 
-from core.forms import ReservaIndexForm
 from core.models import Club
 from eventos.models import Evento
+from reservas.forms import ReservaIndexForm
 
 
 class IndexView(TemplateView):

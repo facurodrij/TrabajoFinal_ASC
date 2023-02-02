@@ -14,9 +14,10 @@ from django.utils.http import urlsafe_base64_decode
 from django.views.generic import ListView, TemplateView, CreateView, DeleteView, DetailView
 
 from accounts.views import User
-from core.forms import ReservaUserForm
-from core.models import Reserva, PagoReserva, Club, Cancha, HoraLaboral
-from core.tokens import reserva_create_token
+from core.models import Club
+from reservas.forms import ReservaUserForm
+from reservas.models import Reserva, PagoReserva, Cancha, HoraLaboral
+from reservas.tokens import reserva_create_token
 from static.credentials import MercadoPagoCredentials  # Aquí debería insertar sus credenciales de MercadoPago
 
 public_key = MercadoPagoCredentials.get_public_key()
@@ -73,7 +74,7 @@ class ReservaUserCreateView(LoginRequiredMixin, CreateView):
                         reserva = form.save()
                         # Enviar correo con el link de pago.
                         subject = 'Reserva de Cancha - Pago Pendiente'
-                        template = 'user/reserva/email/payment_link.html'
+                        template = 'email/payment_link.html'
                         context = {'reserva': reserva,
                                    'protocol': 'https' if self.request.is_secure() else 'http',
                                    'domain': get_current_site(request)}
@@ -114,8 +115,6 @@ class ReservaUserDetailView(LoginRequiredMixin, DetailView):
     model = Reserva
     template_name = 'user/reserva/detail.html'
     context_object_name = 'reserva'
-
-    # TODO: Agregar comprobante del pago si existe.
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_anonymous:
@@ -226,6 +225,7 @@ class ReservaCheckoutView(TemplateView):
     Vista para realizar el pago de una reserva con MercadoPago.
     """
     template_name = 'user/reserva/checkout.html'
+
     # TODO: Revisar si es necesario el template
 
     def get(self, request, *args, **kwargs):
@@ -256,7 +256,7 @@ class ReservaCheckoutView(TemplateView):
                         reserva.save()
                         # Enviar correo de confirmación de pago.
                         subject = 'Reserva de Cancha - Pago Aprobado'
-                        template = 'user/reserva/email/payment_success.html'
+                        template = 'email/payment_success.html'
                         context = {
                             'reserva': reserva,
                             'pago_reserva': pago_reserva,
