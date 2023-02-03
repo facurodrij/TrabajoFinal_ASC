@@ -55,20 +55,24 @@
                     <thead>
                     <tr>
                         <th class="center">#</th>
-                        <th>Item</th>
-                        <th>Descripción</th>
-                        <th class="left">Precio de ticket</th>
+                        <th>Evento</th>
+                        <th>Ticket</th>
+                        <th class="text-right">Precio de ticket</th>
+                        <th class="text-right">Cantidad</th>
                         <th class="text-right">Total</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td class="center">1</td>
-                        <td class="left strong">Compra de ticket</td>
-                        <td class="left">{{ venta_ticket }}</td>
-                        <td class="right">${{ venta_ticket.precio }}</td>
-                        <td class="text-right">${{ venta_ticket.precio }}</td>
-                    </tr>
+                    {% for items in items_venta_ticket %}
+                        <tr>
+                            <td class="center">{{ forloop.counter }}</td>
+                            <td class="left strong">{{ items.ticket_variante.evento }}</td>
+                            <td class="left">{{ items.ticket_variante.nombre }}</td>
+                            <td class="text-right">${{ items.ticket_variante.precio }}</td>
+                            <td class="text-right">{{ items.cantidad }}</td>
+                            <td class="text-right">${{ items.subtotal }}</td>
+                        </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -81,7 +85,7 @@
                             <td class="left">
                                 <strong>Subtotal</strong>
                             </td>
-                            <td class="right">${{ venta_ticket.precio }}</td>
+                            <td class="right">${{ venta_ticket.total }}</td>
                         </tr>
                         {#                        TODO: Descuento de venta_ticket #}
                         <tr>

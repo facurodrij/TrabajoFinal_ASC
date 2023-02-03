@@ -190,11 +190,12 @@ class Reserva(SoftDeleteModel):
         super(Reserva, self).clean()
         # Si pasó la fecha de expiración de la reserva y no se ha pagado, se cancela.
         if self.created_at:
-            if self.expira and self.get_expiration_date(isoformat=False) < timezone.now() and not self.pagado:
-                print('La reserva #{} ha expirado por falta de pago'.format(self.id))
-                self.delete()
-                raise ValidationError('La reserva #{} ha expirado por falta de pago.'.format(self.id),
-                                      code='invalid', params={'id': self.id})
+            with transaction.atomic():
+                if self.expira and self.get_expiration_date(isoformat=False) < timezone.now() and not self.pagado:
+                    print('La reserva #{} ha expirado por falta de pago'.format(self.id))
+                    self.delete()
+                    raise ValidationError('La reserva #{} ha expirado por falta de pago.'.format(self.id),
+                                          code='invalid', params={'id': self.id})
 
     def after_delete(self):
         """Método after_delete() sobrescrito para eliminar la preferencia de pago de Mercado Pago."""

@@ -12,8 +12,7 @@ from django_apscheduler import util
 from django_apscheduler.jobstores import DjangoJobStore
 from django_apscheduler.models import DjangoJobExecution
 
-from parameters.models import Socios
-from socios.models import Socio, CuotaSocial, DetalleCuotaSocial
+from socios.models import Socio, CuotaSocial, ItemCuotaSocial, Parameters
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,7 @@ def add_cuota_social():
     Este método genera una cuota social a cada socio titular
     """
     print('Procesando Job add_cuota_social()..')
-    dia_emision_cuota = Socios.objects.get(club_id=1).dia_emision_cuota
+    dia_emision_cuota = Parameters.objects.get(club_id=1).dia_emision_cuota
     # Los dia_emision_cuota de cada mes se ejecuta el proceso automatizado
     if datetime.now().day == dia_emision_cuota and datetime.now().hour == 0 and datetime.now().minute == 0:
         # Por cada Socio que es_titular sea verdadero
@@ -37,12 +36,12 @@ def add_cuota_social():
                                            fecha_vencimiento=make_aware(datetime.now() + relativedelta(days=21)))
                 cuota_social.save()
                 # Agregar el detalle de la cuota social
-                detalle = DetalleCuotaSocial()
+                detalle = ItemCuotaSocial()
                 detalle.cuota_social = cuota_social
                 detalle.socio = cuota_social.persona.socio
                 detalle.save()
                 for miembro in cuota_social.persona.socio.get_miembros():
-                    detalle_miembro = DetalleCuotaSocial()
+                    detalle_miembro = ItemCuotaSocial()
                     detalle_miembro.cuota_social = cuota_social
                     detalle_miembro.socio = miembro
                     detalle_miembro.save()

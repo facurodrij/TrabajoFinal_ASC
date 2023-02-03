@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from eventos.models import Evento, Parameters, VentaTicket
+
+for model in [Evento, Parameters, VentaTicket]:
+    admin.site.register(model)

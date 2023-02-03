@@ -2,8 +2,10 @@ from datetime import datetime, timedelta
 
 from PIL import Image
 from django.conf import settings
-from django.db import models
+from django.core.exceptions import ValidationError
+from django.db import models, transaction
 from django.forms import model_to_dict
+from django.utils import timezone
 from django_softdelete.models import SoftDeleteModel
 
 
@@ -13,8 +15,12 @@ class Parameters(models.Model):
     minutos_expiracion_venta = models.PositiveSmallIntegerField(default=5,
                                                                 verbose_name='Minutos de expiración por falta de pago',
                                                                 help_text=
-                                                                'La venta de tickets debe ser pagada dentro de esta cantidad de'
-                                                                ' minutos, de lo contrario se cancelará.')
+                                                                'La venta de tickets debe ser pagada dentro de esta'
+                                                                ' cantidad de minutos, de lo contrario se cancelará.')
+    max_tickets_por_venta = models.PositiveSmallIntegerField(default=10,
+                                                             verbose_name='Máximo de tickets por venta',
+                                                             help_text='Máximo cantidad de tickets que se pueden '
+                                                                       'comprar en una sola venta.')
 
     class Meta:
         verbose_name = 'Parámetro de evento'
@@ -128,6 +134,12 @@ class TicketVariante(SoftDeleteModel):
     def __str__(self):
         return '{} - ${}'.format(self.nombre, self.precio)
 
+    def get_tickets_restantes(self):
+        """
+        Devuelve la cantidad de tickets restantes.
+        """
+        return self.total_tickets - self.ticket_set.filter(is_deleted=False).count()
+
     def toJSON(self):
         """
         Devuelve el objeto en formato JSON.
@@ -172,7 +184,7 @@ class VentaTicket(SoftDeleteModel):
     """
     Modelo de las ventas de tickets.
     """
-    email = models.EmailField(verbose_name='Email')
+    user = models.ForeignKey('accounts.User', on_delete=models.PROTECT, verbose_name='Usuario')
     total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total')
     pagado = models.BooleanField(default=False, verbose_name='Pagado', help_text='Marcar si el cliente ya pagó')
     preference_id = models.CharField(max_length=255, null=True, blank=True, verbose_name='Preference ID',
@@ -196,6 +208,18 @@ class VentaTicket(SoftDeleteModel):
         Devuelve los objetos relacionados con la venta.
         """
         return self.ticket_set.all()
+
+    def clean(self):
+        """Método clean() sobrescrito para validar la reserva."""
+        super(VentaTicket, self).clean()
+        # Si pasó la fecha de expiración de la reserva y no se ha pagado, se cancela.
+        if self.date_created:
+            with transaction.atomic():
+                if self.get_expiration_date(isoformat=False) < timezone.now() and not self.pagado:
+                    print('La venta de ticket #{} ha expirado por falta de pago.'.format(self.id))
+                    self.delete(cascade=True)
+                    raise ValidationError('La venta de ticket #{} ha expirado por falta de pago.'.format(self.id),
+                                          code='invalid', params={'id': self.id})
 
     def toJSON(self):
         """
