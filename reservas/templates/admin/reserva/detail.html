@@ -26,26 +26,21 @@
                                     <li class="list-group-item"><b>Fecha y
                                         Hora:</b> {{ reserva.fecha }}, {{ reserva.hora }}
                                     </li>
-                                    <li class="list-group-item"><b>Nombre del cliente:</b> {{ reserva.nombre }}
-                                    </li>
-                                    <li class="list-group-item"><b>Correo del cliente:</b> {{ reserva.email }}
-                                    </li>
+                                    <li class="list-group-item"><b>Nombre del cliente:</b> {{ reserva.nombre }}</li>
+                                    <li class="list-group-item"><b>Correo del cliente:</b> {{ reserva.email }}</li>
                                     <li class="list-group-item"><b>Cancha reservada:</b> {{ reserva.cancha }}
                                     </li>
-                                    <li class="list-group-item"><b>Con luz:</b> {{ reserva.get_CON_LUZ_display }}
-                                    </li>
+                                    <li class="list-group-item"><b>Con luz:</b> {{ reserva.get_CON_LUZ_display }}</li>
                                     <li class="list-group-item"><b>Forma de
                                         pago:</b> {{ reserva.get_FORMA_PAGO_display }}
                                     </li>
-                                    <li class="list-group-item"><b>Precio de la reserva:</b> ${{ reserva.precio }}
-                                    </li>
+                                    <li class="list-group-item"><b>Precio de la reserva:</b> ${{ reserva.precio }}</li>
                                     <li class="list-group-item"><b>Expira por falta de pago:</b>
                                         {{ reserva.get_EXPIRA_display }}
                                     </li>
                                     <li class="list-group-item"><b>Nota:</b> {{ reserva.nota }}
                                     </li>
-                                    <li class="list-group-item"><b>Fecha de creación:</b> {{ reserva.created_at }}
-                                    </li>
+                                    <li class="list-group-item"><b>Fecha de creación:</b> {{ reserva.created_at }}</li>
                                 </ul>
                             </div>
                             <div class="col">

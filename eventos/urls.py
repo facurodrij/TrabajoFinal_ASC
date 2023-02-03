@@ -1,11 +1,8 @@
-from django.shortcuts import redirect
 from django.urls import path
 
-from eventos.views.admin.evento.views import EventoAdminListView, EventoAdminCreateView, EventoAdminUpdateView, \
-    EventoAdminDeleteView
-from eventos.views.admin.ticket.views import TicketAdminListView
-from eventos.views.user.evento.views import EventoUserDetailView, VentaTicketUserPaymentView, VentaTicketCheckoutView, \
-    VentaTicketUserReceiptView, EventoUserOrderView
+from eventos.views.admin.evento.views import *
+from eventos.views.admin.ticket.views import *
+from eventos.views.user.evento.views import *
 
 urlpatterns = [
     # URLs de los eventos (administración)
@@ -17,6 +14,8 @@ urlpatterns = [
 
     path('admin/tickets/', lambda request: redirect('admin-tickets-listado', permanent=True), name='admin-tickets'),
     path('admin/tickets/listado/', TicketAdminListView.as_view(), name='admin-tickets-listado'),
+    path('admin/tickets/<int:pk>/', TicketAdminDetailView.as_view(), name='admin-tickets-detalle'),
+    path('admin/tickets/<int:pk>/qr/', TicketAdminQRView.as_view(), name='admin-tickets-qr'),
 
     # URLs de los eventos (usuarios)
     path('eventos/<int:pk>/', EventoUserDetailView.as_view(), name='eventos-detalle'),

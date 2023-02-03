@@ -1,12 +1,19 @@
+import base64
 from datetime import datetime, timedelta
+from io import BytesIO
 
+import qrcode
 from PIL import Image
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMessage
 from django.db import models, transaction
 from django.forms import model_to_dict
+from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils import timezone
 from django_softdelete.models import SoftDeleteModel
+from qrcode.image.svg import SvgPathFillImage
 
 
 class Parameters(models.Model):
@@ -154,6 +161,36 @@ class TicketVariante(SoftDeleteModel):
         verbose_name_plural = "Variantes de tickets"
 
 
+def send_qr_code(ids, email=None):
+    """
+    Envía el código QR de cada ticket al correo del cliente. Solo se envía un correo al cliente.
+    """
+    tickets = Ticket.objects.filter(pk__in=ids)
+    if len(tickets) > 0:
+        # Obtener los correos de los tickets.
+        if not email:
+            emails = [ticket.venta_ticket.user.email for ticket in tickets]
+        else:
+            emails = [email]
+        # Adjuntar los códigos QR de los tickets como archivos.
+        attachments = []
+        for ticket in tickets:
+            qr_code = ticket.get_qr_code(format_png=True)
+            attachments.append(('qr_{}_{}.png'.format('ticket', ticket.pk), qr_code, 'image/png'))
+        message = render_to_string('email/qr.html', {
+            'tickets': tickets,
+        })
+        email = EmailMessage(
+            'Códigos QR de los tickets',
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            emails,
+        )
+        email.content_subtype = 'html'
+        email.attachments = attachments
+        email.send()
+
+
 class Ticket(SoftDeleteModel):
     """
     Modelo de los tickets.
@@ -168,6 +205,30 @@ class Ticket(SoftDeleteModel):
 
     def __str__(self):
         return self.pk
+
+    def get_qr_code(self, format_png=False):
+        """
+        Devuelve el código QR del ticket.
+        """
+        factory = SvgPathFillImage
+        url = reverse('admin-tickets-qr', kwargs={'pk': self.pk})
+        qr_string = "http://127.0.0.1:8000" + url
+        img = qrcode.make(qr_string, image_factory=factory, box_size=20, border=1)
+        stream = BytesIO()
+        img.save(stream)
+        base64_data = base64.b64encode(stream.getvalue()).decode()
+        # Pasar a formato PNG para adjuntar en el correo.
+        if format_png:
+            return base64.b64decode(base64_data)
+        return 'data:image/svg+xml;utf8;base64,' + base64_data
+
+    def get_precio_compra(self):
+        """
+        Devuelve el precio de compra del ticket.
+        """
+        cantidad = self.venta_ticket.itemventaticket_set.get(ticket_variante=self.ticket_variante).cantidad
+        subtotal = self.venta_ticket.itemventaticket_set.get(ticket_variante=self.ticket_variante).subtotal
+        return subtotal / cantidad
 
     def toJSON(self):
         item = model_to_dict(self)

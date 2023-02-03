@@ -1,0 +1,67 @@
+{% extends "extends/user/base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header bg-primary">
+                <h3 class="card-title">{{ title }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8 mb-3">
+                        <h5>Información del Ticket</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item"><b>Ticket:</b> {{ ticket.id }}</li>
+                            <li class="list-group-item"><b>Fecha de creación:</b> {{ ticket.date_created }}</li>
+                            <li class="list-group-item"><b>Nombre del cliente:</b> {{ ticket.nombre }}</li>
+                            <li class="list-group-item"><b>Nombre del evento:</b>
+                                <a href="{% url 'admin-eventos-editar' ticket.ticket_variante.evento.pk %}">
+                                    {{ ticket.ticket_variante.evento }}
+                                </a>
+                            </li>
+                            <li class="list-group-item"><b>Tipo de entrada:</b> {{ ticket.ticket_variante.nombre }}</li>
+                            <li class="list-group-item"><b>Precio de compra:</b> ${{ ticket.get_precio_compra }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Código QR del Ticket</h5>
+                        <img src="{{ ticket.get_qr_code }}" alt="QRCODE" class="img-bordered img-fluid mx-auto d-block mb-2">
+                        <div class="text-center">
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#send_qr">
+                                <i class="fas fa-envelope"></i> Enviar por correo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="send_qr" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Enviar código QR por correo</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="post">
+                    <div class="modal-body">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="send_qr">
+                        <input type="email" name="email" placeholder="Correo electrónico" class="form-control" required>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" value="Enviar" class="btn btn-primary float-right">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+{% endblock body_js %}

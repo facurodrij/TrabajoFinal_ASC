@@ -1,8 +1,12 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import JsonResponse
-from django.views.generic import ListView
+from django.shortcuts import render, redirect
+from django.views import View
+from django.views.generic import ListView, DetailView
 
-from eventos.models import Ticket
+from core.models import Club
+from eventos.models import Ticket, send_qr_code
 
 
 class TicketAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -45,3 +49,58 @@ class TicketAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView)
         except Exception as e:
             data['error'] = e.args[0]
         return JsonResponse(data)
+
+
+class TicketAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    model = Ticket
+    template_name = 'admin/ticket/detail.html'
+    context_object_name = 'ticket'
+    permission_required = 'eventos.view_ticket'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Detalle del Ticket'
+        context['club_logo'] = Club.objects.get(pk=1).get_imagen()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            email = request.POST['email']
+            if action == 'send_qr':
+                ticket = Ticket.objects.filter(pk=self.kwargs['pk']).first()
+                if ticket:
+                    send_qr_code([ticket.pk], email)
+                messages.success(request, 'El código QR se ha enviado correctamente')
+                return redirect('admin-tickets-detalle', pk=self.kwargs['pk'])
+            else:
+                data['error'] = 'No ha seleccionado ninguna opción'
+        except Exception as e:
+            data['error'] = e.args[0]
+        messages.error(request, data['error'])
+        return redirect('admin-tickets-detalle', pk=self.kwargs['pk'])
+
+
+class TicketAdminQRView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    context_object_name = 'ticket'
+    permission_required = 'eventos.change_ticket'
+
+    def get(self, request, *args, **kwargs):
+        try:
+            ticket = Ticket.objects.get(pk=self.kwargs['pk'])
+            if not ticket.is_used:
+                ticket.is_used = True
+                ticket.save()
+                return render(request, 'admin/ticket/qr.html', {'ticket': ticket, 'success': True})
+            else:
+                return render(request, 'admin/ticket/qr.html', {
+                    'ticket': ticket,
+                    'error': 'El ticket ya ha sido usado',
+                    'success': False})
+        except (Ticket.DoesNotExist, ValueError):
+            return render(request, 'admin/ticket/qr.html', {
+                'ticket': None,
+                'error': 'El ticket no existe o el código QR no es válido',
+                'success': False
+            })
