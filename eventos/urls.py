@@ -3,6 +3,7 @@ from django.urls import path
 
 from eventos.views.admin.evento.views import EventoAdminListView, EventoAdminCreateView, EventoAdminUpdateView, \
     EventoAdminDeleteView
+from eventos.views.admin.ticket.views import TicketAdminListView
 from eventos.views.user.evento.views import EventoUserDetailView, VentaTicketUserPaymentView, VentaTicketCheckoutView, \
     VentaTicketUserReceiptView, EventoUserOrderView
 
@@ -13,6 +14,9 @@ urlpatterns = [
     path('admin/eventos/crear/', EventoAdminCreateView.as_view(), name='admin-eventos-crear'),
     path('admin/eventos/<int:pk>/editar/', EventoAdminUpdateView.as_view(), name='admin-eventos-editar'),
     path('admin/eventos/<int:pk>/baja/', EventoAdminDeleteView.as_view(), name='admin-eventos-baja'),
+
+    path('admin/tickets/', lambda request: redirect('admin-tickets-listado', permanent=True), name='admin-tickets'),
+    path('admin/tickets/listado/', TicketAdminListView.as_view(), name='admin-tickets-listado'),
 
     # URLs de los eventos (usuarios)
     path('eventos/<int:pk>/', EventoUserDetailView.as_view(), name='eventos-detalle'),

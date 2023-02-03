@@ -1,0 +1,364 @@
+{% extends "extends/admin/base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">{{ title }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <table id="dataTable" class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">Evento</th>
+                                <th scope="col" style="">Tipo de entrada</th>
+                                <th scope="col" style="">Nombre</th>
+                                <th scope="col" style="">Estado</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for ticket in tickets %}
+                                <tr>
+                                    <td></td>
+                                    <td>{{ ticket.id }}</td>
+                                    <td>{{ ticket.ticket_variante__evento__nombre }}</td>
+                                    <td>{{ ticket.ticket_variante__nombre }}</td>
+                                    <td>{{ ticket.nombre }}</td>
+                                    <td>
+                                        <label class="font-weight-normal">Usado
+                                            <input type="checkbox" {% if ticket.is_used %} checked {% endif %}
+                                                   name="is_used_{{ ticket.id }}">
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <a href="#"
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-qrcode"></i>
+                                            Ticket
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th></th>
+                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">Evento</th>
+                                <th scope="col" style="">Tipo de entrada</th>
+                                <th scope="col" style="">Nombre</th>
+                                <th scope="col" style="">Estado</th>
+                                <th></th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+    {# DataTable #}
+    <link rel="stylesheet" type="text/css" href="{% static 'libs/DataTables/datatables.css' %}"/>
+    <script type="text/javascript" src="{% static 'libs/DataTables/datatables.js' %}"></script>
+    <script type="text/javascript" src="{% static 'libs/DataTables/Select-1.5.0/js/dataTables.select.js' %}"></script>
+    {# Datatable Internacionalización #}
+    <script src="{% static 'libs/datatables/es-ES.json' %}"></script>
+    <script>
+        let table = $('#dataTable');
+
+        table.DataTable({
+            responsive: true,
+            columnDefs: [
+                {
+                    className: 'select-checkbox',
+                    targets: 0,
+                },
+                {
+                    orderable: false,
+                    targets: -1
+                }
+            ],
+            select: {
+                style: 'os',
+                selector: 'td:first-child'
+            },
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'selectAll',
+                    text: 'Seleccionar todo',
+                    className: 'btn btn-primary btn-sm'
+                },
+                {
+                    extend: 'selectNone',
+                    text: 'Deseleccionar todo',
+                    className: 'btn btn-primary btn-sm'
+                },
+                // Agregar un button que pueda contener varias acciones
+                {
+                    extend: 'collection',
+                    text: 'Acción en lote',
+                    className: 'btn btn-primary btn-sm',
+                    buttons: [
+                        {
+                            text: 'Dar de baja',
+                            className: 'btn btn-danger btn-sm',
+                            action: function (e, dt, node, config) {
+                                let ids = $.map(table.DataTable().rows({selected: true}).data(), function (item) {
+                                    return item[1]
+                                });
+                                // Si no hay registros seleccionados
+                                if (ids.length === 0) {
+                                    Swal.fire({
+                                        position: 'top-end',
+                                        title: 'Error',
+                                        text: 'No hay registros seleccionados',
+                                        icon: 'error',
+                                        confirmButtonText: 'Aceptar'
+                                    });
+                                    return;
+                                }
+                                Swal.fire({
+                                    position: 'top-end',
+                                    title: '¿Estás seguro?',
+                                    text: "¡No podrás revertir esto!",
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: '¡Sí, dar de baja!',
+                                    cancelButtonText: 'Cancelar'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        $.ajax({
+                                            url: window.location.href,
+                                            type: 'POST',
+                                            data: {
+                                                'action': 'delete_lote',
+                                                'ids': ids,
+                                                'csrfmiddlewaretoken': '{{ csrf_token }}'
+                                            },
+                                            beforeSend: function () {
+                                                Swal.fire({
+                                                    position: 'top-end',
+                                                    title: '¡Baja en proceso!',
+                                                    html: 'Por favor espere...',
+                                                    allowOutsideClick: false,
+                                                    didOpen: () => {
+                                                        Swal.showLoading()
+                                                    },
+                                                })
+                                            },
+                                            success: function (data) {
+                                                if (!data.hasOwnProperty('error')) {
+                                                    Swal.fire({
+                                                        position: 'top-end',
+                                                        title: '¡Baja exitosa!',
+                                                        text: 'Los registros se dieron de baja correctamente',
+                                                        icon: 'success',
+                                                        timer: 5000,
+                                                        timerProgressBar: true,
+                                                    }).then(() => {
+                                                        location.reload();
+                                                    });
+                                                } else {
+                                                    Swal.fire({
+                                                        position: 'top-end',
+                                                        title: 'Error',
+                                                        text: data.error,
+                                                        icon: 'error',
+                                                        confirmButtonText: 'Aceptar'
+                                                    });
+                                                }
+                                            },
+                                            error: function (data) {
+                                                Swal.fire({
+                                                    position: 'top-end',
+                                                    title: 'Error',
+                                                    text: 'Error al dar de baja los registros',
+                                                    icon: 'error',
+                                                    confirmButtonText: 'Aceptar'
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        },
+                        {
+                            text: 'Marcar como usado',
+                            className: 'btn btn-success btn-sm',
+                            action: function (e, dt, node, config) {
+                                let ids = $.map(table.DataTable().rows({selected: true}).data(), function (item) {
+                                    return item[1]
+                                });
+                                // Si no hay registros seleccionados
+                                if (ids.length === 0) {
+                                    Swal.fire({
+                                        position: 'top-end',
+                                        title: 'Error',
+                                        text: 'No hay registros seleccionados',
+                                        icon: 'error',
+                                        confirmButtonText: 'Aceptar'
+                                    });
+                                    return;
+                                }
+                                Swal.fire({
+                                    position: 'top-end',
+                                    title: '¿Estás seguro?',
+                                    text: "Se marcarán como usados los registros seleccionados",
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Sí, marcar como usados',
+                                    cancelButtonText: 'Cancelar'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        $.ajax({
+                                            url: window.location.href,
+                                            type: 'POST',
+                                            data: {
+                                                'action': 'is_used_change_lote',
+                                                'ids': ids,
+                                                'csrfmiddlewaretoken': '{{ csrf_token }}'
+                                            },
+                                            beforeSend: function () {
+                                                Swal.fire({
+                                                    position: 'top-end',
+                                                    title: 'Actualizando tickets',
+                                                    html: 'Por favor espere...',
+                                                    allowOutsideClick: false,
+                                                    didOpen: () => {
+                                                        Swal.showLoading()
+                                                    },
+                                                })
+                                            },
+                                            success: function (data) {
+                                                if (!data.hasOwnProperty('error')) {
+                                                    Swal.fire({
+                                                        position: 'top-end',
+                                                        title: 'Éxito',
+                                                        text: 'Se marcaron como usados los tickets seleccionados',
+                                                        icon: 'success',
+                                                        timer: 5000,
+                                                        timerProgressBar: true,
+                                                    }).then(() => {
+                                                        location.reload();
+                                                    });
+                                                } else {
+                                                    Swal.fire({
+                                                        position: 'top-end',
+                                                        title: 'Error',
+                                                        text: 'Ocurrió un error al marcar como usados los tickets seleccionados',
+                                                        icon: 'error',
+                                                        confirmButtonText: 'Aceptar'
+                                                    });
+                                                }
+                                            },
+                                            error: function (data) {
+                                                Swal.fire({
+                                                    position: 'top-end',
+                                                    title: 'Error',
+                                                    text: 'Ocurrió un error al marcar como usados los tickets seleccionados',
+                                                    icon: 'error',
+                                                    confirmButtonText: 'Aceptar'
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        }
+                    ]
+                },
+            ],
+            lengthChange: false,
+            order: [[0, 'desc']],
+            autoWidth: false,
+            language: {
+                search: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros por página",
+                zeroRecords: "No se encontraron tickets",
+                info: "Mostrando página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros disponibles",
+                infoFiltered: "(filtrado de _MAX_ registros totales)",
+                paginate: {
+                    first: "Primero",
+                    last: "Último",
+                    next: "Siguiente",
+                    previous: "Anterior"
+                },
+            }
+        });
+    </script>
+    <script>
+        $('input[type=checkbox]').change(function () {
+            let input = $(this);
+            $.ajax({
+                url: window.location.href,
+                type: 'POST',
+                data: {
+                    'action': 'is_used_change',
+                    'ticket_id': this.name.split('_')[2],
+                    'usado': this.checked,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                beforeSend: function () {
+                    Swal.fire({
+                        position: 'top-end',
+                        title: 'Actualizando ticket',
+                        html: 'Por favor espere...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading()
+                        },
+                    })
+                },
+                success: function (data) {
+                    if (!data.hasOwnProperty('error')) {
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'success',
+                            title: '¡Éxito!',
+                            text: 'El ticket se ha actualizado correctamente',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '¡Error!',
+                            text: 'Ha ocurrido un error al actualizar el ticket',
+                            showConfirmButton: false,
+                            timer: 1500
+                            // Si hay error, se vuelve a cambiar el estado del checkbox
+                        }).then(() => {
+                            this.prop('checked', !this.checked)
+                        })
+                    }
+                },
+                error: function (data) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '¡Error!',
+                        text: 'Ha ocurrido un error al actualizar el ticket',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        this.prop('checked', !this.checked)
+                    })
+                }
+            });
+        });
+    </script>
+{% endblock body_js %}

@@ -46,8 +46,8 @@
                     <strong>Detalle de estado:</strong> {{ pago_venta_ticket.status_detail }}<br>
                 </div>
                 <div class="col-sm-6">
-                    <strong>Cliente:</strong> {{ venta_ticket.nombre }}<br>
-                    <strong>Correo electrónico:</strong> {{ venta_ticket.email }}<br>
+                    <strong>Cliente:</strong> {{ venta_ticket.user.nombre }}<br>
+                    <strong>Correo electrónico:</strong> {{ venta_ticket.user.email }}<br>
                 </div>
             </div>
             <div class="table-responsive-sm">
