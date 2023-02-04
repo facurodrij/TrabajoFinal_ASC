@@ -1,5 +1,8 @@
+from datetime import datetime
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
@@ -90,17 +93,31 @@ class TicketAdminQRView(LoginRequiredMixin, PermissionRequiredMixin, View):
         try:
             ticket = Ticket.objects.get(pk=self.kwargs['pk'])
             if not ticket.is_used:
-                ticket.is_used = True
-                ticket.save()
-                return render(request, 'admin/ticket/qr.html', {'ticket': ticket, 'success': True})
+                with transaction.atomic():
+                    ticket.is_used = True
+                    ticket.check_date = datetime.now()
+                    ticket.check_by = request.user
+                    ticket.save()
+                return render(request, 'admin/ticket/qr.html', {
+                    'title': 'Código QR del Ticket',
+                    'ticket': ticket,
+                    'icon': 'success',
+                    'success': True})
             else:
                 return render(request, 'admin/ticket/qr.html', {
+                    'title': 'Código QR del Ticket',
                     'ticket': ticket,
-                    'error': 'El ticket ya ha sido usado',
+                    'icon': 'error',
+                    'error': 'is_used',
+                    'check_date': ticket.check_date,
+                    'check_by': ticket.check_by,
+                    'text': 'El ticket ya ha sido usado',
                     'success': False})
         except (Ticket.DoesNotExist, ValueError):
             return render(request, 'admin/ticket/qr.html', {
+                'title': 'Código QR del Ticket',
                 'ticket': None,
+                'icon': 'error',
                 'error': 'El ticket no existe o el código QR no es válido',
                 'success': False
             })

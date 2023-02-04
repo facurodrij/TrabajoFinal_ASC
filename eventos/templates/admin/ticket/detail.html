@@ -22,6 +22,8 @@
                             </li>
                             <li class="list-group-item"><b>Tipo de entrada:</b> {{ ticket.ticket_variante.nombre }}</li>
                             <li class="list-group-item"><b>Precio de compra:</b> ${{ ticket.get_precio_compra }}</li>
+{#                            TODO: Detalle de la venta asociada  #}
+                            <li class="list-group-item"><b>Estado del pago:</b> {{ ticket.get_estado_pago }}</li>
                         </ul>
                     </div>
                     <div class="col-md-4">

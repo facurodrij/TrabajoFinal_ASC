@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db import models, transaction
+from django.db.models import Q
 from django.forms import model_to_dict
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -200,6 +201,9 @@ class Ticket(SoftDeleteModel):
                                         verbose_name='Variante de ticket')
     nombre = models.CharField(max_length=255, verbose_name='Nombre del cliente')
     is_used = models.BooleanField(default=False, verbose_name='Usado')
+    check_date = models.DateTimeField(null=True, blank=True, verbose_name='Fecha de check-in')
+    check_by = models.ForeignKey('accounts.User', on_delete=models.PROTECT, null=True, blank=True,
+                                 verbose_name='Escaneado por')
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
 
@@ -230,6 +234,14 @@ class Ticket(SoftDeleteModel):
         subtotal = self.venta_ticket.itemventaticket_set.get(ticket_variante=self.ticket_variante).subtotal
         return subtotal / cantidad
 
+    def get_estado_pago(self):
+        """
+        Devuelve el estado del pago del ticket.
+        """
+        if self.venta_ticket.pagoventaticket.status == 'approved':
+            return 'Aprobado'
+        return 'Pendiente'
+
     def toJSON(self):
         item = model_to_dict(self)
         item['venta_ticket'] = self.venta_ticket.toJSON()
@@ -239,6 +251,18 @@ class Ticket(SoftDeleteModel):
     class Meta:
         verbose_name = 'Ticket'
         verbose_name_plural = "Tickets"
+        constraints = [
+            models.CheckConstraint(
+                check=~Q(is_used=True) | Q(check_date__isnull=False),
+                name='ticket_check_date_not_null_if_is_used_is_true',
+                violation_error_message='El campo "Fecha de check-in" no puede ser nulo si el ticket está usado.'
+            ),
+            models.CheckConstraint(
+                check=~Q(is_used=True) | Q(check_by__isnull=False),
+                name='ticket_check_by_not_null_if_is_used_is_true',
+                violation_error_message='El campo "Escaneado por" no puede ser nulo si el ticket está usado.'
+            ),
+        ]
 
 
 class VentaTicket(SoftDeleteModel):

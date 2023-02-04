@@ -1,0 +1,81 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - RESERVÁ</title>
+    <!-- Bootstrap 4.6 CSS -->
+    <link rel="stylesheet" href="{% static 'libs/bootstrap-4.6.2/bootstrap.min.css' %}">
+    <!-- Font Awesome -->
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
+    <!-- jQuery JS -->
+    <script src="{% static 'libs/jquery-3.6.1/jquery-3.6.1.min.js' %}"></script>
+    <!-- SweetAlert2 Theme Borderless CSS -->
+    <link rel="stylesheet" href="{% static 'libs/sweetalert2/borderless.min.css' %}">
+    <!-- SweetAlert2 JS -->
+    <script src="{% static 'libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+    <style>
+        body {
+            background-color: #aeaeae;
+        }
+    </style>
+</head>
+<body>
+<script>
+    // SweetAlert2 cuando el documento está listo
+    $(document).ready(function () {
+        let icon = '';
+        let title = '';
+        let text = '';
+        {% if success %}
+            icon = 'success';
+            title = 'El Ticket es válido. \n Check-in realizado con éxito.';
+        {% elif error == 'is_used' %}
+            let list = '<ul class="list-group mt-3">';
+            list += '<li class="list-group-item"><b>Fecha de check-in:</b> {{ check_date }}</li>';
+            list += '<li class="list-group-item"><b>Escaneado por:</b> {{ check_by }}</li>';
+            list += '</ul>';
+            icon = 'error';
+            title = 'El Ticket no es válido. \n No se pudo realizar el check-in.';
+            text = 'El Ticket ya fue utilizado \n' + list;
+        {% else %}
+            icon = 'error';
+            title = 'El Ticket no es válido. \n No se pudo realizar el check-in.';
+            text = 'El Ticket no existe o ya fue utilizado.';
+        {% endif %}
+        Swal.fire({
+            title: title,
+            icon: '{{ icon }}',
+            text: text,
+            html: text,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false,
+            stopKeydownPropagation: false,
+            showConfirmButton: true,
+            confirmButtonText: 'Escanear otro',
+            confirmButtonColor: '#3085d6',
+            // boton de cancelar
+            showCancelButton: true,
+            cancelButtonText: 'Volver al inicio',
+            // Size big
+            width: 600,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redireccionar a la página de inicio
+                // TODO: Página de escaneo
+                location.href = '{% url 'index_admin' %}';
+            } else {
+                // Redireccionar a la página de inicio
+                location.href = '{% url 'index_admin' %}';
+            }
+        });
+    });
+</script>
+</body>
+</html>
