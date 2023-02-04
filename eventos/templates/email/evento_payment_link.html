@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Link de Pago</title>
+</head>
+<body>
+<p>Hola cliente</p>
+<p>Has creado una orden de compra de tickets para el evento <b>{{ venta.evento.nombre }}</b></p>
+<p>Para pagar tu orden de compra, haz click en el siguiente enlace:</p>
+{% autoescape off %}
+    <a href="{{ protocol }}://{{ domain }}{% url 'venta-ticket-pago' venta.pk %}" target="_blank">Pagar Orden de
+        Compra</a>
+{% endautoescape %}
+</body>
+</html>

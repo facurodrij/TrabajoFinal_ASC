@@ -25,9 +25,8 @@
                                 <i class="fas fa-id-card pr-2"></i> Mi perfil de socio
                             </a>
                         {% endif %}
-                        <a class="dropdown-item" href="#">
-                            {# TODO: Crear sitio para ver los pedidos #}
-                            <i class="fas fa-calendar-days pr-2"></i> Mis entradas
+                        <a class="dropdown-item" href="{% url 'venta-ticket-listado' %}">
+                            <i class="fas fa-ticket pr-2"></i> Mis pedidos
                         </a>
                         <a class="dropdown-item" href="{% url 'reservas-listado' %}">
                             <i class="fas fa-calendar-days pr-2"></i> Mis reservas

@@ -24,13 +24,16 @@
                             {% for ticket_variante in ticket_variante_list %}
                                 <label for="ticket_variante">
                                     <!-- Input de cantidad con referencia al ticket_variante -->
-                                    <input type="number" name="cantidad_{{ ticket_variante.id }}" min="0" value="0" required>
+                                    <input type="number" name="cantidad_{{ ticket_variante.id }}" min="0" value="0"
+                                           required>
                                     {{ ticket_variante.nombre }} - ${{ ticket_variante.precio }}
                                 </label>
                                 <br>
                             {% endfor %}
                             <br>
-                            <input type="submit" value="Comprar" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary">Siguiente
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
                         </form>
                     </div>
                 </div>

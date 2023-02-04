@@ -5,10 +5,10 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.shortcuts import redirect, render
 from django.views import View
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import TemplateView, DetailView, ListView
 from num2words import num2words
 
 from core.models import Club
@@ -98,7 +98,7 @@ class EventoUserDetailView(DetailView):
             return redirect('eventos-orden')
 
 
-class EventoUserOrderView(LoginRequiredMixin, TemplateView):
+class EventoUserOrderView(TemplateView):
     template_name = 'user/evento/orden.html'
 
     def dispatch(self, request, *args, **kwargs):
@@ -145,6 +145,9 @@ class EventoUserOrderView(LoginRequiredMixin, TemplateView):
             items = request.session.get('items')
             tickets = request.session.get('tickets')
             total = request.session.get('total')
+            if items is None or tickets is None or total is None:
+                messages.error(request, 'No se ha seleccionado ningún ticket')
+                return redirect('eventos-detalle', pk=evento.pk)
             i = 0
             for ticket in tickets:
                 # Volver a armar el diccionario con los datos de los tickets ahora con el nombre de la persona
@@ -155,33 +158,49 @@ class EventoUserOrderView(LoginRequiredMixin, TemplateView):
                     'nombre': request.POST.get(f'nombre_{ticket_variante.pk}_{i}'),
                 }
                 i += 1
-            with transaction.atomic():
-                # Se crea la venta
-                venta = VentaTicket.objects.create(
-                    user=request.user,
-                    total=total,
-                    pagado=False,
-                )
-                # Se crean los items de la venta
-                for item in items:
-                    ItemVentaTicket.objects.create(
-                        venta_ticket=venta,
-                        ticket_variante_id=item['ticket_variante_id'],
-                        cantidad=item['cantidad'],
-                        subtotal=item['subtotal']
+            try:
+                with transaction.atomic():
+                    # Se crea la venta
+                    email = request.POST.get('email')
+                    venta = VentaTicket.objects.create(
+                        evento=evento,
+                        email=email,
+                        total=total,
+                        pagado=False,
                     )
-                # Se crean los tickets
-                for ticket in tickets:
-                    Ticket.objects.create(
-                        venta_ticket=venta,
-                        ticket_variante_id=ticket['ticket_variante_id'],
-                        nombre=ticket['nombre'],
-                        is_used=False
-                    )
+                    # Se crean los items de la venta
+                    for item in items:
+                        ItemVentaTicket.objects.create(
+                            venta_ticket=venta,
+                            ticket_variante_id=item['ticket_variante_id'],
+                            cantidad=item['cantidad'],
+                            subtotal=item['subtotal']
+                        )
+                    # Se crean los tickets
+                    for ticket in tickets:
+                        Ticket.objects.create(
+                            venta_ticket=venta,
+                            ticket_variante_id=ticket['ticket_variante_id'],
+                            nombre=ticket['nombre'],
+                            is_used=False
+                        )
+                    # Enviar correo con el link de pago.
+                    subject = 'Compra de Tickets - Pago Pendiente'
+                    template = 'email/evento_payment_link.html'
+                    context = {'venta': venta,
+                               'items': venta.itemventaticket_set.all(),
+                               'tickets': venta.ticket_set.all(),
+                               'protocol': 'https' if self.request.is_secure() else 'http',
+                               'domain': get_current_site(request)}
+                    send_email(subject, template, context, venta.email)
+                    messages.success(request, 'Se ha enviado un correo electrónico con el link de pago.')
+            except (IntegrityError, ValidationError, Exception) as e:
+                messages.error(request, 'No se ha podido crear la venta, error: {}'.format(e))
+                return redirect('eventos-orden')
             return redirect('venta-ticket-pago', pk=venta.pk)
 
 
-class VentaTicketUserPaymentView(LoginRequiredMixin, TemplateView):
+class VentaTicketUserPaymentView(TemplateView):
     template_name = 'user/evento/payment.html'
 
     def dispatch(self, request, *args, **kwargs):
@@ -212,8 +231,7 @@ class VentaTicketUserPaymentView(LoginRequiredMixin, TemplateView):
                     }
                 ],
                 "payer": {
-                    "name": request.user.nombre,
-                    "email": request.user.email
+                    "email": venta_ticket.email
                 },
                 "statement_descriptor": "Compra de tickets",
                 "excluded_payment_types": [
@@ -238,6 +256,8 @@ class VentaTicketUserPaymentView(LoginRequiredMixin, TemplateView):
             venta_ticket.preference_id = preference_id
             venta_ticket.save()
         return render(request, 'user/evento/payment.html', {
+            'venta_ticket': venta_ticket,
+            'items': venta_ticket.itemventaticket_set.all(),
             'preference_id': preference_id,
             'public_key': public_key,
             'title': 'Pago de tickets',
@@ -318,3 +338,41 @@ class VentaTicketUserReceiptView(TemplateView):
         except (VentaTicket.DoesNotExist, PagoVentaTicket.DoesNotExist):
             messages.error(request, 'El comprobante de pago no se encuentra disponible.')
             return redirect('index')
+
+
+class VentaTicketUserListView(LoginRequiredMixin, ListView):
+    model = VentaTicket
+    template_name = 'user/venta_ticket/list.html'
+    context_object_name = 'ventas'
+
+    def get_queryset(self):
+        return self.model.objects.filter(user=self.request.user, is_deleted=False).order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Mis Pedidos'
+        context['club_logo'] = Club.objects.get(pk=1).get_imagen()
+        return context
+
+
+class TicketUserListView(LoginRequiredMixin, ListView):
+    """
+    Vista para obtener los tickets de un usuario.
+    """
+    model = Ticket
+    template_name = 'user/ticket/list.html'
+    context_object_name = 'tickets'
+
+    def get(self, request, *args, **kwargs):
+        try:
+            venta_ticket = VentaTicket.objects.get(pk=self.kwargs['pk'], user=self.request.user)
+            if not venta_ticket.pagado:
+                messages.error(self.request, 'Los tickets no se encuentran disponibles.')
+                return redirect('index')  # TODO: Redireccionar a la pagina de pedidos
+        except VentaTicket.DoesNotExist:
+            messages.error(self.request, 'Los tickets no se encuentran disponibles.')
+            return redirect('index')  # TODO: Redireccionar a la pagina de pedidos
+
+    def get_queryset(self):
+        venta_ticket = VentaTicket.objects.get(pk=self.kwargs['pk'], user=self.request.user)
+        return venta_ticket.ticket_set.all()

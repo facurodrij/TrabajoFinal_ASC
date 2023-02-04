@@ -2,21 +2,131 @@
 {% load static %}
 
 {% block content %}
-    <div class="cho-container"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <!-- Datos de la compra -->
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">{{ title }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-8 col-md-12">
+                                <h5>Información de la Compra</h5>
+                                <div class="table-responsive-sm">
+                                    <table class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th class="center">#</th>
+                                            <th><strong>Ticket</strong></th>
+                                            <th class="text-right"><strong>Precio Unitario</strong></th>
+                                            <th class="text-right"><strong>Cantidad</strong></th>
+                                            <th class="text-right"><strong>Total</strong></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for item in items %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td class="left strong">{{ item.ticket_variante.nombre }}</td>
+                                                <td class="text-right">${{ item.get_precio_unit }}</td>
+                                                <td class="text-right">{{ item.cantidad }}</td>
+                                                <td class="text-right">${{ item.subtotal }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5"></div>
+                                    <div class="col-7 ml-auto table-responsive">
+                                        <table class="table table-clear">
+                                            <tbody>
+                                            <tr>
+                                                <td class="left">
+                                                    <strong>Subtotal</strong>
+                                                </td>
+                                                <td class="text-right">${{ venta_ticket.total }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="left">
+                                                    <strong>Descuento (0%)</strong>
+                                                </td>
+                                                <td class="text-right">$0,00</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="left">
+                                                    <strong>Total</strong>
+                                                </td>
+                                                <td class="text-right">
+                                                    <strong>${{ venta_ticket.total }}</strong><br>
+                                                    <p class="text-muted text-right">{{ venta_ticket.get_TOTAL_letras }}</p>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-12">
+                                <h5>Total a pagar</h5>
+                                <div class="alert alert-info" role="alert">
+                                    <h4 class="alert-heading text-right">${{ venta_ticket.total }}</h4>
+                                </div>
+                                <h5>Esperando pago..</h5>
+                                <div class="alert alert-info" role="alert">
+                                    <!-- Cuenta atrás -->
+                                    <div class="row">
+                                        <h4 class="col" id="countdown-text">Restante..</h4>
+                                        <h4 class=" col alert-heading text-right" id="countdown"></h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="cho-container float-right ml-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
 
 {% block body_js %}
-        <!-- MercadoPago SDK -->
-        <script src="https://sdk.mercadopago.com/js/v2"></script>
-        <script>
-            const mercadopago = new MercadoPago('{{ public_key }}', {
-                locale: 'es-AR'
-            });
-            mercadopago.checkout({
-                preference: {
-                    id: '{{ preference_id }}'
-                },
-                autoOpen: true,
-            });
-        </script>
+    <!-- MercadoPago SDK -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+    <script>
+        const mercadopago = new MercadoPago('{{ public_key }}', {
+            locale: 'es-AR'
+        });
+        mercadopago.checkout({
+            preference: {
+                id: '{{ preference_id }}'
+            },
+            render: {
+                container: '.cho-container',
+                label: 'Pagar',
+            }
+        });
+    </script>
+    <script>
+        var expiration_date = new Date("{{ venta_ticket.get_expiration_date }}").getTime();
+        var x = setInterval(function () {
+            var now = new Date().getTime();
+            var distance = expiration_date - now;
+            // Time calculations for days, hours, minutes and seconds
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            // Display the result in the element with id="demo"
+            document.getElementById("countdown").innerHTML = minutes + "m " + seconds + "s ";
+            // If the count down is finished, write some text
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("countdown").innerHTML = "ORDEN DE COMPRA EXPIRADA";
+                document.getElementById("countdown-text").remove();
+            }
+        }, 1000);
+    </script>
 {% endblock body_js %}

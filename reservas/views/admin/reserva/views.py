@@ -205,7 +205,7 @@ def reserva_admin_ajax(request):
                                                              fecha=fecha,
                                                              is_deleted=False):
                     try:
-                        reserva.clean()  # TODO: Revisar si esto funciona
+                        reserva.clean()
                         canchas_disp = canchas_disp.exclude(id=reserva.cancha.id)
                     except ValidationError:
                         pass

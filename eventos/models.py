@@ -14,6 +14,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django_softdelete.models import SoftDeleteModel
+from num2words import num2words
 from qrcode.image.svg import SvgPathFillImage
 
 
@@ -207,9 +208,6 @@ class Ticket(SoftDeleteModel):
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
 
-    def __str__(self):
-        return self.pk
-
     def get_qr_code(self, format_png=False):
         """
         Devuelve el código QR del ticket.
@@ -269,16 +267,14 @@ class VentaTicket(SoftDeleteModel):
     """
     Modelo de las ventas de tickets.
     """
-    user = models.ForeignKey('accounts.User', on_delete=models.PROTECT, verbose_name='Usuario')
+    evento = models.ForeignKey('eventos.Evento', on_delete=models.PROTECT, verbose_name='Evento')
+    email = models.EmailField(verbose_name='Correo electrónico')
     total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total')
     pagado = models.BooleanField(default=False, verbose_name='Pagado', help_text='Marcar si el cliente ya pagó')
     preference_id = models.CharField(max_length=255, null=True, blank=True, verbose_name='Preference ID',
                                      help_text='ID de la preferencia de pago de Mercado Pago')
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
-
-    def __str__(self):
-        return self.pk
 
     def get_expiration_date(self, isoformat=True):
         """
@@ -293,6 +289,12 @@ class VentaTicket(SoftDeleteModel):
         Devuelve los objetos relacionados con la venta.
         """
         return self.ticket_set.all()
+
+    def get_TOTAL_letras(self):
+        """
+        Devuelve el total de la venta en letras.
+        """
+        return 'Son: {} pesos argentinos'.format(num2words(self.total, lang='es'))
 
     def clean(self):
         """Método clean() sobrescrito para validar la reserva."""
@@ -329,8 +331,11 @@ class ItemVentaTicket(models.Model):
     cantidad = models.PositiveIntegerField(verbose_name='Cantidad')
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Subtotal')
 
-    def __str__(self):
-        return self.pk
+    def get_precio_unit(self):
+        """
+        Devuelve el precio unitario del item.
+        """
+        return self.subtotal / self.cantidad
 
     def toJSON(self):
         """
@@ -357,9 +362,6 @@ class PagoVentaTicket(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
     date_approved = models.DateTimeField(verbose_name='Fecha de aprobación')
-
-    def __str__(self):
-        return self.pk
 
     def toJSON(self):
         """
