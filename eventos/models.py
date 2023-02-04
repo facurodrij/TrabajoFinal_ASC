@@ -249,6 +249,11 @@ class Ticket(SoftDeleteModel):
             return 'Aprobado'
         return 'Pendiente'
 
+    def get_IS_USED_display(self):
+        if self.is_used:
+            return 'Usado'
+        return 'No usado'
+
     def toJSON(self):
         item = model_to_dict(self)
         item['venta_ticket'] = self.venta_ticket.toJSON()

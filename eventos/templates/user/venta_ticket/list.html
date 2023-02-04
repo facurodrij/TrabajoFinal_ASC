@@ -37,6 +37,10 @@
                                            class="btn btn-sm btn-outline-primary" target="_blank">
                                             <i class="fas fa-receipt"></i>
                                         </a>
+                                        <a href="{% url 'tickets-listado' venta.pk %}"
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fas fa-ticket"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             {% endfor %}

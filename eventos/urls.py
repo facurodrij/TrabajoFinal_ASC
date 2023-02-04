@@ -29,4 +29,6 @@ urlpatterns = [
     path('venta_ticket/<int:pk>/pago/', VentaTicketUserPaymentView.as_view(), name='venta-ticket-pago'),
     path('venta_ticket/checkout/', VentaTicketCheckoutView.as_view(), name='venta-ticket-checkout'),
     path('venta_ticket/<int:pk>/comprobante/', VentaTicketUserReceiptView.as_view(), name='venta-ticket-comprobante'),
+    path('venta_ticket/<int:pk>/tickets/', TicketUserListView.as_view(), name='tickets-listado'),
+    path('tickets/<int:pk>/', TicketUserDetailView.as_view(), name='tickets-detalle'),
 ]

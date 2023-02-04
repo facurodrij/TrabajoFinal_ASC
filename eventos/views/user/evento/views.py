@@ -381,10 +381,11 @@ class TicketUserListView(LoginRequiredMixin, ListView):
             venta_ticket = VentaTicket.objects.get(pk=self.kwargs['pk'], email=self.request.user.email)
             if not venta_ticket.pagado:
                 messages.error(self.request, 'Los tickets no se encuentran disponibles.')
-                return redirect('index')  # TODO: Redireccionar a la pagina de pedidos
+                return redirect('venta-ticket-detalle', pk=venta_ticket.pk)
         except VentaTicket.DoesNotExist:
             messages.error(self.request, 'Los tickets no se encuentran disponibles.')
-            return redirect('index')  # TODO: Redireccionar a la pagina de pedidos
+            return redirect('index')
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         venta_ticket = VentaTicket.objects.get(pk=self.kwargs['pk'], email=self.request.user.email)
@@ -393,5 +394,20 @@ class TicketUserListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Tickets Adquiridos'
+        context['club_logo'] = Club.objects.get(pk=1).get_imagen()
+        return context
+
+
+class TicketUserDetailView(LoginRequiredMixin, DetailView):
+    """
+    Vista para obtener el detalle de un ticket.
+    """
+    model = Ticket
+    template_name = 'user/ticket/detail.html'
+    context_object_name = 'ticket'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Detalle del Ticket'
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         return context

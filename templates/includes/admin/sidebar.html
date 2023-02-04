@@ -17,33 +17,12 @@
                 <!-- Add icons to the links using the .nav-icon class
                      with font-awesome or any other icon font library -->
                 <li class="nav-item">
-                    <a href="#" class="nav-link {% active_link 'club' %}">
+                    <a href="{% url 'admin-club-form' %}" class="nav-link {% active_link 'admin-club-form' %}">
                         <img src="{% static 'icons/icons8-club.svg' %}" class="nav-icon" alt="icon">
                         <p>
                             Mi Club
-                            <i class="right fas fa-angle-left"></i>
                         </p>
                     </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="{% url 'admin-club-detalles' %}"
-                               class="nav-link {% active_link 'club-detalles' %}">
-                                <i class="fa-solid fa-info nav-icon"></i>
-                                <p>
-                                    Detalles
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{% url 'admin-socio-parametros' %}"
-                               class="nav-link {% active_link 'admin-club-parametros' %}">
-                                <i class="fa-solid fa-sliders nav-icon"></i>
-                                <p>Parámetros
-                                    <span class="right badge badge-danger">New</span>
-                                </p>
-                            </a>
-                        </li>
-                    </ul>
                 </li>
                 <li class="nav-item">
                     <a href="#" class="nav-link {% active_link 'admin-persona' %}">
@@ -57,7 +36,7 @@
                         <li class="nav-item">
                             <a href="{% url 'admin-persona-listado' %}"
                                class="nav-link {% active_link 'admin-persona-listado' %}">
-                                <i class="fa-solid fa-rectangle-list nav-icon"></i>
+                                <i class="fas fa-circle-dot nav-icon"></i>
                                 <p>Listado</p>
                             </a>
                         </li>
@@ -75,15 +54,22 @@
                         <li class="nav-item">
                             <a href="{% url 'admin-socio-listado' %}"
                                class="nav-link {% active_link 'admin-socio-listado' %}">
-                                <i class="fa-solid fa-rectangle-list nav-icon"></i>
+                                <i class="fas fa-circle-dot nav-icon"></i>
                                 <p>Listado</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{% url 'admin-categoria-listado' %}"
                                class="nav-link {% active_link 'admin-categoria-listado' %}">
-                                <i class="fa-solid fa-network-wired nav-icon"></i>
+                                <i class="fas fa-circle-dot nav-icon"></i>
                                 <p>Categorias</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'admin-socio-parametros' %}"
+                               class="nav-link {% active_link 'admin-club-parametros' %}">
+                                <i class="fas fa-circle-dot nav-icon"></i>
+                                <p>Parámetros</p>
                             </a>
                         </li>
                     </ul>
@@ -100,7 +86,7 @@
                         <li class="nav-item">
                             <a href="{% url 'admin-cuota-listado' %}"
                                class="nav-link {% active_link 'admin-cuota-listado' %}">
-                                <i class="fa-solid fa-rectangle-list nav-icon"></i>
+                                <i class="fas fa-circle-dot nav-icon"></i>
                                 <p>Listado</p>
                             </a>
                         </li>
@@ -118,7 +104,7 @@
                         <li class="nav-item">
                             <a href="{% url 'admin-reservas-listado' %}"
                                class="nav-link {% active_link 'admin-reservas-listado' %}">
-                                <i class="fa-solid fa-rectangle-list nav-icon"></i>
+                                <i class="fas fa-circle-dot nav-icon"></i>
                                 <p>Listado</p>
                             </a>
                         </li>
@@ -136,15 +122,22 @@
                         <li class="nav-item">
                             <a href="{% url 'admin-eventos-listado' %}"
                                class="nav-link {% active_link 'admin-eventos-listado' %}">
-                                <i class="fa-solid fa-rectangle-list nav-icon"></i>
+                                <i class="fas fa-circle-dot nav-icon"></i>
                                 <p>Listado</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{% url 'admin-tickets-listado' %}"
                                class="nav-link {% active_link 'admin-tickets-listado' %}">
-                                <i class="fa-solid fa-qrcode nav-icon"></i>
+                                <i class="fas fa-circle-dot nav-icon"></i>
                                 <p>Tickets</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'admin-tickets-scanner' %}"
+                               class="nav-link {% active_link 'admin-tickets-scanner' %}">
+                                <i class="fas fa-circle-dot nav-icon"></i>
+                                <p>Escanear Tickets</p>
                             </a>
                         </li>
                     </ul>

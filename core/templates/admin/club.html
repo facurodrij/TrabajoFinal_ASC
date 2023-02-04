@@ -3,8 +3,8 @@
 
 {% block breadcrumbs %}
     <ol class="breadcrumb float-sm-right">
-        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-        <li class="breadcrumb-item active">Club</li>
+        <li class="breadcrumb-item"><a href="{% url 'index_admin' %}">Inicio</a></li>
+        <li class="breadcrumb-item active">Mi Club</li>
     </ol>
 {% endblock %}
 
@@ -15,7 +15,7 @@
                 <div class="d-flex flex-column align-items-center text-center mb-3">
                     <img class="rounded-circle mt-5"
                          src="{{ object.get_imagen }}" alt="" style="max-width: 300px">
-                    <span class="font-weight-bold mt-3">{{ object.nombre }}</span>
+                    <h3 class="font-weight-bold mt-3">{{ object.nombre }}</h3>
                 </div>
             </div>
             <div class="col-md-7">
@@ -27,27 +27,28 @@
                         </div>
                         <div class="card-body">
                             <div class="form-group">
-                                <label class="labels">{{ club_form.nombre.label }}</label>
-                                {{ club_form.nombre }}
+                                <label class="labels">{{ form.nombre.label }}</label>
+                                {{ form.nombre }}
                             </div>
                             <div class="form-group">
-                                <label class="labels">{{ club_form.localidad.label }}</label>
-                                {{ club_form.localidad }}
+                                <label class="labels">{{ form.localidad.label }}</label>
+                                {{ form.localidad }}
                             </div>
                             <div class="form-group">
-                                <label class="labels">{{ club_form.direccion.label }}</label>
-                                {{ club_form.direccion }}
+                                <label class="labels">{{ form.direccion.label }}</label>
+                                {{ form.direccion }}
                             </div>
                             <div class="form-group">
-                                <label for="customFileLang">{{ club_form.logo.label }}</label>
+                                <label for="customFileLang">{{ form.logo.label }}</label>
                                 <div class="input-group">
-                                    {{ club_form.logo }}
+                                    {{ form.logo }}
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer">
-                            <button class="btn btn-primary profile-button" type="submit">Guardar Cambios</button>
-                            <button class="btn btn-secondary" type="reset">Reset</button>
+                            <button class="btn btn-primary float-right" type="submit">
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -68,10 +69,10 @@
             });
         });
     </script>
-    {% if club_form.errors %}
+    {% if form.errors %}
         <script type="text/javascript">
             let errors = []
-            {% for key, value in club_form.errors.items %}
+            {% for key, value in form.errors.items %}
                 errors.push('{{ value|join:" " }}')
             {% endfor %}
             Swal.fire({

@@ -1,4 +1,4 @@
-{% extends "extends/admin/base.html" %}
+{% extends "extends/user/base.html" %}
 {% load static %}
 
 {% block content %}
@@ -10,33 +10,30 @@
                         <h3 class="card-title">{{ title }}</h3>
                     </div>
                     <div class="card-body">
-                        <a href="{% url 'admin-eventos-crear' %}" class="btn btn-success">
-                            <i class="fas fa-plus pr-1"></i> Agregar Evento
-                        </a>
-                        <hr>
                         <table id="dataTable" class="table table-bordered table-striped">
                             <thead>
                             <tr>
+                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">Evento</th>
+                                <th scope="col" style="">Tipo de entrada</th>
                                 <th scope="col" style="">Nombre</th>
-                                <th scope="col" style="">Fecha de inicio</th>
-                                <th scope="col" style="">Fecha de finalización</th>
-                                <th scope="col" style="">Fecha de creación</th>
+                                <th scope="col" style="">Estado</th>
                                 <th></th>
                             </tr>
                             </thead>
                             <tbody>
-                            {% for evento in eventos %}
+                            {% for ticket in tickets %}
                                 <tr>
-                                    <td>{{ evento.nombre }}</td>
-                                    <td>{{ evento.get_start_datetime }}</td>
-                                    <td>{{ evento.get_end_datetime }}</td>
-                                    <td>{{ evento.date_created }}</td>
+                                    <td>{{ ticket.id }}</td>
+                                    <td>{{ ticket.ticket_variante.evento }}</td>
+                                    <td>{{ ticket.ticket_variante }}</td>
+                                    <td>{{ ticket.nombre }}</td>
+                                    <td>{{ ticket.get_IS_USED_display }}</td>
                                     <td>
-                                        <a href="{% url 'admin-eventos-editar' evento.pk %}" class="btn btn-sm btn-warning">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a href="{% url 'admin-eventos-baja' evento.pk %}" class="btn btn-sm btn-danger">
-                                            <i class="fas fa-trash"></i>
+                                        <a href="{% url 'tickets-detalle' ticket.id %}"
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-qrcode"></i>
+                                            Ticket
                                         </a>
                                     </td>
                                 </tr>
@@ -44,10 +41,11 @@
                             </tbody>
                             <tfoot>
                             <tr>
+                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">Evento</th>
+                                <th scope="col" style="">Tipo de entrada</th>
                                 <th scope="col" style="">Nombre</th>
-                                <th scope="col" style="">Fecha de inicio</th>
-                                <th scope="col" style="">Fecha de finalización</th>
-                                <th scope="col" style="">Fecha de creación</th>
+                                <th scope="col" style="">Estado</th>
                                 <th></th>
                             </tr>
                             </tfoot>
@@ -66,7 +64,7 @@
     <script type="text/javascript" src="{% static 'libs/DataTables/Select-1.5.0/js/dataTables.select.js' %}"></script>
     {# Datatable Internacionalización #}
     <script src="{% static 'libs/datatables/es-ES.json' %}"></script>
-    <script>
+        <script>
         let table = $('#dataTable');
 
         table.DataTable({
@@ -81,7 +79,7 @@
             language: {
                 search: "Buscar:",
                 lengthMenu: "Mostrar _MENU_ registros por página",
-                zeroRecords: "No se encontraron eventos",
+                zeroRecords: "No se encontraron registros",
                 info: "Mostrando página _PAGE_ de _PAGES_",
                 infoEmpty: "No hay registros disponibles",
                 infoFiltered: "(filtrado de _MAX_ registros totales)",
