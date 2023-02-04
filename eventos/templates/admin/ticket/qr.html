@@ -46,7 +46,7 @@
         {% else %}
             icon = 'error';
             title = 'El Ticket no es válido. \n No se pudo realizar el check-in.';
-            text = 'El Ticket no existe o ya fue utilizado.';
+            text = '{{ error }}';
         {% endif %}
         Swal.fire({
             title: title,

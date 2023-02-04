@@ -250,18 +250,18 @@ class ReservaCheckoutView(View):
                         )
                         reserva.pagado = True
                         reserva.save()
-                        # Enviar correo de confirmación de pago.
-                        subject = 'Reserva de Cancha - Pago Aprobado'
-                        template = 'email/reserva_payment_approved.html'
-                        context = {
-                            'reserva': reserva,
-                            'pago_reserva': pago_reserva,
-                            'protocol': 'https' if request.is_secure() else 'http',
-                            'domain': get_current_site(request)
-                        }
-                        send_email(subject, template, context, reserva.email)
-                        messages.success(request, 'El pago se ha realizado correctamente. '
-                                                  'Se ha enviado un correo de confirmación.')
+                    # Enviar correo de confirmación de pago.
+                    subject = 'Reserva de Cancha - Pago Aprobado'
+                    template = 'email/reserva_payment_approved.html'
+                    context = {
+                        'reserva': reserva,
+                        'pago_reserva': pago_reserva,
+                        'protocol': 'https' if request.is_secure() else 'http',
+                        'domain': get_current_site(request)
+                    }
+                    send_email(subject, template, context, reserva.email, True)
+                    messages.success(request, 'El pago se ha realizado correctamente. '
+                                              'Se ha enviado un correo de confirmación.')
                     return redirect('index')
                 else:
                     messages.error(request, 'Error al realizar el pago.')

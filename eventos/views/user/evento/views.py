@@ -286,18 +286,18 @@ class VentaTicketCheckoutView(View):
                         )
                         venta_ticket.pagado = True
                         venta_ticket.save()
-                        subject = 'Compra de tickets - Pago Aprobado'
-                        template = 'email/evento_payment_approved.html'
-                        context = {
-                            'venta_ticket': venta_ticket,
-                            'pago_venta_ticket': pago_venta_ticket,
-                            'protocol': 'https' if request.is_secure() else 'http',
-                            'domain': get_current_site(request)
-                        }
-                        send_email(subject, template, context, venta_ticket.user.email, True)
-                        messages.success(request, 'El pago se ha realizado correctamente. '
-                                                  'Se ha enviado un correo de confirmación.')
-                        # TODO: Enviar QR del ticket con la url de detalle del ticket
+                    subject = 'Compra de tickets - Pago Aprobado'
+                    template = 'email/evento_payment_approved.html'
+                    context = {
+                        'venta_ticket': venta_ticket,
+                        'pago_venta_ticket': pago_venta_ticket,
+                        'protocol': 'https' if request.is_secure() else 'http',
+                        'domain': get_current_site(request)
+                    }
+                    send_email(subject, template, context, venta_ticket.email, True)
+                    messages.success(request, 'El pago se ha realizado correctamente. '
+                                              'Se ha enviado un correo de confirmación.')
+                    # TODO: Enviar QR del ticket con la url de detalle del ticket
                     return redirect('index')
                 else:
                     messages.error(request, 'Error al realizar el pago.')
@@ -306,7 +306,7 @@ class VentaTicketCheckoutView(View):
                 messages.error(request, 'Error al realizar el pago.')
                 return redirect('index')
         except Exception as e:
-            print(e)
+            print('VentaTicketCheckoutView: ', e.args[0])
             messages.error(request, 'Error al realizar el pago.')
             return redirect('index')
 

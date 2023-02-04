@@ -104,6 +104,9 @@ class TicketAdminQRView(LoginRequiredMixin, PermissionRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         try:
             ticket = Ticket.objects.get(pk=self.kwargs['pk'])
+            venta_ticket = ticket.venta_ticket
+            if not venta_ticket.pagado:
+                raise ValueError('El ticket no ha sido pagado')
             if not ticket.is_used:
                 with transaction.atomic():
                     ticket.is_used = True
@@ -125,11 +128,19 @@ class TicketAdminQRView(LoginRequiredMixin, PermissionRequiredMixin, View):
                     'check_by': ticket.check_by,
                     'text': 'El ticket ya ha sido usado',
                     'success': False})
-        except (Ticket.DoesNotExist, ValueError):
+        except Ticket.DoesNotExist:
             return render(request, 'admin/ticket/qr.html', {
                 'title': 'Código QR del Ticket',
                 'ticket': None,
                 'icon': 'error',
                 'error': 'El ticket no existe o el código QR no es válido',
+                'success': False
+            })
+        except ValueError as e:
+            return render(request, 'admin/ticket/qr.html', {
+                'title': 'Código QR del Ticket',
+                'ticket': None,
+                'icon': 'error',
+                'error': e.args[0],
                 'success': False
             })
