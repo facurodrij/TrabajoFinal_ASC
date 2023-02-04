@@ -13,25 +13,29 @@
                         <table id="dataTable" class="table table-bordered table-striped">
                             <thead>
                             <tr>
-                                <th scope="col" style="">Fecha y Hora</th>
-                                <th scope="col" style="">Precio de la reserva</th>
-                                <th scope="col" style="">Cancha reservada</th>
+                                <th scope="col" style="">Evento</th>
+                                <th scope="col" style="">Cantidad de tickets adquiridos</th>
                                 <th scope="col" style="">Estado de pago</th>
-                                <th scope="col" style="">Estado de reserva</th>
+                                <th scope="col" style="">Estado de evento</th>
+                                <th scope="col" style="">Fecha de compra</th>
                                 <th></th>
                             </tr>
                             </thead>
                             <tbody>
-                            {% for reserva in reservas %}
+                            {% for venta in ventas %}
                                 <tr>
-                                    <td>{{ reserva.fecha }}, {{ reserva.hora }}</td>
-                                    <td>${{ reserva.precio }}</td>
-                                    <td>{{ reserva.cancha }}</td>
-                                    <td>{{ reserva.get_ESTADO_PAGO_display }}</td>
-                                    <td>{{ reserva.get_ESTADO_display }}</td>
+                                    <td>{{ venta.evento }}</td>
+                                    <td>{{ venta.get_related_objects.count }}</td>
+                                    <td>{{ venta.get_ESTADO_PAGO_display }}</td>
+                                    <td>{{ venta.evento.get_ESTADO_display }}</td>
+                                    <td>{{ venta.date_created }}</td>
                                     <td>
-                                        <a href="{% url 'reservas-detalle' reserva.id %}" class="btn btn-info">
+                                        <a href="{% url 'venta-ticket-detalle' venta.pk %}" class="btn btn-sm btn-info">
                                             <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'venta-ticket-comprobante' venta.pk %}"
+                                           class="btn btn-sm btn-outline-primary" target="_blank">
+                                            <i class="fas fa-receipt"></i>
                                         </a>
                                     </td>
                                 </tr>
@@ -39,11 +43,11 @@
                             </tbody>
                             <tfoot>
                             <tr>
-                                <th scope="col" style="">Fecha y Hora</th>
-                                <th scope="col" style="">Precio de la reserva</th>
-                                <th scope="col" style="">Cancha reservada</th>
+                                <th scope="col" style="">Evento</th>
+                                <th scope="col" style="">Cantidad de tickets adquiridos</th>
                                 <th scope="col" style="">Estado de pago</th>
-                                <th scope="col" style="">Estado de reserva</th>
+                                <th scope="col" style="">Estado de evento</th>
+                                <th scope="col" style="">Fecha de compra</th>
                                 <th></th>
                             </tr>
                             </tfoot>
@@ -77,7 +81,7 @@
             language: {
                 search: "Buscar:",
                 lengthMenu: "Mostrar _MENU_ registros por página",
-                zeroRecords: "No se encontraron reservas",
+                zeroRecords: "No se encontraron registros",
                 info: "Mostrando página _PAGE_ de _PAGES_",
                 infoEmpty: "No hay registros disponibles",
                 infoFiltered: "(filtrado de _MAX_ registros totales)",

@@ -23,6 +23,9 @@ urlpatterns = [
     path('eventos/orden/', EventoUserOrderView.as_view(), name='eventos-orden'),
 
     # URLs para la compra de entradas de eventos.
+    path('venta_ticket/', lambda request: redirect('venta-ticket-listado', permanent=True), name='venta-ticket'),
+    path('venta_ticket/listado/', VentaTicketUserListView.as_view(), name='venta-ticket-listado'),
+    path('venta_ticket/<int:pk>/', VentaTicketUserDetailView.as_view(), name='venta-ticket-detalle'),
     path('venta_ticket/<int:pk>/pago/', VentaTicketUserPaymentView.as_view(), name='venta-ticket-pago'),
     path('venta_ticket/checkout/', VentaTicketCheckoutView.as_view(), name='venta-ticket-checkout'),
     path('venta_ticket/<int:pk>/comprobante/', VentaTicketUserReceiptView.as_view(), name='venta-ticket-comprobante'),

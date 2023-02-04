@@ -149,7 +149,7 @@ class Reserva(SoftDeleteModel):
         """Método para mostrar si la reserva es con luz."""
         return 'Si' if self.con_luz else 'No'
 
-    def get_ESTADO_RESERVA_display(self):
+    def get_ESTADO_display(self):
         """Método para mostrar el estado de la reserva."""
         if self.is_finished() and self.asistencia:
             return 'Completada'

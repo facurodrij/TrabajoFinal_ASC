@@ -97,6 +97,15 @@ class Evento(SoftDeleteModel):
         """
         return datetime.combine(self.fecha_fin, self.hora_fin)
 
+    def get_ESTADO_display(self):
+        """Método para mostrar el estado de la reserva."""
+        if self.get_end_datetime() < datetime.now():
+            return 'Finalizado'
+        elif self.get_start_datetime() < datetime.now():
+            return 'En curso'
+        else:
+            return 'Por comenzar'
+
     def save(self, *args, **kwargs):
         """Método save() sobrescrito para redimensionar la imagen."""
         super().save(*args, **kwargs)
@@ -295,6 +304,17 @@ class VentaTicket(SoftDeleteModel):
         Devuelve el total de la venta en letras.
         """
         return 'Son: {} pesos argentinos'.format(num2words(self.total, lang='es'))
+
+    def get_ESTADO_PAGO_display(self):
+        """Método para mostrar el estado del pago."""
+        try:
+            pago = PagoVentaTicket.objects.get(venta_ticket=self)
+            if pago.status == 'approved':
+                return 'Aprobado'
+            else:
+                return 'Pendiente'
+        except PagoVentaTicket.DoesNotExist:
+            return 'Pendiente'
 
     def clean(self):
         """Método clean() sobrescrito para validar la reserva."""

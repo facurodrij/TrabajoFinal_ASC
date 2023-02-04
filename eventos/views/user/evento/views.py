@@ -346,11 +346,24 @@ class VentaTicketUserListView(LoginRequiredMixin, ListView):
     context_object_name = 'ventas'
 
     def get_queryset(self):
-        return self.model.objects.filter(user=self.request.user, is_deleted=False).order_by('-created_at')
+        return VentaTicket.objects.filter(email=self.request.user.email).order_by('-date_created')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Mis Pedidos'
+        context['club_logo'] = Club.objects.get(pk=1).get_imagen()
+        return context
+
+
+class VentaTicketUserDetailView(LoginRequiredMixin, DetailView):
+    model = VentaTicket
+    template_name = 'user/venta_ticket/detail.html'
+    context_object_name = 'venta_ticket'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Detalle del Pedido'
+        context['items'] = self.object.itemventaticket_set.all()
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         return context
 
@@ -365,7 +378,7 @@ class TicketUserListView(LoginRequiredMixin, ListView):
 
     def get(self, request, *args, **kwargs):
         try:
-            venta_ticket = VentaTicket.objects.get(pk=self.kwargs['pk'], user=self.request.user)
+            venta_ticket = VentaTicket.objects.get(pk=self.kwargs['pk'], email=self.request.user.email)
             if not venta_ticket.pagado:
                 messages.error(self.request, 'Los tickets no se encuentran disponibles.')
                 return redirect('index')  # TODO: Redireccionar a la pagina de pedidos
@@ -374,5 +387,11 @@ class TicketUserListView(LoginRequiredMixin, ListView):
             return redirect('index')  # TODO: Redireccionar a la pagina de pedidos
 
     def get_queryset(self):
-        venta_ticket = VentaTicket.objects.get(pk=self.kwargs['pk'], user=self.request.user)
+        venta_ticket = VentaTicket.objects.get(pk=self.kwargs['pk'], email=self.request.user.email)
         return venta_ticket.ticket_set.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Tickets Adquiridos'
+        context['club_logo'] = Club.objects.get(pk=1).get_imagen()
+        return context
