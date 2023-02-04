@@ -267,7 +267,7 @@ class VentaTicketCheckoutView(View):
                         venta_ticket.pagado = True
                         venta_ticket.save()
                         subject = 'Compra de tickets - Pago Aprobado'
-                        template = 'email/payment_approved.html'
+                        template = 'email/evento_payment_approved.html'
                         context = {
                             'venta_ticket': venta_ticket,
                             'pago_venta_ticket': pago_venta_ticket,

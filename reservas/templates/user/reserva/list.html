@@ -20,7 +20,8 @@
                                 <th scope="col" style="">Fecha y Hora</th>
                                 <th scope="col" style="">Precio de la reserva</th>
                                 <th scope="col" style="">Cancha reservada</th>
-                                <th scope="col" style="">Estado</th>
+                                <th scope="col" style="">Estado de pago</th>
+                                <th scope="col" style="">Estado de reserva</th>
                                 <th></th>
                             </tr>
                             </thead>
@@ -30,7 +31,8 @@
                                     <td>{{ reserva.fecha }}, {{ reserva.hora }}</td>
                                     <td>${{ reserva.precio }}</td>
                                     <td>{{ reserva.cancha }}</td>
-                                    <td>{{ reserva.get_ESTADO_display }}</td>
+                                    <td>{{ reserva.get_ESTADO_PAGO_display }}</td>
+                                    <td>{{ reserva.get_ESTADO_RESERVA_display }}</td>
                                     <td>
                                         <a href="{% url 'reservas-detalle' reserva.id %}" class="btn btn-info">
                                             <i class="fas fa-eye"></i>
@@ -44,7 +46,8 @@
                                 <th scope="col" style="">Fecha y Hora</th>
                                 <th scope="col" style="">Precio de la reserva</th>
                                 <th scope="col" style="">Cancha reservada</th>
-                                <th scope="col" style="">Estado</th>
+                                <th scope="col" style="">Estado de pago</th>
+                                <th scope="col" style="">Estado de reserva</th>
                                 <th></th>
                             </tr>
                             </tfoot>

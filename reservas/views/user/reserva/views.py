@@ -77,7 +77,7 @@ class ReservaUserCreateView(LoginRequiredMixin, CreateView):
                         reserva = form.save()
                         # Enviar correo con el link de pago.
                         subject = 'Reserva de Cancha - Pago Pendiente'
-                        template = 'email/payment_link.html'
+                        template = 'email/reserva_payment_link.html'
                         context = {'reserva': reserva,
                                    'protocol': 'https' if self.request.is_secure() else 'http',
                                    'domain': get_current_site(request)}
@@ -252,7 +252,7 @@ class ReservaCheckoutView(View):
                         reserva.save()
                         # Enviar correo de confirmación de pago.
                         subject = 'Reserva de Cancha - Pago Aprobado'
-                        template = 'email/payment_approved.html'
+                        template = 'email/reserva_payment_approved.html'
                         context = {
                             'reserva': reserva,
                             'pago_reserva': pago_reserva,
@@ -270,6 +270,7 @@ class ReservaCheckoutView(View):
                 messages.error(request, 'Error al realizar el pago.')
                 return redirect('index')
         except Exception as e:
+            print('ReservaCheckoutView: ', e.args[0])
             messages.error(request, 'Error al realizar el pago.')
             return redirect('index')
 

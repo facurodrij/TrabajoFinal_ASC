@@ -10,32 +10,205 @@
 
 {% block content %}
     <div class="container-fluid">
-        <div id="calendar"></div>
+        <div class="row">
+            <div class="col-lg-6 col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">{{ title }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <a href="{% url 'admin-reservas-crear' %}" class="btn btn-success">
+                            <i class="fas fa-plus pr-1"></i> Agregar Reserva
+                        </a>
+                        <hr>
+                        <table id="dataTable" class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th scope="col" style="">Cancha</th>
+                                <th scope="col" style="">Inicio</th>
+                                <th scope="col" style="">Cliente</th>
+                                <th scope="col" style="">Estado de pago</th>
+                                <th scope="col" style="">Estado de reserva</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for reserva in reservas %}
+                                <tr>
+                                    <td>{{ reserva.cancha }}</td>
+                                    <td>{{ reserva.start_datetime_display }}</td>
+                                    <td>{{ reserva.nombre }}</td>
+                                    <td>{{ reserva.get_ESTADO_PAGO_display }}</td>
+                                    <td>{{ reserva.get_ESTADO_RESERVA_display }}</td>
+                                    <td>
+                                        <a href="{% url 'admin-reservas-detalle' reserva.id %}" class="btn btn-info btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th scope="col" style="">Cancha</th>
+                                <th scope="col" style="">Inicio</th>
+                                <th scope="col" style="">Cliente</th>
+                                <th scope="col" style="">Estado de pago</th>
+                                <th scope="col" style="">Estado de reserva</th>
+                                <th></th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-12">
+                <div id="calendar"></div>
+            </div>
+        </div>
     </div>
 {% endblock content %}
 
 {% block body_js %}
+    {# DataTable #}
+    <link rel="stylesheet" type="text/css" href="{% static 'libs/DataTables/datatables.css' %}"/>
+    <script type="text/javascript" src="{% static 'libs/DataTables/datatables.js' %}"></script>
+    <script type="text/javascript" src="{% static 'libs/DataTables/Select-1.5.0/js/dataTables.select.js' %}"></script>
+    <script>
+        let table = $('#dataTable');
+
+        table.DataTable({
+            language: {
+                "processing": "Procesando...",
+                "lengthMenu": "Mostrar _MENU_ registros",
+                "zeroRecords": "No se encontraron resultados",
+                "emptyTable": "Ningún dato disponible en esta tabla",
+                "infoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+                "infoFiltered": "(filtrado de un total de _MAX_ registros)",
+                "search": "Buscar:",
+                "infoThousands": ",",
+                "loadingRecords": "Cargando...",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": Activar para ordenar la columna de manera ascendente",
+                    "sortDescending": ": Activar para ordenar la columna de manera descendente"
+                },
+                "buttons": {
+                    "copy": "Copiar",
+                    "colvis": "Visibilidad",
+                    "collection": "Colección",
+                    "colvisRestore": "Restaurar visibilidad",
+                    "copyKeys": "Presione ctrl o u2318 + C para copiar los datos de la tabla al portapapeles del sistema. <br \/> <br \/> Para cancelar, haga clic en este mensaje o presione escape.",
+                    "copySuccess": {
+                        "1": "Copiada 1 fila al portapapeles",
+                        "_": "Copiadas %ds fila al portapapeles"
+                    },
+                    "copyTitle": "Copiar al portapapeles",
+                    "csv": "CSV",
+                    "excel": "Excel",
+                    "pageLength": {
+                        "-1": "Mostrar todas las filas",
+                        "_": "Mostrar %d filas"
+                    },
+                    "pdf": "PDF",
+                    "print": "Imprimir",
+                    "renameState": "Cambiar nombre",
+                    "updateState": "Actualizar",
+                    "createState": "Crear Estado",
+                    "removeAllStates": "Remover Estados",
+                    "removeState": "Remover",
+                    "savedStates": "Estados Guardados",
+                    "stateRestore": "Estado %d"
+                },
+                "searchPanes": {
+                    "clearMessage": "Borrar todo",
+                    "collapse": {
+                        "0": '<i class="fa-solid fa-filter"></i> Filtros',
+                        "_": '<i class="fa-solid fa-filter"></i> Filtros (%d)'
+                    },
+                    "count": "{total}",
+                    "countFiltered": "{shown} ({total})",
+                    "emptyPanes": "No hay suficientes datos para mostrar los filtros",
+                    "loadMessage": "Cargando paneles de búsqueda",
+                    "title": "Filtros Activos - %d",
+                    "showMessage": "Mostrar Todo",
+                    "collapseMessage": "Colapsar Todo"
+                },
+                "select": {
+                    "cells": {
+                        "1": "1 celda seleccionada",
+                        "_": "%d celdas seleccionadas"
+                    },
+                    "columns": {
+                        "1": "1 columna seleccionada",
+                        "_": "%d columnas seleccionadas"
+                    },
+                    "rows": {
+                        "1": "1 fila seleccionada",
+                        "_": "%d filas seleccionadas"
+                    }
+                },
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            },
+            dom: 'Bfrtip',
+            columnDefs: [ // Quitarle estilos a la ultima columna
+                {"orderable": false, "targets": -1}
+            ],
+            responsive: true,
+            order: [[0, 'desc']],
+            autoWidth: false,
+            buttons: [
+                {
+                    extend: 'print',
+                    text: '<i class="fa-solid fa-print"></i> Imprimir',
+                    titleAttr: 'Imprimir',
+                    className: 'btn btn-info btn-sm border',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5]
+                    }
+                },
+                {
+                    extend: 'colvis',
+                    text: '<i class="fa-solid fa-eye"></i> Ver columnas',
+                    titleAttr: 'Ver columnas',
+                    className: 'btn btn-secondary btn-sm border',
+                    postfixButtons: ['colvisRestore']
+                },
+                {
+                    extend: 'searchPanes',
+                    text: '<i class="fa-solid fa-filter"></i> Filtros',
+                    className: 'btn btn-secondary btn-sm border',
+                    config: {
+                        cascadePanes: true,
+                        viewTotal: true,
+                        layout: 'columns-3',
+                        columns: [1, 2, 3, 4, 5],
+                    }
+                },
+                {
+                    extend: 'pageLength',
+                    className: 'btn btn-secondary btn-sm border',
+                }
+            ],
+        });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.0.2/index.global.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 themeSystem: 'bootstrap',
-                initialView: 'listWeek',
+                initialView: 'timeGridDay',
                 locale: 'es',
-                // headerToolbar left center right and today
-                customButtons: {
-                    addButton: {
-                        text: 'Crear reserva',
-                        click: function () {
-                            window.location.href = "{% url 'admin-reservas-crear' %}";
-                        }
-                    }
-                },
                 headerToolbar: {
-                    left: 'prev,next today addButton',
+                    left: 'prev,next today',
                     center: 'title',
-                    right: 'timeGridDay,timeGridWeek,dayGridMonth,listWeek'
+                    right: 'timeGridDay,timeGridWeek,dayGridMonth'
                 },
                 // language buttons es
                 buttonText: {

@@ -113,6 +113,10 @@ class Reserva(SoftDeleteModel):
         """Método para obtener la fecha y hora de inicio de la reserva."""
         return datetime.combine(self.fecha, self.hora).isoformat()
 
+    def start_datetime_display(self):
+        """Método para obtener la fecha y hora de inicio de la reserva."""
+        return datetime.combine(self.fecha, self.hora)
+
     def end_datetime(self):
         """Método para obtener la fecha y hora de fin de la reserva."""
         return (datetime.combine(self.fecha, self.hora) + timedelta(hours=1)).isoformat()
@@ -145,16 +149,27 @@ class Reserva(SoftDeleteModel):
         """Método para mostrar si la reserva es con luz."""
         return 'Si' if self.con_luz else 'No'
 
-    def get_ESTADO_display(self):
+    def get_ESTADO_RESERVA_display(self):
         """Método para mostrar el estado de la reserva."""
-        if self.pagado:
-            if self.is_finished():
-                return 'Finalizada'
+        if self.is_finished() and self.asistencia:
+            return 'Completada'
+        elif self.is_finished() and not self.asistencia:
+            return 'No asistió'
+        elif self.start_datetime() < datetime.now().isoformat():
+            return 'En curso'
+        else:
+            return 'Pendiente'
+
+    def get_ESTADO_PAGO_display(self):
+        """Método para mostrar el estado del pago."""
+        try:
+            pago = PagoReserva.objects.get(reserva=self)
+            if pago.status == 'approved':
+                return 'Aprobado'
             else:
-                return 'Activa'
-        elif self.is_finished():
-            return 'Expirada'
-        return 'Pendiente de pago'
+                return 'Pendiente'
+        except PagoReserva.DoesNotExist:
+            return 'Pendiente'
 
     def get_NOTA_display(self):
         """Método para mostrar la nota de la reserva."""
