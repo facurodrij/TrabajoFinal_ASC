@@ -14,7 +14,7 @@
             <div class="col-lg-6 col-md-12">
                 <div class="card">
                     <div class="card-header bg-primary">
-                        <h3 class="card-title">{{ title }}</h3>
+                        <h3 class="card-title">Reservas Registradas</h3>
                     </div>
                     <div class="card-body">
                         <a href="{% url 'admin-reservas-crear' %}" class="btn btn-success">
@@ -39,7 +39,7 @@
                                     <td>{{ reserva.start_datetime_display }}</td>
                                     <td>{{ reserva.nombre }}</td>
                                     <td>{{ reserva.get_ESTADO_PAGO_display }}</td>
-                                    <td>{{ reserva.get_ESTADO_RESERVA_display }}</td>
+                                    <td>{{ reserva.get_ESTADO_display }}</td>
                                     <td>
                                         <a href="{% url 'admin-reservas-detalle' reserva.id %}" class="btn btn-info btn-sm">
                                             <i class="fas fa-eye"></i>

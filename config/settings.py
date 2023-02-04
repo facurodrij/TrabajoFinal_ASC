@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     # Aplicaciones de terceros
     'active_link',
     "django_apscheduler",
-    'django_cleanup.apps.CleanupConfig',
+    # 'django_cleanup.apps.CleanupConfig',
     'fontawesomefree',
     'simple_history',
     'widget_tweaks',
