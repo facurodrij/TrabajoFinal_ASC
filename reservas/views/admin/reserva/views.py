@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta, time
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect
@@ -160,7 +162,14 @@ class ReservaAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, Delete
                 reserva_deleted = self.get_object()
                 reserva_deleted.delete()
                 messages.success(request, 'Reserva dada de baja exitosamente.')
-                # TODO: Enviar aviso sobre la cancelación de la reserva.
+                if not reserva_deleted.is_finished():
+                    send_mail(
+                        'Reserva Cancelada',
+                        'Su {} ha sido cancelada por el administrador del club.'.format(reserva_deleted.__str__()),
+                        settings.DEFAULT_FROM_EMAIL,
+                        [reserva_deleted.email],
+                        fail_silently=False,
+                    )
         except Exception as e:
             data['error'] = e.args[0]
         print('ReservaAdminDeleteView: ', data)

@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import mercadopago
 from django import forms
 from django.db import transaction, ProgrammingError, OperationalError
@@ -220,12 +218,14 @@ class ReservaUserForm(forms.ModelForm):
     def clean(self):
         cleaned_data = self.cleaned_data
         max_reservas_user = Parameters.objects.get(pk=1).max_reservas_user
-        reservas = Reserva.objects.filter(email=self.data.get('email'),
-                                          fecha__gte=datetime.now().date(),
-                                          hora__gte=datetime.now().time())
-        if reservas.count() >= max_reservas_user:
+        reservas = Reserva.objects.filter(email=self.data.get('email'))
+        count = 0
+        for reserva in reservas:
+            if not reserva.is_finished():
+                count += 1
+        if count >= max_reservas_user:
             self._errors['email'] = self.error_class(
-                ['Ya tiene {} reservas activas, no puede hacer más.'.format(max_reservas_user)])
+                ['Ya tiene {} reservas pendiente de pago/activas, no puede hacer más.'.format(max_reservas_user)])
             del cleaned_data['email']
         return cleaned_data
 

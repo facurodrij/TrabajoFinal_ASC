@@ -13,6 +13,7 @@ from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.views import View
 from django.views.generic import ListView, TemplateView, CreateView, DeleteView, DetailView
+from num2words import num2words
 
 from accounts.views import User
 from core.models import Club
@@ -128,7 +129,7 @@ class ReservaUserDetailView(LoginRequiredMixin, DetailView):
                 reserva.clean()
             except ValidationError as e:
                 messages.error(request, e.args[0])
-                return redirect('index')
+                return redirect('reservas-listado')
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -195,7 +196,7 @@ class ReservaUserPaymentView(TemplateView):
                 reserva.clean()
             except ValidationError as e:
                 messages.error(request, e.args[0])
-                return redirect('index')
+                return redirect('reservas-listado')
             if reserva.pagado:
                 messages.error(request, 'La reserva ya ha sido pagada.')
                 if request.user.is_admin():
@@ -289,6 +290,8 @@ class ReservaUserReceiptView(TemplateView):
                     'club': Club.objects.get(pk=1),
                     'reserva': reserva,
                     'pago_reserva': pago_reserva,
+                    'transaction_amount_letras': 'Son: {} pesos argentinos'.format(
+                        num2words(pago_reserva.transaction_amount, lang='es')),
                     'fecha_actual': datetime.now()
                 })
             else:

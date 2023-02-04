@@ -308,6 +308,8 @@ class VentaTicketUserReceiptView(TemplateView):
                     'venta_ticket': venta_ticket,
                     'items_venta_ticket': venta_ticket.itemventaticket_set.all(),
                     'pago_venta_ticket': pago_venta_ticket,
+                    'transaction_amount_letras': 'Son: {} pesos argentinos'.format(
+                        num2words(pago_venta_ticket.transaction_amount, lang='es')),
                     'fecha_actual': datetime.now()
                 })
             else:

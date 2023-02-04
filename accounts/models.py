@@ -61,7 +61,6 @@ class User(AbstractUser):
     last_name = None
     nombre = models.CharField(max_length=255, verbose_name='Nombre')
     apellido = models.CharField(max_length=255, verbose_name='Apellido')
-    # TODO: Campo para determinar si el usuario quiere recibir notificaciones por email cuando una cancha se libera.
     notificaciones = models.BooleanField(default=False, verbose_name='Notificaciones',
                                          help_text='Recibir notificaciones por email sobre eventos, '
                                                    'canchas liberadas, entre otros.')

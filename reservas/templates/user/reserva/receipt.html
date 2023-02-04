@@ -73,32 +73,32 @@
                 </table>
             </div>
             <div class="row">
-                <div class="col-lg-4 col-sm-5"></div>
-                <div class="col-lg-4 col-sm-5 ml-auto">
+                <div class="col-7"></div>
+                <div class="col-5 ml-auto table-responsive">
                     <table class="table table-clear">
                         <tbody>
                         <tr>
                             <td class="left">
                                 <strong>Subtotal</strong>
                             </td>
-                            <td class="right">${{ reserva.precio }}</td>
+                            <td class="text-right">${{ reserva.precio }}</td>
                         </tr>
                         {#                        TODO: Descuento de reserva #}
                         <tr>
                             <td class="left">
                                 <strong>Descuento (0%)</strong>
                             </td>
-                            <td class="right">$0,00</td>
+                            <td class="text-right">$0,00</td>
                         </tr>
                         <tr>
                             <td class="left">
                                 <strong>Total</strong>
                             </td>
-                            <td class="right">
+                            <td class="text-right">
                                 <strong>${{ pago_reserva.transaction_amount }}</strong>
+                                <p class="text-muted text-right">{{ transaction_amount_letras }}</p>
                             </td>
                         </tr>
-                        <!-- TODO: Precio en letras -->
                         </tbody>
                     </table>
                 </div>

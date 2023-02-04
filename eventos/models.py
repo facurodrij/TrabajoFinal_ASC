@@ -299,12 +299,12 @@ class VentaTicket(SoftDeleteModel):
         super(VentaTicket, self).clean()
         # Si pasó la fecha de expiración de la reserva y no se ha pagado, se cancela.
         if self.date_created:
-            with transaction.atomic():
-                if self.get_expiration_date(isoformat=False) < timezone.now() and not self.pagado:
-                    print('La venta de ticket #{} ha expirado por falta de pago.'.format(self.id))
+            if self.get_expiration_date(isoformat=False) < timezone.now() and not self.pagado:
+                print('La venta de ticket #{} ha expirado por falta de pago.'.format(self.id))
+                with transaction.atomic():
                     self.delete(cascade=True)
-                    raise ValidationError('La venta de ticket #{} ha expirado por falta de pago.'.format(self.id),
-                                          code='invalid', params={'id': self.id})
+                raise ValidationError('La venta de ticket #{} ha expirado por falta de pago.'.format(self.id),
+                                      code='invalid', params={'id': self.id})
 
     def toJSON(self):
         """

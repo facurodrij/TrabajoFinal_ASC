@@ -49,10 +49,12 @@
                                 </a>
                             {% endif %}
                         {% endif %}
-                        <button id="btn-delete" type="button" class="btn btn-block btn-danger">
-                            <i class="fa-solid fa-trash"></i>
-                            Cancelar reserva
-                        </button>
+                        {% if not reserva.is_finished %}
+                            <button id="btn-delete" type="button" class="btn btn-block btn-danger">
+                                <i class="fa-solid fa-trash"></i>
+                                Cancelar reserva
+                            </button>
+                        {% endif %}
                     </div>
                 </div>
             </div>
