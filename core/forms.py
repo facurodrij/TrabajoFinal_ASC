@@ -18,8 +18,14 @@ class ClubForm(forms.ModelForm):
     direccion = forms.CharField(max_length=100,
                                 required=True,
                                 widget=forms.TextInput(attrs={'class': 'form-control'}))
-    logo = forms.ImageField(required=False,
-                            widget=forms.FileInput(attrs={'class': 'form-control-file'}))
+    imagen = forms.ImageField(required=False,
+                            widget=forms.FileInput(attrs={'class': 'custom-file-input'}))
+
+    def clean_imagen(self):
+        imagen = self.cleaned_data['imagen']
+        if imagen == self.instance.imagen:
+            return self.instance.imagen
+        return imagen
 
     class Meta:
         model = Club
