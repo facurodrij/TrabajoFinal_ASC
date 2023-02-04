@@ -154,7 +154,7 @@ class Reserva(SoftDeleteModel):
         if self.is_finished() and self.asistencia:
             return 'Completada'
         elif self.is_finished() and not self.asistencia:
-            return 'No asistió'
+            return 'Asistencia pendiente'
         elif self.start_datetime() < datetime.now().isoformat():
             return 'En curso'
         else:

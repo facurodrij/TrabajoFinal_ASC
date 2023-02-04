@@ -225,7 +225,8 @@ class ReservaUserForm(forms.ModelForm):
                 count += 1
         if count >= max_reservas_user:
             self._errors['email'] = self.error_class(
-                ['Ya tiene {} reservas pendiente de pago/activas, no puede hacer más.'.format(max_reservas_user)])
+                ['El email ingresado ya tiene {} reservas pendientes de pago/activas, '
+                 'no puede hacer más.'.format(max_reservas_user)])
             del cleaned_data['email']
         return cleaned_data
 

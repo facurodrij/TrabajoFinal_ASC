@@ -191,7 +191,7 @@ def reserva_admin_ajax(request):
                 start_date = datetime.combine(fecha, hora)
                 # Fecha de inicio de la reserva debe ser con al menos 2 horas de anticipación
                 horas_anticipacion = Parameters.objects.get(club_id=1).horas_anticipacion
-                if request.user.is_admin():
+                if request.user.is_authenticated and request.user.is_admin():
                     canchas_disp = Cancha.objects.filter(deporte_id=deporte_id)
                 else:
                     if start_date < datetime.now() + timedelta(hours=horas_anticipacion):

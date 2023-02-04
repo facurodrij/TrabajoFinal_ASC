@@ -30,7 +30,7 @@ sdk = mercadopago.SDK(access_token)
 UserModel = get_user_model()
 
 
-class ReservaUserCreateView(LoginRequiredMixin, CreateView):
+class ReservaUserCreateView(CreateView):
     """
     Vista para obtener canchas disponibles en una fecha y hora determinada.
     """
