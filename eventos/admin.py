@@ -24,19 +24,10 @@ class VentaTicketAdmin(SimpleHistoryAdmin):
         return VentaTicket.global_objects.all()
 
 
-class ItemVentaTicketAdmin(SimpleHistoryAdmin):
-    def get_queryset(self, request):
-        return ItemVentaTicket.objects.all()
-
-
-class PagoVentaTicketAdmin(SimpleHistoryAdmin):
-    def get_queryset(self, request):
-        return PagoVentaTicket.objects.all()
-
-
+admin.site.register(Parameters, SimpleHistoryAdmin)
 admin.site.register(Evento, EventoAdmin)
 admin.site.register(TicketVariante, TicketVarianteAdmin)
 admin.site.register(Ticket, TicketAdmin)
 admin.site.register(VentaTicket, VentaTicketAdmin)
-admin.site.register(ItemVentaTicket, ItemVentaTicketAdmin)
-admin.site.register(PagoVentaTicket, PagoVentaTicketAdmin)
+admin.site.register(ItemVentaTicket, SimpleHistoryAdmin)
+admin.site.register(PagoVentaTicket, SimpleHistoryAdmin)

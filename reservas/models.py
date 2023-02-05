@@ -22,7 +22,7 @@ from reservas.tokens import reserva_create_token
 
 class Parameters(models.Model):
     """
-    Modelo para almacenar los parámetros para las reservas.
+    Modelo de los parámetros de las reservas.
     """
     club = models.OneToOneField('core.Club', on_delete=models.CASCADE, verbose_name='Club',
                                 related_name='reserva_parameters')
@@ -58,6 +58,7 @@ class Parameters(models.Model):
                                                 help_text=
                                                 'Finalizar la reserva al comenzar, de lo contrario finalizará al'
                                                 ' terminar.')
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = 'Parámetro de reserva'
@@ -281,6 +282,7 @@ class PagoReserva(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
     date_approved = models.DateTimeField(verbose_name='Fecha de aprobación')
+    history = HistoricalRecords()
 
     def __str__(self):
         return 'Pago de reserva #{}'.format(self.reserva.id)
@@ -318,6 +320,7 @@ class Cancha(SoftDeleteModel):
                                      decimal_places=2,
                                      null=True, blank=True,
                                      verbose_name='Precio por hora con luz')
+    history = HistoricalRecords()
 
     def imagen_directory_path(self, filename):
         """Método para obtener la ruta de la imagen de la cancha."""

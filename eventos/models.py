@@ -20,6 +20,9 @@ from simple_history.models import HistoricalRecords
 
 
 class Parameters(models.Model):
+    """
+    Modelo de los parámetros de los eventos.
+    """
     club = models.OneToOneField('core.Club', on_delete=models.PROTECT, verbose_name='Club',
                                 related_name='evento_parameters')
     minutos_expiracion_venta = models.PositiveSmallIntegerField(default=5,
