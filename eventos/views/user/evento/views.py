@@ -57,7 +57,7 @@ class EventoUserDetailView(DetailView):
         if action == 'orden':
             tickets = []
             items = []
-            total = 0
+            subtotal = 0
             max_tickets_por_venta = Parameters.objects.get(pk=1).max_tickets_por_venta
             cantidad_tickets = 0
             for ticket_variante in TicketVariante.objects.filter(evento=evento):
@@ -74,10 +74,10 @@ class EventoUserDetailView(DetailView):
                     'ticket_variante_id': ticket_variante.pk,
                     'ticket_variante': ticket_variante.nombre,
                     'cantidad': cantidad,
-                    'precio_unit': ticket_variante.precio.__str__(),
-                    'subtotal': (ticket_variante.precio * cantidad).__str__()
+                    'precio_unit': ticket_variante.precio.__float__(),
+                    'subtotal': (ticket_variante.precio * cantidad).__float__()
                 })
-                total += ticket_variante.precio * cantidad
+                subtotal += ticket_variante.precio * cantidad
                 # Se crea un diccionario con cada ticket
                 for cantidad in range(cantidad):
                     tickets.append({
@@ -85,16 +85,19 @@ class EventoUserDetailView(DetailView):
                         'ticket_variante': ticket_variante.__str__(),
                         'precio': ticket_variante.precio.__float__()
                     })
-            if total <= 0:
+            if subtotal <= 0:
                 messages.error(request, 'No se ha seleccionado ningún ticket')
                 return redirect('eventos-detalle', pk=evento.pk)
             if cantidad_tickets > max_tickets_por_venta:
                 messages.error(request, 'No se pueden comprar más de {} tickets'.format(max_tickets_por_venta))
                 return redirect('eventos-detalle', pk=evento.pk)
             # Guardar en sesión los datos de la venta
+            # Si el usuario está logueado, y es socio, se le aplica el descuento
+            if request.user.is_authenticated and request.user.get_socio():
+                request.session['descuento_socio'] = float(evento.descuento_socio)
             request.session['items'] = items
             request.session['tickets'] = tickets
-            request.session['total'] = float(total)
+            request.session['subtotal'] = float(subtotal)
             request.session['evento_id'] = evento.pk
             return redirect('eventos-orden')
 
@@ -124,14 +127,19 @@ class EventoUserOrderView(TemplateView):
         evento = Evento.objects.get(pk=self.request.session['evento_id'])
         tickets = self.request.session.get('tickets')
         items = self.request.session.get('items')
-        total = self.request.session.get('total')
+        descuento_socio = self.request.session.get('descuento_socio') or 0
+        subtotal = self.request.session.get('subtotal')
+        total = subtotal - (subtotal * descuento_socio)
         context = super().get_context_data(**kwargs)
         context['title'] = 'Orden de Compra'
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         context['evento'] = evento
         context['tickets'] = tickets
         context['items'] = items
-        context['total'] = str(total)
+        context['descuento_socio'] = descuento_socio * 100
+        context['descuento_valor'] = float(subtotal * descuento_socio)
+        context['subtotal'] = float(subtotal)
+        context['total'] = float(total)
         context['total_letras'] = 'Son: {} pesos argentinos'.format(num2words(total, lang='es'))
         return context
 
@@ -145,8 +153,9 @@ class EventoUserOrderView(TemplateView):
         if action == 'pago':
             items = request.session.get('items')
             tickets = request.session.get('tickets')
-            total = request.session.get('total')
-            if items is None or tickets is None or total is None:
+            descuento_socio = request.session.get('descuento_socio') or 0
+            subtotal = request.session.get('subtotal')
+            if items is None or tickets is None or subtotal is None:
                 messages.error(request, 'No se ha seleccionado ningún ticket')
                 return redirect('eventos-detalle', pk=evento.pk)
             i = 0
@@ -166,7 +175,8 @@ class EventoUserOrderView(TemplateView):
                     venta = VentaTicket.objects.create(
                         evento=evento,
                         email=email,
-                        total=total,
+                        subtotal=subtotal,
+                        porcentaje_descuento=descuento_socio * 100,
                         pagado=False,
                     )
                     # Se crean los items de la venta
@@ -228,7 +238,7 @@ class VentaTicketUserPaymentView(TemplateView):
                         "title": "Compra de tickets",
                         "quantity": 1,
                         "currency_id": "ARS",
-                        "unit_price": float(venta_ticket.total)
+                        "unit_price": float(venta_ticket.total())
                     }
                 ],
                 "payer": {
@@ -301,7 +311,6 @@ class VentaTicketCheckoutView(View):
                     send_qr_code(ids, venta_ticket.email)
                     messages.success(request, 'El pago se ha realizado correctamente. '
                                               'Se ha enviado un correo de confirmación con los tickets adquiridos.')
-                    # TODO: Enviar QR del ticket con la url de detalle del ticket
                     return redirect('index')
                 else:
                     messages.error(request, 'Error al realizar el pago.')

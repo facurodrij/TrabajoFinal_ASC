@@ -7,6 +7,7 @@ from PIL import Image
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models, transaction
 from django.db.models import Q
 from django.forms import model_to_dict
@@ -56,6 +57,10 @@ class Evento(SoftDeleteModel):
                                                    'no hay límite.')
     mayor_edad = models.BooleanField(verbose_name='Mayor de edad', default=False,
                                      help_text='Indica si el evento es para mayores de edad.')
+    descuento_socio = models.DecimalField(max_digits=3, decimal_places=2, default=0,
+                                          verbose_name='Descuento para socios',
+                                          validators=[MinValueValidator(0), MaxValueValidator(1)],
+                                          help_text='Descuento para los socios, ingrese un número entre 0 y 1.')
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
     history = HistoricalRecords()
@@ -298,7 +303,10 @@ class VentaTicket(SoftDeleteModel):
     """
     evento = models.ForeignKey('eventos.Evento', on_delete=models.PROTECT, verbose_name='Evento')
     email = models.EmailField(verbose_name='Correo electrónico')
-    total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total')
+    porcentaje_descuento = models.DecimalField(max_digits=5, decimal_places=2, default=0,
+                                               verbose_name='Porcentaje de descuento',
+                                               validators=[MinValueValidator(0), MaxValueValidator(100)])
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Subtotal')
     pagado = models.BooleanField(default=False, verbose_name='Pagado', help_text='Marcar si el cliente ya pagó')
     preference_id = models.CharField(max_length=255, null=True, blank=True, verbose_name='Preference ID',
                                      help_text='ID de la preferencia de pago de Mercado Pago')
@@ -308,6 +316,14 @@ class VentaTicket(SoftDeleteModel):
 
     def __str__(self):
         return 'VentaTicket #{}'.format(self.pk)
+
+    def total(self):
+        total = self.subtotal - (self.subtotal * self.porcentaje_descuento / 100)
+        return total.__float__()
+
+    def get_valor_descuento(self):
+        descuento = self.subtotal * self.porcentaje_descuento / 100
+        return descuento.__float__()
 
     def get_expiration_date(self, isoformat=True):
         """
@@ -327,7 +343,7 @@ class VentaTicket(SoftDeleteModel):
         """
         Devuelve el total de la venta en letras.
         """
-        return 'Son: {} pesos argentinos'.format(num2words(self.total, lang='es'))
+        return 'Son: {} pesos argentinos'.format(num2words(self.total(), lang='es'))
 
     def get_ESTADO_PAGO_display(self):
         """Método para mostrar el estado del pago."""
@@ -356,8 +372,8 @@ class VentaTicket(SoftDeleteModel):
         """
         Devuelve el modelo en formato JSON.
         """
-        item = model_to_dict(self, exclude=['total'])
-        item['total'] = self.total.__str__()
+        item = model_to_dict(self)
+        item['total'] = self.total().__str__()
         return item
 
     class Meta:
