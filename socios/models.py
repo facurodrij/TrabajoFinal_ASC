@@ -39,6 +39,7 @@ class Parameters(models.Model):
         max_digits=5,
         decimal_places=2,
         verbose_name='Porcentaje de aumento por cuota vencida')
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = 'Parámetro de socio'
@@ -160,6 +161,7 @@ class Categoria(models.Model):
     cuota = models.DecimalField(max_digits=10, default=0, decimal_places=2, verbose_name='Precio de la cuota')
     edad_minima = models.PositiveSmallIntegerField(default=0, verbose_name='Edad mínima')
     edad_maxima = models.PositiveSmallIntegerField(default=0, verbose_name='Edad máxima')
+    history = HistoricalRecords()
 
     def __str__(self):
         if self.cuota > 0:
@@ -398,6 +400,7 @@ class ItemCuotaSocial(models.Model):
     cuota = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Cuota')
     cargo_extra = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Cargo extra')
     total_parcial = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total parcial')
+    history = HistoricalRecords()
 
     def toJSON(self):
         item = model_to_dict(self)
@@ -440,6 +443,7 @@ class PagoCuotaSocial(SoftDeleteModel):
     medio_pago = models.ForeignKey('parameters.MedioPago', on_delete=models.PROTECT, verbose_name='Medio de pago')
     fecha_pago = models.DateField(verbose_name='Fecha de pago')
     total_pagado = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total pagado')
+    history = HistoricalRecords()
 
     def meses_atraso(self):
         return self.fecha_pago.month - self.cuota_social.periodo_mes
