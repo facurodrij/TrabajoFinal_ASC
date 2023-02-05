@@ -24,6 +24,11 @@
                         <div class="card-body">
                             {% csrf_token %}
                             <p>¿Está seguro que desea dar de baja al evento <strong>{{ evento }}</strong>?</p>
+                            <label for="id_change_reason">Motivo de la baja <span
+                                    class="text-danger">*</span></label>
+                            <input id="id_change_reason" type="text" class="form-control"
+                                   placeholder="Ingrese el motivo de la baja"
+                                   name="change_reason" required>
                         </div>
                         <div class="card-footer">
                             <button type="submit" class="btn btn-danger float-right">

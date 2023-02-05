@@ -16,6 +16,7 @@ from django.utils import timezone
 from django_softdelete.models import SoftDeleteModel
 from num2words import num2words
 from qrcode.image.svg import SvgPathFillImage
+from simple_history.models import HistoricalRecords
 
 
 class Parameters(models.Model):
@@ -30,6 +31,7 @@ class Parameters(models.Model):
                                                              verbose_name='Máximo de tickets por venta',
                                                              help_text='Máximo cantidad de tickets que se pueden '
                                                                        'comprar en una sola venta.')
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = 'Parámetro de evento'
@@ -51,9 +53,9 @@ class Evento(SoftDeleteModel):
                                                    'no hay límite.')
     mayor_edad = models.BooleanField(verbose_name='Mayor de edad', default=False,
                                      help_text='Indica si el evento es para mayores de edad.')
-    is_active = models.BooleanField(verbose_name='Activo', default=True)
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
+    history = HistoricalRecords()
 
     def image_directory_path(self, filename):
         """
@@ -148,6 +150,7 @@ class TicketVariante(SoftDeleteModel):
     total_tickets = models.PositiveIntegerField(verbose_name='Total de tickets')
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
+    history = HistoricalRecords()
 
     def __str__(self):
         return '{} - ${}'.format(self.nombre, self.precio)
@@ -216,6 +219,7 @@ class Ticket(SoftDeleteModel):
                                  verbose_name='Escaneado por')
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
+    history = HistoricalRecords()
 
     def get_qr_code(self, format_png=False):
         """
@@ -289,6 +293,7 @@ class VentaTicket(SoftDeleteModel):
                                      help_text='ID de la preferencia de pago de Mercado Pago')
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
+    history = HistoricalRecords()
 
     def get_expiration_date(self, isoformat=True):
         """
@@ -355,6 +360,7 @@ class ItemVentaTicket(models.Model):
                                         verbose_name='Variantes de ticket')
     cantidad = models.PositiveIntegerField(verbose_name='Cantidad')
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Subtotal')
+    history = HistoricalRecords()
 
     def get_precio_unit(self):
         """
@@ -387,6 +393,7 @@ class PagoVentaTicket(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
     date_approved = models.DateTimeField(verbose_name='Fecha de aprobación')
+    history = HistoricalRecords()
 
     def toJSON(self):
         """
