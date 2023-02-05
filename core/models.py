@@ -2,6 +2,7 @@ from PIL import Image
 from django.conf import settings
 from django.db import models
 from django_softdelete.models import SoftDeleteModel
+from simple_history.models import HistoricalRecords
 
 from accounts.models import User
 
@@ -14,6 +15,7 @@ class Club(SoftDeleteModel):
     nombre = models.CharField(max_length=255, verbose_name='Nombre')
     direccion = models.CharField(max_length=255, verbose_name='Dirección')
     email = models.EmailField(max_length=255, verbose_name='Email')
+    history = HistoricalRecords()
 
     def imagen_directory_path(self, filename):
         """Método para obtener la ruta de la imagen del logo del club."""
