@@ -87,8 +87,7 @@
                                             {{ form.user }}
                                             <div class="input-group-append">
                                                 <span class="input-group-text">
-                                                {#  TODO: Crear vista de actualizar Usuario  #}
-                                                    <a href="#">
+                                                    <a href="{% url 'admin:accounts_user_change' object.user.pk %}">
                                                         <i class="fas fa-user-pen"></i>
                                                     </a>
                                                 </span>

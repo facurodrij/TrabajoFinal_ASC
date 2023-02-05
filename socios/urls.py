@@ -21,7 +21,7 @@ urlpatterns = [
     path('admin/socios/parametros/', ParametersSocioFormView.as_view(), name='admin-socio-parametros'),
 
     # URLs de socios (usuarios)
-    path('socio/perfil/', SocioUserView.as_view(), name='socio-perfil'),
+    path('socio/perfil/', SocioProfileView.as_view(), name='socio-perfil'),
 
     # URLs de cuotas de socios (administración)
     path('admin/cuotas/', lambda request: redirect('admin-cuota-listado', permanent=True), name='admin-cuota'),

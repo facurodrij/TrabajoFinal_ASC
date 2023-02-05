@@ -40,8 +40,8 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                             <li style="color: white">
                                                 <strong>CUIL: {{ socio.persona.cuil_completo }}</strong></li>
                                             <li class="text-right"><img
-                                                    src="https://es.qr-code-generator.com/wp-content/themes/qr/new_structure/markets/core_market/generator/dist/generator/assets/images/websiteQRCode_noFrame.png"
-                                                    alt=""
+                                                    src="{{ socio.persona.club.get_imagen }}"
+                                                    alt="Logo Club"
                                                     style="max-width: 60px">
                                             </li>
                                         </ul>
@@ -55,7 +55,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
             <div class="col-lg-8 col-md-12">
                 <div class="card">
                     <div class="card-header bg-primary">
-                        <h4 class="card-title">{{ title }}</h4>
+                        <h3 class="card-title">{{ title }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="row">

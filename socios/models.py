@@ -106,6 +106,8 @@ class Socio(SoftDeleteModel):
         else:
             if self.get_cantidad_miembros() > 1:
                 return '{}-{}'.format(self.persona.persona_titular.socio.pk, self.pk)
+            else:
+                return self.pk
 
     def get_user(self):
         try:

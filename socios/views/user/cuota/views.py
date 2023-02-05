@@ -34,7 +34,7 @@ class CuotaSocialListView(LoginRequiredMixin, SocioRequiredMixin, ListView):
     # TODO: Permitir seleccionar varias Cuotas Sociales para ser pagadas.
     # TODO: Controlar que las cuotas sean pagadas ordenado por periodos, primero la mas antigua
     model = CuotaSocial
-    template_name = 'cuota/list.html'
+    template_name = 'user/cuota/list.html'
     context_object_name = 'cuotas_sociales'
 
     def get_context_data(self, **kwargs):
@@ -168,7 +168,7 @@ def cuota_social_pdf(request, pk):
     cuota = CuotaSocial.global_objects.get(pk=pk)
     club = Club.objects.get(pk=1)
     detalle_cuota = ItemCuotaSocial.global_objects.filter(cuota_social=cuota)
-    html_string = render_to_string('cuota/pdf.html', {'cuota': cuota, 'club': club, 'detalle_cuota': detalle_cuota})
+    html_string = render_to_string('user/cuota/pdf.html', {'cuota': cuota, 'club': club, 'detalle_cuota': detalle_cuota})
     html = HTML(string=html_string, base_url=request.build_absolute_uri())
     html.write_pdf(target='/tmp/cuota.pdf',
                    stylesheets=[CSS('{}/libs/bootstrap-4.6.2/bootstrap.min.css'.format(settings.STATICFILES_DIRS[0]))])
