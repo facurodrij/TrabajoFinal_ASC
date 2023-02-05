@@ -32,6 +32,12 @@
                                     {% endfor %}
                                 </ul>
                             {% endif %}
+                            <br>
+                            <label for="id_change_reason">Motivo de la baja <span
+                                    class="text-danger">*</span></label>
+                            <input id="id_change_reason" type="text" class="form-control"
+                                   placeholder="Ingrese el motivo de la baja"
+                                   name="change_reason" required>
                         </div>
                         <div class="card-footer">
                             {% if miembros %}

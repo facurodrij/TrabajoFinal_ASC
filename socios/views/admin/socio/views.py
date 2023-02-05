@@ -255,10 +255,12 @@ class SocioAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteVi
         data = {}
         try:
             action = request.POST['action']
+            change_reason = request.POST['change_reason']
             if action == 'delete':
                 # Si la acción es delete, se elimina únicamente al socio
                 with transaction.atomic():
                     socio = self.get_object()
+                    socio._change_reason = change_reason
                     socio.delete(cascade=False)
                     data['swal_title'] = 'Socio dado de baja'
                     data['swal_text'] = 'El socio ha sido dado de baja exitosamente.'
@@ -266,6 +268,7 @@ class SocioAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteVi
                 # Si la acción es delete_cascade, se elimina al socio y a todos sus miembros
                 with transaction.atomic():
                     socio = self.get_object()
+                    socio._change_reason = change_reason
                     socio.delete(cascade=True)
                     data['swal_title'] = 'Socio dado de baja'
                     data['swal_text'] = 'El socio y todos sus miembros han sido dados de baja exitosamente.'
