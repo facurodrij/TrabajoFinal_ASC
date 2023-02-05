@@ -11,7 +11,7 @@
 {% block content %}
     <div class="container-fluid">
         <div class="row">
-            <div class="col-lg-6 col-md-12">
+            <div class="col-12">
                 <div class="card">
                     <div class="card-header bg-primary">
                         <h3 class="card-title">Reservas Registradas</h3>
@@ -25,7 +25,8 @@
                             <thead>
                             <tr>
                                 <th scope="col" style="">Cancha</th>
-                                <th scope="col" style="">Inicio</th>
+                                <th scope="col" style="">Fecha de inicio</th>
+                                <th scope="col" style="">Hora de inicio</th>
                                 <th scope="col" style="">Cliente</th>
                                 <th scope="col" style="">Estado de pago</th>
                                 <th scope="col" style="">Estado de reserva</th>
@@ -36,7 +37,8 @@
                             {% for reserva in reservas %}
                                 <tr>
                                     <td>{{ reserva.cancha }}</td>
-                                    <td>{{ reserva.start_datetime_display }}</td>
+                                    <td>{{ reserva.fecha }}</td>
+                                    <td>{{ reserva.hora }}</td>
                                     <td>{{ reserva.nombre }}</td>
                                     <td>{{ reserva.get_ESTADO_PAGO_display }}</td>
                                     <td>{{ reserva.get_ESTADO_display }}</td>
@@ -51,7 +53,8 @@
                             <tfoot>
                             <tr>
                                 <th scope="col" style="">Cancha</th>
-                                <th scope="col" style="">Inicio</th>
+                                <th scope="col" style="">Fecha de inicio</th>
+                                <th scope="col" style="">Hora de inicio</th>
                                 <th scope="col" style="">Cliente</th>
                                 <th scope="col" style="">Estado de pago</th>
                                 <th scope="col" style="">Estado de reserva</th>
@@ -62,7 +65,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6 col-md-12">
+            <div class="col-12">
                 <div id="calendar"></div>
             </div>
         </div>

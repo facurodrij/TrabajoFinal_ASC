@@ -66,8 +66,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{% url 'admin-socio-parametros' %}"
-                               class="nav-link {% active_link 'admin-club-parametros' %}">
+                            <a href="{% url 'admin:socios_parameters_change' 1 %}"
+                               class="nav-link {% active_link 'admin-socio-parametros' %}">
                                 <i class="fas fa-circle-dot nav-icon"></i>
                                 <p>Parámetros</p>
                             </a>
@@ -108,6 +108,13 @@
                                 <p>Listado</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{% url 'admin:reservas_parameters_change' 1 %}"
+                               class="nav-link {% active_link 'admin-reservas-parametros' %}">
+                                <i class="fas fa-circle-dot nav-icon"></i>
+                                <p>Parámetros</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 <li class="nav-item">
@@ -140,7 +147,21 @@
                                 <p>Escanear Tickets</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{% url 'admin:eventos_parameters_change' 1 %}"
+                               class="nav-link {% active_link 'admin-eventos-parametros' %}">
+                                <i class="fas fa-circle-dot nav-icon"></i>
+                                <p>Parámetros</p>
+                            </a>
+                        </li>
                     </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'admin-estadisticas' %}"
+                       class="nav-link {% active_link 'admin-estadisticas' %}">
+                        <i class="fa-solid fa-calendar-alt nav-icon"></i>
+                        <p>Estadísticas</p>
+                    </a>
                 </li>
             </ul>
         </nav>

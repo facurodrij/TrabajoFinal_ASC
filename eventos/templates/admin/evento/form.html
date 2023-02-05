@@ -222,11 +222,10 @@
                                             {% endfor %}
                                             {% if formss.instance.pk %}
                                                 <td>
-                                                    <button type="button" class="btn btn-danger"
-                                                            value="{{ formss.instance.pk }}"
-                                                            name="delete_ticketvariante">
+                                                    <a class="btn btn-danger"
+                                                       href="{% url 'admin-ticket-variante-delete' formss.instance.pk %}">
                                                         <i class="fa fa-trash"></i>
-                                                    </button>
+                                                    </a>
                                                 </td>
                                             {% endif %}
                                         </tr>

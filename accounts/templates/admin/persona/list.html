@@ -44,6 +44,13 @@
                                            class="btn btn-warning btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>
+                                        {% if persona.get_socio %}
+                                            <a href="{% url 'admin-socio-detalle' persona.socio.pk %}"
+                                               title="Ver Socio"
+                                               class="btn btn-info btn-sm">
+                                                <i class="fas fa-user-tie"></i> Ver Socio
+                                            </a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {% endfor %}

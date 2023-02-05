@@ -32,13 +32,23 @@
         let icon = '';
         let title = '';
         let text = '';
+        let list = '';
         {% if success %}
             icon = 'success';
             title = 'El Ticket es válido. \n Check-in realizado con éxito.';
+            list = '<ul class="list-group mt-3">';
+            list += '<li class="list-group-item"><b>Nombre del cliente:</b> {{ ticket.nombre }}</li>';
+            list += '<li class="list-group-item"><b>Evento:</b> {{ ticket.ticket_variante.evento }}</li>';
+            list += '<li class="list-group-item"><b>Tipo de ticket:</b> {{ ticket.ticket_variante.nombre }}</li>';
+            list += '</ul>';
+            text = 'Información del Ticket escaneado: \n' + list;
         {% elif error == 'is_used' %}
-            let list = '<ul class="list-group mt-3">';
+            list = '<ul class="list-group mt-3">';
             list += '<li class="list-group-item"><b>Fecha de check-in:</b> {{ check_date }}</li>';
             list += '<li class="list-group-item"><b>Escaneado por:</b> {{ check_by }}</li>';
+            list += '<li class="list-group-item"><b>Nombre del cliente:</b> {{ ticket.nombre }}</li>';
+            list += '<li class="list-group-item"><b>Evento:</b> {{ ticket.ticket_variante.evento }}</li>';
+            list += '<li class="list-group-item"><b>Tipo de ticket:</b> {{ ticket.ticket_variante.nombre }}</li>';
             list += '</ul>';
             icon = 'error';
             title = 'El Ticket no es válido. \n No se pudo realizar el check-in.';

@@ -1,7 +1,8 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db import transaction
-from django.shortcuts import redirect
+from django.db.models import ProtectedError
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
@@ -115,3 +116,14 @@ class EventoAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteV
             evento.delete()
             messages.success(request, 'Evento dado de baja correctamente')
         return redirect('admin-eventos-listado')
+
+
+def delete_ticket_variante(request, pk):
+    ticket_variante = get_object_or_404(TicketVariante, pk=pk)
+    try:
+        ticket_variante.delete()
+        return redirect('admin-eventos-editar', pk=ticket_variante.evento.pk)
+    except ProtectedError as e:
+        messages.error(request, 'No es posible eliminar la variante de ticket, '
+                                'ya que está asociada a tickets vendidos')
+        return redirect('admin-eventos-editar', pk=ticket_variante.evento.pk)

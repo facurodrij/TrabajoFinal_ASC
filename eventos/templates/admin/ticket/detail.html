@@ -1,5 +1,13 @@
-{% extends "extends/user/base.html" %}
+{% extends "extends/admin/base.html" %}
 {% load static %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index_admin' %}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin-tickets' %}">Tickets</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
 
 {% block content %}
     <div class="container-fluid">
@@ -21,9 +29,14 @@
                                 </a>
                             </li>
                             <li class="list-group-item"><b>Tipo de entrada:</b> {{ ticket.ticket_variante.nombre }}</li>
-                            <li class="list-group-item"><b>Precio de compra:</b> ${{ ticket.get_precio_compra }}</li>
-{#                            TODO: Detalle de la venta asociada  #}
+                            <li class="list-group-item"><b>Venta asociada:</b>
+                                <a href="{% url 'admin:eventos_ventaticket_change' ticket.venta_ticket.pk %}">
+                                    {{ ticket.venta_ticket }}
+                                </a>
+                            </li>
+                            <li class="list-group-item"><b>Precio unitario del ticket:</b> ${{ ticket.get_precio_compra }}</li>
                             <li class="list-group-item"><b>Estado del pago:</b> {{ ticket.get_estado_pago }}</li>
+                            <li class="list-group-item"><b>Estado del ticket:</b> {{ ticket.get_IS_USED_display }}</li>
                         </ul>
                     </div>
                     <div class="col-md-4">

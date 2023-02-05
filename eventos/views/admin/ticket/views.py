@@ -31,6 +31,7 @@ class TicketAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView)
         data = {}
         try:
             action = request.POST['action']
+            change_reason = request.POST['change_reason']
             if action == 'is_used_change':
                 ticket = Ticket.objects.get(pk=request.POST['ticket_id'])
                 usado = request.POST['usado']
@@ -46,6 +47,8 @@ class TicketAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView)
             elif action == 'delete_lote':
                 ids = request.POST.getlist('ids[]')
                 tickets = Ticket.objects.filter(pk__in=ids)
+                for ticket in tickets:
+                    ticket._change_reason = change_reason
                 tickets.delete()
             else:
                 data['error'] = 'No ha seleccionado ninguna opción'

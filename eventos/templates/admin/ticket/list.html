@@ -1,6 +1,13 @@
 {% extends "extends/admin/base.html" %}
 {% load static %}
 
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index_admin' %}">Inicio</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
 {% block content %}
     <div class="container-fluid">
         <div class="row">
@@ -131,6 +138,16 @@
                                     position: 'top-end',
                                     title: '¿Estás seguro?',
                                     text: "¡No podrás revertir esto!",
+                                    input: 'text',
+                                    inputPlaceholder: 'Motivo de la baja',
+                                    inputAttributes: {
+                                        'required': 'required',
+                                    },
+                                    inputValidator: (value) => {
+                                        if (!value) {
+                                            return 'Debe ingresar un motivo'
+                                        }
+                                    },
                                     icon: 'warning',
                                     showCancelButton: true,
                                     confirmButtonColor: '#3085d6',
@@ -139,11 +156,13 @@
                                     cancelButtonText: 'Cancelar'
                                 }).then((result) => {
                                     if (result.isConfirmed) {
+                                        let input = result.value;
                                         $.ajax({
                                             url: window.location.href,
                                             type: 'POST',
                                             data: {
                                                 'action': 'delete_lote',
+                                                'change_reason': input,
                                                 'ids': ids,
                                                 'csrfmiddlewaretoken': '{{ csrf_token }}'
                                             },

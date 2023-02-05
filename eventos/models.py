@@ -143,7 +143,7 @@ class Evento(SoftDeleteModel):
         ]
 
 
-class TicketVariante(SoftDeleteModel):
+class TicketVariante(models.Model):
     """
     Modelo de las variantes de los tickets.
     """
@@ -224,6 +224,9 @@ class Ticket(SoftDeleteModel):
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
     history = HistoricalRecords()
 
+    def __str__(self):
+        return '{} - {} - {}'.format(self.ticket_variante.evento, self.ticket_variante.nombre, self.nombre)
+
     def get_qr_code(self, format_png=False):
         """
         Devuelve el código QR del ticket.
@@ -237,6 +240,11 @@ class Ticket(SoftDeleteModel):
         base64_data = base64.b64encode(stream.getvalue()).decode()
         # Pasar a formato PNG para adjuntar en el correo.
         if format_png:
+            # Crear QR en formato PNG.
+            img = qrcode.make(qr_string, box_size=20, border=1)
+            stream = BytesIO()
+            img.save(stream)
+            base64_data = base64.b64encode(stream.getvalue()).decode()
             return base64.b64decode(base64_data)
         return 'data:image/svg+xml;utf8;base64,' + base64_data
 
@@ -297,6 +305,9 @@ class VentaTicket(SoftDeleteModel):
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
     history = HistoricalRecords()
+
+    def __str__(self):
+        return 'VentaTicket #{}'.format(self.pk)
 
     def get_expiration_date(self, isoformat=True):
         """

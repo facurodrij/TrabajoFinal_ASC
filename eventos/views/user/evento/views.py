@@ -13,7 +13,8 @@ from num2words import num2words
 
 from core.models import Club
 from core.utilities import send_email
-from eventos.models import Evento, TicketVariante, VentaTicket, Ticket, ItemVentaTicket, PagoVentaTicket, Parameters
+from eventos.models import Evento, TicketVariante, VentaTicket, Ticket, ItemVentaTicket, PagoVentaTicket, Parameters, \
+    send_qr_code
 from static.credentials import MercadoPagoCredentials  # Aquí debería insertar sus credenciales de MercadoPago
 
 public_key = MercadoPagoCredentials.get_public_key()
@@ -295,8 +296,11 @@ class VentaTicketCheckoutView(View):
                         'domain': get_current_site(request)
                     }
                     send_email(subject, template, context, venta_ticket.email, True)
+                    tickets = venta_ticket.ticket_set.all()
+                    ids = [ticket.id for ticket in tickets]
+                    send_qr_code(ids, venta_ticket.email)
                     messages.success(request, 'El pago se ha realizado correctamente. '
-                                              'Se ha enviado un correo de confirmación.')
+                                              'Se ha enviado un correo de confirmación con los tickets adquiridos.')
                     # TODO: Enviar QR del ticket con la url de detalle del ticket
                     return redirect('index')
                 else:
