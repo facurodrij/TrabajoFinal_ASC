@@ -1,0 +1,232 @@
+{% extends "extends/admin/base.html" %}
+{% load static %}
+
+{% block head_js %}
+    <script src="https:cdnjs.cloudflare.com/ajax/libs/Chart.js/4.2.0/chart.umd.js"
+            integrity="sha512-B51MzT4ksAo6Y0TcUpmvZnchoPYfIcHadIaFqV5OR5JAh6dneYAeYT1xIlaNHhhFAALd5FLDTWNt/fkxhwE/oQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="text/javascript" src="https:cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https:cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/locale/es.js"></script>
+    <script type="text/javascript" src="https:cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https:cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+{% endblock head_js %}
+
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index_admin' %}">Inicio</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Recaudación de Reservas por Horario</h5>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div id="reportrange_reserva"
+                                     style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                    <i class="fas fa-calendar-alt"></i>&nbsp;
+                                    <span></span> <i class="fa fa-caret-down"></i>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <br>
+                                <p class="text-center">
+                                    <strong id="date_range_text"></strong>
+                                </p>
+                                <div class="chart">
+                                    <div class="chartjs-size-monitor">
+                                        <div class="chartjs-size-monitor-expand">
+                                            <div class=""></div>
+                                        </div>
+                                        <div class="chartjs-size-monitor-shrink">
+                                            <div class=""></div>
+                                        </div>
+                                    </div>
+                                    <canvas id="reservaChart" class="chartjs-render-monitor"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            let start = moment().subtract(29, 'days');
+            let end = moment();
+
+            function cb(start, end) {
+                $('#reportrange_reserva span').html(start.locale('es').format('ll') + ' - ' + end.format('ll'));
+            }
+
+            $('#reportrange_reserva').daterangepicker({
+                startDate: start,
+                endDate: end,
+                maxDate: moment(),
+                ranges: {
+                    'Hoy': [moment(), moment()],
+                    'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Últimos 7 Días': [moment().subtract(6, 'days'), moment()],
+                    'Últimos 30 Días': [moment().subtract(29, 'days'), moment()],
+                    'Este Mes': [moment().startOf('month'), moment().endOf('month')],
+                    'Mes Anterior': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                },
+                // Cambiar el idioma
+                locale: {
+                    "format": "DD/MM/YYYY",
+                    "separator": " - ",
+                    "applyLabel": "Aplicar",
+                    "cancelLabel": "Cancelar",
+                    "fromLabel": "Desde",
+                    "toLabel": "Hasta",
+                    "customRangeLabel": "Personalizado",
+                    "daysOfWeek": [
+                        "Do",
+                        "Lu",
+                        "Ma",
+                        "Mi",
+                        "Ju",
+                        "Vi",
+                        "Sa"
+                    ],
+                    "monthNames": [
+                        "Enero",
+                        "Febrero",
+                        "Marzo",
+                        "Abril",
+                        "Mayo",
+                        "Junio",
+                        "Julio",
+                        "Agosto",
+                        "Septiembre",
+                        "Octubre",
+                        "Noviembre",
+                        "Diciembre"
+                    ],
+                    "firstDay": 1
+                }
+            }, cb);
+            cb(start, end);
+        });
+    </script>
+    <script>
+        // On report_reserva_daterange submit
+        let myChart
+        // $('#reportrange_reserva') on change
+        $('#reportrange_reserva').on('apply.daterangepicker', function (ev, picker) {
+            let start = picker.startDate.format('YYYY-MM-DD');
+            let end = picker.endDate.format('YYYY-MM-DD');
+            let start_text = picker.startDate.format('LL');
+            let end_text = picker.endDate.format('LL');
+            let date_range_text = $('#date_range_text')
+            let ctx = document.getElementById('reservaChart').getContext('2d');
+            if (myChart) {
+                myChart.destroy();
+            }
+            $.ajax({
+                url: '{% url 'admin-estadisticas' %}',
+                type: 'POST',
+                data: {
+                    'start': start,
+                    'end': end,
+                    'report': 'reserva',
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                beforeSend: function () {
+                    Swal.fire({
+                        position: 'top-end',
+                        title: 'Obteniendo datos...',
+                        html: 'Por favor espere...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading()
+                        },
+                    });
+                },
+                success: function (data) {
+                    Swal.close();
+                    if (!data.hasOwnProperty('error')) {
+                        let labels = [];
+                        let sets = [];
+                        $.each(data, function (key, value) {
+                            labels.push(data[key]['hora']);
+                            sets.push(data[key]['total']);
+                        });
+                        date_range_text.text('Rango de fechas: ' + start_text + ' - ' + end_text);
+                        myChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Total de recaudación $ por hora laboral en el rango de fechas seleccionado',
+                                    data: sets,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(255, 159, 64, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                },
+                                maintainAspectRatio: false,
+                                responsive: true,
+                            }
+                        });
+                        // Resize chart with height 400px
+                        myChart.canvas.parentNode.style.height = '400px';
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: data.error,
+                        });
+                    }
+                },
+                error: function (data) {
+                    console.log(data);
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Algo salió mal!',
+                    });
+                }
+            });
+        });
+    </script>
+{% endblock body_js %}
