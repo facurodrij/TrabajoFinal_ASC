@@ -181,7 +181,7 @@ class PersonaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Editar persona'
+        context['title'] = 'Editar Persona'
         context['action'] = 'edit'
         return context
 
@@ -199,6 +199,7 @@ class PersonaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
         data = {}
         try:
             action = request.POST['action']
+            change_reason = request.POST['change_reason']
             if action == 'edit':
                 form = self.form_class(request.POST, request.FILES, instance=self.get_object())
                 if form.is_valid():
@@ -207,11 +208,13 @@ class PersonaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
                         if persona_titular:
                             persona = form.save(commit=False)
                             persona.persona_titular = persona_titular
+                            persona._change_reason = change_reason
                             persona.save()
                             persona.validate()
                         else:
                             persona = form.save(commit=False)
                             persona.persona_titular = None
+                            persona._change_reason = change_reason
                             persona.save()
                             persona.validate()
                         messages.success(request, 'Persona actualizada correctamente.')

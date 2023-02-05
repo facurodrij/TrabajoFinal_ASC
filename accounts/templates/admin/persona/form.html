@@ -160,6 +160,17 @@
                                     </div>
                                 </div>
                             </div>
+                            {% if action == 'edit' %}
+                                <div class="form-group row">
+                                    <label for="id_change_reason" class="col-form-label col-md-3 col-sm-3 label-align">
+                                        Motivo de la modificación <span class="text-danger">*</span></label>
+                                    <div class="col-sm-7">
+                                        <input id="id_change_reason" type="text" class="form-control"
+                                               placeholder="Ingrese el motivo de la modificación"
+                                               name="change_reason" required>
+                                    </div>
+                                </div>
+                            {% endif %}
                             <div class="form-group row">
                                 <div class="col-sm-7 offset-sm-3">
                                     <div class="icheck-primary d-inline">

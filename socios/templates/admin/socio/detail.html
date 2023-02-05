@@ -63,8 +63,8 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                                 <li style="color: white">
                                                     <strong>CUIL: {{ socio.persona.cuil_completo }}</strong></li>
                                                 <li class="text-right"><img
-                                                        src="https://es.qr-code-generator.com/wp-content/themes/qr/new_structure/markets/core_market/generator/dist/generator/assets/images/websiteQRCode_noFrame.png"
-                                                        alt=""
+                                                        src="{{ socio.persona.club.get_imagen }}"
+                                                        alt="Logo Club"
                                                         style="max-width: 60px">
                                                 </li>
                                             </ul>
@@ -143,84 +143,86 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header bg-primary">
-                            <h3 class="card-title">Grupo Familiar</h3>
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                    <i class="fas fa-minus"></i>
-                                </button>
+            {% if socio.get_cantidad_miembros > 1 %}
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-primary">
+                                <h3 class="card-title">Grupo Familiar</h3>
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <div class="card-body">
-                            {% if socio.persona.es_titular %}
-                                <button id="open-ModalAddMiembro" class="btn btn-success">
-                                    <i class="fas fa-plus pr-1"></i> Agregar Miembro
-                                </button>
-                                <hr>
-                            {% endif %}
-                            <table id="dataTable" class="table table-bordered table-striped">
-                                <thead>
-                                <tr>
-                                    <th scope="col" style="">#</th>
-                                    <th scope="col" style="">CUIL</th>
-                                    <th scope="col" style="">Nombre completo</th>
-                                    <th scope="col" style="">Edad</th>
-                                    <th scope="col" style="">Categoría</th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for miembro in grupo_familiar %}
+                            <div class="card-body">
+                                {% if socio.persona.es_titular %}
+                                    <button id="open-ModalAddMiembro" class="btn btn-success">
+                                        <i class="fas fa-plus pr-1"></i> Agregar Miembro
+                                    </button>
+                                    <hr>
+                                {% endif %}
+                                <table id="dataTable" class="table table-bordered table-striped">
+                                    <thead>
                                     <tr>
-                                        <td>{{ miembro.pk }}</td>
-                                        <td>{{ miembro.persona.cuil_completo }}</td>
-                                        <td>{{ miembro.persona.get_full_name }}</td>
-                                        <td>{{ miembro.persona.get_edad }}</td>
-                                        <td>{{ miembro.get_categoria }}</td>
-                                        {% if not miembro.is_deleted %}
-                                            <td>
-                                                <a href="{% url 'admin-socio-detalle' miembro.pk %}"
-                                                   class="btn btn-info btn-sm">
-                                                    <i class="fa-solid fa-eye"></i>
-                                                </a>
-                                                <a href="{% url 'admin-socio-editar' miembro.pk %}"
-                                                   class="btn btn-warning btn-sm">
-                                                    <i class="fa-solid fa-edit"></i>
-                                                </a>
-                                                <a href="{% url 'admin-socio-baja' miembro.pk %}"
-                                                   class="btn btn-danger btn-sm">
-                                                    <i class="fa-solid fa-trash"></i>
-                                                </a>
-                                            </td>
-                                        {% else %}
-                                            <td>
-                                                <a href="{% url 'admin-socio-detalle' miembro.pk %}"
-                                                   class="btn btn-info btn-sm">
-                                                    <i class="fa-solid fa-eye"></i>
-                                                </a>
-                                            </td>
-                                        {% endif %}
+                                        <th scope="col" style="">#</th>
+                                        <th scope="col" style="">CUIL</th>
+                                        <th scope="col" style="">Nombre completo</th>
+                                        <th scope="col" style="">Edad</th>
+                                        <th scope="col" style="">Categoría</th>
+                                        <th></th>
                                     </tr>
-                                {% endfor %}
-                                </tbody>
-                                <tfoot>
-                                <tr>
-                                    <th scope="col" style="">#</th>
-                                    <th scope="col" style="">CUIL</th>
-                                    <th scope="col" style="">Nombre completo</th>
-                                    <th scope="col" style="">Edad</th>
-                                    <th scope="col" style="">Categoría</th>
-                                    <th></th>
-                                </tr>
-                                </tfoot>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                    {% for miembro in grupo_familiar %}
+                                        <tr>
+                                            <td>{{ miembro.pk }}</td>
+                                            <td>{{ miembro.persona.cuil_completo }}</td>
+                                            <td>{{ miembro.persona.get_full_name }}</td>
+                                            <td>{{ miembro.persona.get_edad }}</td>
+                                            <td>{{ miembro.get_categoria }}</td>
+                                            {% if not miembro.is_deleted %}
+                                                <td>
+                                                    <a href="{% url 'admin-socio-detalle' miembro.pk %}"
+                                                       class="btn btn-info btn-sm">
+                                                        <i class="fa-solid fa-eye"></i>
+                                                    </a>
+                                                    <a href="{% url 'admin-socio-editar' miembro.pk %}"
+                                                       class="btn btn-warning btn-sm">
+                                                        <i class="fa-solid fa-edit"></i>
+                                                    </a>
+                                                    <a href="{% url 'admin-socio-baja' miembro.pk %}"
+                                                       class="btn btn-danger btn-sm">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </a>
+                                                </td>
+                                            {% else %}
+                                                <td>
+                                                    <a href="{% url 'admin-socio-detalle' miembro.pk %}"
+                                                       class="btn btn-info btn-sm">
+                                                        <i class="fa-solid fa-eye"></i>
+                                                    </a>
+                                                </td>
+                                            {% endif %}
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                    <tfoot>
+                                    <tr>
+                                        <th scope="col" style="">#</th>
+                                        <th scope="col" style="">CUIL</th>
+                                        <th scope="col" style="">Nombre completo</th>
+                                        <th scope="col" style="">Edad</th>
+                                        <th scope="col" style="">Categoría</th>
+                                        <th></th>
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            {% endif %}
         {% endif %}
     </div>
 {% endblock content %}

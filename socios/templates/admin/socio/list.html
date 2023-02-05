@@ -25,6 +25,7 @@
                             <thead>
                             <tr>
                                 <th scope="col" style="">#</th>
+                                <th scope="col" style="">Ficha</th>
                                 <th scope="col" style="">CUIL</th>
                                 <th scope="col" style="">Nombre completo</th>
                                 <th scope="col" style="">Edad</th>
@@ -37,6 +38,7 @@
                             {% for socio in socios %}
                                 <tr>
                                     <td>{{ socio.pk }}</td>
+                                    <td>{{ socio.get_numero_ficha }}</td>
                                     <td>{{ socio.persona.cuil_completo }}</td>
                                     <td>{{ socio.persona.get_full_name }}</td>
                                     <td>{{ socio.persona.get_edad }}</td>
@@ -72,6 +74,7 @@
                             <tfoot>
                             <tr>
                                 <th scope="col" style="">#</th>
+                                <th scope="col" style="">Ficha</th>
                                 <th scope="col" style="">CUIL</th>
                                 <th scope="col" style="">Nombre completo</th>
                                 <th scope="col" style="">Edad</th>

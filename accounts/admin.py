@@ -42,5 +42,16 @@ class CustomUserAdmin(UserAdmin):
     ordering = ["email"]
 
 
+class PersonaAdmin(SimpleHistoryAdmin):
+    """
+    Formulario para registrar una nueva persona desde el panel de administrador.
+    """
+    # La lista deben ser los campos que se muestran en la tabla de personas
+    list_display = ("cuil", "nombre", "apellido", "is_deleted")
+
+    def get_queryset(self, request):
+        return Persona.global_objects.all()
+
+
 admin.site.register(User, CustomUserAdmin)
-admin.site.register(Persona, SimpleHistoryAdmin)
+admin.site.register(Persona, PersonaAdmin)

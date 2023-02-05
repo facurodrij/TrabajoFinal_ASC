@@ -96,6 +96,16 @@ class Socio(SoftDeleteModel):
             except ObjectDoesNotExist:
                 return [self]
 
+    def get_cantidad_miembros(self):
+        return len(self.grupo_familiar())
+
+    def get_numero_ficha(self):
+        if self.persona.es_titular():
+            return self.pk
+        else:
+            if self.get_cantidad_miembros() > 1:
+                return '{}-{}'.format(self.persona.persona_titular.socio.pk, self.pk)
+
     def get_user(self):
         try:
             return self.user if self.user.is_active else None
