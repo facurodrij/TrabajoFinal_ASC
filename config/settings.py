@@ -37,13 +37,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Aplicaciones de terceros
-    'widget_tweaks',
-    'django_cleanup.apps.CleanupConfig',
     'active_link',
+    "django_apscheduler",
+    # 'django_cleanup.apps.CleanupConfig',
+    'fontawesomefree',
+    'simple_history',
+    'widget_tweaks',
     # Aplicaciones locales
-    'parameters',
     'accounts',
     'core',
+    'eventos',
+    'parameters',
+    'reservas',
     'socios',
 ]
 
@@ -55,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -128,8 +134,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    BASE_DIR / 'static',
 ]
 
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -152,3 +159,4 @@ EMAIL_HOST = 'smtp.mailtrap.io'
 EMAIL_HOST_USER = '5027a8498e59ae'
 EMAIL_HOST_PASSWORD = 'f90bfae96da13e'
 EMAIL_PORT = '2525'
+DEFAULT_FROM_EMAIL = 'administración@localhost'

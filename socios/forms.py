@@ -1,153 +1,76 @@
 from django import forms
-from django.db import IntegrityError
-from django.contrib.admin.widgets import AdminFileWidget
-from django.core.exceptions import ValidationError
 
-from socios.models import Estado, Categoria, Socio, Miembro, SolicitudSocio
-from parameters.models import Parentesco
-from accounts.models import User
+from socios.models import Categoria, Socio, CuotaSocial, Parameters
 
 
-class SelectEstadoForm(forms.Form):
-    """
-    Formulario para elegir un estado de socio.
-    """
-    estado = forms.ModelChoiceField(required=True,
-                                    queryset=Estado.objects.all(),
-                                    widget=forms.Select(attrs={'class': 'form-control select2'}))
-
-
-class SelectCategoriaForm(forms.Form):
-    """
-    Formulario para elegir una categoria de socio.
-    """
-    categoria = forms.ModelChoiceField(required=True,
-                                       queryset=Categoria.objects.all(),
-                                       widget=forms.Select(attrs={'class': 'form-control select2'}))
-
-
-class SelectParentescoForm(forms.Form):
-    """
-    Formulario para elegir un parentesco.
-    """
-    parentesco = forms.ModelChoiceField(required=True,
-                                        queryset=Parentesco.objects.all(),
-                                        widget=forms.Select(attrs={'class': 'form-control select2'}))
-
-
-class SocioForm(forms.ModelForm):
+class SocioAdminForm(forms.ModelForm):
     """
     Formulario para crear un socio.
     """
-
-    # Validar si el socio que se quiere crear ya existe y está eliminado
-    def clean(self):
-        super(SocioForm, self).clean()
-        try:
-            socio = Socio.global_objects.get(persona_id=self.cleaned_data['persona'])
-            if socio.is_deleted:
-                raise ValidationError('El socio {} ya existe, pero se encuentra eliminado.'.format(socio))
-        except Socio.DoesNotExist:
-            pass
+    persona = forms.Select()
+    user = forms.CharField(required=False,
+                           label='Usuario',
+                           widget=forms.TextInput(attrs={'readonly': 'readonly',
+                                                         'class': 'form-control'}))
+    email = forms.EmailField(required=False,
+                             label='Email',
+                             widget=forms.EmailInput(attrs={'class': 'form-control',
+                                                            'placeholder': 'Ingrese el email'}))
 
     class Meta:
         model = Socio
-        fields = ['persona', 'categoria', 'estado']
+        fields = ['persona']
+
+
+class CuotaSocialForm(forms.ModelForm):
+    """
+    Formulario para crear una cuota social.
+    """
+    con_vencimiento = forms.BooleanField(required=False,
+                                         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
+    meses = forms.MultipleChoiceField(required=True,
+                                      choices=CuotaSocial.MESES,
+                                      widget=forms.SelectMultiple(attrs={'class': 'form-control', 'size': '12'}))
+
+    class Meta:
+        model = CuotaSocial
+        fields = ['persona', 'periodo_anio', 'cargo_extra', 'observaciones']
         widgets = {
-            'persona': forms.Select(attrs={'class': 'form-control select2'}),
-            'categoria': forms.Select(attrs={'class': 'form-control select2'}),
-            'estado': forms.Select(attrs={'class': 'form-control select2'}),
+            'persona': forms.HiddenInput(),
+            # 'periodo_mes': forms.SelectMultiple(attrs={'class': 'form-control', 'size': '12'}),
+            'periodo_anio': forms.DateTimeInput(attrs={'class': 'form-control'}),
+            'cargo_extra': forms.NumberInput(attrs={'class': 'form-control', 'value': 0}),
+            'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 
 
-class MiembroForm(forms.ModelForm):
+class CategoriaForm(forms.ModelForm):
     """
-    Formulario para crear un miembro.
+    Formulario para crear una categoria de socio.
     """
-
-    # Validar si el miembro que se quiere crear ya existe y está eliminado
-    def clean(self):
-        super(MiembroForm, self).clean()
-        try:
-            miembro = Miembro.global_objects.get(persona_id=self.cleaned_data['persona'])
-            if miembro.is_deleted:
-                raise ValidationError('El miembro {} ya existe, pero se encuentra eliminado.'.format(miembro))
-        except Miembro.DoesNotExist:
-            pass
 
     class Meta:
-        model = Miembro
-        fields = ['socio', 'persona', 'parentesco', 'categoria']
+        model = Categoria
+        fields = ['nombre', 'cuota', 'edad_minima', 'edad_maxima']
         widgets = {
-            'socio': forms.Select(attrs={'class': 'form-control select2'}),
-            'persona': forms.Select(attrs={'class': 'form-control select2'}),
-            'parentesco': forms.Select(attrs={'class': 'form-control select2'}),
-            'categoria': forms.Select(attrs={'class': 'form-control select2'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el nombre'}),
+            'cuota': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el monto de la cuota'}),
+            'edad_minima': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la edad minima'}),
+            'edad_maxima': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la edad maxima'}),
         }
 
 
-class SolicitudForm(forms.ModelForm):
-    """
-    Formulario para crear una solicitud de socio.
-    """
-    dni = forms.CharField(max_length=8,
-                          required=True,
-                          widget=forms.TextInput(attrs={'placeholder': 'DNI',
-                                                        'class': 'form-control',
-                                                        }))
-    email = forms.EmailField(required=True,
-                             widget=forms.EmailInput(attrs={'placeholder': 'Email',
-                                                            'class': 'form-control',
-                                                            }))
-    sexo = forms.Select(attrs={'class': 'form-control select2'})
-    nombre = forms.CharField(max_length=100,
-                             required=True,
-                             widget=forms.TextInput(attrs={'placeholder': 'Nombre',
-                                                           'class': 'form-control',
-                                                           }))
-    apellido = forms.CharField(max_length=100,
-                               required=True,
-                               widget=forms.TextInput(attrs={'placeholder': 'Apellido',
-                                                             'class': 'form-control',
-                                                             }))
-    fecha_nacimiento = forms.DateField(required=True,
-                                       widget=forms.DateInput(
-                                           format='%d/%m/%Y',
-                                           attrs={
-                                               'autocomplete': 'off',
-                                               'placeholder': 'Fecha de nacimiento',
-                                               'class': 'form-control  datetimepicker-input',
-                                               'data-toggle': 'datetimepicker',
-                                               'data-target': '#id_fecha_nacimiento',
-                                           }
-                                       ))
-    imagen = forms.ImageField(required=True, widget=AdminFileWidget)
-
-    def clean(self):
-        super(SolicitudForm, self).clean()
-        dni = self.cleaned_data['dni']
-        try:
-            solicitud = SolicitudSocio.objects.get(dni=dni)
-            raise ValidationError('Ya existe una solicitud enviada con el DNI ingresado. '
-                                  'Estado de solicitud: {}'.format(solicitud.get_estado()))
-        except SolicitudSocio.DoesNotExist:
-            pass
-        try:
-            Socio.global_objects.get(persona__dni=dni)
-            raise ValidationError('Ya existe un socio con el DNI ingresado. Por favor, verifique los datos ingresados.')
-        except Socio.DoesNotExist:
-            pass
-        email = self.cleaned_data['email']
-        try:
-            User.global_objects.get(email=email)
-            raise ValidationError('Ya existe un usuario con el email ingresado. '
-                                  'Por favor, verifique los datos ingresados.')
-        except User.DoesNotExist:
-            pass
+class SocioParametersForm(forms.ModelForm):
+    """Formulario para la edición de los parámetros de socios."""
 
     class Meta:
-        model = SolicitudSocio
-        fields = ['nombre', 'apellido', 'dni', 'email', 'sexo', 'fecha_nacimiento', 'imagen', 'categoria']
+        model = Parameters
+        fields = '__all__'
         widgets = {
-            'categoria': forms.Select(attrs={'class': 'form-control select2'}),
+            'club': forms.HiddenInput(),
+            'edad_minima_titular': forms.NumberInput(attrs={'class': 'form-control'}),
+            'dia_emision_cuota': forms.NumberInput(attrs={'class': 'form-control'}),
+            'dia_vencimiento_cuota': forms.NumberInput(attrs={'class': 'form-control'}),
+            'cantidad_maxima_cuotas_pendientes': forms.NumberInput(attrs={'class': 'form-control'}),
+            'aumento_por_cuota_vencida': forms.NumberInput(attrs={'class': 'form-control'}),
         }

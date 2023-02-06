@@ -1,0 +1,244 @@
+{% extends "extends/admin/base.html" %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block head_js %}
+    <!-- Tempus Dominus JS -->
+    <script src="{% static 'libs/tempusdominus-bootstrap-5.39/moment-with-locales.min.js' %}"></script>
+    <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
+{% endblock head_js %}
+
+{% block head_css %}
+    <!-- Tempus Dominus CSS -->
+    <link href="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.css' %}" media="all"
+          rel="stylesheet">
+    <style>
+        img {
+            max-width: 300px;
+            max-height: 300px;
+        }
+
+        @media (max-width: 576px) {
+            .label-align {
+                text-align: left;
+            }
+        }
+
+        @media (min-width: 576px) {
+            .label-align {
+                text-align: right;
+            }
+        }
+    </style>
+{% endblock head_css %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin-socio-listado' %}">Socios</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <form method="post" enctype="multipart/form-data" id="formSocio" class="form-horizontal">
+                    {% csrf_token %}
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    <h4>Datos Personales</h4>
+                                    <hr>
+                                    {% if action == 'add' %}
+                                        <div class="input-group mb-3">
+                                            {{ form.persona }}
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">
+                                                    <a href="{% url 'admin-persona-crear' %}?next={{ request.path }}">
+                                                        <i class="fas fa-user-plus"></i>
+                                                    </a>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        {{ form.persona }}
+                                    {% endif %}
+                                    <ul id="list-data" class="list-group">
+                                    </ul>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <h4>Datos del socio</h4>
+                                    <hr>
+                                    {% if object.get_user %}
+                                        <label for="id_user">{{ form.user.label }}</label>
+                                        <div class="input-group">
+                                            {{ form.user }}
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">
+                                                    <a href="{% url 'admin:accounts_user_change' object.user.pk %}">
+                                                        <i class="fas fa-user-pen"></i>
+                                                    </a>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="form-group">
+                                            <label for="id_email">{{ form.email.label }}</label>
+                                            {{ form.email }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary float-right" type="submit">
+                                <i class="fa fa-save"></i> Guardar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block body_js %}
+    <script>
+        let selectPersona = $('#id_persona');
+        let inputFechaIngreso = $('#id_fecha_ingreso');
+        {% if action == 'add' %}
+            selectPersona.select2({
+                theme: 'bootstrap4',
+                allowClear: true,
+                placeholder: 'Seleccione una persona',
+                language: 'es'
+            });
+            inputFechaIngreso.datetimepicker({
+                "format": "DD/MM/YYYY",
+                "locale": "es-AR",
+                "date": null,
+                "minDate": "01/01/1900",
+                "maxDate": Date.now(),
+            });
+            selectPersona.on('change', function (e) {
+                let listDataPersona = $('#list-data');
+                listDataPersona.empty();
+                if ($(this).val()) {
+                    $.ajax({
+                        url: "{% url 'admin-socio-ajax' %}",
+                        type: 'GET',
+                        data: {
+                            'action': 'get_persona',
+                            'id': $(this).val()
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+                            if (!data.hasOwnProperty('error')) {
+                                let persona = data['persona'];
+                                listDataPersona.append('<li class="list-group-item list-group-item-secondary"><h5 class="m-0">Datos de la persona seleccionada</h5></li>');
+                                listDataPersona.append('<li class="list-group-item"><b>CUIL:</b> ' + persona['cuil'] + '</li>');
+                                listDataPersona.append('<li class="list-group-item"><b>Nombre:</b> ' + persona['nombre'] + '</li>');
+                                listDataPersona.append('<li class="list-group-item"><b>Apellido:</b> ' + persona['apellido'] + '</li>');
+                                listDataPersona.append('<li class="list-group-item"><b>Edad:</b> ' + persona['edad'] + '</li>');
+                                listDataPersona.append('<li class="list-group-item"><p><b>Foto carnet:</b></p>' +
+                                    '<img src="' + persona['imagen'] + '" class="img-thumbnail" alt=""></li>');
+                                listDataPersona.append('<li class="list-group-item"><a href="' + persona['url_editar'] + '" class="btn btn-warning"><i class="fas fa-user-pen"></i> Editar persona</a></li>');
+                            } else {
+                                alert('Error al obtener los datos de la persona: ' + data.error)
+                            }
+                        }
+                    });
+                }
+            });
+        {% elif action == 'edit' %}
+            let fecha_ingreso = new Date('{{ object.get_fecha_ingreso }}')
+            fecha_ingreso.setMinutes(fecha_ingreso.getMinutes() + fecha_ingreso.getTimezoneOffset());
+            inputFechaIngreso.datetimepicker({
+                "format": "DD/MM/YYYY",
+                "date": fecha_ingreso,
+                "minDate": "01/01/1900",
+                "maxDate": Date.now(),
+            });
+            let listDataPersona = $('#list-data');
+            listDataPersona.empty();
+            listDataPersona.append('<li class="list-group-item list-group-item-secondary"><h5 class="m-0">Datos de la persona seleccionada</h5></li>');
+            listDataPersona.append('<li class="list-group-item"><b>CUIL:</b> {{ object.persona.cuil_completo }}</li>');
+            listDataPersona.append('<li class="list-group-item"><b>Nombre:</b> {{ object.persona.nombre }}</li>');
+            listDataPersona.append('<li class="list-group-item"><b>Apellido:</b> {{ object.persona.apellido }}</li>');
+            listDataPersona.append('<li class="list-group-item"><b>Edad:</b> {{ object.persona.get_edad }}</li>');
+            listDataPersona.append('<li class="list-group-item"><p><b>Foto carnet:</b></p>' +
+                '<img src="{{ object.persona.imagen.url }}" class="img-thumbnail" alt=""></li>');
+            listDataPersona.append('<li class="list-group-item"><a href="{% url 'admin-persona-editar' object.persona.pk %}" class="btn btn-warning"><i class="fas fa-user-pen"></i> Editar persona</a></li>');
+        {% endif %}
+
+        // Submit form
+        $('#formSocio').submit(function (e) {
+            e.preventDefault();
+            let form = new FormData(this);
+            form.append('action', '{{ action }}');
+            $.ajax({
+                url: window.location.pathname,
+                type: 'POST',
+                data: form,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (!data.hasOwnProperty('error')) {
+                        Swal.fire({
+                            position: 'top-end',
+                            title: data['swal_title'],
+                            text: data['swal_text'],
+                            icon: 'success',
+                            confirmButtonText: 'Imprimir comprobante de operación',
+                            showCancelButton: true,
+                            cancelButtonText: 'Continuar',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    url: "{% url 'admin-socio-ajax' %}",
+                                    type: "GET",
+                                    data: {
+                                        'action': 'print_comprobante',
+                                        'persona': data['persona'],
+                                        'socio': data['socio'],
+                                    },
+                                    success: function (data) {
+                                        if (data['url']) {
+                                            window.open(data['url'], '_blank');
+                                        }
+                                    },
+                                    error: function (data) {
+                                        console.log('Error:', data);
+                                    }
+                                });
+                            }
+                            window.location.href = "{% url 'admin-socio-listado' %}";
+                        });
+                    } else {
+                        let errors = []
+                        if (typeof data.error === 'object') {
+                            $.each(data.error, function (key, value) {
+                                errors.push(value);
+                            });
+                        } else {
+                            errors = data.error
+                        }
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: errors,
+                            showConfirmButton: true,
+                        })
+                    }
+                },
+                error: function (data) {
+                    alert('Error en la petición ajax en el submit del formulario: ' + data);
+                }
+            });
+        });
+    </script>
+{% endblock body_js %}

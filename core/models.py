@@ -1,8 +1,10 @@
-import uuid
-from django.db import models
-from django_softdelete.models import SoftDeleteModel, SoftDeleteManager
 from PIL import Image
 from django.conf import settings
+from django.db import models
+from django_softdelete.models import SoftDeleteModel
+from simple_history.models import HistoricalRecords
+
+from accounts.models import User
 
 
 class Club(SoftDeleteModel):
@@ -13,6 +15,7 @@ class Club(SoftDeleteModel):
     nombre = models.CharField(max_length=255, verbose_name='Nombre')
     direccion = models.CharField(max_length=255, verbose_name='Dirección')
     email = models.EmailField(max_length=255, verbose_name='Email')
+    history = HistoricalRecords()
 
     def imagen_directory_path(self, filename):
         """Método para obtener la ruta de la imagen del logo del club."""
@@ -26,7 +29,6 @@ class Club(SoftDeleteModel):
     def save(self, *args, **kwargs):
         """Método save() sobrescrito para redimensionar la imagen."""
         super().save(*args, **kwargs)
-
         try:
             img = Image.open(self.imagen.path)
             if img.height > 300 or img.width > 300:
@@ -39,9 +41,10 @@ class Club(SoftDeleteModel):
     def get_imagen(self):
         """Método para obtener la imagen de perfil del usuario."""
         try:
+            # Si existe una imagen en self.imagen.url, la devuelve.
+            Image.open(self.imagen.path)
             return self.imagen.url
-        except Exception as e:
-            print(e)
+        except FileNotFoundError:
             return settings.STATIC_URL + 'img/empty.svg'
 
     class Meta:

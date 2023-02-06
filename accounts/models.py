@@ -1,56 +1,94 @@
-import re
-import uuid
-
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
-from django.contrib.auth.models import AbstractUser
-from django.conf import settings
-from django.forms import model_to_dict
-from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.models import UnicodeUsernameValidator
-from django_softdelete.models import SoftDeleteModel
-from django.core.exceptions import ValidationError
+
 from PIL import Image
+from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.contrib.auth.models import AbstractUser, UserManager
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ValidationError
+from django.db import models, OperationalError
+from django.forms import model_to_dict
+from django.urls import reverse
+from django_softdelete.models import SoftDeleteModel
+from simple_history.models import HistoricalRecords
 
-from core.models import Club
+from socios.models import Socio, Parameters
 
 
-class User(AbstractUser, SoftDeleteModel):
+class CustomUserManager(UserManager):
+    def _create_user(self, email, password, **extra_fields):
+        """
+        Creates and saves a User with the given email and password.
+        """
+        if not email:
+            raise ValueError('The given email must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, username=None, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(email, password, **extra_fields)
+
+
+class User(AbstractUser):
     """
     Modelos de usuario personalizado.
     """
-    username_validator = UnicodeUsernameValidator()
-    persona = models.OneToOneField('accounts.Persona', on_delete=models.PROTECT, null=True, blank=True)
     email = models.EmailField(
         unique=True,
-        verbose_name=_('Email'),
+        verbose_name='Email',
         error_messages={
-            "unique": _("Email: Una persona con ese email ya existe."),
+            "unique": "Un usuario con ese email ya existe.",
         },
     )
-    username = models.CharField(
-        _("Nombre de usuario"),
-        max_length=150,
-        unique=True,
-        help_text=_(
-            "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
-        ),
-        validators=[username_validator],
-        error_messages={
-            "unique": _("Nombre de usuario: Una persona con ese nombre de usuario ya existe."),
-            "invalid": _(
-                "Nombre de usuario: Este campo solo puede contener letras, números y los siguientes caracteres: @/./+/-/_"),
-        },
-    )
+    username = None
     first_name = None
     last_name = None
+    nombre = models.CharField(max_length=255, verbose_name='Nombre')
+    apellido = models.CharField(max_length=255, verbose_name='Apellido')
+    notificaciones = models.BooleanField(default=False, verbose_name='Notificaciones',
+                                         help_text='Recibir notificaciones por email sobre eventos, '
+                                                   'canchas liberadas, entre otros.')
 
-    REQUIRED_FIELDS = ['email']
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['nombre', 'apellido']
+
+    objects = CustomUserManager()
 
     def __str__(self):
-        return self.username
+        try:
+            if self.is_admin():
+                return self.socio.persona.get_full_name() + ' (Administrador)'
+            return self.socio.persona.get_full_name()
+        except AttributeError:
+            if self.is_admin():
+                return self.get_full_name() + ' (Administrador)'
+            return self.get_full_name()
+        except OperationalError:
+            if self.is_admin():
+                return self.get_full_name() + ' (Administrador)'
+            return self.get_full_name()
+
+    def get_full_name(self):
+        return self.nombre + ' ' + self.apellido
+
+    def get_short_name(self):
+        return self.nombre
 
     def is_admin(self):
         """
@@ -58,72 +96,74 @@ class User(AbstractUser, SoftDeleteModel):
         """
         return self.is_superuser or self.is_staff
 
-    def clean(self):
-        super(User, self).clean()
-        if not self.is_admin():
-            if not self.persona:
-                raise ValidationError('El usuario debe tener una persona asociada.')
+    def get_estado(self):
+        """
+        Devuelve el estado del usuario
+        """
+        return 'Activo' if self.is_active else 'Inactivo'
+
+    def get_socio(self, global_object=False):
+        """
+        Devuelve el socio de la persona.
+        """
+        try:
+            if global_object:
+                return Socio.global_objects.get(user=self)
+            return self.socio if not self.socio.is_deleted else None
+        except ObjectDoesNotExist:
+            return False
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['socio'] = self.get_socio().toJSON() if self.get_socio() else None
+        return item
 
     class Meta:
-        verbose_name = _('Usuario')
-        verbose_name_plural = _('Usuarios')
+        verbose_name = 'Usuario'
+        verbose_name_plural = 'Usuarios'
 
 
-class PersonaAbstract(SoftDeleteModel):
+class Persona(SoftDeleteModel):
     """
     Modelo para almacenar los datos personales de los Usuarios
-    o Miembros No Registrados de un Grupo Familiar.
     """
-    dni = models.CharField(max_length=8, unique=True, verbose_name=_('DNI'),
-                           error_messages={
-                               "unique": _("DNI: Una persona con ese DNI ya existe."),
-                           })
-    sexo = models.ForeignKey('parameters.Sexo', on_delete=models.PROTECT, verbose_name=_('Sexo'))
-    club = models.ForeignKey('core.Club', on_delete=models.PROTECT, verbose_name=_('Club'))
-    nombre = models.CharField(max_length=255, verbose_name=_('Nombre'))
-    apellido = models.CharField(max_length=255, verbose_name=_('Apellido'))
-    fecha_nacimiento = models.DateField(verbose_name=_('Fecha de nacimiento'),
+    cuil = models.CharField(max_length=11, unique=True, verbose_name='CUIL',
+                            error_messages={'unique': 'Una persona con ese CUIL ya existe.'})
+    sexo = models.ForeignKey('parameters.Sexo', on_delete=models.PROTECT, verbose_name='Sexo')
+    club = models.ForeignKey('core.Club', on_delete=models.PROTECT, verbose_name='Club')
+    persona_titular = models.ForeignKey(
+        'self', on_delete=models.PROTECT, verbose_name='Persona titular', null=True, blank=True)
+    nombre = models.CharField(max_length=255, verbose_name='Nombre')
+    apellido = models.CharField(max_length=255, verbose_name='Apellido')
+    fecha_nacimiento = models.DateField(verbose_name='Fecha de nacimiento',
                                         error_messages={
-                                            "invalid": _("Fecha de nacimiento: Formato de fecha inválido."),
+                                            "invalid": "Formato de fecha de nacimiento inválido.",
                                         })
+    history = HistoricalRecords()
+
+    @property
+    def cuil_completo(self):
+        """
+        Devuelve el CUIL completo de la persona.
+        """
+        return self.cuil[:2] + '-' + self.cuil[2:10] + '-' + self.cuil[10:]
 
     def image_directory_path(self, filename):
         """
         Devuelve la ruta de la imagen de perfil del usuario.
         """
-        return 'img/{0}/{1}/{2}'.format(self._meta.model_name, self.dni, filename)
+        return 'img/{0}/{1}/{2}'.format(self._meta.model_name, self.cuil, filename)
 
-    imagen = models.ImageField(upload_to=image_directory_path, verbose_name=_('Imagen'))
+    imagen = models.ImageField(upload_to=image_directory_path, verbose_name='Foto carnet')
 
     def __str__(self):
-        return self.get_full_name() + ' DNI: ' + self.dni
-
-    def toJSON(self):
-        """
-        Devuelve un diccionario con los datos de la persona.
-        """
-        item = model_to_dict(self, exclude=['imagen'])
-        item['imagen'] = self.get_imagen()
-        item['edad'] = self.get_edad()
-        item['fecha_nacimiento'] = self.get_fecha_nacimiento()
-        try:
-            item['socio'] = self.socio.id
-        except ObjectDoesNotExist:
-            item['socio'] = None
-        item['__str__'] = self.__str__()
-        return item
+        return self.get_full_name() + ' (' + self.cuil_completo + ')'
 
     def get_full_name(self):
         """
         Devuelve el nombre completo de la persona.
         """
         return self.nombre + ' ' + self.apellido
-
-    def get_short_name(self):
-        """
-        Devuelve el nombre corto de la persona.
-        """
-        return self.nombre
 
     def get_edad(self):
         edad = relativedelta(datetime.now(), self.fecha_nacimiento)
@@ -134,31 +174,46 @@ class PersonaAbstract(SoftDeleteModel):
         Devuelve la imagen de la persona.
         """
         try:
+            # Si existe una imagen en self.imagen.url, la devuelve.
+            Image.open(self.imagen.path)
             return self.imagen.url
-        except Exception as e:
-            print(e)
+        except FileNotFoundError:
             return settings.STATIC_URL + 'img/empty.svg'
-
-    def get_socio(self):
-        """
-        Devuelve el socio de la persona.
-        """
-        try:
-            return self.socio
-        except ObjectDoesNotExist:
-            return None
 
     def get_fecha_nacimiento(self):
         """
         Devuelve la fecha de nacimiento de la persona.
         """
-        return self.fecha_nacimiento.strftime('%Y/%m/%d')
+        return self.fecha_nacimiento.strftime('%Y-%m-%d')
+
+    def es_titular(self):
+        """
+        Devuelve true si el campo persona_titular es nulo.
+        """
+        return True if self.persona_titular is None else False
+
+    def get_personas_dependientes(self):
+        """
+        Devuelve una lista de personas dependientes de la persona.
+        """
+        return self.persona_set.all()
+
+    def get_socio(self, global_objects=False):
+        """
+        Devuelve el socio de la persona.
+        """
+        try:
+            if global_objects:
+                return Socio.global_objects.get(persona=self)
+            return self.socio
+        except ObjectDoesNotExist:
+            return None
 
     def get_related_objects(self):
         """
         Devuelve una lista de objetos relacionados con la persona.
         """
-        return [self.socio, self.user]
+        return [self.socio]
 
     def save(self, *args, **kwargs):
         """Método save() sobrescrito para redimensionar la imagen."""
@@ -172,8 +227,42 @@ class PersonaAbstract(SoftDeleteModel):
         except FileNotFoundError:
             pass
 
+    def toJSON(self):
+        """
+        Devuelve un diccionario con los datos de la persona.
+        """
+        item = model_to_dict(self, exclude=['imagen', 'cuil'])
+        item['imagen'] = self.get_imagen()
+        item['cuil'] = self.cuil_completo
+        item['edad'] = self.get_edad()
+        item['fecha_nacimiento'] = self.get_fecha_nacimiento()
+        item['socio'] = self.get_socio().__str__()
+        item['url_editar'] = reverse('admin-persona-editar', kwargs={'pk': self.pk})
+        item['__str__'] = self.__str__()
+        return item
+
+    def validate(self):
+        """
+        Este método debe ejecutarse después de guardar el formulario.
+        """
+        edad_minima_titular = Parameters.objects.get(club=self.club).edad_minima_titular
+        if self.es_titular():
+            if self.get_edad() < edad_minima_titular:
+                raise ValidationError(
+                    'La persona al ser menor de {} años, debe tener una persona a cargo.'.format(edad_minima_titular))
+        else:
+            # No se puede seleccionar una persona_titular que no sea titular.
+            if not self.persona_titular.es_titular():
+                raise ValidationError('La persona a cargo seleccionada no es titular.')
+            # Si la persona no es titular, no puede tener personas a su cargo.
+            if self.persona_set.exists():
+                raise ValidationError('No se puede seleccionar una persona a cargo, porque {} ya tiene '
+                                      'personas a su cargo.'.format(self.get_full_name()))
+            self.persona_titular.validate()
+
     def clean(self):
-        super(PersonaAbstract, self).clean()
+        super(Persona, self).clean()
+
         # Quitar espacios en blanco al principio y al final del nombre y apellido.
         self.nombre = self.nombre.strip()
         self.apellido = self.apellido.strip()
@@ -182,34 +271,29 @@ class PersonaAbstract(SoftDeleteModel):
         self.nombre = self.nombre.title()
         self.apellido = self.apellido.title()
 
-    class Meta:
-        abstract = True
+        # Fecha de nacimiento no puede ser mayor a la fecha actual.
+        if self.fecha_nacimiento > datetime.now().date():
+            raise ValidationError('Fecha de nacimiento: La fecha de nacimiento no puede ser mayor a la fecha actual.')
 
-
-class Persona(PersonaAbstract):
     class Meta:
-        verbose_name = _('Persona')
-        verbose_name_plural = _('Personas')
+        verbose_name = 'Persona'
+        verbose_name_plural = 'Personas'
         constraints = [
-            # Validar que el DNI solo contenga números, tenga al menos 7 dígitos y no comience con 0.
-            models.CheckConstraint(check=models.Q(dni__regex=r'^[1-9][0-9]{6,}$'),
-                                   name='persona_dni_valido',
-                                   violation_error_message=_(
-                                       'DNI: El DNI debe contener solo números, '
-                                       'tener al menos 7 dígitos y no comenzar con 0.')),
+            # Validar que el CUIL Argentino sea válido.
+            models.CheckConstraint(check=models.Q(cuil__regex=r'^[0-9]{11}$'),
+                                   name='cuil_valido',
+                                   violation_error_message='CUIL: Formato de CUIL inválido.'),
+            # Validar que persona_titular no sea self.
+            models.CheckConstraint(
+                check=models.Q(persona_titular__isnull=True) | ~models.Q(persona_titular_id=models.F('id')),
+                name='persona_titular_distinta',
+                violation_error_message='Persona titular: La persona titular no puede ser la misma persona.'),
             # Validar que el nombre y el apellido solo contengan letras y espacios.
             models.CheckConstraint(check=models.Q(nombre__regex=r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$'),
                                    name='persona_nombre_valido',
-                                   violation_error_message=_(
-                                       'Nombre: El nombre solo puede contener letras y espacios.')),
+                                   violation_error_message='Nombre: El nombre solo puede contener letras y espacios.'),
             models.CheckConstraint(check=models.Q(apellido__regex=r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$'),
                                    name='persona_apellido_valido',
-                                   violation_error_message=_(
-                                       'Apellido: El apellido solo puede contener letras y espacios.')),
-            # Validar que la fecha de nacimiento no sea mayor a la fecha actual.
-            models.CheckConstraint(check=models.Q(fecha_nacimiento__lte=datetime.now().date()),
-                                   name='persona_fecha_nacimiento_valida',
-                                   violation_error_message=_(
-                                       'Fecha de nacimiento: La fecha de nacimiento no puede ser '
-                                       'mayor a la fecha actual.')),
+                                   violation_error_message='Apellido: El apellido solo puede contener letras y'
+                                                           ' espacios.'),
         ]

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Link de Pago</title>
+</head>
+<body>
+<p>Hola cliente</p>
+<p>Has creado una reserva en nuestro sistema de reservas de canchas</p>
+<p>Para pagar tu reserva, haz click en el siguiente enlace:</p>
+{% autoescape off %}
+    <a href="{{ protocol }}://{{ domain }}{% url 'reservas-pago' reserva.pk %}" target="_blank">Pagar reserva</a>
+{% endautoescape %}
+</body>
+</html>

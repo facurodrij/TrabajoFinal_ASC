@@ -1,0 +1,105 @@
+{% extends "extends/admin/base.html" %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin-socio-listado' %}">Socios</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
+{% block head_css %}
+    <style>
+        @media (max-width: 576px) {
+            .label-align {
+                text-align: left;
+            }
+        }
+
+        @media (min-width: 576px) {
+            .label-align {
+                text-align: right;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h4 class="card-title">
+                            <i class="fa-solid fa-network-wired"></i>
+                            {{ title }}
+                        </h4>
+                    </div>
+                    <form id="formCategoria" method="post" enctype="multipart/form-data" class="form-horizontal">
+                        {% csrf_token %}
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label for="id_nombre" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.nombre.label }} <span class="text-danger">*</span>
+                                </label>
+                                <div class="col-sm-7">
+                                    {{ form.nombre }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_cuota" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.cuota.label }} <span class="text-danger">*</span>
+                                </label>
+                                <div class="col-sm-7">
+                                    {{ form.cuota }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_edad_desde" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.edad_minima.label }} <span class="text-danger">*</span>
+                                </label>
+                                <div class="col-sm-7">
+                                    {{ form.edad_minima }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_sexo" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.edad_maxima.label }} <span class="text-danger">*</span>
+                                </label>
+                                <div class="col-sm-7">
+                                    {{ form.edad_maxima }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary float-right" type="submit">
+                                <i class="fa fa-save"></i> Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+    {% if form.errors %}
+        <script type="text/javascript">
+            let errors = []
+            {% for key, value in form.errors.items %}
+                errors.push('{{ value|join:" " }}')
+            {% endfor %}
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Ocurrió un error',
+                text: errors.join('\n'),
+                showConfirmButton: true,
+            })
+            document.body.classList.remove('swal2-height-auto');
+        </script>
+    {% endif %}
+{% endblock %}

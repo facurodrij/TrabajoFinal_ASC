@@ -1,0 +1,14 @@
+[
+  {
+    "model": "reservas.Parameters",
+    "pk": 1,
+    "fields": {
+      "club": 1,
+      "horas_anticipacion": 2,
+      "minutos_expiracion": 20,
+      "max_reservas_user": 2,
+      "avisar_cancha_libre": true,
+      "horas_avisar_cancha_libre": 5
+    }
+  }
+]

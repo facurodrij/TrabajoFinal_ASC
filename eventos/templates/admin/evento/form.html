@@ -1,0 +1,401 @@
+{% extends "extends/admin/base.html" %}
+{% load static %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin-eventos-listado' %}">Eventos</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
+{% block head_css %}
+    <style>
+        @media (max-width: 576px) {
+            .label-align {
+                text-align: left;
+            }
+        }
+
+        @media (min-width: 576px) {
+            .label-align {
+                text-align: right;
+            }
+        }
+
+        .image-area {
+            border: 2px dashed rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            position: relative;
+        }
+
+        .image-area::before {
+            content: 'Resultado de la imagen subida';
+            color: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            text-transform: uppercase;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8rem;
+            z-index: 1;
+        }
+
+        .image-area img {
+            z-index: 2;
+            position: relative;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h4 class="card-title">
+                            <i class="fas fa-ticket"></i>
+                            {{ title }}
+                        </h4>
+                    </div>
+                    <form id="evento_form" method="post" enctype="multipart/form-data" class="form-horizontal">
+                        {% csrf_token %}
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label for="id_nombre" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.nombre.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ form.nombre }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_descripcion" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.descripcion.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ form.descripcion }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_fecha_inicio" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.fecha_inicio.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    <div class="input-group" id="div_id_fecha_inicio"
+                                         data-target-input="nearest">
+                                        {{ form.fecha_inicio }}
+                                        <div class="input-group-append" data-target="#id_fecha_inicio"
+                                             data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_hora_inicio" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.hora_inicio.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    <div class="input-group" id="div_id_fecha_inicio"
+                                         data-target-input="nearest">
+                                        {{ form.hora_inicio }}
+                                        <div class="input-group-append" data-target="#id_hora_inicio"
+                                             data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-clock"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_fecha_fin" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.fecha_fin.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    <div class="input-group" id="div_id_fecha_fin"
+                                         data-target-input="nearest">
+                                        {{ form.fecha_fin }}
+                                        <div class="input-group-append" data-target="#id_fecha_fin"
+                                             data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_hora_fin" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.hora_fin.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    <div class="input-group" id="div_id_fecha_fin"
+                                         data-target-input="nearest">
+                                        {{ form.hora_fin }}
+                                        <div class="input-group-append" data-target="#id_hora_fin"
+                                             data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-clock"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_registro_deadline" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.registro_deadline.label }} <span class="text-danger"></span></label>
+                                <div class="col-sm-7">
+                                    <div class="input-group" id="div_id_registro_deadline"
+                                         data-target-input="nearest">
+                                        {{ form.registro_deadline }}
+                                        <div class="input-group-append" data-target="#id_registro_deadline"
+                                             data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        {{ form.registro_deadline.help_text }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_descuento_socio" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.descuento_socio.label }} <span class="text-danger"></span></label>
+                                <div class="col-sm-7">
+                                    {{ form.descuento_socio }}
+                                    <small class="form-text text-muted">
+                                        {{ form.descuento_socio.help_text }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-7 offset-sm-3">
+                                    <div class="icheck-primary d-inline">
+                                        {{ form.mayor_edad }}
+                                        <label for="id_mayor_edad">
+                                            {{ form.mayor_edad.label }}</label>
+                                        <small class="form-text text-muted">
+                                            {{ form.mayor_edad.help_text }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.imagen.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    <div class="custom-file" id="customFile" lang="es">
+                                        {{ form.imagen }}
+                                        <label class="custom-file-label" for="id_imagen">
+                                            <span class="text-black-50">Seleccione una imagen</span>
+                                        </label>
+                                    </div>
+                                    <!-- Uploaded image area-->
+                                    <p class="font-italic text-black-50 text-center mt-2">
+                                        La imagen subida se representará dentro del siguiente cuadro.
+                                    </p>
+                                    <div class="image-area mt-3">
+                                        <img id="imageResult" src="#" alt=""
+                                             style="max-height: 400px; max-width: 400px;"
+                                             class="img-fluid rounded mx-auto d-block"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% with named_formsets.ticketvariante as formset %}
+                            {{ formset.management_form }}
+                            <script type="text/html" id="variants-template">
+                                <tr id="ticketvariante-__prefix__" class=hide_all>
+                                    {% for fields in formset.empty_form.hidden_fields %}
+                                        {{ fields }}
+                                    {% endfor %}
+
+                                    {% for fields in formset.empty_form.visible_fields %}
+                                        <td>{{ fields }}</td>
+                                    {% endfor %}
+                                </tr>
+                            </script>
+                            <div class="p-3">
+                                <h2 class="ml-1">Variación de Tickets</h2>
+                                <table class="table table-bordered">
+                                    <thead class="text-secondary thead-light">
+                                    <th>Nombre <span style="color: red;" class="required">*</span></th>
+                                    <th>Precio <span style="color: red;" class="required">*</span></th>
+                                    <th>Total de tickets <span style="color: red;" class="required">*</span></th>
+                                    <th></th>
+                                    </thead>
+                                    <tbody id="item-variants">  <!-- id="item-inlineformsetname" -->
+                                    {% for formss in formset %}
+                                        {{ formss.management_form }}
+                                        <tr id="ticketvariante-{{ forloop.counter0 }}" class=hide_all>
+                                            <!-- id="inlineformsetname-counter" -->
+                                            {{ formss.id }}
+                                            {% for field in formss.visible_fields %}
+                                                <td>
+                                                    {{ field }}
+                                                    {% for error in field.errors %}
+                                                        <span style="color: red">{{ error }}</span>
+                                                    {% endfor %}
+                                                </td>
+                                            {% endfor %}
+                                            {% if formss.instance.pk %}
+                                                <td>
+                                                    <a class="btn btn-danger"
+                                                       href="{% url 'admin-ticket-variante-delete' formss.instance.pk %}">
+                                                        <i class="fa fa-trash"></i>
+                                                    </a>
+                                                </td>
+                                            {% endif %}
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <a href="#" id="add-ticketvariante-button" class="btn btn-secondary add-ticketvariante">
+                                    <i class="fa fa-plus"></i>
+                                </a>
+                                <!-- id="add-inlineformsetname-button" -->
+                            </div>
+                        {% endwith %}
+                        <div class="card-footer">
+                            {% if action == 'add' %}
+                                <button class="btn btn-primary float-right ml-2" type="submit">
+                                    <i class="fa-solid fa-check-to-slot"></i> Publicar
+                                </button>
+                            {% else %}
+                                <button class="btn btn-primary float-right ml-2" type="submit">
+                                    <i class="fa-solid fa-save"></i> Actualizar
+                                </button>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block body_js %}
+    <!-- Tempus Dominus -->
+    <link href="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.css' %}" media="all"
+          rel="stylesheet">
+    <script src="{% static 'libs/tempusdominus-bootstrap-5.39/moment-with-locales.min.js' %}"></script>
+    <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
+    <script src="{% static 'libs/inputmask/jquery.inputmask.js' %}"></script>
+    <script>
+        let inputFechaInicio = $('#id_fecha_inicio');
+        let inputFechaFin = $('#id_fecha_fin');
+        let inputHoraInicio = $('#id_hora_inicio');
+        let inputHoraFin = $('#id_hora_fin');
+        let inputRegistroDeadline = $('#id_registro_deadline');
+        {% if action == 'add' %}
+            inputFechaInicio.datetimepicker({
+                "format": "L",
+                "locale": "es-AR",
+                "date": moment(),
+                "minDate": moment().startOf('day'),
+            });
+            inputFechaFin.datetimepicker({
+                "format": "L",
+                "locale": "es-AR",
+                "date": moment(),
+                "minDate": moment().startOf('day'),
+            });
+            inputHoraInicio.datetimepicker({
+                "format": "LT",
+                "locale": "es-AR",
+                "date": moment(),
+                "minDate": moment().startOf('day'),
+            });
+            inputHoraFin.datetimepicker({
+                "format": "LT",
+                "locale": "es-AR",
+                "date": moment(),
+                "minDate": moment().startOf('day'),
+            });
+            inputRegistroDeadline.datetimepicker({
+                "format": "L",
+                "locale": "es-AR",
+                "date": null,
+                "minDate": moment().startOf('day'),
+            });
+        {% elif action == 'edit' %}
+            let fecha_inicio = new Date('{{ object.fecha_inicio }}')
+            let fecha_fin = new Date('{{ object.fecha_fin }}')
+            let hora_inicio = new Date('{{ object.hora_inicio }}')
+            let hora_fin = new Date('{{ object.hora_fin }}')
+            let registro_deadline = new Date('{{ object.registro_deadline }}')
+            fecha_inicio.setMinutes(fecha_inicio.getMinutes() + fecha_inicio.getTimezoneOffset());
+            fecha_fin.setMinutes(fecha_fin.getMinutes() + fecha_fin.getTimezoneOffset());
+            hora_inicio.setMinutes(hora_inicio.getMinutes() + hora_inicio.getTimezoneOffset());
+            hora_fin.setMinutes(hora_fin.getMinutes() + hora_fin.getTimezoneOffset());
+            registro_deadline.setMinutes(registro_deadline.getMinutes() + registro_deadline.getTimezoneOffset());
+            inputFechaInicio.datetimepicker({
+                "format": "L",
+                "locale": "es-AR",
+                "date": fecha_inicio,
+            });
+            inputFechaFin.datetimepicker({
+                "format": "L",
+                "locale": "es-AR",
+                "date": fecha_fin,
+            });
+            inputHoraInicio.datetimepicker({
+                "format": "LT",
+                "locale": "es-AR",
+                "date": hora_inicio,
+            });
+            inputHoraFin.datetimepicker({
+                "format": "LT",
+                "locale": "es-AR",
+                "date": hora_fin,
+            });
+            inputRegistroDeadline.datetimepicker({
+                "format": "L",
+                "locale": "es-AR",
+                "date": registro_deadline,
+            });
+        {% endif %}
+        // Imagen preview
+        document.querySelector('.custom-file-input').addEventListener('change', function (e) {
+            const fileName = document.getElementById("id_imagen").files[0].name;
+            const nextSibling = e.target.nextElementSibling;
+            nextSibling.innerText = fileName
+            const reader = new FileReader();
+            reader.onload = function () {
+                const output = document.getElementById('imageResult');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        });
+        {% if action == 'edit' %}
+            // Obtener el nombre del archivo de la imagen
+            const imagen = "{{ object.get_imagen | default_if_none:'' }}";
+            const filename = imagen.split('\\').pop().split('/').pop();
+
+            $('#id_imagen').val('').next().html('<span class="text-muted"> ' + filename + '</span>');
+            $('#imageResult').attr('src', '{{ object.get_imagen }}');
+        {% endif %}
+    </script>
+    <script>
+        $(document).ready(function () {
+            // when user clicks add more btn of variants
+            $('.add-ticketvariante').click(function (ev) {
+                ev.preventDefault();
+                var count = $('#item-variants').children().length;
+                var tmplMarkup = $('#variants-template').html();
+                var compiledTmpl = tmplMarkup.replace(/__prefix__/g, count);
+                $('#item-variants').append(compiledTmpl);
+
+                // update form count
+                $('#id_ticketvariante-TOTAL_FORMS').attr('value', count + 1);
+            });
+        });
+    </script>
+    {% if form.errors %}
+        <script type="text/javascript">
+            let errors = []
+            {% for key, value in form.errors.items %}
+                errors.push('{{ value|join:" " }}')
+            {% endfor %}
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Ocurrió un error',
+                text: errors.join('\n'),
+                showConfirmButton: true,
+            })
+            document.body.classList.remove('swal2-height-auto');
+        </script>
+    {% endif %}
+{% endblock body_js %}

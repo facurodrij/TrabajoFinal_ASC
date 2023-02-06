@@ -1,0 +1,322 @@
+{% extends "extends/admin/base.html" %}
+{% load static %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin-reservas-listado' %}">Reservas</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
+{% block head_css %}
+    <style>
+        @media (max-width: 576px) {
+            .label-align {
+                text-align: left;
+            }
+        }
+
+        @media (min-width: 576px) {
+            .label-align {
+                text-align: right;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h4 class="card-title">
+                            <i class="fas fa-calendar-plus"></i>
+                            {{ title }}
+                        </h4>
+                    </div>
+                    <form id="formReserva" method="post" enctype="multipart/form-data" class="form-horizontal">
+                        {% csrf_token %}
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label for="id_deporte" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.deporte.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ form.deporte }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_fecha" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.fecha.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    <div class="input-group" id="div_id_fecha"
+                                         data-target-input="nearest">
+                                        {{ form.fecha }}
+                                        <div class="input-group-append" data-target="#id_fecha"
+                                             data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_hora" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.hora.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ form.hora }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_cancha" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    Canchas disponibles <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ form.cancha }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_precio" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.precio.label }} <span class="text-danger"></span></label>
+                                <div class="col-sm-7">
+                                    {{ form.precio }}
+                                    <small class="form-text text-muted">
+                                        {{ form.precio.help_text }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_email" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.email.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ form.email }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_nombre" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.nombre.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ form.nombre }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_nota" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.forma_pago.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ form.forma_pago }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-7 offset-sm-3">
+                                    <div class="icheck-primary d-inline">
+                                        {{ form.expira }}
+                                        <label for="id_expira">
+                                            {{ form.expira.label }}</label>
+                                        <small class="form-text text-muted">
+                                            Si marca esta opción, la reserva expirará automáticamente por falta de pago.
+                                            De lo contrario, la reserva quedará activa hasta que el cliente realice el
+                                            pago.
+                                            (Solo aplica para reservas con forma de pago online)
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-7 offset-sm-3">
+                                    <div class="icheck-primary d-inline">
+                                        {{ form.con_luz }}
+                                        <label for="id_con_luz">
+                                            {{ form.con_luz.label }}</label>
+                                        <small class="form-text text-muted">
+                                            Si marca esta opción, se le cobrará el precio de la cancha con luz, a
+                                            menos que haya definido el precio de la reserva.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_nota" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.nota.label }}</label>
+                                <div class="col-sm-7">
+                                    {{ form.nota }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary float-right ml-2" type="submit" name="_save">
+                                <i class="fa fa-save"></i> GUARDAR
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block body_js %}
+    <!-- Tempus Dominus -->
+    <link href="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.css' %}" media="all"
+          rel="stylesheet">
+    <script src="{% static 'libs/tempusdominus-bootstrap-5.39/moment-with-locales.min.js' %}"></script>
+    <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
+    <script src="{% static 'libs/inputmask/jquery.inputmask.js' %}"></script>
+    <script>
+        let selectDeporte = $('#id_deporte');
+        let selectCancha = $('#id_cancha');
+        let inputFecha = $('#id_fecha');
+        let selectHora = $('#id_hora');
+        selectDeporte.select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione un deporte',
+            allowClear: true,
+            width: '100%',
+            language: 'es'
+        });
+        selectCancha.select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione una cancha disponible',
+            allowClear: true,
+            width: '100%',
+            language: 'es',
+        });
+        selectHora.select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione una hora',
+            allowClear: true,
+            width: '100%',
+            language: 'es',
+        });
+        {% if action == 'add' %}
+            inputFecha.datetimepicker({
+                "format": "L",
+                "locale": "es-AR",
+                "date": moment(),
+                "minDate": moment().startOf('day'),
+                "maxDate": moment().add(2, 'weeks'),
+            });
+        {% elif action == 'edit' %}
+            let fecha = new Date('{{ object.start_date }}')
+            fecha.setMinutes(fecha.getMinutes() + fecha.getTimezoneOffset());
+            inputFecha.datetimepicker({
+                "format": "L",
+                "locale": "es-AR",
+                "date": fecha,
+                "minDate": fecha,
+                "maxDate": moment().add(2, 'weeks'),
+            });
+        {% endif %}
+        inputFecha.on('change.datetimepicker', function (e) {
+            // Limpiar el select de canchas y deshabilitarlo
+            selectCancha.empty().prop('disabled', true).trigger('change');
+            selectHora.val(null).trigger('change');
+        });
+        selectHora.change(function () {
+            let hora = $(this).val();
+            let fecha = inputFecha.val();
+            if (fecha === '' || hora === null) {
+                return;
+            }
+            // Cambiar el formato fecha de DD/MM/YYYY a YYYY-MM-DD
+            fecha = fecha.split('/').reverse().join('-');
+            // Verificar que la fecha y hora seleccionada sea mayor a la actual
+            let fechaHora = moment(fecha + ' ' + hora).format('YYYY-MM-DD HH:mm');
+            let fechaHoraActual = moment().format('YYYY-MM-DD HH:mm');
+            if (fechaHora < fechaHoraActual) {
+                alert('La fecha y hora seleccionada debe ser mayor a la actual');
+                $(this).val('');
+                return false;
+                // TODO: Ver si no es mejor que solamente se deshabilite la opción de pago online
+            }
+            $.ajax({
+                url: "{% url 'admin-reservas-ajax' %}",
+                type: "GET",
+                data: {
+                    'action': 'get_canchas_disponibles',
+                    'deporte_id': selectDeporte.val(),
+                    'fecha': fecha,
+                    'hora': hora,
+                },
+                dataType: "json",
+                success: function (data) {
+                    if (!data.hasOwnProperty('error')) {
+                        let canchas = data['canchas'];
+                        selectCancha.empty();
+                        canchas.forEach(function (cancha) {
+                            let option = new Option('Cancha #' + cancha, cancha, false, false);
+                            selectCancha.append(option);
+                        });
+                        selectCancha.prop('disabled', false).trigger('change');
+                    } else {
+                        selectCancha.empty().prop('disabled', true).trigger('change');
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: data['error'],
+                            confirmButtonText: 'Aceptar',
+                        });
+                    }
+                }
+            });
+        });
+        $('#formReserva').on('submit', function (e) {
+            e.preventDefault();
+            let form = new FormData(this);
+            form.append('action', '{{ action }}');
+            $.ajax({
+                url: window.location.pathname,
+                type: 'POST',
+                data: form,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (!data.hasOwnProperty('error')) {
+                        {% if action == 'add' %}
+                            Swal.fire({
+                                position: 'top-end',
+                                title: 'Reserva agregada',
+                                text: 'La reserva se agregó correctamente',
+                                icon: 'success',
+                                timer: 3000,
+                                timerProgressBar: true,
+                            }).then((result) => {
+                                window.location.href = "{% url 'admin-reservas-listado' %}";
+                            });
+                        {% elif action == 'edit' %}
+                            Swal.fire({
+                                position: 'top-end',
+                                title: 'Reserva editada',
+                                text: 'La reserva se editó correctamente',
+                                icon: 'success',
+                                timer: 3000,
+                                timerProgressBar: true,
+                            }).then((result) => {
+                                window.location.href = "{% url 'admin-reservas-listado' %}";
+                            });
+                        {% endif %}
+                    } else {
+                        let errors = []
+                        // Si data error es un objeto pushear los errores al array
+                        if (typeof data.error === 'object') {
+                            $.each(data.error, function (key, value) {
+                                errors.push(value);
+                            });
+                        } else {
+                            errors = data.error
+                        }
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: errors,
+                            showConfirmButton: true,
+                        });
+                    }
+                },
+                error: function () {
+                    alert('Error al guardar la reserva');
+                }
+            });
+        });
+    </script>
+{% endblock body_js %}

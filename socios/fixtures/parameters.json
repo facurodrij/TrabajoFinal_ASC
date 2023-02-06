@@ -1,0 +1,14 @@
+[
+  {
+    "model": "socios.Parameters",
+    "pk": 1,
+    "fields": {
+      "club": 1,
+      "edad_minima_titular": 16,
+      "dia_emision_cuota": 1,
+      "dia_vencimiento_cuota": 28,
+      "cantidad_maxima_cuotas_pendientes": 2,
+      "aumento_por_cuota_vencida": 10
+    }
+  }
+]

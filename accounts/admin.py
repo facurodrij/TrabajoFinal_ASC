@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.utils.translation import gettext_lazy as _
+from simple_history.admin import SimpleHistoryAdmin
 
-from .models import User, Persona
-from .forms import *
+from accounts.models import User, Persona
 
 
 class CustomUserAdmin(UserAdmin):
@@ -12,8 +13,7 @@ class CustomUserAdmin(UserAdmin):
     Excluir los campos 'first_name' y 'last_name'.
     """
     fieldsets = (
-        ("Usuario info", {"fields": ("username", "email", "password")}),
-        (_("Personal info"), {"fields": ["persona"]}),
+        ("Usuario info", {"fields": ("nombre", "apellido", "email", "password")}),
         (_("Permissions"),
          {
              "fields": (
@@ -30,27 +30,28 @@ class CustomUserAdmin(UserAdmin):
         (
             None,
             {
-                "fields": ("persona", "username", "email", "password1", "password2"),
+                "fields": ("nombre", "apellido", "email", "password1", "password2",
+                           "is_staff", "is_superuser", "is_active", "notificaciones"),
             },
         ),
     )
-    form = UpdateUserFormAdmin
-    add_form = CreateUserFormAdmin
-    list_display = ("username", "email", "is_staff")
+    form = UserChangeForm
+    add_form = UserCreationForm
+    list_display = ("email", "is_staff")
     list_filter = ("is_staff", "is_superuser", "is_active", "groups")
-    search_fields = ("username", "email")
+    search_fields = ["email"]
+    ordering = ["email"]
 
 
-class PersonaAdmin(admin.ModelAdmin):
+class PersonaAdmin(SimpleHistoryAdmin):
     """
     Formulario para registrar una nueva persona desde el panel de administrador.
     """
-    fieldsets = (
-        ("Información personal", {"fields": ("dni", "nombre", "apellido", "sexo", "fecha_nacimiento")}),
-        (_("Información adicional"), {"fields": ["club"]}),
-    )
-    list_display = ("dni", "nombre", "apellido")
-    search_fields = ("dni", "nombre", "apellido")
+    # La lista deben ser los campos que se muestran en la tabla de personas
+    list_display = ("cuil", "nombre", "apellido", "is_deleted")
+
+    def get_queryset(self, request):
+        return Persona.global_objects.all()
 
 
 admin.site.register(User, CustomUserAdmin)

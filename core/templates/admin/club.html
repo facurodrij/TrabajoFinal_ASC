@@ -1,0 +1,110 @@
+{% extends "extends/admin/base.html" %}
+{% load static %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index_admin' %}">Inicio</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="d-flex flex-column align-items-center text-center mb-3">
+                    <img id="imageResult" class="rounded-circle mt-5"
+                         src="{{ object.get_imagen }}" alt="" style="max-width: 300px">
+                    <h3 class="font-weight-bold mt-3">{{ object.nombre }}</h3>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="card">
+                        <div class="card-header bg-primary">
+                            <h4 class="card-title">Actualizar Club</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="labels">{{ form.nombre.label }}</label>
+                                {{ form.nombre }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ form.localidad.label }}</label>
+                                {{ form.localidad }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ form.direccion.label }}</label>
+                                {{ form.direccion }}
+                            </div>
+                            <div class="form-group">
+                                <label class="labels">{{ form.imagen.label }}</label>
+                                <div class="custom-file" id="customFile" lang="es">
+                                    {{ form.imagen }}
+                                    <label class="custom-file-label" for="id_logo">
+                                        <span class="text-black-50">Seleccione un imagen</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary float-right" type="submit">
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+    <script>
+        $(document).ready(function () {
+            $('#id_localidad').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Seleccione una localidad',
+                allowClear: true,
+                width: '100%',
+                language: 'es'
+            });
+        });
+        // Imagen preview
+        document.querySelector('.custom-file-input').addEventListener('change', function (e) {
+            const fileName = document.getElementById("id_imagen").files[0].name;
+            const nextSibling = e.target.nextElementSibling;
+            nextSibling.innerText = fileName
+            const reader = new FileReader();
+            reader.onload = function () {
+                const output = document.getElementById('imageResult');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        });
+        // Obtener el nombre del archivo de la imagen
+        const imagen = "{{ object.get_imagen | default_if_none:'' }}";
+        const filename = imagen.split('\\').pop().split('/').pop();
+
+        $('#id_imagen').val('').next().html('<span class="text-muted"> ' + filename + '</span>');
+        $('#imageResult').attr('src', '{{ object.get_imagen }}');
+
+    </script>
+    {% if form.errors %}
+        <script type="text/javascript">
+            let errors = []
+            {% for key, value in form.errors.items %}
+                errors.push('{{ value|join:" " }}')
+            {% endfor %}
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Ocurrió un error',
+                text: errors.join('\n'),
+                showConfirmButton: true,
+            })
+            document.body.classList.remove('swal2-height-auto');
+        </script>
+    {% endif %}
+{% endblock body_js %}

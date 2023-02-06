@@ -1,0 +1,62 @@
+[
+  {
+    "model": "reservas.cancha",
+    "pk": 1,
+    "fields": {
+      "is_deleted": false,
+      "deleted_at": null,
+      "club": 1,
+      "superficie": 2,
+      "deporte": 1,
+      "cantidad_jugadores": 5,
+      "precio": "2500.00",
+      "precio_luz": "3000.00",
+      "imagen": ""
+    }
+  },
+  {
+    "model": "reservas.cancha",
+    "pk": 2,
+    "fields": {
+      "is_deleted": false,
+      "deleted_at": null,
+      "club": 1,
+      "superficie": 2,
+      "deporte": 1,
+      "cantidad_jugadores": 5,
+      "precio": "2500.00",
+      "precio_luz": "3000.00",
+      "imagen": ""
+    }
+  },
+  {
+    "model": "reservas.cancha",
+    "pk": 3,
+    "fields": {
+      "is_deleted": false,
+      "deleted_at": null,
+      "club": 1,
+      "superficie": 2,
+      "deporte": 1,
+      "cantidad_jugadores": 5,
+      "precio": "2500.00",
+      "precio_luz": "3000.00",
+      "imagen": ""
+    }
+  },
+  {
+    "model": "reservas.cancha",
+    "pk": 4,
+    "fields": {
+      "is_deleted": false,
+      "deleted_at": null,
+      "club": 1,
+      "superficie": 2,
+      "deporte": 1,
+      "cantidad_jugadores": 7,
+      "precio": "3000.00",
+      "precio_luz": "3500.00",
+      "imagen": ""
+    }
+  }
+]

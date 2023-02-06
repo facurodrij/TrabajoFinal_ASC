@@ -1,0 +1,266 @@
+{% extends "extends/admin/base.html" %}
+{% load static %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin-reservas-listado' %}">Reservas</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8 col-md-12">
+                <div class="card">
+                    <!-- Datos de la reserva -->
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">{{ title }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5>Información de la Reserva</h5>
+                                <ul class="list-group">
+                                    <li class="list-group-item"><b>Fecha y
+                                        Hora:</b> {{ reserva.fecha }}, {{ reserva.hora }}
+                                    </li>
+                                    <li class="list-group-item"><b>Nombre del cliente:</b> {{ reserva.nombre }}</li>
+                                    <li class="list-group-item"><b>Correo del cliente:</b> {{ reserva.email }}</li>
+                                    <li class="list-group-item"><b>Cancha reservada:</b> {{ reserva.cancha }}
+                                    </li>
+                                    <li class="list-group-item"><b>Con luz:</b> {{ reserva.get_CON_LUZ_display }}</li>
+                                    <li class="list-group-item"><b>Forma de
+                                        pago:</b> {{ reserva.get_FORMA_PAGO_display }}
+                                    </li>
+                                    <li class="list-group-item"><b>Precio de la reserva:</b> ${{ reserva.precio }}</li>
+                                    <li class="list-group-item"><b>Expira por falta de pago:</b>
+                                        {{ reserva.get_EXPIRA_display }}
+                                    </li>
+                                    <li class="list-group-item"><b>Nota:</b> {{ reserva.nota }}
+                                    </li>
+                                    <li class="list-group-item"><b>Fecha de creación:</b> {{ reserva.created_at }}</li>
+                                </ul>
+                            </div>
+                            <div class="col">
+                                <h5>Opciones Disponibles</h5>
+                                <button id="btn-linkPay" type="button" class="btn btn-block btn-outline-primary">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    Obtener Link de Pago
+                                </button>
+                                <button id="btn-checkAsis" type="button" class="btn btn-block btn-success">
+                                    <i class="fas fa-calendar-check"></i>
+                                    Marcar como Asistida
+                                </button>
+                                <button id="btn-edit" class="btn btn-block btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                    Editar Reserva
+                                </button>
+                                <button id="btn-delete" type="button" class="btn btn-block btn-danger">
+                                    <i class="fa-solid fa-trash"></i>
+                                    Dar de Baja
+                                </button>
+                                <hr>
+                                <h5>Línea de tiempo</h5>
+                                <div class="timeline">
+                                    <div>
+                                        <i class="fas fa-calendar-check bg-success"></i>
+                                        <div class="timeline-item">
+                                            <span class="time"><i
+                                                    class="fas fa-clock"></i> {{ reserva.created_at }}</span>
+                                            <h3 class="timeline-header"><b>Reserva creada</b></h3>
+                                        </div>
+                                    </div>
+                                    {% if reserva.forma_pago == 2 %}
+                                        <div>
+                                            <i class="fas fa-dollar-sign bg-success"></i>
+                                            <div class="timeline-item">
+                                                <span class="time"><i class="fas fa-clock"></i> {{ reserva.created_at }}</span>
+                                                <h3 class="timeline-header"><b>Link de pago generado</b></h3>
+                                            </div>
+                                        </div>
+                                        {% if reserva.pagado %}
+                                            <div>
+                                                <i class="fas fa-cash-register bg-success"></i>
+                                                <div class="timeline-item">
+                                                    <span class="time"><i
+                                                            class="fas fa-clock"></i> {{ reserva.pagoreserva.date_created }}</span>
+                                                    <h3 class="timeline-header"><b>Reserva pagada</b></h3>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div>
+                                                <i class="fas fa-cash-register"></i>
+                                                <div class="timeline-item">
+                                                    <h3 class="timeline-header"><span>Reserva pagada</span></h3>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if reserva.is_finished and reserva.asistencia %}
+                                        <div>
+                                            <i class="fas fa-calendar-check bg-success"></i>
+                                            <div class="timeline-item">
+                                                <h3 class="timeline-header"><b>Reserva asistida</b></h3>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-check-circle bg-success"></i>
+                                            <div class="timeline-item">
+                                                <h3 class="timeline-header"><b>Reserva completada</b></h3>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div>
+                                            <i class="fas fa-calendar-check"></i>
+                                            <div class="timeline-item">
+                                                <h3 class="timeline-header"><span>Reserva asistida</span></h3>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-check-circle"></i>
+                                            <div class="timeline-item">
+                                                <h3 class="timeline-header"><span>Reserva completada</span></h3>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-12">
+                <div class="card">
+                    <!-- Pagos realizados -->
+                    <div class="card-header">
+                        <h3 class="card-title">Pagos realizados</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if pago %}
+                            <div class="table-responsive">
+                                <table class="table table-hover table-bordered">
+                                    <thead>
+                                    <tr>
+                                        <th>Fecha de creación</th>
+                                        <th>Monto de la transacción</th>
+                                        <th>Estado del pago</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>{{ pago.date_created }}</td>
+                                        <td>${{ pago.transaction_amount }}</td>
+                                        <td>{{ pago.status }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info" role="alert">
+                                {% if reserva.forma_pago == 1 %}
+                                    Está reserva tiene como forma de pago presencial. Por lo tanto, se pagará en el
+                                    momento de la asistencia.
+                                {% else %}
+                                    No se han realizado pagos para esta reserva.
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+    <script>
+        {% if reserva.forma_pago == 1 %}
+            $('#btn-linkPay').hide();
+        {% endif %}
+
+        $('#btn-linkPay').click(function () {
+            // Copiar en el portapapeles el link de pago
+            var link = "127.0.0.1:8000{% url 'reservas-pago' reserva.id %}";
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val(link).select();
+            document.execCommand("copy");
+            $temp.remove();
+            // Mostrar mensaje de éxito
+            Swal.fire({
+                position: 'top-end',
+                title: '¡Listo!',
+                text: 'El link de pago ha sido copiado al portapapeles',
+                icon: 'success',
+                confirmButtonText: 'Aceptar'
+            });
+        });
+        $('#btn-checkAsis').click(function () {
+            Swal.fire({
+                position: 'top-end',
+                title: '¿Está seguro?',
+                text: "La reserva será marcada como asistida",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, marcar como asistida',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{% url 'admin-reservas-ajax' %}",
+                        type: 'POST',
+                        data: {
+                            'csrfmiddlewaretoken': '{{ csrf_token }}',
+                            'action': 'check_asistencia',
+                            'reserva_id': '{{ reserva.id }}',
+                        },
+                        success: function (data) {
+                            if (!data.hasOwnProperty('error')) {
+                                Swal.fire({
+                                    position: 'top-end',
+                                    title: '¡Listo!',
+                                    text: 'La reserva ha sido marcada como asistida',
+                                    icon: 'success',
+                                    // Cerrar con 5 seg y mostrar linea de tiempo
+                                    timer: 5000,
+                                    timerProgressBar: true,
+                                    showConfirmButton: false,
+                                }).then((result) => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    position: 'top-end',
+                                    title: '¡Error!',
+                                    text: data.error,
+                                    icon: 'error',
+                                    confirmButtonText: 'Aceptar'
+                                });
+                            }
+                        },
+                        error: function (data) {
+                            Swal.fire({
+                                position: 'top-end',
+                                title: '¡Error!',
+                                text: 'Ha ocurrido un error al marcar la reserva como asistida',
+                                icon: 'error',
+                                confirmButtonText: 'Aceptar'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        $('#btn-edit').click(function () {
+            window.location.href = "{% url 'admin-reservas-editar' reserva.id %}";
+        });
+        $('#btn-delete').click(function () {
+            window.location.href = "{% url 'admin-reservas-baja' reserva.id %}";
+        });
+    </script>
+{% endblock body_js %}

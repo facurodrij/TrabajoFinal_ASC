@@ -1,0 +1,379 @@
+{% extends "extends/user/base.html" %}
+{% load static %}
+
+{% block head_css %}
+    <style>
+        @media (max-width: 576px) {
+            .label-align {
+                text-align: left;
+            }
+        }
+
+        @media (min-width: 576px) {
+            .label-align {
+                text-align: right;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h4 class="card-title">
+                            <i class="fas fa-calendar-plus"></i>
+                            {{ title }}
+                        </h4>
+                    </div>
+                    <form id="formReserva" method="post" enctype="multipart/form-data" class="form-horizontal">
+                        {% csrf_token %}
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label for="id_deporte" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.deporte.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ form.deporte }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_fecha" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.fecha.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    <div class="input-group" id="div_id_fecha"
+                                         data-target-input="nearest">
+                                        {{ form.fecha }}
+                                        <div class="input-group-append" data-target="#id_fecha"
+                                             data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_hora" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.hora.label }} <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ form.hora }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_cancha" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    Canchas disponibles <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ form.cancha }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_email" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    Email <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ form.email }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_nombre" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    Nombre <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    {{ form.nombre }}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_nota" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    {{ form.nota.label }}</label>
+                                <div class="col-sm-7">
+                                    {{ form.nota }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary float-right ml-2" type="submit">Siguiente
+                                <i class="fa fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block body_js %}
+    <!-- Tempus Dominus -->
+    <link href="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.css' %}" media="all"
+          rel="stylesheet">
+    <script src="{% static 'libs/tempusdominus-bootstrap-5.39/moment-with-locales.min.js' %}"></script>
+    <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
+    <script>
+        let selectDeporte = $('#id_deporte');
+        let selectCancha = $('#id_cancha');
+        let inputFecha = $('#id_fecha');
+        let selectHora = $('#id_hora');
+        selectDeporte.select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione un deporte',
+            allowClear: false,
+            width: '100%',
+            language: 'es'
+        });
+        selectCancha.select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione una cancha disponible',
+            allowClear: true,
+            width: '100%',
+            language: 'es',
+        });
+        selectHora.select2({
+            theme: 'bootstrap4',
+            placeholder: 'Seleccione una hora',
+            allowClear: true,
+            width: '100%',
+            language: 'es',
+        });
+        let fecha = new Date('{{ form.fecha.value }}');
+        fecha.setMinutes(fecha.getMinutes() + fecha.getTimezoneOffset());
+        inputFecha.datetimepicker({
+            "format": "L",
+            "locale": "es-AR",
+            "date": fecha,
+            "minDate": moment().startOf('day'),
+            "maxDate": moment().add(2, 'weeks'),
+        });
+        inputFecha.on('change.datetimepicker', function (e) {
+            // Limpiar el select de canchas y deshabilitarlo
+            selectCancha.empty().prop('disabled', true).trigger('change');
+            selectHora.val(null).trigger('change');
+            let fecha = inputFecha.val();
+            // Si fecha el vacío retornar para que no se ejecute el ajax
+            if (fecha === '') {
+                return;
+            }
+            // Cambiar el formato fecha de DD/MM/YYYY a YYYY-MM-DD
+            fecha = fecha.split('/').reverse().join('-');
+            $.ajax({
+                url: "{% url 'admin-reservas-ajax' %}",
+                type: "GET",
+                data: {
+                    'action': 'search_horas_disponibles',
+                    'deporte_id': selectDeporte.val(),
+                    'fecha': fecha,
+                },
+                dataType: "json",
+                success: function (data) {
+                    if (!data.hasOwnProperty('error')) {
+                        let horas = data['horas_disponibles'];
+                        selectHora.empty();
+                        horas.forEach(function (hora) {
+                            // Cambiar el formato de la hora de HH:MM:SS a HH:MM
+                            let hora_text = hora.split(':').slice(0, 2).join(':');
+                            let option = new Option(hora_text, hora, false, false);
+                            selectHora.append(option);
+                        });
+                        selectHora.trigger('change');
+                    } else {
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: data['error'],
+                            confirmButtonText: 'Aceptar',
+                        });
+                    }
+                }
+            });
+        });
+        selectHora.change(function () {
+            get_canchas_disponibles()
+        });
+        $('#formReserva').submit(function (e) {
+            e.preventDefault();
+            let form = new FormData(this);
+            form.append('action', 'detail');
+            // Swal de confirmación y luego submit default del form
+            $.ajax({
+                url: window.location.href,
+                type: "POST",
+                data: form,
+                dataType: "json",
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    if (!data.hasOwnProperty('error')) {
+                        // Crear una lista con estilo bootstrap para mostrar los datos
+                        let html = '<ul class="list-group">';
+                        html += '<li class="list-group-item"><b>Deporte:</b> ' + data['reserva']['deporte'] + '</li>';
+                        html += '<li class="list-group-item"><b>Cancha:</b> ' + data['reserva']['cancha'] + '</li>';
+                        html += '<li class="list-group-item"><b>Fecha:</b> ' + data['reserva']['fecha'] + '</li>';
+                        html += '<li class="list-group-item"><b>Hora:</b> ' + data['reserva']['hora'] + '</li>';
+                        html += '<li class="list-group-item"><b>Con luz:</b> ' + data['reserva']['con_luz_display'] + '</li>';
+                        html += '<li class="list-group-item"><b>Precio:</b> $' + data['reserva']['precio'] + '</li>';
+                        html += '</ul>';
+                        // Crear un input con id_precio y guardar el precio de la cancha
+                        Swal.fire({
+                            position: 'top-end',
+                            title: 'Información de la reserva',
+                            html: html,
+                            icon: 'info',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Confirmar reserva',
+                            cancelButtonText: 'Cancelar',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                form.append('action', 'add');
+                                $.ajax({
+                                    url: window.location.href,
+                                    type: "POST",
+                                    data: form,
+                                    dataType: "json",
+                                    processData: false,
+                                    contentType: false,
+                                    beforeSend: function () {
+                                        Swal.fire({
+                                            position: 'top-end',
+                                            title: 'Realizando reserva',
+                                            html: 'Por favor espere...',
+                                            allowOutsideClick: false,
+                                            didOpen: () => {
+                                                Swal.showLoading()
+                                            },
+                                        });
+                                    },
+                                    success: function (data) {
+                                        if (!data.hasOwnProperty('error')) {
+                                            Swal.fire({
+                                                position: 'top-end',
+                                                icon: 'success',
+                                                title: 'Reserva realizada con éxito',
+                                                text: 'Se ha enviado un correo electrónico con la información de la reserva',
+                                                timer: 5000,
+                                                timerProgressBar: true,
+                                            }).then(function () {
+                                                window.location.href = data['url_pago'];
+                                            });
+                                        } else {
+                                            Swal.fire({
+                                                position: 'top-end',
+                                                icon: 'error',
+                                                title: 'Ocurrió un error',
+                                                text: data['error'],
+                                                confirmButtonText: 'Aceptar',
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        let errors = []
+                        // Si data error es un objeto pushear los errores al array
+                        if (typeof data.error === 'object') {
+                            $.each(data.error, function (key, value) {
+                                errors.push(value);
+                            });
+                        } else {
+                            errors = data.error
+                        }
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: errors,
+                            showConfirmButton: true,
+                        });
+                    }
+                }
+            });
+        });
+        $(document).ready(function () {
+            get_canchas_disponibles()
+        });
+
+        function get_canchas_disponibles() {
+            let hora = selectHora.val();
+            let fecha = inputFecha.val();
+            // Si fecha el vacío retornar para que no se ejecute el ajax
+            if (fecha === '' || hora === null) {
+                return;
+            }
+            // Cambiar el formato fecha de DD/MM/YYYY a YYYY-MM-DD
+            fecha = fecha.split('/').reverse().join('-');
+            $.ajax({
+                url: "{% url 'admin-reservas-ajax' %}",
+                type: "GET",
+                data: {
+                    'action': 'get_canchas_disponibles',
+                    'deporte_id': selectDeporte.val(),
+                    'fecha': fecha,
+                    'hora': hora,
+                },
+                dataType: "json",
+                success: function (data) {
+                    if (!data.hasOwnProperty('error')) {
+                        let canchas = data['canchas'];
+                        selectCancha.empty();
+                        canchas.forEach(function (cancha) {
+                            let option = new Option('Cancha #' + cancha, cancha, false, false);
+                            selectCancha.append(option);
+                        });
+                        selectCancha.prop('disabled', false).trigger('change');
+                    } else {
+                        selectCancha.empty().prop('disabled', true).trigger('change');
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: data['error'],
+                            confirmButtonText: 'Buscar horarios disponibles',
+                            showCancelButton: true,
+                            cancelButtonText: 'Cerrar',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    url: "{% url 'admin-reservas-ajax' %}",
+                                    type: "GET",
+                                    data: {
+                                        'action': 'search_horas_disponibles',
+                                        'deporte_id': selectDeporte.val(),
+                                        'fecha': fecha,
+                                    },
+                                    dataType: "json",
+                                    success: function (data) {
+                                        if (!data.hasOwnProperty('error')) {
+                                            let horas = data['horas_disponibles'];
+                                            selectHora.empty();
+                                            horas.forEach(function (hora) {
+                                                // Cambiar el formato de la hora de HH:MM:SS a HH:MM
+                                                let hora_text = hora.split(':').slice(0, 2).join(':');
+                                                let option = new Option(hora_text, hora, false, false);
+                                                selectHora.append(option);
+                                            });
+                                            selectHora.trigger('change');
+                                            Swal.fire({
+                                                position: 'top-end',
+                                                icon: 'info',
+                                                title: 'Horarios disponibles encontrados',
+                                                text: 'Se encontraron horarios disponibles para el deporte seleccionado.',
+                                                confirmButtonText: 'Aceptar',
+                                            });
+                                        } else {
+                                            Swal.fire({
+                                                position: 'top-end',
+                                                icon: 'error',
+                                                title: 'Ocurrió un error',
+                                                text: data['error'],
+                                                confirmButtonText: 'Aceptar',
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    </script>
+{% endblock body_js %}

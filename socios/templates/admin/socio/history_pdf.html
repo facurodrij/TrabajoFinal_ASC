@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Socio Historial</title>
+    <style>
+        @page {
+            size: A5 landscape;
+            margin: 2rem 1rem 1rem 1rem;
+        }
+
+        html {
+            align-content: center;
+            align-items: center;
+            background: #eef1f5;
+            display: flex;
+            justify-content: center;
+            height: 100%;
+        }
+
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            background: #fff;
+            box-sizing: border-box;
+            color: #2A3239;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            word-break: break-all;
+        }
+
+        section {
+            box-sizing: border-box;
+        }
+
+        h1 {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+    </style>
+</head>
+<body>
+<section>
+    {% if history.history_type == '+' %}
+        <h1>Comprobante Alta de Socio</h1>
+    {% elif history.history_type == '~' and history.is_deleted %}
+        <h1>Comprobante Baja de Socio</h1>
+    {% elif history.history_type == '~' %}
+        <h1>Comprobante Restauración de Socio</h1>
+    {% endif %}
+    <ul>
+        <li>Nombre: {{ history.persona.nombre }}</li>
+        <li>Apellido: {{ history.persona.apellido }}</li>
+        <li>DNI: {{ history.persona.dni }}</li>
+        <li>Fecha de Nacimiento: {{ history.persona.fecha_nacimiento }}</li>
+        <li>Categoria: {{ history.categoria }}</li>
+    </ul>
+    <ul>
+        <li>Numero de operación: {{ history.history_id }}</li>
+        <li>Operador: {{ history.history_user }}</li>
+        <li>Fecha de operación: {{ history.history_date }}</li>
+        {% if history.history_type == '~' and history.is_deleted %}
+            <li>Motivo de la baja: {{ history.history_change_reason }}</li>
+        {% endif %}
+    </ul>
+</section>
+</body>
+</html>

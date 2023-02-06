@@ -1,0 +1,44 @@
+[
+  {
+    "model": "parameters.MedioPago",
+    "pk": 1,
+    "fields": {
+      "nombre": "Efectivo"
+    }
+  },
+  {
+    "model": "parameters.MedioPago",
+    "pk": 2,
+    "fields": {
+      "nombre": "Transferencia"
+    }
+  },
+  {
+    "model": "parameters.MedioPago",
+    "pk": 3,
+    "fields": {
+      "nombre": "Deposito"
+    }
+  },
+  {
+    "model": "parameters.MedioPago",
+    "pk": 4,
+    "fields": {
+      "nombre": "Credito"
+    }
+  },
+  {
+    "model": "parameters.MedioPago",
+    "pk": 5,
+    "fields": {
+      "nombre": "Debito"
+    }
+  },
+  {
+    "model": "parameters.MedioPago",
+    "pk": 6,
+    "fields": {
+      "nombre": "Checkout Mercado Pago"
+    }
+  }
+]

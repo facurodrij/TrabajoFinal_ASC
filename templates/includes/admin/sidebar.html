@@ -1,0 +1,171 @@
+{% load static %}
+{% load active_link_tags %}
+
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="{% url 'index' %}" class="brand-link">
+        <img src="{% static 'icons/icons8-silbato.svg' %}" alt="Logo" class="brand-image img-circle elevation-3">
+        <span class="brand-text font-light text-bold">RESERVÁ</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+                <!-- Add icons to the links using the .nav-icon class
+                     with font-awesome or any other icon font library -->
+                <li class="nav-item">
+                    <a href="{% url 'admin-club-form' %}" class="nav-link {% active_link 'admin-club-form' %}">
+                        <img src="{% static 'icons/icons8-club.svg' %}" class="nav-icon" alt="icon">
+                        <p>
+                            Mi Club
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link {% active_link 'admin-persona' %}">
+                        <i class="fas fa-user nav-icon"></i>
+                        <p>
+                            Personas
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{% url 'admin-persona-listado' %}"
+                               class="nav-link {% active_link 'admin-persona-listado' %}">
+                                <i class="fas fa-circle-dot nav-icon"></i>
+                                <p>Listado</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link {% active_link 'admin-socio' %}">
+                        <img src="{% static 'icons/icons8-socio.svg' %}" class="nav-icon" alt="icon">
+                        <p>
+                            Socios
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{% url 'admin-socio-listado' %}"
+                               class="nav-link {% active_link 'admin-socio-listado' %}">
+                                <i class="fas fa-circle-dot nav-icon"></i>
+                                <p>Listado</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'admin-categoria-listado' %}"
+                               class="nav-link {% active_link 'admin-categoria-listado' %}">
+                                <i class="fas fa-circle-dot nav-icon"></i>
+                                <p>Categorias</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'admin:socios_parameters_change' 1 %}"
+                               class="nav-link {% active_link 'admin-socio-parametros' %}">
+                                <i class="fas fa-circle-dot nav-icon"></i>
+                                <p>Parámetros</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="#"
+                       class="nav-link {% active_link 'admin-cuota' %}">
+                        <i class="fa-solid fa-receipt nav-icon"></i>
+                        <p>Cuotas
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{% url 'admin-cuota-listado' %}"
+                               class="nav-link {% active_link 'admin-cuota-listado' %}">
+                                <i class="fas fa-circle-dot nav-icon"></i>
+                                <p>Listado</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="#"
+                       class="nav-link {% active_link 'admin-reservas' %}">
+                        <i class="fa-solid fa-calendar-alt nav-icon"></i>
+                        <p>Reservas
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{% url 'admin-reservas-listado' %}"
+                               class="nav-link {% active_link 'admin-reservas-listado' %}">
+                                <i class="fas fa-circle-dot nav-icon"></i>
+                                <p>Listado</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'admin:reservas_parameters_change' 1 %}"
+                               class="nav-link {% active_link 'admin-reservas-parametros' %}">
+                                <i class="fas fa-circle-dot nav-icon"></i>
+                                <p>Parámetros</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="#"
+                       class="nav-link {% active_link 'admin-eventos' %}">
+                        <i class="fa-solid fa-ticket nav-icon"></i>
+                        <p>Eventos
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{% url 'admin-eventos-listado' %}"
+                               class="nav-link {% active_link 'admin-eventos-listado' %}">
+                                <i class="fas fa-circle-dot nav-icon"></i>
+                                <p>Listado</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'admin-tickets-listado' %}"
+                               class="nav-link {% active_link 'admin-tickets-listado' %}">
+                                <i class="fas fa-circle-dot nav-icon"></i>
+                                <p>Tickets</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'admin-tickets-scanner' %}"
+                               class="nav-link {% active_link 'admin-tickets-scanner' %}">
+                                <i class="fas fa-circle-dot nav-icon"></i>
+                                <p>Escanear Tickets</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'admin:eventos_parameters_change' 1 %}"
+                               class="nav-link {% active_link 'admin-eventos-parametros' %}">
+                                <i class="fas fa-circle-dot nav-icon"></i>
+                                <p>Parámetros</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'admin-estadisticas' %}"
+                       class="nav-link {% active_link 'admin-estadisticas' %}">
+                        <i class="fas fa-chart-pie nav-icon"></i>
+                        <p>Estadísticas</p>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+</aside>

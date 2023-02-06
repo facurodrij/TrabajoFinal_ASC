@@ -1,0 +1,367 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Cuota social #{{ cuota.pk }}</title>
+    <!-- Font Awesome -->
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
+    <style>
+        @page {
+            padding: 0;
+            margin-left: 3cm; /* Set margin on each page */
+            margin-right: 3cm;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            /* Body size fit to the page size */
+        }
+    </style>
+</head>
+<body>
+{% if cuota.is_deleted %}
+    <div class="container">
+        <!-- Invoice Company Details -->
+        <div id="invoice-company-details" class="row">
+            <div class="col-6 text-center text-left">
+                <div class="media">
+                    <img src="{{ club.get_imagen }}" alt="club-logo" style="width: 150px">
+                </div>
+            </div>
+            <div class="col-6 text-right">
+                <h2>CUOTA SOCIAL</h2>
+                <h3 class="pb-3"># {{ cuota.pk }}</h3>
+                <ul class="px-0 list-unstyled">
+                    <li style="font-size: 1.5rem"><b>Total a pagar:</b> ${{ cuota.total }}</li>
+                    <li style="font-size: 1.5rem"><b>Vencimiento:</b> {{ cuota.get_fecha_vencimiento }}</li>
+                </ul>
+            </div>
+        </div>
+        <!--/ Invoice Company Details -->
+        <!-- Invoice Customer Details -->
+        <div id="invoice-customer-details" class="row pt-2">
+            <div class="col-12 text-left">
+                <p style="font-size: 1.5rem; text-transform: uppercase;">{{ cuota.nombre_completo }}</p>
+            </div>
+            <div class="col-6 text-left">
+                <ul class="px-0 list-unstyled">
+                    <li>Queirel 2671</li>
+                    <li>Posadas</li>
+                    <li>Misiones - Argentina</li>
+                </ul>
+            </div>
+            <div class="col-6 text-right">
+                <ul class="px-0 list-unstyled">
+                    <li><span class="text-muted">Fecha emisión :</span> {{ cuota.get_fecha_emision }}</li>
+                    <li><span class="text-muted">Período adeudado :</span> {{ cuota.get_periodo }}</li>
+                </ul>
+            </div>
+        </div>
+        <!--/ Invoice Customer Details -->
+    </div>
+    <!-- Invoice Items Details -->
+    <div class="row pt-2">
+        <div class="col-11">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Socio &amp; Categoria</th>
+                        <th scope="col" class="text-right">Cargo unitario</th>
+                        <th scope="col" class="text-right">Cargo extra c/u</th>
+                        <th scope="col" class="text-right">Importe en pesos</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for detalle in detalle_cuota %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>
+                                <p>{{ detalle.nombre_completo }}</p>
+                                <p class="text-muted">{{ detalle.categoria }}</p>
+                            </td>
+                            <td class="text-right text-bold-500">{{ detalle.cuota }}</td>
+                            <td class="text-right text-bold-500">{{ detalle.cargo_extra }}</td>
+                            <td class="text-right text-bold-500">{{ detalle.total_parcial }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-7 text-left">
+            <hr>
+            <p class="lead">Observaciones:</p>
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Deuda Anulada! <i class="fa-solid fa-ban"></i></h4>
+                <p>{{ cuota.get_motivo_anulacion }}</p>
+            </div>
+        </div>
+        <div class="col-5">
+            <hr>
+            <p class="lead">Totales:</p>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <td>Sub Total</td>
+                        <td class="text-right">$ {{ cuota.get_subtotal }}</td>
+                    </tr>
+                    <tr>
+                        <td>Cargo extra</td>
+                        <td class="text-right">$ {{ cuota.cargo_extra }}</td>
+                    </tr>
+                    <tr style="font-size: 1rem; text-transform: uppercase">
+                        <td><b>Total</b></td>
+                        <td class="text-right">$ {{ cuota.total }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <p class="text-muted">{{ cuota.get_total_letras }}</p>
+            </div>
+        </div>
+    </div>
+{% elif not cuota.is_pagada %}
+    <div class="container">
+        <!-- Invoice Company Details -->
+        <div id="invoice-company-details" class="row">
+            <div class="col-6 text-center text-left">
+                <div class="media">
+                    <img src="{{ club.get_imagen }}" alt="club-logo" style="width: 150px">
+                </div>
+            </div>
+            <div class="col-6 text-right">
+                <h2>CUOTA SOCIAL</h2>
+                <h3 class="pb-3"># {{ cuota.pk }}</h3>
+                <ul class="px-0 list-unstyled">
+                    <li style="font-size: 1.5rem"><b>Total a pagar:</b> ${{ cuota.total_a_pagar }}</li>
+                    <li style="font-size: 1.5rem"><b>Vencimiento:</b> {{ cuota.get_fecha_vencimiento }}</li>
+                </ul>
+            </div>
+        </div>
+        <!--/ Invoice Company Details -->
+        <!-- Invoice Customer Details -->
+        <div id="invoice-customer-details" class="row pt-2">
+            <div class="col-12 text-left">
+                <p style="font-size: 1.5rem; text-transform: uppercase;">{{ cuota.nombre_completo }}</p>
+            </div>
+            <div class="col-6 text-left">
+                <ul class="px-0 list-unstyled">
+                    <li>Queirel 2671</li>
+                    <li>Posadas</li>
+                    <li>Misiones - Argentina</li>
+                </ul>
+            </div>
+            <div class="col-6 text-right">
+                <ul class="px-0 list-unstyled">
+                    <li><span class="text-muted">Fecha emisión :</span> {{ cuota.get_fecha_emision }}</li>
+                    <li><span class="text-muted">Período adeudado :</span> {{ cuota.get_periodo }}</li>
+                </ul>
+            </div>
+        </div>
+        <!--/ Invoice Customer Details -->
+    </div>
+    <!-- Invoice Items Details -->
+    <div class="row pt-2">
+        <div class="col-11">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Socio &amp; Categoria</th>
+                        <th scope="col" class="text-right">Cargo unitario</th>
+                        <th scope="col" class="text-right">Cargo extra c/u</th>
+                        <th scope="col" class="text-right">Importe en pesos</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for detalle in detalle_cuota %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>
+                                <p>{{ detalle.nombre_completo }}</p>
+                                <p class="text-muted">{{ detalle.categoria }}</p>
+                            </td>
+                            <td class="text-right text-bold-500">{{ detalle.cuota }}</td>
+                            <td class="text-right text-bold-500">{{ detalle.cargo_extra }}</td>
+                            <td class="text-right text-bold-500">{{ detalle.total_parcial }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-7 text-left">
+            <hr>
+            <p class="lead">Observaciones: {{ cuota.observaciones | default_if_none:"" }}</p>
+            {% if cuota.is_atrasada %}
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Deuda Atrasada! <i class="fa-solid fa-exclamation-triangle"></i></h4>
+                    <p>Se han incluido los intereses correspondientes a la deuda.</p>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-5">
+            <hr>
+            <p class="lead">Totales:</p>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <td>Sub Total</td>
+                        <td class="text-right">$ {{ cuota.get_subtotal }}</td>
+                    </tr>
+                    <tr>
+                        <td>Cargo extra</td>
+                        <td class="text-right">$ {{ cuota.cargo_extra }}</td>
+                    </tr>
+                    {% if cuota.is_atrasada %}
+                        <tr>
+                            <td>Meses de atraso</td>
+                            <td class="text-right">{{ cuota.meses_atraso }}</td>
+                        </tr>
+                        <tr>
+                            <td>Intereses</td>
+                            <td class="text-right">$ {{ cuota.interes }}</td>
+                        </tr>
+                    {% endif %}
+                    <tr style="font-size: 1rem; text-transform: uppercase">
+                        <td><b>Total</b></td>
+                        <td class="text-right">$ {{ cuota.total_a_pagar }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <p class="text-muted">{{ cuota.get_total_letras }}</p>
+            </div>
+        </div>
+    </div>
+{% elif cuota.is_pagada %}
+    <div class="container">
+        <!-- Invoice Company Details -->
+        <div id="invoice-company-details" class="row">
+            <div class="col-6 text-center text-left">
+                <div class="media">
+                    <img src="{{ club.get_imagen }}" alt="club-logo" style="width: 150px">
+                </div>
+            </div>
+            <div class="col-6 text-right">
+                <h2>CUOTA SOCIAL</h2>
+                <h3 class="pb-3"># {{ cuota.pk }}</h3>
+                <ul class="px-0 list-unstyled">
+                    <li style="font-size: 1.5rem"><b>Total pagado:</b> ${{ cuota.pagocuotasocial.total_pagado }}</li>
+                    <li style="font-size: 1.5rem"><b>Vencimiento:</b> {{ cuota.get_fecha_vencimiento }}</li>
+                </ul>
+            </div>
+        </div>
+        <!--/ Invoice Company Details -->
+        <!-- Invoice Customer Details -->
+        <div id="invoice-customer-details" class="row pt-2">
+            <div class="col-12 text-left">
+                <p style="font-size: 1.5rem; text-transform: uppercase;">{{ cuota.nombre_completo }}</p>
+            </div>
+            <div class="col-6 text-left">
+                <ul class="px-0 list-unstyled">
+                    <li>Queirel 2671</li>
+                    <li>Posadas</li>
+                    <li>Misiones - Argentina</li>
+                </ul>
+            </div>
+            <div class="col-6 text-right">
+                <ul class="px-0 list-unstyled">
+                    <li><span class="text-muted">Fecha emisión :</span> {{ cuota.get_fecha_emision }}</li>
+                    <li><span class="text-muted">Período adeudado :</span> {{ cuota.get_periodo }}</li>
+                    <li><span class="text-muted">ID de pago :</span> {{ cuota.pagocuotasocial.pk }}</li>
+                </ul>
+            </div>
+        </div>
+        <!--/ Invoice Customer Details -->
+    </div>
+    <!-- Invoice Items Details -->
+    <div class="row pt-2">
+        <div class="col-11">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Socio &amp; Categoria</th>
+                        <th scope="col" class="text-right">Cargo unitario</th>
+                        <th scope="col" class="text-right">Cargo extra c/u</th>
+                        <th scope="col" class="text-right">Importe en pesos</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for detalle in detalle_cuota %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>
+                                <p>{{ detalle.nombre_completo }}</p>
+                                <p class="text-muted">{{ detalle.categoria }}</p>
+                            </td>
+                            <td class="text-right text-bold-500">{{ detalle.cuota }}</td>
+                            <td class="text-right text-bold-500">{{ detalle.cargo_extra }}</td>
+                            <td class="text-right text-bold-500">{{ detalle.total_parcial }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-7 text-left">
+            <hr>
+            <p class="lead">Observaciones: {{ cuota.observaciones | default_if_none:"" }}</p>
+            <div class="alert alert-success" role="alert">
+                <h4 class="alert-heading">Pagada! <i class="fa-solid fa-check-double"></i></h4>
+                <p>Esta cuota ya fue pagada.</p>
+                <hr>
+                <p class="mb-0">Fecha de pago: {{ cuota.get_fecha_pago }}</p>
+            </div>
+        </div>
+        <div class="col-5">
+            <hr>
+            <p class="lead">Totales:</p>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <td>Sub Total</td>
+                        <td class="text-right">$ {{ cuota.get_subtotal }}</td>
+                    </tr>
+                    <tr>
+                        <td>Cargo extra</td>
+                        <td class="text-right">$ {{ cuota.cargo_extra }}</td>
+                    </tr>
+{#                    <tr>#}
+{#                        <td>Meses de atraso</td>#}
+{#                        <td class="text-right">{{ cuota.pagocuotasocial.meses_atraso }}</td>#}
+{#                    </tr>#}
+                    <tr>
+                        <td>Intereses</td>
+                        <td class="text-right">$ {{ cuota.pagocuotasocial.interes_aplicado }}</td>
+                    </tr>
+                    <tr style="font-size: 1rem; text-transform: uppercase">
+                        <td><b>Total</b></td>
+                        <td class="text-right">$ {{ cuota.pagocuotasocial.total_pagado }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <p class="text-muted">{{ cuota.get_total_letras }}</p>
+            </div>
+        </div>
+    </div>
+{% endif %}
+</body>
+</html>

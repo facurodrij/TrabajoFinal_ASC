@@ -1,0 +1,9 @@
+{% autoescape off %}
+    Hola socio {{ user.persona.get_full_name }}!,
+
+    Bienvenido a la nueva plataforma del club {{ club.nombre }}.
+
+    Para poder acceder a la plataforma, debes confirmar tu cuenta haciendo click en el siguiente enlace:
+
+    {{ protocol }}://{{ domain }}{% url 'activate' uidb64=uid token=token %}
+{% endautoescape %}

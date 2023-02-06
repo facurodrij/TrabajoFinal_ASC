@@ -1,0 +1,101 @@
+{% extends "extends/user/base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">{{ title }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <table id="dataTable" class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th scope="col" style="">Evento</th>
+                                <th scope="col" style="">Cantidad de tickets adquiridos</th>
+                                <th scope="col" style="">Estado de pago</th>
+                                <th scope="col" style="">Estado de evento</th>
+                                <th scope="col" style="">Fecha de compra</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for venta in ventas %}
+                                <tr>
+                                    <td>{{ venta.evento }}</td>
+                                    <td>{{ venta.get_related_objects.count }}</td>
+                                    <td>{{ venta.get_ESTADO_PAGO_display }}</td>
+                                    <td>{{ venta.evento.get_ESTADO_display }}</td>
+                                    <td>{{ venta.date_created }}</td>
+                                    <td>
+                                        <a href="{% url 'venta-ticket-detalle' venta.pk %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'venta-ticket-comprobante' venta.pk %}"
+                                           class="btn btn-sm btn-outline-primary" target="_blank">
+                                            <i class="fas fa-receipt"></i>
+                                        </a>
+                                        <a href="{% url 'tickets-listado' venta.pk %}"
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fas fa-ticket"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th scope="col" style="">Evento</th>
+                                <th scope="col" style="">Cantidad de tickets adquiridos</th>
+                                <th scope="col" style="">Estado de pago</th>
+                                <th scope="col" style="">Estado de evento</th>
+                                <th scope="col" style="">Fecha de compra</th>
+                                <th></th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+    {# DataTable #}
+    <link rel="stylesheet" type="text/css" href="{% static 'libs/DataTables/datatables.css' %}"/>
+    <script type="text/javascript" src="{% static 'libs/DataTables/datatables.js' %}"></script>
+    <script type="text/javascript" src="{% static 'libs/DataTables/Select-1.5.0/js/dataTables.select.js' %}"></script>
+    {# Datatable Internacionalización #}
+    <script src="{% static 'libs/datatables/es-ES.json' %}"></script>
+    <script>
+        let table = $('#dataTable');
+
+        table.DataTable({
+            responsive: true,
+            lengthChange: false,
+            order: [[0, 'desc']],
+            autoWidth: false,
+            // Quitarle estilos a la ultima columna
+            columnDefs: [
+                {"orderable": false, "targets": -1}
+            ],
+            language: {
+                search: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros por página",
+                zeroRecords: "No se encontraron registros",
+                info: "Mostrando página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros disponibles",
+                infoFiltered: "(filtrado de _MAX_ registros totales)",
+                paginate: {
+                    first: "Primero",
+                    last: "Último",
+                    next: "Siguiente",
+                    previous: "Anterior"
+                },
+            }
+        });
+    </script>
+{% endblock body_js %}

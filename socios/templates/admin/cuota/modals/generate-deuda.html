@@ -1,0 +1,59 @@
+<div class="modal fade" id="ModalGenerateDeuda" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+    <form id="formDeuda" method="post" enctype="multipart/form-data">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">
+                        <b><i class="fas fa-user-plus"></i> Generar deudas a los socios titulares</b>
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <h3>Período de Deuda</h3>
+                    <div class="form-group">
+                        <label for="id_meses">Meses</label>
+                        <select class="form-control" id="id_periodo_mes" name="periodo_mes">
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="labels">Año</label>
+                        <div class="input-group" id="div_id_periodo_anio"
+                             data-target-input="nearest">
+                            <input type="text" name="periodo_anio" autocomplete="off"
+                                   placeholder="Año"
+                                   class="form-control  datetimepicker-input"
+                                   data-toggle="datetimepicker" data-target="#id_periodo_anio"
+                                   required=""
+                                   id="id_periodo_anio">
+                            <div class="input-group-append" data-target="#id_periodo_anio"
+                                 data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Generar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

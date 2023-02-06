@@ -1,0 +1,130 @@
+{% extends "extends/admin/base.html" %}
+{% load static %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">Categorias Registradas</h3>
+                    </div>
+                    <div class="card-body">
+                        <a href="{% url 'admin-categoria-crear' %}" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Agregar Categoría
+                        </a>
+                        <hr>
+                        <table id="dataTable" class="table table-bordered table-striped dataTable display nowrap">
+                            <thead>
+                            <tr>
+                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">Nombre</th>
+                                <th scope="col" style="">Precio cuota</th>
+                                <th scope="col" style="">¿Se factura?</th>
+                                <th scope="col" style="">Rango de edad</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for categoria in categorias %}
+                                <tr>
+                                    <td>{{ categoria.pk }}</td>
+                                    <td>{{ categoria.nombre }}</td>
+                                    <td>{{ categoria.cuota }}</td>
+                                    {% if categoria.se_factura %}
+                                        <td class="text-center"><span class="badge badge-success">Si</span></td>
+                                    {% else %}
+                                        <td class="text-center"><span class="badge bg-danger">No</span></td>
+                                    {% endif %}
+                                    <td>{{ categoria.get_rango_edad }}</td>
+                                    <td>
+                                        <a href="{% url 'admin-categoria-editar' categoria.pk %}"
+                                           class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">Nombre</th>
+                                <th scope="col" style="">Precio cuota</th>
+                                <th scope="col" style="">¿Se factura?</th>
+                                <th scope="col" style="">Rango de edad</th>
+                                <th></th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+    {# DataTable #}
+    <link rel="stylesheet" type="text/css" href="{% static 'libs/DataTables/datatables.css' %}"/>
+    <script type="text/javascript" src="{% static 'libs/DataTables/datatables.js' %}"></script>
+    <script type="text/javascript" src="{% static 'libs/DataTables/Select-1.5.0/js/dataTables.select.js' %}"></script>
+    {# Datatable Internacionalización #}
+    <script src="{% static 'libs/datatables/es-ES.json' %}"></script>
+    <script>
+        let table = $('#dataTable');
+
+        table.DataTable({
+            responsive: true,
+            lengthChange: false,
+            order: [[0, 'desc']],
+            autoWidth: false,
+            // Quitarle estilos a la ultima columna
+            columnDefs: [
+                {"orderable": false, "targets": -1}
+            ],
+            buttons: [
+                {
+                    extend: 'colvis',
+                    text: 'Columnas visibles',
+                    columns: ':gt(0)',
+                    postfixButtons: ['colvisRestore']
+                },
+            ],
+            language: {
+                search: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros por página",
+                zeroRecords: "No se encontraron registros",
+                info: "Mostrando página _PAGE_ de _PAGES_",
+                infoEmpty: "No hay registros disponibles",
+                infoFiltered: "(filtrado de _MAX_ registros totales)",
+                paginate: {
+                    first: "Primero",
+                    last: "Último",
+                    next: "Siguiente",
+                    previous: "Anterior"
+                },
+                buttons: {
+                    colvis: 'Columnas',
+                    print: 'Imprimir',
+                    copy: 'Copiar',
+                    copyTitle: 'Copiado al portapapeles',
+                    copySuccess: {
+                        _: '%d líneas copiadas',
+                        1: '1 línea copiada'
+                    },
+                    colvisRestore: 'Restaurar'
+                },
+            }
+        });
+        // Datatable buttons bootstrap 4, append buttons
+        table.DataTable().buttons().container().appendTo('#dataTable_wrapper .col-md-6:eq(0)');
+    </script>
+{% endblock body_js %}

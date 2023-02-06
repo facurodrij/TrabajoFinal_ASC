@@ -1,0 +1,16 @@
+[
+  {
+    "model": "reservas.Superficie",
+    "pk": 1,
+    "fields": {
+      "nombre": "Césped artificial"
+    }
+  },
+  {
+    "model": "reservas.Superficie",
+    "pk": 2,
+    "fields": {
+      "nombre": "Césped natural"
+    }
+  }
+]
