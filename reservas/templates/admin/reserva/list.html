@@ -24,9 +24,9 @@
                         <table id="dataTable" class="table table-bordered table-striped">
                             <thead>
                             <tr>
-                                <th scope="col" style="">Cancha</th>
                                 <th scope="col" style="">Fecha de inicio</th>
                                 <th scope="col" style="">Hora de inicio</th>
+                                <th scope="col" style="">Cancha</th>
                                 <th scope="col" style="">Cliente</th>
                                 <th scope="col" style="">Estado de pago</th>
                                 <th scope="col" style="">Estado de reserva</th>
@@ -36,14 +36,15 @@
                             <tbody>
                             {% for reserva in reservas %}
                                 <tr>
-                                    <td>{{ reserva.cancha }}</td>
                                     <td>{{ reserva.fecha }}</td>
                                     <td>{{ reserva.hora }}</td>
+                                    <td>{{ reserva.cancha }}</td>
                                     <td>{{ reserva.nombre }}</td>
                                     <td>{{ reserva.get_ESTADO_PAGO_display }}</td>
                                     <td>{{ reserva.get_ESTADO_display }}</td>
                                     <td>
-                                        <a href="{% url 'admin-reservas-detalle' reserva.id %}" class="btn btn-info btn-sm">
+                                        <a href="{% url 'admin-reservas-detalle' reserva.id %}"
+                                           class="btn btn-info btn-sm">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     </td>
@@ -52,9 +53,9 @@
                             </tbody>
                             <tfoot>
                             <tr>
-                                <th scope="col" style="">Cancha</th>
                                 <th scope="col" style="">Fecha de inicio</th>
                                 <th scope="col" style="">Hora de inicio</th>
+                                <th scope="col" style="">Cancha</th>
                                 <th scope="col" style="">Cliente</th>
                                 <th scope="col" style="">Estado de pago</th>
                                 <th scope="col" style="">Estado de reserva</th>

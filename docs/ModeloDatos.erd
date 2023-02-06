@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<diagram version="1" name="DiagramaER.erd">
+	<entities>
+		<data-source id="postgres-jdbc-1862718845d-16b07993c68971c6">
+			<entity id="1" name="accounts_persona" fq-name="public.accounts_persona" order="0" x="546" y="1750">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="2" name="accounts_user" fq-name="public.accounts_user" order="1" x="705" y="1339">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="3" name="core_club" fq-name="public.core_club" order="2" x="1057" y="1504">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="4" name="eventos_evento" fq-name="public.eventos_evento" order="3" x="1196" y="246">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="5" name="eventos_itemventaticket" fq-name="public.eventos_itemventaticket" order="4" x="844" y="401">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="6" name="eventos_pagoventaticket" fq-name="public.eventos_pagoventaticket" order="5" x="1207" y="706">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="7" name="eventos_parameters" fq-name="public.eventos_parameters" order="6" x="1444" y="1170">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="8" name="eventos_ticket" fq-name="public.eventos_ticket" order="7" x="454" y="395">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="9" name="eventos_ticketvariante" fq-name="public.eventos_ticketvariante" order="8" x="857" y="108">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="10" name="eventos_ventaticket" fq-name="public.eventos_ventaticket" order="9" x="814" y="665">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="11" name="parameters_departamento" fq-name="public.parameters_departamento" order="10" x="1637" y="1598">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="12" name="parameters_localidad" fq-name="public.parameters_localidad" order="11" x="1310" y="1497">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="13" name="parameters_mediopago" fq-name="public.parameters_mediopago" order="12" x="69" y="991">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="14" name="parameters_municipio" fq-name="public.parameters_municipio" order="13" x="1276" y="1862">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="15" name="parameters_pais" fq-name="public.parameters_pais" order="14" x="1344" y="2048">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="16" name="parameters_provincia" fq-name="public.parameters_provincia" order="15" x="1597" y="1864">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="17" name="parameters_sexo" fq-name="public.parameters_sexo" order="16" x="827" y="1854">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="18" name="reservas_cancha" fq-name="public.reservas_cancha" order="17" x="1003" y="2313">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="19" name="reservas_canchahoralaboral" fq-name="public.reservas_canchahoralaboral" order="18" x="116" y="2138">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="20" name="reservas_deporte" fq-name="public.reservas_deporte" order="19" x="1428" y="2238">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="21" name="reservas_horalaboral" fq-name="public.reservas_horalaboral" order="20" x="846" y="2147">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="22" name="reservas_pagoreserva" fq-name="public.reservas_pagoreserva" order="21" x="173" y="2466">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="23" name="reservas_parameters" fq-name="public.reservas_parameters" order="22" x="806" y="1049">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="24" name="reservas_reserva" fq-name="public.reservas_reserva" order="23" x="513" y="2363">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="25" name="reservas_superficie" fq-name="public.reservas_superficie" order="24" x="1469" y="2539">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="26" name="socios_categoria" fq-name="public.socios_categoria" order="25" x="347" y="975">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="27" name="socios_cuotasocial" fq-name="public.socios_cuotasocial" order="26" x="31" y="1794">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="28" name="socios_itemcuotasocial" fq-name="public.socios_itemcuotasocial" order="27" x="225" y="1509">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="29" name="socios_pagocuotasocial" fq-name="public.socios_pagocuotasocial" order="28" x="44" y="1160">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="30" name="socios_parameters" fq-name="public.socios_parameters" order="29" x="1093" y="1093">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+			<entity id="31" name="socios_socio" fq-name="public.socios_socio" order="30" x="345" y="1234">
+				<path name="public"/>
+				<path name="proyecto_software"/>
+			</entity>
+		</data-source>
+	</entities>
+	<relations>
+		<relation name="accounts_persona_persona_titular_id_cdf074ba_fk_accounts_" fq-name="public.accounts_persona.accounts_persona_persona_titular_id_cdf074ba_fk_accounts_" type="fk" pk-ref="1" fk-ref="1">
+			<bend type="rel" x="851" y="2054"/>
+			<bend type="rel" x="668" y="2130"/>
+		</relation>
+		<relation name="socios_cuotasocial_persona_id_baad1e4d_fk_accounts_persona_id" fq-name="public.socios_cuotasocial.socios_cuotasocial_persona_id_baad1e4d_fk_accounts_persona_id" type="fk" pk-ref="1" fk-ref="27"/>
+		<relation name="socios_socio_persona_id_b787b51a_fk_accounts_persona_id" fq-name="public.socios_socio.socios_socio_persona_id_b787b51a_fk_accounts_persona_id" type="fk" pk-ref="1" fk-ref="31"/>
+		<relation name="eventos_ticket_check_by_id_b5ba6710_fk_accounts_user_id" fq-name="public.eventos_ticket.eventos_ticket_check_by_id_b5ba6710_fk_accounts_user_id" type="fk" pk-ref="2" fk-ref="8"/>
+		<relation name="socios_socio_user_id_7f87fadd_fk_accounts_user_id" fq-name="public.socios_socio.socios_socio_user_id_7f87fadd_fk_accounts_user_id" type="fk" pk-ref="2" fk-ref="31"/>
+		<relation name="accounts_persona_club_id_ec4eac98_fk_core_club_id" fq-name="public.accounts_persona.accounts_persona_club_id_ec4eac98_fk_core_club_id" type="fk" pk-ref="3" fk-ref="1"/>
+		<relation name="eventos_parameters_club_id_ae47ae96_fk_core_club_id" fq-name="public.eventos_parameters.eventos_parameters_club_id_ae47ae96_fk_core_club_id" type="fk" pk-ref="3" fk-ref="7"/>
+		<relation name="reservas_cancha_club_id_faf63c6d_fk_core_club_id" fq-name="public.reservas_cancha.reservas_cancha_club_id_faf63c6d_fk_core_club_id" type="fk" pk-ref="3" fk-ref="18"/>
+		<relation name="reservas_horalaboral_club_id_d47dc88a_fk_core_club_id" fq-name="public.reservas_horalaboral.reservas_horalaboral_club_id_d47dc88a_fk_core_club_id" type="fk" pk-ref="3" fk-ref="21"/>
+		<relation name="reservas_parameters_club_id_ed7bbffc_fk_core_club_id" fq-name="public.reservas_parameters.reservas_parameters_club_id_ed7bbffc_fk_core_club_id" type="fk" pk-ref="3" fk-ref="23"/>
+		<relation name="socios_parameters_club_id_b630abfa_fk_core_club_id" fq-name="public.socios_parameters.socios_parameters_club_id_b630abfa_fk_core_club_id" type="fk" pk-ref="3" fk-ref="30"/>
+		<relation name="eventos_ticketvariante_evento_id_99ca8bc8_fk_eventos_evento_id" fq-name="public.eventos_ticketvariante.eventos_ticketvariante_evento_id_99ca8bc8_fk_eventos_evento_id" type="fk" pk-ref="4" fk-ref="9"/>
+		<relation name="eventos_ventaticket_evento_id_8b3d63b0_fk_eventos_evento_id" fq-name="public.eventos_ventaticket.eventos_ventaticket_evento_id_8b3d63b0_fk_eventos_evento_id" type="fk" pk-ref="4" fk-ref="10"/>
+		<relation name="eventos_itemventa_ticket_variante_id_62356186_fk_eventos_t" fq-name="public.eventos_itemventaticket.eventos_itemventa_ticket_variante_id_62356186_fk_eventos_t" type="fk" pk-ref="9" fk-ref="5"/>
+		<relation name="eventos_ticket_ticket_variante_id_a16b87c3_fk_eventos_t" fq-name="public.eventos_ticket.eventos_ticket_ticket_variante_id_a16b87c3_fk_eventos_t" type="fk" pk-ref="9" fk-ref="8"/>
+		<relation name="eventos_itemventatic_venta_ticket_id_b36e77f8_fk_eventos_v" fq-name="public.eventos_itemventaticket.eventos_itemventatic_venta_ticket_id_b36e77f8_fk_eventos_v" type="fk" pk-ref="10" fk-ref="5"/>
+		<relation name="eventos_pagoventatic_venta_ticket_id_0b6f10fa_fk_eventos_v" fq-name="public.eventos_pagoventaticket.eventos_pagoventatic_venta_ticket_id_0b6f10fa_fk_eventos_v" type="fk" pk-ref="10" fk-ref="6"/>
+		<relation name="eventos_ticket_venta_ticket_id_17357a84_fk_eventos_v" fq-name="public.eventos_ticket.eventos_ticket_venta_ticket_id_17357a84_fk_eventos_v" type="fk" pk-ref="10" fk-ref="8"/>
+		<relation name="parameters_localidad_departamento_id_04496de2_fk_parameter" fq-name="public.parameters_localidad.parameters_localidad_departamento_id_04496de2_fk_parameter" type="fk" pk-ref="11" fk-ref="12"/>
+		<relation name="core_club_localidad_id_b58ddc9c_fk_parameters_localidad_id" fq-name="public.core_club.core_club_localidad_id_b58ddc9c_fk_parameters_localidad_id" type="fk" pk-ref="12" fk-ref="3"/>
+		<relation name="socios_pagocuotasoci_medio_pago_id_4b481817_fk_parameter" fq-name="public.socios_pagocuotasocial.socios_pagocuotasoci_medio_pago_id_4b481817_fk_parameter" type="fk" pk-ref="13" fk-ref="29"/>
+		<relation name="parameters_localidad_municipio_id_b3fe6d1c_fk_parameter" fq-name="public.parameters_localidad.parameters_localidad_municipio_id_b3fe6d1c_fk_parameter" type="fk" pk-ref="14" fk-ref="12"/>
+		<relation name="parameters_provincia_pais_id_78d33041_fk_parameters_pais_id" fq-name="public.parameters_provincia.parameters_provincia_pais_id_78d33041_fk_parameters_pais_id" type="fk" pk-ref="15" fk-ref="16"/>
+		<relation name="parameters_departame_provincia_id_638d2485_fk_parameter" fq-name="public.parameters_departamento.parameters_departame_provincia_id_638d2485_fk_parameter" type="fk" pk-ref="16" fk-ref="11"/>
+		<relation name="parameters_localidad_provincia_id_1afa63e4_fk_parameter" fq-name="public.parameters_localidad.parameters_localidad_provincia_id_1afa63e4_fk_parameter" type="fk" pk-ref="16" fk-ref="12"/>
+		<relation name="parameters_municipio_provincia_id_38ea42f1_fk_parameter" fq-name="public.parameters_municipio.parameters_municipio_provincia_id_38ea42f1_fk_parameter" type="fk" pk-ref="16" fk-ref="14"/>
+		<relation name="accounts_persona_sexo_id_17884256_fk_parameters_sexo_id" fq-name="public.accounts_persona.accounts_persona_sexo_id_17884256_fk_parameters_sexo_id" type="fk" pk-ref="17" fk-ref="1"/>
+		<relation name="reservas_canchahoral_cancha_id_cf2e2221_fk_reservas_" fq-name="public.reservas_canchahoralaboral.reservas_canchahoral_cancha_id_cf2e2221_fk_reservas_" type="fk" pk-ref="18" fk-ref="19"/>
+		<relation name="reservas_reserva_cancha_id_c34694dd_fk_reservas_cancha_id" fq-name="public.reservas_reserva.reservas_reserva_cancha_id_c34694dd_fk_reservas_cancha_id" type="fk" pk-ref="18" fk-ref="24"/>
+		<relation name="reservas_cancha_deporte_id_297a1b9e_fk_reservas_deporte_id" fq-name="public.reservas_cancha.reservas_cancha_deporte_id_297a1b9e_fk_reservas_deporte_id" type="fk" pk-ref="20" fk-ref="18"/>
+		<relation name="reservas_canchahoral_hora_laboral_id_f2e3c9ab_fk_reservas_" fq-name="public.reservas_canchahoralaboral.reservas_canchahoral_hora_laboral_id_f2e3c9ab_fk_reservas_" type="fk" pk-ref="21" fk-ref="19"/>
+		<relation name="reservas_pagoreserva_reserva_id_8b957cb1_fk_reservas_reserva_id" fq-name="public.reservas_pagoreserva.reservas_pagoreserva_reserva_id_8b957cb1_fk_reservas_reserva_id" type="fk" pk-ref="24" fk-ref="22"/>
+		<relation name="reservas_cancha_superficie_id_f8d8ca23_fk_reservas_" fq-name="public.reservas_cancha.reservas_cancha_superficie_id_f8d8ca23_fk_reservas_" type="fk" pk-ref="25" fk-ref="18"/>
+		<relation name="socios_itemcuotasoci_cuota_social_id_dcea9d23_fk_socios_cu" fq-name="public.socios_itemcuotasocial.socios_itemcuotasoci_cuota_social_id_dcea9d23_fk_socios_cu" type="fk" pk-ref="27" fk-ref="28"/>
+		<relation name="socios_pagocuotasoci_cuota_social_id_ef1fa30c_fk_socios_cu" fq-name="public.socios_pagocuotasocial.socios_pagocuotasoci_cuota_social_id_ef1fa30c_fk_socios_cu" type="fk" pk-ref="27" fk-ref="29"/>
+		<relation name="socios_itemcuotasocial_socio_id_1ce47af4_fk_socios_socio_id" fq-name="public.socios_itemcuotasocial.socios_itemcuotasocial_socio_id_1ce47af4_fk_socios_socio_id" type="fk" pk-ref="31" fk-ref="28"/>
+	</relations>
+</diagram>

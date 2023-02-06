@@ -49,9 +49,9 @@ class Parameters(models.Model):
     horas_avisar_cancha_libre = models.PositiveSmallIntegerField(default=5,
                                                                  verbose_name='Horas para avisar cancha libre',
                                                                  help_text=
-                                                                 'Si una reserva se cancela dentro de estas horas, '
-                                                                 'se enviará un aviso a los usuarios que tengan '
-                                                                 'activada la opción de notificaciones.')
+                                                                 'Si una reserva se cancela y le quedan menos horas que '
+                                                                 'esta cantidad para comenzar, se enviará un aviso a los'
+                                                                 ' usuarios.')
     # Campos para definir cuando finaliza una reserva, al comenzar o al terminar.
     finalizar_al_comenzar = models.BooleanField(default=True,
                                                 verbose_name='Finalizar al comenzar',
@@ -234,19 +234,15 @@ class Reserva(SoftDeleteModel):
                         'protocol': 'http' if settings.DEBUG else 'https',
                         'domain': '127.0.0.1:8000/'
                     }
-                    try:
-                        message = render_to_string(template, context)
-                        email = EmailMessage(
-                            subject,
-                            message,
-                            settings.DEFAULT_FROM_EMAIL,
-                            [user.email],
-                        )
-                        email.content_subtype = 'html'
-                        email.send()
-                    except SMTPException as e:
-                        print('Ha ocurrido un error al enviar el correo electrónico: ', e)
-                        raise e
+                    message = render_to_string(template, context)
+                    email = EmailMessage(
+                        subject,
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [user.email],
+                    )
+                    email.content_subtype = 'html'
+                    email.send(fail_silently=True)
 
     class Meta:
         verbose_name = 'Reserva'

@@ -30,7 +30,8 @@ class CustomUserAdmin(UserAdmin):
         (
             None,
             {
-                "fields": ("nombre", "apellido", "email", "password1", "password2"),
+                "fields": ("nombre", "apellido", "email", "password1", "password2",
+                           "is_staff", "is_superuser", "is_active", "notificaciones"),
             },
         ),
     )
