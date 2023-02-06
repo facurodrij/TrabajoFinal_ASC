@@ -412,7 +412,7 @@ class ItemCuotaSocial(models.Model):
         return item
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        self.cuota = self.socio.categoria.cuota
+        self.cuota = self.socio.get_categoria().cuota
         self.total_parcial = self.cuota + self.cargo_extra
         super(ItemCuotaSocial, self).save(force_insert, force_update, using, update_fields)
 

@@ -167,7 +167,7 @@ class CuotaSocialListView(LoginRequiredMixin, SocioRequiredMixin, ListView):
 def cuota_social_pdf(request, pk):
     cuota = CuotaSocial.global_objects.get(pk=pk)
     club = Club.objects.get(pk=1)
-    detalle_cuota = ItemCuotaSocial.global_objects.filter(cuota_social=cuota)
+    detalle_cuota = ItemCuotaSocial.objects.filter(cuota_social=cuota)
     html_string = render_to_string('user/cuota/pdf.html', {'cuota': cuota, 'club': club, 'detalle_cuota': detalle_cuota})
     html = HTML(string=html_string, base_url=request.build_absolute_uri())
     html.write_pdf(target='/tmp/cuota.pdf',
