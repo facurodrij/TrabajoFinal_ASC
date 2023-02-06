@@ -316,7 +316,7 @@ class CuotaSocial(SoftDeleteModel):
         return 'Son: {} pesos argentinos'.format(num2words(self.total_a_pagar(), lang='es'))
 
     def get_related_objects(self):
-        return self.detallecuotasocial_set.all()
+        return self.itemcuotasocial_set.all()
 
     def toJSON(self):
         item = model_to_dict(self)

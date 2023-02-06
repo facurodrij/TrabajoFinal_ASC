@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 import pytz
 from django.conf import settings
@@ -80,14 +80,15 @@ class CuotaSocialAdminListView(LoginRequiredMixin, PermissionRequiredMixin, List
                 cuotas = 0
                 for socio in socios.filter(date_created__lte=periodo_date):
                     categoria = socio.get_categoria()
-                    if socio.persona.es_titular():
+                    if socio.persona.es_titular() and socio.itemcuotasocial_set.filter(
+                            cuota_social__periodo_mes=periodo_mes,
+                            cuota_social__periodo_anio=periodo_anio).count() == 0:
                         with transaction.atomic():
                             cuota_social = CuotaSocial.objects.create(
                                 persona=socio.persona,
-                                fecha_emision=datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')),
-                                fecha_vencimiento=date(int(periodo_anio),
-                                                       int(periodo_mes),
-                                                       int(parameters_dia_vencimiento)),
+                                fecha_emision=datetime.now(),
+                                fecha_vencimiento=datetime.now() + timedelta(days=parameters_dia_vencimiento, hours=00,
+                                                                             minutes=00, seconds=00),
                                 periodo_mes=periodo_mes,
                                 periodo_anio=periodo_anio,
                             )
