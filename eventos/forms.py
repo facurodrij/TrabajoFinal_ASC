@@ -29,6 +29,7 @@ class EventoForm(forms.ModelForm):
             'hora_fin': forms.TimeInput(attrs={'class': 'form-control'}),
             'registro_deadline': forms.DateInput(attrs={'class': 'form-control'}),
             'mayor_edad': forms.CheckboxInput(),
+            'descuento_socio': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
 

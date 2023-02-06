@@ -111,7 +111,6 @@ class EventoAdminDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteV
         evento = self.get_object()
         change_reason = request.POST.get('change_reason')
         with transaction.atomic():
-            TicketVariante.objects.filter(evento=evento).delete()
             evento._change_reason = change_reason
             evento.delete()
             messages.success(request, 'Evento dado de baja correctamente')

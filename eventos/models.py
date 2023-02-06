@@ -144,6 +144,11 @@ class Evento(SoftDeleteModel):
                 check=models.Q(fecha_inicio__lte=models.F('fecha_fin')),
                 name='fecha_inicio_menor_fecha_fin',
                 violation_error_message='La fecha de inicio debe ser menor o igual a la fecha de finalización.'
+            ),
+            models.CheckConstraint(
+                check=models.Q(registro_deadline__lte=models.F('fecha_inicio')),
+                name='registro_deadline_menor_fecha_inicio',
+                violation_error_message='La fecha límite de registro debe ser menor o igual a la fecha de inicio.'
             )
         ]
 

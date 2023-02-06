@@ -33,10 +33,10 @@ class EventoUserDetailView(DetailView):
     def dispatch(self, request, *args, **kwargs):
         evento = self.get_object()
         try:
-            ticket_variante = TicketVariante.objects.get(evento=evento)
-            for item in ticket_variante.itemventaticket_set.filter(venta_ticket__is_deleted=False,
-                                                                   venta_ticket__pagado=False):
-                item.venta_ticket.clean()
+            ticket_variantes = TicketVariante.objects.filter(evento=evento)
+            venta_tickets = VentaTicket.objects.filter(itemventaticket__ticket_variante__in=ticket_variantes)
+            for venta_ticket in venta_tickets:
+                venta_ticket.clean()
         except (TicketVariante.DoesNotExist, VentaTicket.DoesNotExist, ValidationError):
             pass
         if evento.get_expiration_date(isoformat=False) < datetime.now().date():
@@ -112,10 +112,10 @@ class EventoUserOrderView(TemplateView):
             messages.error(request, 'No se ha seleccionado ningún evento')
             return redirect('index')
         try:
-            ticket_variante = TicketVariante.objects.get(evento=evento)
-            for item in ticket_variante.itemventaticket_set.filter(venta_ticket__is_deleted=False,
-                                                                   venta_ticket__pagado=False):
-                item.venta_ticket.clean()
+            ticket_variantes = TicketVariante.objects.filter(evento=evento)
+            venta_tickets = VentaTicket.objects.filter(itemventaticket__ticket_variante__in=ticket_variantes)
+            for venta_ticket in venta_tickets:
+                venta_ticket.clean()
         except (TicketVariante.DoesNotExist, VentaTicket.DoesNotExist, ValidationError):
             pass
         if evento.get_expiration_date(isoformat=False) < datetime.now().date():

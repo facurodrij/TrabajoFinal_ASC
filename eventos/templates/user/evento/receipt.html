@@ -91,7 +91,13 @@
                             <td class="left">
                                 <strong>Descuento ({{ venta_ticket.porcentaje_descuento }}%)</strong>
                             </td>
-                            <td class="text-right">-${{ venta_ticket.get_valor_descuento }}</td>
+                            <td class="text-right">-${{ venta_ticket.get_valor_descuento }}<br>
+                                {% if venta_ticket.get_valor_descuento > 0 %}
+                                    <small class="text-muted">
+                                        Se ha aplicado el descuento por ser socio del club.
+                                    </small>
+                                {% endif %}
+                            </td>
                         </tr>
                         <tr>
                             <td class="left">

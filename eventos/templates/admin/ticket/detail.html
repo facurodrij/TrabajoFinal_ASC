@@ -34,19 +34,28 @@
                                     {{ ticket.venta_ticket }}
                                 </a>
                             </li>
-                            <li class="list-group-item"><b>Precio unitario del ticket:</b> ${{ ticket.get_precio_compra }}</li>
+                            <li class="list-group-item"><b>Precio unitario del ticket:</b>
+                                ${{ ticket.get_precio_compra }}</li>
                             <li class="list-group-item"><b>Estado del pago:</b> {{ ticket.get_estado_pago }}</li>
                             <li class="list-group-item"><b>Estado del ticket:</b> {{ ticket.get_IS_USED_display }}</li>
+                            {% if ticket.is_used %}
+                                <li class="list-group-item"><b>Fecha de check-in:</b> {{ ticket.check_date }}</li>
+                                <li class="list-group-item"><b>Operador:</b> {{ ticket.check_by }}</li>
+                            {% endif %}
                         </ul>
                     </div>
                     <div class="col-md-4">
                         <h5>Código QR del Ticket</h5>
-                        <img src="{{ ticket.get_qr_code }}" alt="QRCODE" class="img-bordered img-fluid mx-auto d-block mb-2">
-                        <div class="text-center">
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#send_qr">
-                                <i class="fas fa-envelope"></i> Enviar por correo
-                            </button>
-                        </div>
+                        <img src="{{ ticket.get_qr_code }}" alt="QRCODE"
+                             class="img-bordered img-fluid mx-auto d-block mb-2">
+                        {% if not ticket.is_used %}
+                            <div class="text-center">
+                                <button type="button" class="btn btn-primary" data-toggle="modal"
+                                        data-target="#send_qr">
+                                    <i class="fas fa-envelope"></i> Enviar por correo
+                                </button>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

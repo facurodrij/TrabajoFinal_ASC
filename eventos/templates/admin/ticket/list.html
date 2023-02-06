@@ -39,7 +39,8 @@
                                     <td>{{ ticket.nombre }}</td>
                                     <td>
                                         <label class="font-weight-normal">Usado
-                                            <input type="checkbox" {% if ticket.is_used %} checked {% endif %}
+                                            <input class="is_used_input"
+                                                    type="checkbox" {% if ticket.is_used %} checked {% endif %}
                                                    name="is_used_{{ ticket.id }}">
                                         </label>
                                     </td>
@@ -319,10 +320,9 @@
                 },
             }
         });
-    </script>
-    <script>
-        $('input[type=checkbox]').change(function () {
-            let input = $(this);
+        $('#dataTable tbody').on('click', '.is_used_input', function () {
+            let input = $(this).find('input');
+            console.log(input);
             $.ajax({
                 url: window.location.href,
                 type: 'POST',

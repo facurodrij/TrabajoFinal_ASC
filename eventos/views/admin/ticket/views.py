@@ -31,20 +31,24 @@ class TicketAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView)
         data = {}
         try:
             action = request.POST['action']
-            change_reason = request.POST['change_reason']
             if action == 'is_used_change':
                 ticket = Ticket.objects.get(pk=request.POST['ticket_id'])
                 usado = request.POST['usado']
                 if usado == 'true':
                     ticket.is_used = True
+                    ticket.check_date = datetime.now()
+                    ticket.check_by = request.user
                 else:
                     ticket.is_used = False
+                    ticket.check_date = None
+                    ticket.check_by = None
                 ticket.save()
             elif action == 'is_used_change_lote':
                 ids = request.POST.getlist('ids[]')
                 tickets = Ticket.objects.filter(pk__in=ids)
-                tickets.update(is_used=True)
+                tickets.update(is_used=True, check_date=datetime.now(), check_by=request.user)
             elif action == 'delete_lote':
+                change_reason = request.POST['change_reason']
                 ids = request.POST.getlist('ids[]')
                 tickets = Ticket.objects.filter(pk__in=ids)
                 for ticket in tickets:

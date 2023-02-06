@@ -3,38 +3,53 @@
 
 {% block content %}
     <div class="container-fluid">
-        <div class="card">
-            <div class="card-header bg-primary">
-                <h3 class="card-title">{{ title }}</h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col">
-                        <h2>{{ evento }}</h2>
-                        <!-- Imagen del Evento -->
-                        <img src="{{ evento.get_imagen }}" alt="Imagen del Evento" class="img-fluid">
-                        <p>{{ evento.descripcion }}</p>
+        <div class="row">
+            <div class="col-5">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">Comprar Tickets</h3>
                     </div>
-                    <div class="col">
-                        <h3>Comprar Tickets</h3>
+                    <div class="card-body">
                         <form method="post">
                             {% csrf_token %}
                             <!-- Input action con value orden -->
+                            <p>
+                                Seleccione la cantidad de tickets que desea comprar para cada variante.
+                            </p>
                             <input type="hidden" name="action" value="orden">
                             {% for ticket_variante in ticket_variante_list %}
-                                <label for="ticket_variante">
-                                    <!-- Input de cantidad con referencia al ticket_variante -->
-                                    <input type="number" name="cantidad_{{ ticket_variante.id }}" min="0" value="0"
-                                           required>
-                                    {{ ticket_variante.nombre }} - ${{ ticket_variante.precio }}
+                                <label for="id_cantidad_{{ ticket_variante.id }}">
+                                <!-- Input de cantidad con referencia al ticket_variante -->
+                                {{ ticket_variante.nombre }} - ${{ ticket_variante.precio }}
                                 </label>
+                                <input id="id_cantidad_{{ ticket_variante.id }}"
+                                       type="number" name="cantidad_{{ ticket_variante.id }}" min="0" value="0"
+                                       class="form-control" required>
                                 <br>
                             {% endfor %}
                             <br>
-                            <button type="submit" class="btn btn-primary">Siguiente
+                            <button type="submit" class="btn btn-primary float-right">Siguiente
                                 <i class="fas fa-arrow-right"></i>
                             </button>
                         </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-7">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Información del Evento</h3>
+                    </div>
+                    <div class="card-body">
+                        <img src="{{ evento.get_imagen }}" alt="Imagen del Evento"
+                             width="300px" height="300px"
+                             class="img-fluid rounded mx-auto d-block mb-3">
+                        <ul class="list-group">
+                            <li class="list-group-item"><b>Nombre:</b> {{ evento.nombre }}</li>
+                            <li class="list-group-item"><b>Fecha de inicio:</b> {{ evento.get_start_datetime }}</li>
+                            <li class="list-group-item"><b>Fecha de finalización:</b> {{ evento.get_end_datetime }}</li>
+                            <li class="list-group-item"><b>Descripción:</b> {{ evento.descripcion }}</li>
+                        </ul>
                     </div>
                 </div>
             </div>
