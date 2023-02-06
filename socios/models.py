@@ -52,7 +52,8 @@ class Socio(SoftDeleteModel):
     """
     persona = models.OneToOneField('accounts.Persona', on_delete=models.PROTECT)
     user = models.OneToOneField('accounts.User', on_delete=models.PROTECT, null=True, blank=True)
-    fecha_ingreso = models.DateField(default=datetime.now)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
     history = HistoricalRecords()
 
     def __str__(self):
@@ -71,7 +72,7 @@ class Socio(SoftDeleteModel):
         return None
 
     def get_fecha_ingreso(self):
-        return self.fecha_ingreso.strftime('%Y-%m-%d')
+        return self.date_created.strftime('%Y-%m-%d')
 
     def get_estado(self):
         return 'Activo' if self.is_deleted is False else 'Inactivo'
@@ -122,10 +123,10 @@ class Socio(SoftDeleteModel):
 
     def get_antiguedad(self):
         # Si supera el año, mostrar en años, si no en meses
-        if (datetime.now().year - self.fecha_ingreso.year) > 0:
-            return '{} años'.format(datetime.now().year - self.fecha_ingreso.year)
+        if (datetime.now().year - self.date_created.year) > 0:
+            return '{} años'.format(datetime.now().year - self.date_created.year)
         else:
-            return '{} meses'.format(datetime.now().month - self.fecha_ingreso.month)
+            return '{} meses'.format(datetime.now().month - self.date_created.month)
 
     def delete(self, cascade=None, *args, **kwargs):
         self.is_deleted = True

@@ -108,7 +108,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                     <ul class="list-group mb-1">
                                         <li class="list-group-item"><b>Categoria: </b>{{ socio.get_categoria }}</li>
                                         <li class="list-group-item"><b>Antigüedad: </b>{{ socio.get_antiguedad }}
-                                            ({{ socio.fecha_ingreso }})
+                                            ({{ socio.date_created }})
                                         </li>
                                         <li class="list-group-item"><b>Estado de socio: </b>{{ socio.get_estado }}</li>
                                         {% if socio.user %}

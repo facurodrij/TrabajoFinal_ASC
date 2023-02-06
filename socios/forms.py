@@ -16,21 +16,10 @@ class SocioAdminForm(forms.ModelForm):
                              label='Email',
                              widget=forms.EmailInput(attrs={'class': 'form-control',
                                                             'placeholder': 'Ingrese el email'}))
-    fecha_ingreso = forms.DateField(
-        required=True,
-        widget=forms.TextInput(
-            attrs={
-                'autocomplete': 'off',
-                'placeholder': 'Fecha de ingreso',
-                'class': 'form-control  datetimepicker-input',
-                'data-toggle': 'datetimepicker',
-                'data-target': '#id_fecha_ingreso',
-            }
-        ))
 
     class Meta:
         model = Socio
-        fields = ['persona', 'fecha_ingreso']
+        fields = ['persona']
 
 
 class CuotaSocialForm(forms.ModelForm):

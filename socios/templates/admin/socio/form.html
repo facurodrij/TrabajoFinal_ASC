@@ -72,15 +72,6 @@
                                 <div class="col-12 col-md-6">
                                     <h4>Datos del socio</h4>
                                     <hr>
-                                    <div class="form-group">
-                                        <div class="input-group" data-target-input="nearest">
-                                            {{ form.fecha_ingreso }}
-                                            <div class="input-group-append" data-target="#id_fecha_ingreso"
-                                                 data-toggle="datetimepicker">
-                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                            </div>
-                                        </div>
-                                    </div>
                                     {% if object.get_user %}
                                         <label for="id_user">{{ form.user.label }}</label>
                                         <div class="input-group">
