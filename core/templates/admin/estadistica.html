@@ -37,6 +37,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <div id="reportrange_reserva"
+                                     class="report_range"
                                      style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                                     <i class="fas fa-calendar-alt"></i>&nbsp;
                                     <span></span> <i class="fa fa-caret-down"></i>
@@ -45,7 +46,7 @@
                             <div class="col-12">
                                 <br>
                                 <p class="text-center">
-                                    <strong id="date_range_text"></strong>
+                                    <strong id="strongrange_reserva"></strong>
                                 </p>
                                 <div class="chart">
                                     <div class="chartjs-size-monitor">
@@ -64,6 +65,49 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Recaudación de los Eventos por Fecha</h5>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div id="reportrange_evento"
+                                     class="report_range"
+                                     style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                    <i class="fas fa-calendar-alt"></i>&nbsp;
+                                    <span></span> <i class="fa fa-caret-down"></i>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <br>
+                                <p class="text-center">
+                                    <strong id="strongrange_evento"></strong>
+                                </p>
+                                <div class="chart">
+                                    <div class="chartjs-size-monitor">
+                                        <div class="chartjs-size-monitor-expand">
+                                            <div class=""></div>
+                                        </div>
+                                        <div class="chartjs-size-monitor-shrink">
+                                            <div class=""></div>
+                                        </div>
+                                    </div>
+                                    <canvas id="eventoChart" class="chartjs-render-monitor"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock content %}
 
@@ -73,8 +117,12 @@
             let start = moment().subtract(29, 'days');
             let end = moment();
 
-            function cb(start, end) {
+            function cb_reserva(start, end) {
                 $('#reportrange_reserva span').html(start.locale('es').format('ll') + ' - ' + end.format('ll'));
+            }
+
+            function cb_evento(start, end) {
+                $('#reportrange_evento span').html(start.locale('es').format('ll') + ' - ' + end.format('ll'));
             }
 
             $('#reportrange_reserva').daterangepicker({
@@ -123,23 +171,72 @@
                     ],
                     "firstDay": 1
                 }
-            }, cb);
-            cb(start, end);
+            }, cb_reserva);
+            cb_reserva(start, end);
+
+            $('#reportrange_evento').daterangepicker({
+                startDate: start,
+                endDate: end,
+                maxDate: moment(),
+                ranges: {
+                    'Hoy': [moment(), moment()],
+                    'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Últimos 7 Días': [moment().subtract(6, 'days'), moment()],
+                    'Últimos 30 Días': [moment().subtract(29, 'days'), moment()],
+                    'Este Mes': [moment().startOf('month'), moment().endOf('month')],
+                    'Mes Anterior': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                },
+                // Cambiar el idioma
+                locale: {
+                    "format": "DD/MM/YYYY",
+                    "separator": " - ",
+                    "applyLabel": "Aplicar",
+                    "cancelLabel": "Cancelar",
+                    "fromLabel": "Desde",
+                    "toLabel": "Hasta",
+                    "customRangeLabel": "Personalizado",
+                    "daysOfWeek": [
+                        "Do",
+                        "Lu",
+                        "Ma",
+                        "Mi",
+                        "Ju",
+                        "Vi",
+                        "Sa"
+                    ],
+                    "monthNames": [
+                        "Enero",
+                        "Febrero",
+                        "Marzo",
+                        "Abril",
+                        "Mayo",
+                        "Junio",
+                        "Julio",
+                        "Agosto",
+                        "Septiembre",
+                        "Octubre",
+                        "Noviembre",
+                        "Diciembre"
+                    ],
+                    "firstDay": 1
+                }
+            }, cb_evento);
+            cb_evento(start, end);
         });
     </script>
     <script>
         // On report_reserva_daterange submit
-        let myChart
+        let ChartReserva
         // $('#reportrange_reserva') on change
         $('#reportrange_reserva').on('apply.daterangepicker', function (ev, picker) {
             let start = picker.startDate.format('YYYY-MM-DD');
             let end = picker.endDate.format('YYYY-MM-DD');
             let start_text = picker.startDate.format('LL');
             let end_text = picker.endDate.format('LL');
-            let date_range_text = $('#date_range_text')
+            let strongrange_reserva = $('#strongrange_reserva')
             let ctx = document.getElementById('reservaChart').getContext('2d');
-            if (myChart) {
-                myChart.destroy();
+            if (ChartReserva) {
+                ChartReserva.destroy();
             }
             $.ajax({
                 url: '{% url 'admin-estadisticas' %}',
@@ -170,8 +267,8 @@
                             labels.push(data[key]['hora']);
                             sets.push(data[key]['total']);
                         });
-                        date_range_text.text('Rango de fechas: ' + start_text + ' - ' + end_text);
-                        myChart = new Chart(ctx, {
+                        strongrange_reserva.text('Rango de fechas: ' + start_text + ' - ' + end_text);
+                        ChartReserva = new Chart(ctx, {
                             type: 'bar',
                             data: {
                                 labels: labels,
@@ -208,7 +305,107 @@
                             }
                         });
                         // Resize chart with height 400px
-                        myChart.canvas.parentNode.style.height = '400px';
+                        ChartReserva.canvas.parentNode.style.height = '400px';
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: data.error,
+                        });
+                    }
+                },
+                error: function (data) {
+                    console.log(data);
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Algo salió mal!',
+                    });
+                }
+            });
+        });
+        // On report_evento_daterange submit
+        let ChartEvento
+        // $('#reportrange_evento') on change
+        $('#reportrange_evento').on('apply.daterangepicker', function (ev, picker) {
+            let start = picker.startDate.format('YYYY-MM-DD');
+            let end = picker.endDate.format('YYYY-MM-DD');
+            let start_text = picker.startDate.format('LL');
+            let end_text = picker.endDate.format('LL');
+            let strongrange_evento = $('#strongrange_evento')
+            let ctx = document.getElementById('eventoChart').getContext('2d');
+            if (ChartEvento) {
+                ChartEvento.destroy();
+            }
+            $.ajax({
+                url: '{% url 'admin-estadisticas' %}',
+                type: 'POST',
+                data: {
+                    'start': start,
+                    'end': end,
+                    'report': 'evento',
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                beforeSend: function () {
+                    Swal.fire({
+                        position: 'top-end',
+                        title: 'Obteniendo datos...',
+                        html: 'Por favor espere...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading()
+                        },
+                    });
+                },
+                success: function (data) {
+                    Swal.close();
+                    if (!data.hasOwnProperty('error')) {
+                        let labels = [];
+                        let sets = [];
+                        $.each(data, function (key, value) {
+                            labels.push(data[key]['evento']);
+                            sets.push(data[key]['total']);
+                        });
+                        strongrange_evento.text('Rango de fechas: ' + start_text + ' - ' + end_text);
+                        ChartEvento = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Total de recaudación $ por evento en el rango de fechas seleccionado',
+                                    data: sets,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(255, 159, 64, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                },
+                                maintainAspectRatio: false,
+                                responsive: true,
+                            }
+                        });
+                        // Resize chart with height 400px
+                        ChartEvento.canvas.parentNode.style.height = '400px';
                     } else {
                         Swal.fire({
                             icon: 'error',

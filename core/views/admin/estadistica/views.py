@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.views.generic import TemplateView
 
 from config.mixins import AdminRequiredMixin
+from eventos.models import Evento, VentaTicket
 from reservas.models import Reserva, HoraLaboral
 
 
@@ -30,6 +31,18 @@ class EstadisticaAdminView(LoginRequiredMixin, AdminRequiredMixin, TemplateView)
                     total += reserva.precio
                 data.append({
                     'hora': hora,
+                    'total': total,
+                })
+        elif report == 'evento':
+            # Obtener la recaudación de los eventos en el rango de fechas seleccionado
+            data = []
+            eventos = Evento.objects.filter(fecha_inicio__range=[start_date, end_date])
+            for evento in eventos:
+                total = 0
+                for venta in VentaTicket.objects.filter(evento=evento, pagado=True):
+                    total += venta.total()
+                data.append({
+                    'evento': evento.nombre,
                     'total': total,
                 })
         return JsonResponse(data, safe=False)
