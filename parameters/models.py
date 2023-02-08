@@ -3,22 +3,6 @@ from django.utils.translation import gettext_lazy as _
 
 
 # PARÁMETROS DEL SISTEMA
-# Parámetros para la app Socios
-class Parentesco(models.Model):
-    """
-    Modelo para almacenar los parentescos de los miembros de la familia.
-    """
-    nombre = models.CharField(max_length=50, verbose_name=_('Nombre'))
-    menor_al_titular = models.BooleanField(default=True, verbose_name=_('Debe ser menor que el titular'))
-
-    def __str__(self):
-        return self.nombre
-
-    class Meta:
-        verbose_name = _('Parentesco')
-        verbose_name_plural = _('Parentescos')
-
-
 class MedioPago(models.Model):
     """
     Modelo para almacenar los medios de pago.

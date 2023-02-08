@@ -199,6 +199,7 @@ class Reserva(SoftDeleteModel):
         item['start'] = self.start_datetime()
         item['end'] = self.end_datetime()
         item['con_luz_display'] = self.get_CON_LUZ_display()
+        item['start_display'] = self.start_datetime_display().strftime('%A %d de %B de %Y %H:%M')
         return item
 
     def clean(self):

@@ -57,10 +57,10 @@ class Evento(SoftDeleteModel):
                                                    'no hay límite.')
     mayor_edad = models.BooleanField(verbose_name='Mayor de edad', default=False,
                                      help_text='Indica si el evento es para mayores de edad.')
-    descuento_socio = models.DecimalField(max_digits=3, decimal_places=2, default=0,
+    descuento_socio = models.DecimalField(max_digits=5, decimal_places=2, default=0,
                                           verbose_name='Descuento para socios',
-                                          validators=[MinValueValidator(0), MaxValueValidator(1)],
-                                          help_text='Descuento para los socios, ingrese un número entre 0 y 1.')
+                                          validators=[MinValueValidator(0), MaxValueValidator(100)],
+                                          help_text='Porcentaje de descuento para socios.')
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
     history = HistoricalRecords()
@@ -74,7 +74,8 @@ class Evento(SoftDeleteModel):
     imagen = models.ImageField(upload_to=image_directory_path, verbose_name='Imagen')
 
     def __str__(self):
-        return self.nombre
+        # Retornar el nombre del evento y la fecha de inicio con siguiente formato: Nombre (DD de enero)
+        return '{0} ({1} de {2})'.format(self.nombre, self.fecha_inicio.day, self.fecha_inicio.strftime('%B'))
 
     def get_imagen(self):
         """

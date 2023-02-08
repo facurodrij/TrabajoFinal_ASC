@@ -204,8 +204,7 @@
                         let html = '<ul class="list-group">';
                         html += '<li class="list-group-item"><b>Deporte:</b> ' + data['reserva']['deporte'] + '</li>';
                         html += '<li class="list-group-item"><b>Cancha:</b> ' + data['reserva']['cancha'] + '</li>';
-                        html += '<li class="list-group-item"><b>Fecha:</b> ' + data['reserva']['fecha'] + '</li>';
-                        html += '<li class="list-group-item"><b>Hora:</b> ' + data['reserva']['hora'] + '</li>';
+                        html += '<li class="list-group-item"><b>Fecha y Hora:</b> ' + data['reserva']['start_display'] + '</li>';
                         html += '<li class="list-group-item"><b>Con luz:</b> ' + data['reserva']['con_luz_display'] + '</li>';
                         html += '<li class="list-group-item"><b>Precio:</b> $' + data['reserva']['precio'] + '</li>';
                         html += '</ul>';
@@ -218,7 +217,7 @@
                             showCancelButton: true,
                             confirmButtonColor: '#3085d6',
                             cancelButtonColor: '#d33',
-                            confirmButtonText: 'Confirmar reserva',
+                            confirmButtonText: 'Confirmar',
                             cancelButtonText: 'Cancelar',
                         }).then((result) => {
                             if (result.isConfirmed) {

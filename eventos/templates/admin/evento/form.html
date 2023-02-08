@@ -249,6 +249,10 @@
                             </div>
                         {% endwith %}
                         <div class="card-footer">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#previewModal">
+                                <i class="fa-solid fa-eye"></i> Vista previa
+                            </button>
                             {% if action == 'add' %}
                                 <button class="btn btn-primary float-right ml-2" type="submit">
                                     <i class="fa-solid fa-check-to-slot"></i> Publicar
@@ -278,74 +282,37 @@
         let inputHoraInicio = $('#id_hora_inicio');
         let inputHoraFin = $('#id_hora_fin');
         let inputRegistroDeadline = $('#id_registro_deadline');
-        {% if action == 'add' %}
-            inputFechaInicio.datetimepicker({
-                "format": "L",
-                "locale": "es-AR",
-                "date": moment(),
-                "minDate": moment().startOf('day'),
-            });
-            inputFechaFin.datetimepicker({
-                "format": "L",
-                "locale": "es-AR",
-                "date": moment(),
-                "minDate": moment().startOf('day'),
-            });
-            inputHoraInicio.datetimepicker({
-                "format": "LT",
-                "locale": "es-AR",
-                "date": moment(),
-                "minDate": moment().startOf('day'),
-            });
-            inputHoraFin.datetimepicker({
-                "format": "LT",
-                "locale": "es-AR",
-                "date": moment(),
-                "minDate": moment().startOf('day'),
-            });
-            inputRegistroDeadline.datetimepicker({
-                "format": "L",
-                "locale": "es-AR",
-                "date": null,
-                "minDate": moment().startOf('day'),
-            });
-        {% elif action == 'edit' %}
-            let fecha_inicio = new Date('{{ object.fecha_inicio }}')
-            let fecha_fin = new Date('{{ object.fecha_fin }}')
-            let hora_inicio = new Date('{{ object.hora_inicio }}')
-            let hora_fin = new Date('{{ object.hora_fin }}')
-            let registro_deadline = new Date('{{ object.registro_deadline }}')
-            fecha_inicio.setMinutes(fecha_inicio.getMinutes() + fecha_inicio.getTimezoneOffset());
-            fecha_fin.setMinutes(fecha_fin.getMinutes() + fecha_fin.getTimezoneOffset());
-            hora_inicio.setMinutes(hora_inicio.getMinutes() + hora_inicio.getTimezoneOffset());
-            hora_fin.setMinutes(hora_fin.getMinutes() + hora_fin.getTimezoneOffset());
-            registro_deadline.setMinutes(registro_deadline.getMinutes() + registro_deadline.getTimezoneOffset());
-            inputFechaInicio.datetimepicker({
-                "format": "L",
-                "locale": "es-AR",
-                "date": fecha_inicio,
-            });
-            inputFechaFin.datetimepicker({
-                "format": "L",
-                "locale": "es-AR",
-                "date": fecha_fin,
-            });
-            inputHoraInicio.datetimepicker({
-                "format": "LT",
-                "locale": "es-AR",
-                "date": hora_inicio,
-            });
-            inputHoraFin.datetimepicker({
-                "format": "LT",
-                "locale": "es-AR",
-                "date": hora_fin,
-            });
-            inputRegistroDeadline.datetimepicker({
-                "format": "L",
-                "locale": "es-AR",
-                "date": registro_deadline,
-            });
-        {% endif %}
+        inputFechaInicio.datetimepicker({
+            "format": "L",
+            "locale": "es-AR",
+            // Si el post tiene errores, se mantiene la fecha seleccionada, tener en cuenta que la fecha llega en formato AAAA-MM-DD y se debe convertir a DD/MM/AAAA
+            "date": moment('{{ form.fecha_inicio.value|date:"d/m/Y" }}', 'DD/MM/YYYY'),
+            "minDate": moment().startOf('day'),
+        });
+        inputFechaFin.datetimepicker({
+            "format": "L",
+            "locale": "es-AR",
+            "date": moment('{{ form.fecha_fin.value|date:"d/m/Y" }}', 'DD/MM/YYYY'),
+            "minDate": moment().startOf('day'),
+        });
+        inputHoraInicio.datetimepicker({
+            "format": "LT",
+            "locale": "es-AR",
+            "date": moment('{{ form.hora_inicio.value|date:"H:i" }}', 'HH:mm'),
+            "minDate": moment().startOf('day'),
+        });
+        inputHoraFin.datetimepicker({
+            "format": "LT",
+            "locale": "es-AR",
+            "date": moment('{{ form.hora_fin.value|date:"H:i" }}', 'HH:mm'),
+            "minDate": moment().startOf('day'),
+        });
+        inputRegistroDeadline.datetimepicker({
+            "format": "L",
+            "locale": "es-AR",
+            "date": moment('{{ form.registro_deadline.value|date:"d/m/Y" }}', 'DD/MM/YYYY'),
+            "minDate": moment().startOf('day'),
+        });
         // Imagen preview
         document.querySelector('.custom-file-input').addEventListener('change', function (e) {
             const fileName = document.getElementById("id_imagen").files[0].name;

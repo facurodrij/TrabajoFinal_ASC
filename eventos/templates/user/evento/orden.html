@@ -78,7 +78,7 @@
                             Siguiente <i class="fas fa-arrow-right"></i>
                         </button>
                         <a href="{% url 'eventos-detalle' evento.pk %}"
-                           class="btn btn-secondary float-right mr-2">
+                           class="btn btn-default">
                             <i class="fas fa-arrow-left"></i> Regresar
                         </a>
                     </div>
@@ -135,7 +135,9 @@
                         {% endfor %}
                     </div>
                     <div class="modal-footer">
-                        <input type="submit" value="Pagar" class="btn btn-primary float-right">
+                        <button type="submit" class="btn btn-primary float-right">
+                            <i class="fas fa-dollar-sign"></i> Pagar
+                        </button>
                     </div>
                 </form>
             </div>
