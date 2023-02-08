@@ -155,10 +155,6 @@ class PersonaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
                         if persona_titular:
                             persona.persona_titular = persona_titular
                             persona.save()
-                            persona.validate()
-                            persona.persona_titular.validate()
-                        else:
-                            persona.validate()
                         data['persona'] = persona.toJSON()
                 else:
                     data['error'] = form.errors
@@ -210,13 +206,11 @@ class PersonaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
                             persona.persona_titular = persona_titular
                             persona._change_reason = change_reason
                             persona.save()
-                            persona.validate()
                         else:
                             persona = form.save(commit=False)
                             persona.persona_titular = None
                             persona._change_reason = change_reason
                             persona.save()
-                            persona.validate()
                         messages.success(request, 'Persona actualizada correctamente.')
                 else:
                     data['error'] = form.errors

@@ -207,25 +207,18 @@
     <script src="{% static 'libs/inputmask/jquery.inputmask.js' %}"></script>
     <script>
         let selectFechaNacimiento = $('#id_fecha_nacimiento');
-        {% if action == 'add' %}
-            selectFechaNacimiento.datetimepicker({
-                "format": "DD/MM/YYYY",
-                "locale": "es-AR",
-                "date": null,
-                "minDate": "1900-01-01",
-                "maxDate": Date.now(),
-            });
-        {% elif action == 'edit' %}
-            let fecha_nacimiento = new Date('{{ object.get_fecha_nacimiento }}')
-            fecha_nacimiento.setMinutes(fecha_nacimiento.getMinutes() + fecha_nacimiento.getTimezoneOffset());
-            selectFechaNacimiento.datetimepicker({
-                "format": "DD/MM/YYYY",
-                "locale": "es-AR",
-                "date": fecha_nacimiento,
-                "minDate": "1900-01-01",
-                "maxDate": Date.now(),
-            });
-        {% endif %}
+        let fecha_nacimiento = new Date('{{ form.fecha_nacimiento.value }}')
+        if (fecha_nacimiento === 'Invalid Date') {
+            fecha_nacimiento = new Date();
+        }
+        fecha_nacimiento.setMinutes(fecha_nacimiento.getMinutes() + fecha_nacimiento.getTimezoneOffset());
+        selectFechaNacimiento.datetimepicker({
+            "format": "DD/MM/YYYY",
+            "locale": "es-AR",
+            "date": fecha_nacimiento,
+            "minDate": "1900-01-01",
+            "maxDate": Date.now(),
+        });
         $('#id_sexo').select2({
             theme: 'bootstrap4',
             placeholder: 'Seleccione un sexo',

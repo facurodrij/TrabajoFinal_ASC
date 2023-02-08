@@ -5,8 +5,8 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.exceptions import ValidationError
 from django.db import models, OperationalError
+from django.db.models.functions import Now
 from django.forms import model_to_dict
 from django.urls import reverse
 from django_softdelete.models import SoftDeleteModel
@@ -215,18 +215,6 @@ class Persona(SoftDeleteModel):
         """
         return [self.socio]
 
-    def save(self, *args, **kwargs):
-        """Método save() sobrescrito para redimensionar la imagen."""
-        super().save(*args, **kwargs)
-        try:
-            img = Image.open(self.imagen.path)
-            if img.height > 300 or img.width > 300:
-                output_size = (300, 300)
-                img.thumbnail(output_size)
-                img.save(self.imagen.path)
-        except FileNotFoundError:
-            pass
-
     def toJSON(self):
         """
         Devuelve un diccionario con los datos de la persona.
@@ -241,24 +229,17 @@ class Persona(SoftDeleteModel):
         item['__str__'] = self.__str__()
         return item
 
-    def validate(self):
-        """
-        Este método debe ejecutarse después de guardar el formulario.
-        """
-        edad_minima_titular = Parameters.objects.get(club=self.club).edad_minima_titular
-        if self.es_titular():
-            if self.get_edad() < edad_minima_titular:
-                raise ValidationError(
-                    'La persona al ser menor de {} años, debe tener una persona a cargo.'.format(edad_minima_titular))
-        else:
-            # No se puede seleccionar una persona_titular que no sea titular.
-            if not self.persona_titular.es_titular():
-                raise ValidationError('La persona a cargo seleccionada no es titular.')
-            # Si la persona no es titular, no puede tener personas a su cargo.
-            if self.persona_set.exists():
-                raise ValidationError('No se puede seleccionar una persona a cargo, porque {} ya tiene '
-                                      'personas a su cargo.'.format(self.get_full_name()))
-            self.persona_titular.validate()
+    def save(self, *args, **kwargs):
+        """Método save() sobrescrito para redimensionar la imagen."""
+        super().save(*args, **kwargs)
+        try:
+            img = Image.open(self.imagen.path)
+            if img.height > 300 or img.width > 300:
+                output_size = (300, 300)
+                img.thumbnail(output_size)
+                img.save(self.imagen.path)
+        except FileNotFoundError:
+            pass
 
     def clean(self):
         super(Persona, self).clean()
@@ -270,10 +251,6 @@ class Persona(SoftDeleteModel):
         # Cada palabra del nombre y apellido debe comenzar con mayúscula.
         self.nombre = self.nombre.title()
         self.apellido = self.apellido.title()
-
-        # Fecha de nacimiento no puede ser mayor a la fecha actual.
-        if self.fecha_nacimiento > datetime.now().date():
-            raise ValidationError('Fecha de nacimiento: La fecha de nacimiento no puede ser mayor a la fecha actual.')
 
     class Meta:
         verbose_name = 'Persona'
@@ -296,4 +273,9 @@ class Persona(SoftDeleteModel):
                                    name='persona_apellido_valido',
                                    violation_error_message='Apellido: El apellido solo puede contener letras y'
                                                            ' espacios.'),
+            # Validar la fecha de nacimiento.
+            models.CheckConstraint(check=models.Q(fecha_nacimiento__lte=Now()),
+                                   name='persona_fecha_nacimiento_valida',
+                                   violation_error_message='Fecha de nacimiento: La fecha de nacimiento no puede'
+                                                           ' ser mayor a la fecha actual.'),
         ]

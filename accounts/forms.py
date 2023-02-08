@@ -38,46 +38,12 @@ class PersonaAdminForm(forms.ModelForm):
                    'class': 'form-control',
                    'autocomplete': 'off',
                    }))
-    sexo = forms.Select(attrs={'class': 'form-control select2'})
     persona_titular = forms.ModelChoiceField(
         required=False,
         label='Persona a cargo',
+        help_text='Seleccione la persona a cargo.',
         queryset=Persona.objects.filter(persona_titular__isnull=True),
-        widget=forms.Select(attrs={'class': 'form-control select2'}))
-    nombre = forms.CharField(
-        max_length=100,
-        required=True,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'Ingrese el nombre',
-                   'class': 'form-control',
-                   'autocomplete': 'off',
-                   }))
-    apellido = forms.CharField(
-        max_length=100,
-        required=True,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'Ingrese el apellido',
-                   'class': 'form-control',
-                   'autocomplete': 'off',
-                   }))
-    fecha_nacimiento = forms.DateField(
-        required=True,
-        widget=forms.TextInput(
-            attrs={
-                'autocomplete': 'off',
-                'placeholder': 'Ingrese la fecha de nacimiento',
-                'class': 'form-control datetimepicker-input',
-                'data-toggle': 'datetimepicker',
-                'data-target': '#id_fecha_nacimiento',
-            }
-        ))
-    imagen = forms.ImageField(
-        required=True,
-        label='Foto carnet',
-        widget=forms.FileInput(attrs={'class': 'custom-file-input'}))
-    club = forms.ModelChoiceField(
-        queryset=Club.objects.all(),
-        widget=forms.HiddenInput())
+        widget=forms.Select())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -85,7 +51,24 @@ class PersonaAdminForm(forms.ModelForm):
 
     class Meta:
         model = Persona
-        fields = ['cuil', 'sexo', 'nombre', 'apellido', 'fecha_nacimiento', 'imagen', 'club']
+        fields = ['cuil', 'sexo', 'nombre', 'apellido', 'fecha_nacimiento', 'imagen', 'club', 'persona_titular']
+        widgets = {
+            'sexo': forms.Select(),
+            'nombre': forms.TextInput(attrs={'placeholder': 'Ingrese el nombre',
+                                             'class': 'form-control',
+                                             'autocomplete': 'off',
+                                             }),
+            'apellido': forms.TextInput(attrs={'placeholder': 'Ingrese el apellido',
+                                               'class': 'form-control',
+                                               'autocomplete': 'off',
+                                               }),
+            'fecha_nacimiento': forms.TextInput(attrs={'placeholder': 'Ingrese la fecha de nacimiento',
+                                                       'class': 'form-control',
+                                                       'autocomplete': 'off',
+                                                       }),
+            'imagen': forms.FileInput(attrs={'class': 'custom-file-input'}),
+            'club': forms.HiddenInput(),
+        }
 
 
 class LoginForm(AuthenticationForm):
