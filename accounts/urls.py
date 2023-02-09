@@ -1,7 +1,7 @@
 from django.contrib.auth import views
 from django.urls import path
 
-from .views import *
+from accounts.views import *
 
 urlpatterns = [
     path('signup/', SignUpView.as_view(), name='signup'),
@@ -18,11 +18,4 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done/', views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 
-    # URLs de persona (administración)
-    path('admin/personas/', lambda request: redirect('admin-persona-listado', permanent=True), name='admin-persona'),
-    path('admin/personas/listado/', PersonaAdminListView.as_view(), name='admin-persona-listado'),
-    path('admin/personas/crear/', PersonaAdminCreateView.as_view(), name='admin-persona-crear'),
-    # path('admin/club/personas/<int:pk>/', PersonaAdminDetailView.as_view(), name='admin-club-persona-detalle'),
-    path('admin/personas/<int:pk>/editar/', PersonaAdminUpdateView.as_view(), name='admin-persona-editar'),
-    path('admin/personas/comprobante/', persona_history_pdf, name='admin-persona-comprobante'),
 ]

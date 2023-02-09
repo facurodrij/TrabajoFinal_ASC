@@ -19,9 +19,9 @@ from weasyprint import HTML, CSS
 
 from accounts.decorators import admin_required
 from accounts.forms import *
-from core.models import Club
+from core.models import Club, Persona
 from socios.forms import SocioAdminForm, SocioParametersForm
-from socios.models import Socio
+from socios.models import Socio, Parameters
 
 
 class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):

@@ -2,7 +2,7 @@
 
 from django.db.models import Q
 
-from accounts.models import Persona
+from core.models import Persona
 from socios.models import Categoria
 
 
