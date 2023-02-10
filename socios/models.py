@@ -7,7 +7,6 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.forms import model_to_dict
 from django.urls import reverse
-from django.utils import timezone
 from django_softdelete.models import SoftDeleteModel
 from num2words import num2words
 from simple_history.models import HistoricalRecords
@@ -50,7 +49,7 @@ class Socio(SoftDeleteModel):
     """
     Modelo de socio.
     """
-    persona = models.OneToOneField('accounts.Persona', on_delete=models.PROTECT)
+    persona = models.OneToOneField('core.Persona', on_delete=models.PROTECT)
     user = models.OneToOneField('accounts.User', on_delete=models.PROTECT, null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
@@ -59,9 +58,17 @@ class Socio(SoftDeleteModel):
     def __str__(self):
         return self.persona.__str__()
 
+    def get_ID_display(self):
+        if self.persona.es_titular():
+            return self.pk
+        try:
+            return '{}-{}'.format(self.persona.persona_titular.socio.pk, self.pk)
+        except (AttributeError, ObjectDoesNotExist):
+            return self.pk
+
     def get_categoria(self):
         """
-        Devuelve la categoria del socio en base a su edad.
+        Devuelve la categoria del socio con base a su edad.
         """
         for categoria in Categoria.objects.all().order_by('edad_minima'):
             if categoria.edad_minima <= self.persona.get_edad() <= categoria.edad_maxima:
@@ -71,44 +78,12 @@ class Socio(SoftDeleteModel):
                 return categoria
         return None
 
-    def get_fecha_ingreso(self):
-        return self.date_created.strftime('%Y-%m-%d')
-
-    def get_estado(self):
-        return 'Activo' if self.is_deleted is False else 'Inactivo'
-
     def get_miembros(self):
         """
         Devuelve los socios miembros del titular.
         """
-        personas = self.persona.get_personas_dependientes().exclude(socio__is_deleted=True)
+        personas = self.persona.get_personas_dependientes().exclude(socio__is_deleted=True).exclude(socio__isnull=True)
         return [persona.socio for persona in personas]
-
-    def grupo_familiar(self):
-        """
-        Devuelve el grupo familiar del socio.
-        """
-        if self.persona.es_titular():
-            return [self] + self.get_miembros()
-        else:
-            try:
-                if not self.persona.persona_titular.socio.is_deleted:
-                    return [self.persona.persona_titular.socio] + self.persona.persona_titular.socio.get_miembros()
-                return [self]
-            except ObjectDoesNotExist:
-                return [self]
-
-    def get_cantidad_miembros(self):
-        return len(self.grupo_familiar())
-
-    def get_numero_ficha(self):
-        if self.persona.es_titular():
-            return self.pk
-        else:
-            if self.get_cantidad_miembros() > 1:
-                return '{}-{}'.format(self.persona.persona_titular.socio.pk, self.pk)
-            else:
-                return self.pk
 
     def get_user(self):
         try:
@@ -120,29 +95,6 @@ class Socio(SoftDeleteModel):
         if self.persona.es_titular():
             return self.get_miembros()
         return []
-
-    def get_antiguedad(self):
-        # Si supera el año, mostrar en años, si no en meses
-        if (datetime.now().year - self.date_created.year) > 0:
-            return '{} años'.format(datetime.now().year - self.date_created.year)
-        else:
-            return '{} meses'.format(datetime.now().month - self.date_created.month)
-
-    def delete(self, cascade=None, *args, **kwargs):
-        self.is_deleted = True
-        self.deleted_at = timezone.now()
-        self.save()
-        self.after_delete()
-        if cascade:
-            self.delete_related_objects()
-
-    def restore(self, cascade=None):
-        self.is_deleted = False
-        self.deleted_at = None
-        self.save()
-        self.after_restore()
-        if cascade:
-            self.restore_related_objects()
 
     def toJSON(self):
         item = model_to_dict(self)
@@ -236,7 +188,7 @@ class CuotaSocial(SoftDeleteModel):
         (12, 'Diciembre'),
     )
 
-    persona = models.ForeignKey('accounts.Persona', on_delete=models.PROTECT, verbose_name='Persona')
+    persona = models.ForeignKey('core.Persona', on_delete=models.PROTECT, verbose_name='Persona')
     fecha_emision = models.DateTimeField(default=datetime.now, verbose_name='Fecha de emisión')
     fecha_vencimiento = models.DateTimeField(verbose_name='Fecha de vencimiento', null=True, blank=True)
     periodo_mes = models.PositiveSmallIntegerField(verbose_name='Meses', choices=MESES)

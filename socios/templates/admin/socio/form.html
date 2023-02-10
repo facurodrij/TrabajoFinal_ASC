@@ -42,85 +42,76 @@
 
 {% block content %}
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <form method="post" enctype="multipart/form-data" id="formSocio" class="form-horizontal">
-                    {% csrf_token %}
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-12 col-md-6">
-                                    <h4>Datos Personales</h4>
-                                    <hr>
-                                    {% if action == 'add' %}
-                                        <div class="input-group mb-3">
-                                            {{ form.persona }}
-                                            <div class="input-group-append">
-                                                <span class="input-group-text">
-                                                    <a href="{% url 'admin-persona-crear' %}?next={{ request.path }}">
-                                                        <i class="fas fa-user-plus"></i>
-                                                    </a>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    {% else %}
-                                        {{ form.persona }}
-                                    {% endif %}
-                                    <ul id="list-data" class="list-group">
-                                    </ul>
+        <div class="card">
+            <form method="post" enctype="multipart/form-data" id="formSocio" class="form-horizontal">
+                {% csrf_token %}
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <h4>Datos Personales</h4>
+                            <hr>
+                            {% if action == 'add' %}
+                                <div class="input-group">
+                                    {{ form.persona }}
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">
+                                            <a href="{% url 'admin-persona-crear' %}?next={{ request.path }}">
+                                                <i class="fas fa-user-plus"></i>
+                                            </a>
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="col-12 col-md-6">
-                                    <h4>Datos del socio</h4>
-                                    <hr>
-                                    {% if object.get_user %}
-                                        <label for="id_user">{{ form.user.label }}</label>
-                                        <div class="input-group">
-                                            {{ form.user }}
-                                            <div class="input-group-append">
+                                <small class="text-muted">
+                                        {{ form.persona.help_text }}
+                                    </small>
+                            {% else %}
+                                {{ form.persona }}
+                            {% endif %}
+                            <ul id="list-data" class="list-group">
+                            </ul>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <h4>Datos del socio</h4>
+                            <hr>
+                            {% if object.get_user %}
+                                <label for="id_user">{{ form.user.label }}</label>
+                                <div class="input-group">
+                                    {{ form.user }}
+                                    <div class="input-group-append">
                                                 <span class="input-group-text">
                                                     <a href="{% url 'admin:accounts_user_change' object.user.pk %}">
                                                         <i class="fas fa-user-pen"></i>
                                                     </a>
                                                 </span>
-                                            </div>
-                                        </div>
-                                    {% else %}
-                                        <div class="form-group">
-                                            <label for="id_email">{{ form.email.label }}</label>
-                                            {{ form.email }}
-                                        </div>
-                                    {% endif %}
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn btn-primary float-right" type="submit">
-                                <i class="fa fa-save"></i> Guardar
-                            </button>
+                            {% else %}
+                                <div class="form-group">
+                                    <label for="id_email">{{ form.email.label }}</label>
+                                    {{ form.email }}
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
-                </form>
-            </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary float-right" type="submit">
+                        <i class="fa fa-save"></i> Guardar
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 {% endblock content %}
 {% block body_js %}
     <script>
         let selectPersona = $('#id_persona');
-        let inputFechaIngreso = $('#id_fecha_ingreso');
         {% if action == 'add' %}
             selectPersona.select2({
                 theme: 'bootstrap4',
                 allowClear: true,
                 placeholder: 'Seleccione una persona',
                 language: 'es'
-            });
-            inputFechaIngreso.datetimepicker({
-                "format": "DD/MM/YYYY",
-                "locale": "es-AR",
-                "date": null,
-                "minDate": "01/01/1900",
-                "maxDate": Date.now(),
             });
             selectPersona.on('change', function (e) {
                 let listDataPersona = $('#list-data');
@@ -137,7 +128,7 @@
                         success: function (data) {
                             if (!data.hasOwnProperty('error')) {
                                 let persona = data['persona'];
-                                listDataPersona.append('<li class="list-group-item list-group-item-secondary"><h5 class="m-0">Datos de la persona seleccionada</h5></li>');
+                                listDataPersona.append('<li class="list-group-item list-group-item-secondary"><h5 class="m-0">Datos de la persona</h5></li>');
                                 listDataPersona.append('<li class="list-group-item"><b>CUIL:</b> ' + persona['cuil'] + '</li>');
                                 listDataPersona.append('<li class="list-group-item"><b>Nombre:</b> ' + persona['nombre'] + '</li>');
                                 listDataPersona.append('<li class="list-group-item"><b>Apellido:</b> ' + persona['apellido'] + '</li>');
@@ -152,18 +143,13 @@
                     });
                 }
             });
+            {% if form.persona.value %}
+                selectPersona.trigger('change');
+            {% endif %}
         {% elif action == 'edit' %}
-            let fecha_ingreso = new Date('{{ object.get_fecha_ingreso }}')
-            fecha_ingreso.setMinutes(fecha_ingreso.getMinutes() + fecha_ingreso.getTimezoneOffset());
-            inputFechaIngreso.datetimepicker({
-                "format": "DD/MM/YYYY",
-                "date": fecha_ingreso,
-                "minDate": "01/01/1900",
-                "maxDate": Date.now(),
-            });
             let listDataPersona = $('#list-data');
             listDataPersona.empty();
-            listDataPersona.append('<li class="list-group-item list-group-item-secondary"><h5 class="m-0">Datos de la persona seleccionada</h5></li>');
+            listDataPersona.append('<li class="list-group-item list-group-item-secondary"><h5 class="m-0">Datos de la persona</h5></li>');
             listDataPersona.append('<li class="list-group-item"><b>CUIL:</b> {{ object.persona.cuil_completo }}</li>');
             listDataPersona.append('<li class="list-group-item"><b>Nombre:</b> {{ object.persona.nombre }}</li>');
             listDataPersona.append('<li class="list-group-item"><b>Apellido:</b> {{ object.persona.apellido }}</li>');

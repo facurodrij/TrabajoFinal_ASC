@@ -51,11 +51,24 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
         context = super().get_context_data(**kwargs)
         context['title'] = 'Nuevo Socio'
         context['action'] = 'add'
+        context['persona_id'] = self.request.GET.get('persona_id')
         return context
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        form.fields['persona'].queryset = Persona.objects.filter(socio__isnull=True)
+        persona_id = self.request.GET.get('persona_id')
+        # Si no existe la persona se inicializa el campo persona con filter(socio__isnull=True)
+        if persona_id:
+            # Si la persona existe pero ya tiene un socio se inicializa el campo persona con filter(socio__isnull=True)
+            if Persona.objects.filter(pk=persona_id).exists():
+                persona = Persona.objects.get(pk=persona_id)
+                if persona.get_socio(global_objects=True):
+                    form.fields['persona'].queryset = Persona.objects.filter(socio__isnull=True)
+                else:
+                    form.fields['persona'].queryset = Persona.objects.filter(pk=persona_id)
+                    form.fields['persona'].initial = persona
+        else:
+            form.fields['persona'].queryset = Persona.objects.filter(socio__isnull=True)
         return form
 
     def post(self, request, *args, **kwargs):
@@ -332,10 +345,7 @@ def socio_admin_ajax(request):
         if action == 'get_persona':
             # Si la acción es get_persona, se obtiene la persona
             try:
-                try:
-                    persona = Persona.global_objects.get(dni=request.GET['dni'])
-                except KeyError:
-                    persona = Persona.global_objects.get(pk=request.GET['id'])
+                persona = Persona.global_objects.get(pk=request.GET['id'])
                 if persona.is_deleted:
                     data = {'persona_is_deleted': persona.toJSON()}
                 elif persona.get_socio(global_objects=True):

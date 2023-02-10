@@ -303,7 +303,7 @@
         {% endif %}
         {% if action == 'edit' %}
             // Obtener el nombre del archivo de la imagen
-            const imagen = "{{ persona.get_imagen | default_if_none:'' }}";
+            const imagen = "{{ object.get_imagen | default_if_none:'' }}";
             const filename = imagen.split('\\').pop().split('/').pop();
 
             $('#id_imagen').val('').next().html('<span class="text-muted"> ' + filename + '</span>');
@@ -313,7 +313,6 @@
         $('#formPersona').on('submit', function (e) {
             e.preventDefault();
             // Obtener el atributo name del botón que se presionó
-            const name_submit = $(document.activeElement).attr('name');
             let form = new FormData(this);
             if (!validarCUIL(form.get('cuil'))) { // Validar el CUIL/CUIT
                 Swal.fire({
@@ -345,36 +344,18 @@
                                 title: 'Persona agregada',
                                 text: 'La persona se agregó correctamente',
                                 icon: 'success',
-                                confirmButtonText: 'Imprimir comprobante de operación',
+                                confirmButtonText: 'Agregar socio',
                                 showCancelButton: true,
-                                cancelButtonText: 'Continuar',
+                                cancelButtonText: 'Cerrar',
                             }).then((result) => {
                                 if (result.isConfirmed) {
-                                    window.open('{% url 'admin-persona-comprobante' %}?action=print&persona_id=' + data['persona']['id'] + '', '_blank');
-                                }
-                                if (name_submit === '_save') {
+                                    window.location.href = '{% url 'admin-socio-crear' %}?persona_id=' + data['persona']['id'] + '';
+                                } else {
                                     window.location.href = '{% url 'admin-persona-listado' %}';
-                                } else if (name_submit === '_addsocio') {
-                                    window.location.href = '{% url 'admin-socio-crear' %}';
                                 }
                             });
                         {% elif action == 'edit' %}
-                            Swal.fire({
-                                position: 'top-end',
-                                title: 'Persona editada',
-                                text: 'La persona se editó correctamente',
-                                icon: 'success',
-                                timer: 3000,
-                                timerProgressBar: true,
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    if (name_submit === '_save') {
-                                        window.location.href = '{% url 'admin-persona-listado' %}';
-                                    } else if (name_submit === '_addsocio') {
-                                        window.location.href = '{% url 'admin-socio-crear' %}';
-                                    }
-                                }
-                            });
+                            window.location.href = '{% url 'admin-persona-listado' %}';
                         {% endif %}
                     } else {
                         let errors = []
