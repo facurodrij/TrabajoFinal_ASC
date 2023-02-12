@@ -163,6 +163,8 @@ class Reserva(SoftDeleteModel):
 
     def get_ESTADO_PAGO_display(self):
         """Método para mostrar el estado del pago."""
+        if self.forma_pago == 1 and self.asistencia:
+            return 'Aprobado'
         try:
             pago = PagoReserva.objects.get(reserva=self)
             if pago.status == 'approved':
