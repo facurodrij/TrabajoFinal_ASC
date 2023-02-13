@@ -24,8 +24,7 @@
                         <table id="dataTable" class="table table-bordered table-striped">
                             <thead>
                             <tr>
-                                <th scope="col" style="">#</th>
-                                <th scope="col" style="">Ficha</th>
+                                <th scope="col" style="">N° Ficha</th>
                                 <th scope="col" style="">CUIL</th>
                                 <th scope="col" style="">Nombre completo</th>
                                 <th scope="col" style="">Edad</th>
@@ -37,14 +36,13 @@
                             <tbody>
                             {% for socio in socios %}
                                 <tr>
-                                    <td>{{ socio.pk }}</td>
-                                    <td>{{ socio.get_numero_ficha }}</td>
+                                    <td>{{ socio.get_ID_display }}</td>
                                     <td>{{ socio.persona.cuil_completo }}</td>
                                     <td>{{ socio.persona.get_full_name }}</td>
                                     <td>{{ socio.persona.get_edad }}</td>
                                     <td>{{ socio.get_categoria }}</td>
                                     {% if not socio.is_deleted %}
-                                        <td><span class="badge badge-success">{{ socio.get_estado }}</span></td>
+                                        <td><span class="badge badge-success">{{ socio.get_ESTADO_display }}</span></td>
                                         <td>
                                             <a href="{% url 'admin-socio-detalle' socio.pk %}"
                                                class="btn btn-info btn-sm">
@@ -60,7 +58,7 @@
                                             </a>
                                         </td>
                                     {% else %}
-                                        <td><span class="badge badge-danger">{{ socio.get_estado }}</span></td>
+                                        <td><span class="badge badge-danger">{{ socio.get_ESTADO_display }}</span></td>
                                         <td>
                                             <a href="{% url 'admin-socio-detalle' socio.pk %}"
                                                class="btn btn-info btn-sm">
@@ -73,8 +71,7 @@
                             </tbody>
                             <tfoot>
                             <tr>
-                                <th scope="col" style="">#</th>
-                                <th scope="col" style="">Ficha</th>
+                                <th scope="col" style="">N° Ficha</th>
                                 <th scope="col" style="">CUIL</th>
                                 <th scope="col" style="">Nombre completo</th>
                                 <th scope="col" style="">Edad</th>

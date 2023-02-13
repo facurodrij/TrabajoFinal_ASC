@@ -66,6 +66,11 @@ class Socio(SoftDeleteModel):
         except (AttributeError, ObjectDoesNotExist):
             return self.pk
 
+    def get_ESTADO_display(self):
+        if self.is_deleted:
+            return 'Inactivo'
+        return 'Activo'
+
     def get_categoria(self):
         """
         Devuelve la categoria del socio con base a su edad.

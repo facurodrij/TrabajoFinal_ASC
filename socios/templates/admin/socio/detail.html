@@ -107,10 +107,9 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                     <h5>Información de Socio</h5>
                                     <ul class="list-group mb-1">
                                         <li class="list-group-item"><b>Categoria: </b>{{ socio.get_categoria }}</li>
-                                        <li class="list-group-item"><b>Antigüedad: </b>{{ socio.get_antiguedad }}
-                                            ({{ socio.date_created }})
+                                        <li class="list-group-item"><b>Fecha de creación: </b>{{ socio.date_created }}
                                         </li>
-                                        <li class="list-group-item"><b>Estado de socio: </b>{{ socio.get_estado }}</li>
+                                        <li class="list-group-item"><b>Estado de socio: </b>{{ socio.get_ESTADO_display }}</li>
                                         {% if socio.user %}
                                             <li class="list-group-item"><b>Email: </b>{{ socio.user.email }}</li>
                                             <li class="list-group-item">
@@ -134,11 +133,6 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                     </a>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card-footer">
-                            <a href="{% url 'admin-socio-listado' %}" class="btn btn-secondary float-right">
-                                <i class="fa-solid fa-rotate-left"></i> Volver
-                            </a>
                         </div>
                     </div>
                 </div>
