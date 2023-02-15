@@ -32,7 +32,6 @@ class PersonaAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView
 
 class PersonaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """ Vista para la creación de personas """
-    # TODO: Generar comprobante de operación
     model = Persona
     form_class = PersonaAdminForm
     template_name = 'admin/persona/form.html'
@@ -80,7 +79,6 @@ class PersonaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
 
 class PersonaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """ Vista para la actualización de personas """
-    # TODO: Generar comprobante de operación
     # TODO: Si la persona esta eliminada, redirigir a su detalle
     model = Persona
     form_class = PersonaAdminForm
@@ -132,29 +130,6 @@ class PersonaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Update
             data['error'] = e.args[0]
         print(data)
         return JsonResponse(data)
-
-
-@login_required
-@admin_required
-def persona_history_pdf(request):
-    """ Vista para generar el pdf de la historia de una persona """
-    if request.method == 'GET':
-        action = request.GET['action']
-        if action == 'print':
-            try:
-                persona_id = request.GET['persona_id']
-                persona = Persona.global_objects.get(pk=persona_id)
-                html_string = render_to_string('admin/persona/comprobante.html', {'persona': persona})
-                html = HTML(string=html_string, base_url=request.build_absolute_uri())
-                html.write_pdf(target='/tmp/personas.pdf')
-                fs = FileSystemStorage('/tmp')
-                with fs.open('personas.pdf') as pdf:
-                    response = HttpResponse(pdf, content_type='application/pdf')
-                    response['Content-Disposition'] = 'inline; filename="personas.pdf"'
-                    return response
-            except Exception as e:
-                print(e.args[0])
-                return HttpResponse('Error al generar el PDF')
 
 # TODO: PersonaAdminDetailView
 # TODO: PersonaAdminDeleteView

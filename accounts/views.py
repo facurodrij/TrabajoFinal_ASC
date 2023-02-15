@@ -120,9 +120,6 @@ class ProfileUserView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-# Vista para que el usuario cambie email. Si el email es válido se desactiva la cuenta y se
-# envía un correo para que se active nuevamente.
-
 class ChangeEmailView(LoginRequiredMixin, UpdateView):
     """ Vista para cambiar el email de usuario """
     model = User

@@ -57,7 +57,6 @@ class ReservaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
                 if form.is_valid():
                     with transaction.atomic():
                         form.save()
-                        # TODO: Enviar correo con el link de pago.
                 else:
                     data['error'] = form.errors
             else:

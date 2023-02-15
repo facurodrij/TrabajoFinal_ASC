@@ -230,7 +230,7 @@ class VentaTicketUserPaymentView(TemplateView):
             return redirect('index')
         if venta_ticket.pagado:
             messages.error(request, 'El pago del ticket ya se encuentra realizado.')
-            return redirect('index')  # TODO: Redireccionar a la página de tickets
+            return redirect('index')
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
