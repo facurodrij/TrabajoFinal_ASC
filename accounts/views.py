@@ -118,3 +118,49 @@ class ProfileUserView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         messages.success(self.request, 'Usuario actualizado correctamente.')
         return super().form_valid(form)
+
+
+# Vista para que el usuario cambie email. Si el email es válido se desactiva la cuenta y se
+# envía un correo para que se active nuevamente.
+
+class ChangeEmailView(LoginRequiredMixin, UpdateView):
+    """ Vista para cambiar el email de usuario """
+    model = User
+    template_name = 'user/change_email.html'
+    form_class = ChangeEmailForm
+    success_url = reverse_lazy('user-perfil')
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_initial(self):
+        return {'email': ''}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Cambiar Email'
+        context['club_logo'] = Club.objects.get(pk=1).get_imagen()
+        return context
+
+    def form_valid(self, form):
+        with transaction.atomic():
+            user = form.save(commit=False)
+            user.is_active = False
+            user.save()
+            current_site = get_current_site(self.request)
+            mail_subject = 'Active su cuenta.'
+            message = render_to_string('registration/activate_account_email.html', {
+                'user': user,
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': account_activation_token.make_token(user),
+                'protocol': 'https' if self.request.is_secure() else 'http',
+                'club': Club.objects.first(),
+            })
+            to_email = user.email
+            email = EmailMessage(
+                mail_subject, message, to=[to_email]
+            )
+            email.send()
+        messages.success(self.request, 'Se ha enviado un email a su casilla para que active su cuenta.')
+        return redirect('login')

@@ -117,7 +117,7 @@ class ProfileForm(forms.ModelForm):
         strip=False,
         widget=forms.PasswordInput(attrs={"autocomplete": "current-password",
                                           'class': 'form-control',
-                                          'placeholder': 'Contraseña'})
+                                          'placeholder': 'Contraseña actual'})
     )
 
     def __init__(self, *args, **kwargs):
@@ -143,4 +143,37 @@ class ProfileForm(forms.ModelForm):
                                                'autocomplete': 'off',
                                                }),
             'notificaciones': forms.CheckboxInput(),
+        }
+
+
+class ChangeEmailForm(forms.ModelForm):
+    """
+    Formulario para el cambio de email de usuarios.
+    """
+    password = forms.CharField(
+        label=_("Password"),
+        strip=False,
+        widget=forms.PasswordInput(attrs={"autocomplete": "current-password",
+                                          'class': 'form-control',
+                                          'placeholder': 'Contraseña actual'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs['autofocus'] = True
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        if not self.instance.check_password(password):
+            raise forms.ValidationError('Contraseña incorrecta')
+        pass
+
+    class Meta:
+        model = User
+        fields = ('email',)
+        widgets = {
+            'email': forms.EmailInput(attrs={'placeholder': 'Ingrese su nuevo email',
+                                             'class': 'form-control',
+                                             'autocomplete': 'off',
+                                             }),
         }
