@@ -58,29 +58,6 @@ class SignUpForm(UserCreationForm):
     """
     Formulario para el registro de usuarios.
     """
-    email = forms.EmailField(
-        max_length=100,
-        required=True,
-        widget=forms.EmailInput(attrs={'placeholder': 'Ingrese su email',
-                                       'class': 'form-control',
-                                       'autocomplete': 'off',
-                                       }))
-    nombre = forms.CharField(
-        max_length=100,
-        required=True,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'Ingrese su nombre',
-                   'class': 'form-control',
-                   'autocomplete': 'off',
-                   }))
-    apellido = forms.CharField(
-        max_length=100,
-        required=True,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'Ingrese su apellido',
-                   'class': 'form-control',
-                   'autocomplete': 'off',
-                   }))
     password1 = forms.CharField(
         label=_("Password"),
         strip=False,
@@ -115,6 +92,18 @@ class SignUpForm(UserCreationForm):
         fields = ('email', 'nombre', 'apellido', 'notificaciones')
         field_classes = {'email': UsernameField}
         widgets = {
+            'email': forms.EmailInput(attrs={'placeholder': 'Ingrese su email',
+                                             'class': 'form-control',
+                                             'autocomplete': 'off',
+                                             }),
+            'nombre': forms.TextInput(attrs={'placeholder': 'Ingrese su nombre',
+                                             'class': 'form-control',
+                                             'autocomplete': 'off',
+                                             }),
+            'apellido': forms.TextInput(attrs={'placeholder': 'Ingrese su apellido',
+                                               'class': 'form-control',
+                                               'autocomplete': 'off',
+                                               }),
             'notificaciones': forms.CheckboxInput(),
         }
 
@@ -123,29 +112,6 @@ class ProfileForm(forms.ModelForm):
     """
     Formulario para el perfil de usuarios.
     """
-    email = forms.EmailField(
-        max_length=100,
-        required=True,
-        widget=forms.EmailInput(attrs={'placeholder': 'Ingrese su email',
-                                       'class': 'form-control',
-                                       'autocomplete': 'off',
-                                       }))
-    nombre = forms.CharField(
-        max_length=100,
-        required=True,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'Ingrese su nombre',
-                   'class': 'form-control',
-                   'autocomplete': 'off',
-                   }))
-    apellido = forms.CharField(
-        max_length=100,
-        required=True,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'Ingrese su apellido',
-                   'class': 'form-control',
-                   'autocomplete': 'off',
-                   }))
     password = forms.CharField(
         label=_("Password"),
         strip=False,
@@ -166,9 +132,15 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = User
-        exclude = ['password', 'last_login', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'groups',
-                   'user_permissions']
-        field_classes = {'email': UsernameField}
+        fields = ('nombre', 'apellido', 'notificaciones')
         widgets = {
+            'nombre': forms.TextInput(attrs={'placeholder': 'Ingrese su nombre',
+                                             'class': 'form-control',
+                                             'autocomplete': 'off',
+                                             }),
+            'apellido': forms.TextInput(attrs={'placeholder': 'Ingrese su apellido',
+                                               'class': 'form-control',
+                                               'autocomplete': 'off',
+                                               }),
             'notificaciones': forms.CheckboxInput(),
         }

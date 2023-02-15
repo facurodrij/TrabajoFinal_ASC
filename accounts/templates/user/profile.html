@@ -14,6 +14,11 @@
                 text-align: right;
             }
         }
+
+        .modal-backdrop-carnet {
+            opacity: 0.9 !important;
+            z-index: -1;
+        }
     </style>
 {% endblock %}
 
@@ -23,11 +28,25 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header bg-primary">
-                        <h3 class="card-title">{{ title }}</h3>
+                        <h3 class="card-title">
+                            <i class="fas fa-user pr-2"></i>{{ title }}
+                        </h3>
                     </div>
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col-sm-7 offset-sm-3">
+                                    <h5>¿Cómo quieres que te llamemos?</h5>
+                                    <span>
+                                        El nombre que ingreses será el que se muestre en el sitio web, en las
+                                        notificaciones y en los comprobantes de pago de reservas y compra de entradas.
+                                        <br>
+                                        Todo lo relacionado al perfil de socio (Cuotas, Carnet, etc) se mostrará
+                                        con el nombre y apellido que figura en su CUIL.
+                                    </span>
+                                </div>
+                            </div>
                             <div class="form-group row">
                                 <label for="id_nombre" class="col-form-label col-md-3 col-sm-3 label-align">
                                     {{ form.nombre.label }} <span class="text-danger">*</span></label>
@@ -43,10 +62,20 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="id_apellido" class="col-form-label col-md-3 col-sm-3 label-align">
-                                    {{ form.email.label }} <span class="text-danger">*</span></label>
+                                <label for="id_email" class="col-form-label col-md-3 col-sm-3 label-align">
+                                    Email</label>
                                 <div class="col-sm-7">
-                                    {{ form.email }}
+                                    <div class="input-group">
+                                        <input id="id_email" type="email" value="{{ user.email }}"
+                                               class="form-control" disabled>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">
+                                                <a href="#">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -97,10 +126,109 @@
                 </div>
             </div>
         </div>
+        {% if socio %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-primary">
+                            <h3 class="card-title">
+                                <i class="fas fa-id-card pr-2"></i>
+                                Perfil de Socio</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-5 col-md-12">
+                                    <div class="d-flex flex-column align-items-center mb-3">
+                                        <img class="rounded-circle mt-3"
+                                             src="{{ socio.persona.get_imagen }}" alt=""
+                                             style="max-width: 200px; max-height: 200px">
+                                    </div>
+                                    <div class="d-flex flex-column align-items-center mb-3">
+                                        <a id="btn-print" href="">
+                                            <div id="socio_carnet" class="card" style="width: 8.56cm; height: 5.398cm; background: rgb(254,255,0);
+            background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rgba(9,39,121,1) 100%);">
+                                                <div class="card-body">
+                                                    <div class="row" style="height: 40%">
+                                                        <h4 style="color: yellow">Club Atlético Bartolomé Mitre</h4>
+                                                        <h5 style="color: white">
+                                                            <strong>{{ socio.persona.apellido }}, {{ socio.persona.nombre }}</strong>
+                                                        </h5>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-3">
+                                                            <img src="{{ socio.persona.get_imagen }}" alt=""
+                                                                 style="max-width: 85px; max-height: 85px">
+                                                        </div>
+                                                        <div class="col-9 p-0">
+                                                            <ul style="list-style: none;">
+                                                                <li style="color: yellow"><strong>Socio
+                                                                    N°: {{ socio.pk }}</strong></li>
+                                                                <li style="color: white">
+                                                                    <strong>CUIL: {{ socio.persona.cuil_completo }}</strong>
+                                                                </li>
+                                                                <li class="text-right"><img
+                                                                        src="{{ socio.persona.club.get_imagen }}"
+                                                                        alt="Logo Club"
+                                                                        style="max-width: 60px">
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-lg-7 col-md-12">
+                                    <h5>Información Personal</h5>
+                                    <ul class="list-group mb-1">
+                                        <li class="list-group-item">
+                                            <b>CUIL: </b>{{ socio.persona.cuil_completo }}</li>
+                                        <li class="list-group-item"><b>Nombre
+                                            completo: </b>{{ socio.persona.get_full_name }}</li>
+                                        <li class="list-group-item"><b>Sexo: </b>{{ socio.persona.sexo }}</li>
+                                        <li class="list-group-item"><b>Edad: </b>{{ socio.persona.get_edad }}
+                                            ({{ socio.persona.fecha_nacimiento }})
+                                        </li>
+                                        <li class="list-group-item"><b>Categoría: </b>{{ socio.get_categoria }}
+                                        </li>
+                                        {% if not socio.persona.es_titular %}
+                                            <li class="list-group-item"><b>Persona a cargo: </b>
+                                                {{ socio.persona.persona_titular }}<br>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        {% endif %}
     </div>
 {% endblock content %}
 
 {% block body_js %}
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        $('#btn-print').on('click', function (e) {
+            e.preventDefault();
+            html2canvas(document.querySelector("#socio_carnet"), {allowTaint: true}).then(canvas => {
+                // Abrir una nueva ventana con el canvas
+                let win = window.open();
+                // Cambiar el fondo de win a negro
+                win.document.body.style.backgroundColor = "black";
+                win.document.body.appendChild(canvas);
+                // Canvas con posición absoluta, top: 50% y left: 50% para centrarlo
+                canvas.style.position = "absolute";
+                canvas.style.top = "50%";
+                canvas.style.left = "50%";
+                // Transformar el canvas para centrarlo
+                canvas.style.transform = "translate(-50%, -50%)";
+            });
+        });
+    </script>
     {% if form.errors %}
         <script type="text/javascript">
             let errors = []

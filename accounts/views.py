@@ -112,6 +112,7 @@ class ProfileUserView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Perfil de Usuario'
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
+        context['socio'] = self.object.get_socio() if self.object.get_socio() else None
         return context
 
     def form_valid(self, form):

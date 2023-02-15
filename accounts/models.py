@@ -52,8 +52,8 @@ class User(AbstractUser):
     username = None
     first_name = None
     last_name = None
-    nombre = models.CharField(max_length=255, verbose_name='Nombre')
-    apellido = models.CharField(max_length=255, verbose_name='Apellido')
+    nombre = models.CharField(max_length=255, verbose_name='Nombre elegido')
+    apellido = models.CharField(max_length=255, verbose_name='Apellido elegido')
     notificaciones = models.BooleanField(default=False, verbose_name='Notificaciones',
                                          help_text='Recibir notificaciones por email sobre eventos, '
                                                    'canchas liberadas, entre otros.')

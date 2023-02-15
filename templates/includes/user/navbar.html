@@ -9,7 +9,8 @@
                     <button id="btnGroupDrop1" type="button"
                             class="nav-link btn btn-outline-primary dropdown-toggle"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-user pr-2"></i> {{ user }}
+                        <i class="fas fa-user pr-2"></i>
+                        <span class="d-none d-sm-inline">{{ user }}</span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="btnGroupDrop1">
                         {% if user.is_admin %}
@@ -18,13 +19,8 @@
                             </a>
                         {% endif %}
                         <a class="dropdown-item" href="{% url 'user-perfil' %}">
-                            <i class="fas fa-circle-user pr-2"></i> Mi perfil de usuario
+                            <i class="fas fa-circle-user pr-2"></i> Mi perfil
                         </a>
-                        {% if user.get_socio %}
-                            <a class="dropdown-item" href="{% url 'socio-perfil' %}">
-                                <i class="fas fa-id-card pr-2"></i> Mi perfil de socio
-                            </a>
-                        {% endif %}
                         <a class="dropdown-item" href="{% url 'venta-ticket-listado' %}">
                             <i class="fas fa-ticket pr-2"></i> Mis pedidos
                         </a>
