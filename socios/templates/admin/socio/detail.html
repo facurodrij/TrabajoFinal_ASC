@@ -109,7 +109,8 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                         <li class="list-group-item"><b>Categoria: </b>{{ socio.get_categoria }}</li>
                                         <li class="list-group-item"><b>Fecha de creación: </b>{{ socio.date_created }}
                                         </li>
-                                        <li class="list-group-item"><b>Estado de socio: </b>{{ socio.get_ESTADO_display }}</li>
+                                        <li class="list-group-item"><b>Estado de
+                                            socio: </b>{{ socio.get_ESTADO_display }}</li>
                                         {% if socio.user %}
                                             <li class="list-group-item"><b>Email: </b>{{ socio.user.email }}</li>
                                             <li class="list-group-item">
@@ -137,7 +138,7 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                     </div>
                 </div>
             </div>
-            {% if socio.get_cantidad_miembros > 1 %}
+            {% if socio.grupo_familiar %}
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
@@ -150,10 +151,37 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                 </div>
                             </div>
                             <div class="card-body">
+                                <h5>Información del Titular del Grupo Familiar</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                        <tr class="table-primary">
+                                            <th scope="col">CUIL</th>
+                                            <th scope="col">Nombre completo</th>
+                                            <th scope="col">Edad</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            {% if socio.persona.es_titular %}
+                                                <td>{{ socio.persona.cuil_completo }}</td>
+                                                <td>{{ socio.persona.get_full_name }}</td>
+                                                <td>{{ socio.persona.get_edad }}</td>
+                                            {% else %}
+                                                <td>{{ socio.persona.persona_titular.cuil_completo }}</td>
+                                                <td>{{ socio.persona.persona_titular.get_full_name }}</td>
+                                                <td>{{ socio.persona.persona_titular.get_edad }}</td>
+                                            {% endif %}
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <hr>
+                                <h5>Socios Miembros del Grupo Familiar</h5>
                                 <table id="dataTable" class="table table-bordered table-striped">
                                     <thead>
-                                    <tr>
-                                        <th scope="col" style="">#</th>
+                                    <tr class="table-primary">
+                                        <th scope="col" style="">N° Ficha</th>
                                         <th scope="col" style="">CUIL</th>
                                         <th scope="col" style="">Nombre completo</th>
                                         <th scope="col" style="">Edad</th>
@@ -162,9 +190,9 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for miembro in grupo_familiar %}
+                                    {% for miembro in socio.grupo_familiar %}
                                         <tr>
-                                            <td>{{ miembro.pk }}</td>
+                                            <td>{{ miembro.get_ID_display }}</td>
                                             <td>{{ miembro.persona.cuil_completo }}</td>
                                             <td>{{ miembro.persona.get_full_name }}</td>
                                             <td>{{ miembro.persona.get_edad }}</td>
@@ -196,8 +224,8 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                                     {% endfor %}
                                     </tbody>
                                     <tfoot>
-                                    <tr>
-                                        <th scope="col" style="">#</th>
+                                    <tr class="table-primary">
+                                        <th scope="col" style="">N° Ficha</th>
                                         <th scope="col" style="">CUIL</th>
                                         <th scope="col" style="">Nombre completo</th>
                                         <th scope="col" style="">Edad</th>
@@ -301,52 +329,17 @@ background: linear-gradient(0deg, rgba(254,255,0,1) 0%, rgba(9,15,121,1) 75%, rg
                 },
                 "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
             },
-            dom: 'Bfrtip',
             columnDefs: [ // Quitarle estilos a la ultima columna
                 {"orderable": false, "targets": -1}
             ],
             responsive: true,
             order: [[0, 'desc']],
             autoWidth: false,
-            buttons: [
-                {
-                    extend: 'print',
-                    text: '<i class="fa-solid fa-print"></i> Imprimir',
-                    titleAttr: 'Imprimir',
-                    className: 'btn btn-info btn-sm border',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5]
-                    }
-                },
-                {
-                    extend: 'colvis',
-                    text: '<i class="fa-solid fa-eye"></i> Ver columnas',
-                    titleAttr: 'Ver columnas',
-                    className: 'btn btn-secondary btn-sm border',
-                    columns: ':gt(0)',
-                    postfixButtons: ['colvisRestore']
-                },
-                {
-                    extend: 'searchPanes',
-                    text: '<i class="fa-solid fa-filter"></i> Filtros',
-                    className: 'btn btn-secondary btn-sm border',
-                    config: {
-                        cascadePanes: true,
-                        viewTotal: true,
-                        layout: 'columns-3',
-                        columns: [1, 2, 3, 4, 5],
-                    }
-                },
-                {
-                    extend: 'pageLength',
-                    className: 'btn btn-secondary btn-sm border',
-                }
-            ],
             // La fila que tiene el mismo id igual 2, fondo success
             rowId: 'id',
             rowCallback: function (row, data, index) {
                 if (data[0] === '{{ object.pk }}') {
-                    $(row).addClass('table-success');
+                    $(row).addClass('table-active');
                 }
             },
         });

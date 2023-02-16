@@ -143,7 +143,6 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Detalle de Socio'
-        context['grupo_familiar'] = self.object.grupo_familiar()
         return context
 
     def get_object(self, queryset=None):

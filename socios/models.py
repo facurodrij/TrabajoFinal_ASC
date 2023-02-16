@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.forms import model_to_dict
+from django.utils import timezone
 from django.urls import reverse
 from django_softdelete.models import SoftDeleteModel
 from num2words import num2words
@@ -78,16 +79,30 @@ class Socio(SoftDeleteModel):
         for categoria in Categoria.objects.all().order_by('edad_minima'):
             if categoria.edad_minima <= self.persona.get_edad() <= categoria.edad_maxima:
                 return categoria
-            # En la ultima categoria, si la edad es mayor a la maxima, devolver la ultima categoria
+            # En la ultima categoría, si la edad es mayor a la maxima, devolver la ultima categoría
             if categoria == Categoria.objects.last():
                 return categoria
         return None
+
+    def grupo_familiar(self):
+        """
+        Devuelve el grupo familiar del socio.
+        """
+        if self.persona.es_titular():
+            return [self] + self.get_miembros()
+        else:
+            if self.persona.persona_titular.get_socio():
+                if self.persona.persona_titular.get_socio().is_deleted:
+                    return self.persona.persona_titular.get_socio().get_miembros()
+                return [self.persona.persona_titular.socio] + self.persona.persona_titular.socio.get_miembros()
+            personas = self.persona.persona_titular.persona_set.exclude(socio__is_deleted=True).exclude(socio__isnull=True)
+            return [persona.socio for persona in personas]
 
     def get_miembros(self):
         """
         Devuelve los socios miembros del titular.
         """
-        personas = self.persona.get_personas_dependientes().exclude(socio__is_deleted=True).exclude(socio__isnull=True)
+        personas = self.persona.persona_set.exclude(socio__is_deleted=True).exclude(socio__isnull=True)
         return [persona.socio for persona in personas]
 
     def get_user(self):
@@ -100,6 +115,15 @@ class Socio(SoftDeleteModel):
         if self.persona.es_titular():
             return self.get_miembros()
         return []
+
+    def delete(self, cascade=None, *args, **kwargs):
+        # cascade = get_settings()['cascade']
+        self.is_deleted = True
+        self.deleted_at = timezone.now()
+        self.save()
+        self.after_delete()
+        if cascade:
+            self.delete_related_objects()
 
     def toJSON(self):
         item = model_to_dict(self)
