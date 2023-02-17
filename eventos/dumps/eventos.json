@@ -1,0 +1,82 @@
+[
+  {
+    "model": "eventos.Evento",
+    "pk": 1,
+    "fields": {
+      "nombre": "Evento de ejemplo",
+      "descripcion": "Este es un evento de prueba para demostrar el formato de un diccionario JSON",
+      "fecha_inicio": "2023-03-01",
+      "hora_inicio": "10:00:00",
+      "fecha_fin": "2023-03-05",
+      "hora_fin": "18:00:00",
+      "registro_deadline": "2023-02-25",
+      "mayor_edad": true,
+      "date_created": "2023-02-16T12:34:56",
+      "date_updated": "2023-02-16T12:34:56"
+    }
+  },
+  {
+    "model": "eventos.Evento",
+    "pk": 2,
+    "fields": {
+      "nombre": "Evento 1",
+      "descripcion": "Este es el evento 1",
+      "fecha_inicio": "2023-03-01",
+      "hora_inicio": "10:00:00",
+      "fecha_fin": "2023-03-05",
+      "hora_fin": "18:00:00",
+      "registro_deadline": "2023-02-25",
+      "mayor_edad": true,
+      "date_created": "2023-02-16T12:34:56",
+      "date_updated": "2023-02-16T12:34:56"
+    }
+  },
+  {
+    "model": "eventos.Evento",
+    "pk": 3,
+    "fields": {
+      "nombre": "Evento 2",
+      "descripcion": "Este es el evento 2",
+      "fecha_inicio": "2023-03-05",
+      "hora_inicio": "09:00:00",
+      "fecha_fin": "2023-03-08",
+      "hora_fin": "22:00:00",
+      "registro_deadline": "2023-03-01",
+      "mayor_edad": false,
+      "date_created": "2023-02-16T12:34:56",
+      "date_updated": "2023-02-16T12:34:56"
+    }
+  },
+  {
+    "model": "eventos.Evento",
+    "pk": 4,
+    "fields": {
+      "nombre": "Evento 3",
+      "descripcion": "Este es el evento 3",
+      "fecha_inicio": "2023-04-01",
+      "hora_inicio": "15:00:00",
+      "fecha_fin": "2023-04-04",
+      "hora_fin": "20:00:00",
+      "registro_deadline": "2023-03-27",
+      "mayor_edad": true,
+      "date_created": "2023-02-16T12:34:56",
+      "date_updated": "2023-02-16T12:34:56"
+    }
+  },
+  {
+    "model": "eventos.Evento",
+    "pk": 5,
+    "fields": {
+      "nombre": "Evento 4",
+      "descripcion": "Este es el evento 4",
+      "fecha_inicio": "2023-05-01",
+      "hora_inicio": "10:00:00",
+      "fecha_fin": "2023-05-05",
+      "hora_fin": "18:00:00",
+      "registro_deadline": "2023-04-25",
+      "mayor_edad": false,
+      "date_created": "2023-02-16T12:34:56",
+      "date_updated": "2023-02-16T12:34:56"
+    }
+  }
+]

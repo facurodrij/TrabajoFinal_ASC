@@ -74,8 +74,8 @@ class Evento(SoftDeleteModel):
     imagen = models.ImageField(upload_to=image_directory_path, verbose_name='Imagen')
 
     def __str__(self):
-        # Retornar el nombre del evento y la fecha de inicio con siguiente formato: Nombre (DD de enero)
-        return '{0} ({1} de {2})'.format(self.nombre, self.fecha_inicio.day, self.fecha_inicio.strftime('%B'))
+        # Retornar el nombre del evento y la fecha de inicio con siguiente formato: Nombre (DD de enero de YYYY HH:MMhs)
+        return '{} ({})'.format(self.nombre, self.get_start_datetime().strftime('%d de %B de %Y %H:%Mhs'))
 
     def get_imagen(self):
         """
@@ -85,7 +85,7 @@ class Evento(SoftDeleteModel):
             # Si existe una imagen en self.imagen.url, la devuelve.
             Image.open(self.imagen.path)
             return self.imagen.url
-        except FileNotFoundError:
+        except (FileNotFoundError, ValueError):
             return settings.STATIC_URL + 'img/empty.svg'
 
     def get_expiration_date(self, isoformat=True):
@@ -116,6 +116,14 @@ class Evento(SoftDeleteModel):
             return 'En curso'
         else:
             return 'Por comenzar'
+
+    def get_ticket_variante_lower_price(self):
+        """
+        Devuelve la variante de ticket con el precio más bajo.
+        """
+        if self.ticketvariante_set.exists():
+            return self.ticketvariante_set.order_by('precio').first().precio
+        return '-'
 
     def save(self, *args, **kwargs):
         """Método save() sobrescrito para redimensionar la imagen."""
@@ -226,6 +234,7 @@ class Ticket(SoftDeleteModel):
     venta_ticket = models.ForeignKey('eventos.VentaTicket', on_delete=models.PROTECT, verbose_name='Venta')
     ticket_variante = models.ForeignKey('eventos.TicketVariante', on_delete=models.PROTECT,
                                         verbose_name='Variante de ticket')
+    dni = models.CharField(max_length=9, verbose_name='DNI')
     nombre = models.CharField(max_length=255, verbose_name='Nombre del cliente')
     is_used = models.BooleanField(default=False, verbose_name='Usado')
     check_date = models.DateTimeField(null=True, blank=True, verbose_name='Fecha de check-in')

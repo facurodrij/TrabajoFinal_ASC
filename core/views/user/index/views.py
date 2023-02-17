@@ -18,7 +18,7 @@ class IndexView(TemplateView):
         context['title'] = 'Inicio'
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         context['reserva_form'] = ReservaIndexForm()
-        context['eventos'] = Evento.objects.filter(fecha_inicio__gte=datetime.now().date()).order_by('fecha_inicio')
+        context['eventos'] = Evento.objects.filter(fecha_inicio__gte=datetime.now().date()).order_by('fecha_inicio')[:5]
         return context
 
     def post(self, request, *args, **kwargs):

@@ -41,7 +41,7 @@ class EventoUserDetailView(DetailView):
         except (TicketVariante.DoesNotExist, VentaTicket.DoesNotExist, ValidationError):
             pass
         if evento.get_expiration_date(isoformat=False) < datetime.now().date():
-            messages.error(request, 'El evento ya ha expirado.')
+            messages.error(request, 'El evento ya no se encuentra disponible para la compra de tickets')
             return redirect('index')
         return super().dispatch(request, *args, **kwargs)
 
@@ -171,6 +171,7 @@ class EventoUserOrderView(TemplateView):
                 tickets[i] = {
                     'ticket_variante_id': ticket_variante.pk,
                     'ticket_variante': ticket_variante.__str__(),
+                    'dni': request.POST.get(f'dni_{ticket_variante.pk}_{i}'),
                     'nombre': request.POST.get(f'nombre_{ticket_variante.pk}_{i}'),
                 }
                 i += 1
@@ -198,6 +199,7 @@ class EventoUserOrderView(TemplateView):
                         Ticket.objects.create(
                             venta_ticket=venta,
                             ticket_variante_id=ticket['ticket_variante_id'],
+                            dni=ticket['dni'],
                             nombre=ticket['nombre'],
                             is_used=False
                         )
@@ -239,7 +241,6 @@ class VentaTicketUserPaymentView(TemplateView):
         site = get_current_site(request)
         complete_url = '{}://{}{}'.format('https' if self.request.is_secure() else 'http', site.domain,
                                           reverse('venta-ticket-checkout'))
-        messages.success(request, complete_url)
         if preference_id is None:
             # Se crea el pago en MercadoPago
             preference = {
@@ -434,5 +435,23 @@ class TicketUserDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Detalle del Ticket'
+        context['club_logo'] = Club.objects.get(pk=1).get_imagen()
+        return context
+
+
+class EventoUserListView(LoginRequiredMixin, ListView):
+    """
+    Vista para obtener los eventos de un usuario.
+    """
+    model = Evento
+    template_name = 'user/evento/list.html'
+    context_object_name = 'eventos'
+
+    def get_queryset(self):
+        return Evento.objects.filter(fecha_inicio__gte=datetime.now().date()).order_by('fecha_inicio')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Eventos'
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         return context

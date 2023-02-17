@@ -126,13 +126,19 @@
                         <hr>
                         {% for ticket in tickets %}
                             <label for="id_nombre_{{ ticket.ticket_variante_id }}_{{ forloop.counter0 }}">
-                                {{ ticket.ticket_variante }}
+                                {{ forloop.counter }}. {{ ticket.ticket_variante }}
                             </label>
+                            <input type="text" id="id_dni_{{ ticket.ticket_variante_id }}_{{ forloop.counter0 }}"
+                                   name="dni_{{ ticket.ticket_variante_id }}_{{ forloop.counter0 }}"
+                                   placeholder="DNI de la persona" class="form-control mb-2" required>
                             <input type="text" id="id_nombre_{{ ticket.ticket_variante_id }}_{{ forloop.counter0 }}"
                                    name="nombre_{{ ticket.ticket_variante_id }}_{{ forloop.counter0 }}"
-                                   placeholder="Nombre de la persona" class="form-control" required>
-                            <br>
+                                   placeholder="Nombre completo que figura en el DNI" class="form-control mb-3" required>
                         {% endfor %}
+                        <small class="text-muted">
+                            Revise que los datos ingresados sean correctos, ya que no se podrá realizar cambios una vez
+                            pagado y se compromete a momento de asistir al evento.
+                        </small>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary float-right">
