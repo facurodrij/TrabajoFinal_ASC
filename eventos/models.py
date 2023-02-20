@@ -108,6 +108,18 @@ class Evento(SoftDeleteModel):
         """
         return datetime.combine(self.fecha_fin, self.hora_fin)
 
+    def get_FECHA_INICIO_display(self):
+        """
+        Devuelve la fecha de inicio del evento en formato DD/MM/YYYY HH:MM.
+        """
+        return self.get_start_datetime().strftime('%d/%m/%Y %H:%M')
+
+    def get_FECHA_FIN_display(self):
+        """
+        Devuelve la fecha de finalización del evento en formato DD/MM/YYYY HH:MM.
+        """
+        return self.get_end_datetime().strftime('%d/%m/%Y %H:%M')
+
     def get_ESTADO_display(self):
         """Método para mostrar el estado de la reserva."""
         if self.get_end_datetime() < datetime.now():

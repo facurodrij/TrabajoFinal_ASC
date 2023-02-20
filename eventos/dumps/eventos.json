@@ -1,82 +1,482 @@
 [
-  {
-    "model": "eventos.Evento",
-    "pk": 1,
-    "fields": {
-      "nombre": "Evento de ejemplo",
-      "descripcion": "Este es un evento de prueba para demostrar el formato de un diccionario JSON",
-      "fecha_inicio": "2023-03-01",
-      "hora_inicio": "10:00:00",
-      "fecha_fin": "2023-03-05",
-      "hora_fin": "18:00:00",
-      "registro_deadline": "2023-02-25",
-      "mayor_edad": true,
-      "date_created": "2023-02-16T12:34:56",
-      "date_updated": "2023-02-16T12:34:56"
+    {
+        "model": "eventos.Evento",
+        "pk": 1,
+        "fields": {
+            "nombre": "Evento 1",
+            "descripcion": "Descripcion del evento 1",
+            "fecha_inicio": "2022-12-01",
+            "hora_inicio": "10:00:00",
+            "fecha_fin": "2022-12-02",
+            "hora_fin": "12:00:00",
+            "registro_deadline": null,
+            "mayor_edad": true,
+            "date_created": "2022-11-01 10:00:00",
+            "date_updated": "2022-11-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 2,
+        "fields": {
+            "nombre": "Evento 2",
+            "descripcion": "Descripcion del evento 2",
+            "fecha_inicio": "2022-12-06",
+            "hora_inicio": "10:00:00",
+            "fecha_fin": "2022-12-06",
+            "hora_fin": "12:00:00",
+            "registro_deadline": null,
+            "mayor_edad": true,
+            "date_created": "2022-11-01 10:00:00",
+            "date_updated": "2022-11-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 3,
+        "fields": {
+            "nombre": "Evento 3",
+            "descripcion": "Descripcion del evento 3",
+            "fecha_inicio": "2022-12-10",
+            "hora_inicio": "10:00:00",
+            "fecha_fin": "2022-12-10",
+            "hora_fin": "12:00:00",
+            "registro_deadline": null,
+            "mayor_edad": false,
+            "date_created": "2022-11-01 10:00:00",
+            "date_updated": "2022-11-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 4,
+        "fields": {
+            "nombre": "Evento 4",
+            "descripcion": "Descripcion del evento 4",
+            "fecha_inicio": "2022-12-16",
+            "hora_inicio": "10:00:00",
+            "fecha_fin": "2022-12-16",
+            "hora_fin": "12:00:00",
+            "registro_deadline": null,
+            "mayor_edad": false,
+            "date_created": "2022-11-01 10:00:00",
+            "date_updated": "2022-11-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 5,
+        "fields": {
+            "nombre": "Evento 5",
+            "descripcion": "Descripcion del evento 5",
+            "fecha_inicio": "2022-12-20",
+            "hora_inicio": "10:00:00",
+            "fecha_fin": "2022-12-20",
+            "hora_fin": "12:00:00",
+            "registro_deadline": null,
+            "mayor_edad": true,
+            "date_created": "2022-11-01 10:00:00",
+            "date_updated": "2022-11-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 6,
+        "fields": {
+            "nombre": "Evento 6",
+            "descripcion": "Descripcion del evento 6",
+            "fecha_inicio": "2022-12-25",
+            "hora_inicio": "10:00:00",
+            "fecha_fin": "2022-12-25",
+            "hora_fin": "12:00:00",
+            "registro_deadline": null,
+            "mayor_edad": true,
+            "date_created": "2022-11-01 10:00:00",
+            "date_updated": "2022-11-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 7,
+        "fields": {
+            "nombre": "Evento 7",
+            "descripcion": "Descripcion del evento 7",
+            "fecha_inicio": "2022-12-25",
+            "hora_inicio": "16:00:00",
+            "fecha_fin": "2022-12-25",
+            "hora_fin": "18:00:00",
+            "registro_deadline": null,
+            "mayor_edad": false,
+            "date_created": "2022-11-01 10:00:00",
+            "date_updated": "2022-11-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 8,
+        "fields": {
+            "nombre": "Evento 8",
+            "descripcion": "Descripcion del evento 8",
+            "fecha_inicio": "2022-12-29",
+            "hora_inicio": "10:00:00",
+            "fecha_fin": "2022-12-29",
+            "hora_fin": "12:00:00",
+            "registro_deadline": null,
+            "mayor_edad": false,
+            "date_created": "2022-11-01 10:00:00",
+            "date_updated": "2022-11-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 9,
+        "fields": {
+            "nombre": "Evento 9",
+            "descripcion": "Descripcion del evento 9",
+            "fecha_inicio": "2022-12-30",
+            "hora_inicio": "10:00:00",
+            "fecha_fin": "2022-12-30",
+            "hora_fin": "12:00:00",
+            "registro_deadline": null,
+            "mayor_edad": true,
+            "date_created": "2022-11-01 10:00:00",
+            "date_updated": "2022-11-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 10,
+        "fields": {
+            "nombre": "Evento 10",
+            "descripcion": "Descripcion del evento 10",
+            "fecha_inicio": "2022-12-31",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2022-12-31",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": true,
+            "date_created": "2022-11-01 10:00:00",
+            "date_updated": "2022-11-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 11,
+        "fields": {
+            "nombre": "Evento 11",
+            "descripcion": "Descripcion del evento 11",
+            "fecha_inicio": "2023-01-03",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-01-03",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": false,
+            "date_created": "2022-11-01 10:00:00",
+            "date_updated": "2022-11-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 12,
+        "fields": {
+            "nombre": "Evento 12",
+            "descripcion": "Descripcion del evento 12",
+            "fecha_inicio": "2023-01-04",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-01-04",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": false,
+            "date_created": "2022-11-01 10:00:00",
+            "date_updated": "2022-11-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 13,
+        "fields": {
+            "nombre": "Evento 13",
+            "descripcion": "Descripcion del evento 13",
+            "fecha_inicio": "2023-01-05",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-01-05",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": true,
+            "date_created": "2022-11-01 10:00:00",
+            "date_updated": "2022-11-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 14,
+        "fields": {
+            "nombre": "Evento 14",
+            "descripcion": "Descripcion del evento 14",
+            "fecha_inicio": "2023-01-09",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-01-09",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": true,
+            "date_created": "2022-11-01 10:00:00",
+            "date_updated": "2022-11-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 15,
+        "fields": {
+            "nombre": "Evento 15",
+            "descripcion": "Descripcion del evento 15",
+            "fecha_inicio": "2023-01-15",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-01-15",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": false,
+            "date_created": "2022-12-01 10:00:00",
+            "date_updated": "2022-12-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 16,
+        "fields": {
+            "nombre": "Evento 16",
+            "descripcion": "Descripcion del evento 16",
+            "fecha_inicio": "2023-01-16",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-01-16",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": false,
+            "date_created": "2022-12-01 10:00:00",
+            "date_updated": "2022-12-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 17,
+        "fields": {
+            "nombre": "Evento 17",
+            "descripcion": "Descripcion del evento 17",
+            "fecha_inicio": "2023-01-17",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-01-17",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": true,
+            "date_created": "2022-12-01 10:00:00",
+            "date_updated": "2022-12-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 18,
+        "fields": {
+            "nombre": "Evento 18",
+            "descripcion": "Descripcion del evento 18",
+            "fecha_inicio": "2023-01-18",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-01-18",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": true,
+            "date_created": "2022-12-01 10:00:00",
+            "date_updated": "2022-12-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 19,
+        "fields": {
+            "nombre": "Evento 19",
+            "descripcion": "Descripcion del evento 19",
+            "fecha_inicio": "2023-01-25",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-01-25",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": false,
+            "date_created": "2022-12-01 10:00:00",
+            "date_updated": "2022-12-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 20,
+        "fields": {
+            "nombre": "Evento 20",
+            "descripcion": "Descripcion del evento 20",
+            "fecha_inicio": "2023-01-28",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-01-28",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": false,
+            "date_created": "2022-12-01 10:00:00",
+            "date_updated": "2022-12-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 21,
+        "fields": {
+            "nombre": "Evento 21",
+            "descripcion": "Descripcion del evento 21",
+            "fecha_inicio": "2023-02-01",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-02-01",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": true,
+            "date_created": "2023-01-01 10:00:00",
+            "date_updated": "2023-01-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 22,
+        "fields": {
+            "nombre": "Evento 22",
+            "descripcion": "Descripcion del evento 22",
+            "fecha_inicio": "2023-02-07",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-02-07",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": true,
+            "date_created": "2023-01-01 10:00:00",
+            "date_updated": "2023-01-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 23,
+        "fields": {
+            "nombre": "Evento 23",
+            "descripcion": "Descripcion del evento 23",
+            "fecha_inicio": "2023-02-08",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-02-08",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": false,
+            "date_created": "2023-01-01 10:00:00",
+            "date_updated": "2023-01-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 24,
+        "fields": {
+            "nombre": "Evento 24",
+            "descripcion": "Descripcion del evento 24",
+            "fecha_inicio": "2023-02-09",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-02-09",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": false,
+            "date_created": "2023-01-01 10:00:00",
+            "date_updated": "2023-01-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 25,
+        "fields": {
+            "nombre": "Evento 25",
+            "descripcion": "Descripcion del evento 25",
+            "fecha_inicio": "2023-02-10",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-02-10",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": true,
+            "date_created": "2023-01-01 10:00:00",
+            "date_updated": "2023-01-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 26,
+        "fields": {
+            "nombre": "Evento 26",
+            "descripcion": "Descripcion del evento 26",
+            "fecha_inicio": "2023-02-19",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-02-19",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": true,
+            "date_created": "2023-01-01 10:00:00",
+            "date_updated": "2023-01-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 27,
+        "fields": {
+            "nombre": "Evento 27",
+            "descripcion": "Descripcion del evento 27",
+            "fecha_inicio": "2023-02-20",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-02-20",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": false,
+            "date_created": "2023-01-01 10:00:00",
+            "date_updated": "2023-01-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 28,
+        "fields": {
+            "nombre": "Evento 28",
+            "descripcion": "Descripcion del evento 28",
+            "fecha_inicio": "2023-02-25",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-02-25",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": false,
+            "date_created": "2023-01-01 10:00:00",
+            "date_updated": "2023-01-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 29,
+        "fields": {
+            "nombre": "Evento 29",
+            "descripcion": "Descripcion del evento 29",
+            "fecha_inicio": "2023-02-26",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-02-26",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": true,
+            "date_created": "2023-01-01 10:00:00",
+            "date_updated": "2023-01-01 10:00:00"
+        }
+    },
+    {
+        "model": "eventos.Evento",
+        "pk": 30,
+        "fields": {
+            "nombre": "Evento 30",
+            "descripcion": "Descripcion del evento 30",
+            "fecha_inicio": "2023-02-27",
+            "hora_inicio": "14:00:00",
+            "fecha_fin": "2023-02-27",
+            "hora_fin": "16:00:00",
+            "registro_deadline": null,
+            "mayor_edad": true,
+            "date_created": "2023-01-01 10:00:00",
+            "date_updated": "2023-01-01 10:00:00"
+        }
     }
-  },
-  {
-    "model": "eventos.Evento",
-    "pk": 2,
-    "fields": {
-      "nombre": "Evento 1",
-      "descripcion": "Este es el evento 1",
-      "fecha_inicio": "2023-03-01",
-      "hora_inicio": "10:00:00",
-      "fecha_fin": "2023-03-05",
-      "hora_fin": "18:00:00",
-      "registro_deadline": "2023-02-25",
-      "mayor_edad": true,
-      "date_created": "2023-02-16T12:34:56",
-      "date_updated": "2023-02-16T12:34:56"
-    }
-  },
-  {
-    "model": "eventos.Evento",
-    "pk": 3,
-    "fields": {
-      "nombre": "Evento 2",
-      "descripcion": "Este es el evento 2",
-      "fecha_inicio": "2023-03-05",
-      "hora_inicio": "09:00:00",
-      "fecha_fin": "2023-03-08",
-      "hora_fin": "22:00:00",
-      "registro_deadline": "2023-03-01",
-      "mayor_edad": false,
-      "date_created": "2023-02-16T12:34:56",
-      "date_updated": "2023-02-16T12:34:56"
-    }
-  },
-  {
-    "model": "eventos.Evento",
-    "pk": 4,
-    "fields": {
-      "nombre": "Evento 3",
-      "descripcion": "Este es el evento 3",
-      "fecha_inicio": "2023-04-01",
-      "hora_inicio": "15:00:00",
-      "fecha_fin": "2023-04-04",
-      "hora_fin": "20:00:00",
-      "registro_deadline": "2023-03-27",
-      "mayor_edad": true,
-      "date_created": "2023-02-16T12:34:56",
-      "date_updated": "2023-02-16T12:34:56"
-    }
-  },
-  {
-    "model": "eventos.Evento",
-    "pk": 5,
-    "fields": {
-      "nombre": "Evento 4",
-      "descripcion": "Este es el evento 4",
-      "fecha_inicio": "2023-05-01",
-      "hora_inicio": "10:00:00",
-      "fecha_fin": "2023-05-05",
-      "hora_fin": "18:00:00",
-      "registro_deadline": "2023-04-25",
-      "mayor_edad": false,
-      "date_created": "2023-02-16T12:34:56",
-      "date_updated": "2023-02-16T12:34:56"
-    }
-  }
 ]
