@@ -204,7 +204,7 @@
     <script src="{% static 'libs/inputmask/jquery.inputmask.js' %}"></script>
     <script>
         let selectFechaNacimiento = $('#id_fecha_nacimiento');
-        let fecha_nacimiento = new Date('{{ form.fecha_nacimiento.value }}')
+        let fecha_nacimiento = new Date('{{ form.fecha_nacimiento.value|date:"Y-m-d" }}');
         if (fecha_nacimiento === 'Invalid Date') {
             fecha_nacimiento = new Date();
         }

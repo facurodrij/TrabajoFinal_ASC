@@ -154,8 +154,7 @@
             listDataPersona.append('<li class="list-group-item"><b>Nombre:</b> {{ object.persona.nombre }}</li>');
             listDataPersona.append('<li class="list-group-item"><b>Apellido:</b> {{ object.persona.apellido }}</li>');
             listDataPersona.append('<li class="list-group-item"><b>Edad:</b> {{ object.persona.get_edad }}</li>');
-            listDataPersona.append('<li class="list-group-item"><p><b>Foto carnet:</b></p>' +
-                '<img src="{{ object.persona.imagen.url }}" class="img-thumbnail" alt=""></li>');
+            listDataPersona.append('<li class="list-group-item"><p><b>Foto carnet:</b></p>' + '<img src="{{ object.persona.get_imagen }}" class="img-thumbnail" alt=""></li>');
             listDataPersona.append('<li class="list-group-item"><a href="{% url 'admin-persona-editar' object.persona.pk %}" class="btn btn-warning"><i class="fas fa-user-pen"></i> Editar persona</a></li>');
         {% endif %}
 

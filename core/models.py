@@ -114,7 +114,7 @@ class Persona(SoftDeleteModel):
             # Si existe una imagen en self.imagen.url, la devuelve.
             Image.open(self.imagen.path)
             return self.imagen.url
-        except FileNotFoundError:
+        except (FileNotFoundError, ValueError):
             return settings.STATIC_URL + 'img/empty.svg'
 
     def es_titular(self):
@@ -125,14 +125,24 @@ class Persona(SoftDeleteModel):
 
     def get_socio(self, global_objects=False):
         """
-        Devuelve el socio de la persona.
+        Devuelve el socio de la persona. Si existe y está activo.
         """
         try:
             if global_objects:
                 return Socio.global_objects.get(persona=self)
-            return self.socio
+            return self.socio if self.socio.is_deleted is False else None
         except Socio.DoesNotExist:
             return None
+
+    def grupo_familiar(self):
+        """
+        Devuelve el grupo familiar de la persona.
+        """
+        if self.es_titular():
+            return self.persona_set.all()
+        else:
+            return self.persona_titular.persona_set.all()
+
 
     def get_related_objects(self):
         """

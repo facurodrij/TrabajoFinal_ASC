@@ -6,8 +6,8 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.forms import model_to_dict
-from django.utils import timezone
 from django.urls import reverse
+from django.utils import timezone
 from django_softdelete.models import SoftDeleteModel
 from num2words import num2words
 from simple_history.models import HistoricalRecords
@@ -95,7 +95,8 @@ class Socio(SoftDeleteModel):
                 if self.persona.persona_titular.get_socio().is_deleted:
                     return self.persona.persona_titular.get_socio().get_miembros()
                 return [self.persona.persona_titular.socio] + self.persona.persona_titular.socio.get_miembros()
-            personas = self.persona.persona_titular.persona_set.exclude(socio__is_deleted=True).exclude(socio__isnull=True)
+            personas = self.persona.persona_titular.persona_set.exclude(socio__is_deleted=True).exclude(
+                socio__isnull=True)
             return [persona.socio for persona in personas]
 
     def get_miembros(self):
@@ -124,6 +125,9 @@ class Socio(SoftDeleteModel):
         self.after_delete()
         if cascade:
             self.delete_related_objects()
+
+    def get_change_reason(self):
+        return self.history.last().history_change_reason if self.history.last() else 'Sin motivo'
 
     def toJSON(self):
         item = model_to_dict(self)
@@ -296,9 +300,6 @@ class CuotaSocial(SoftDeleteModel):
             return 'Son: {} pesos argentinos'.format(num2words(self.total, lang='es'))
         return 'Son: {} pesos argentinos'.format(num2words(self.total_a_pagar(), lang='es'))
 
-    def get_related_objects(self):
-        return self.itemcuotasocial_set.all()
-
     def toJSON(self):
         item = model_to_dict(self)
         item['persona'] = self.persona.toJSON()
@@ -383,7 +384,8 @@ class ItemCuotaSocial(models.Model):
     categoria = models.CharField(max_length=50, verbose_name='Categoría')
     cuota = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Cuota')
     cargo_extra = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Cargo extra')
-    total_parcial = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total parcial')
+    total_parcial = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total parcial',
+                                        help_text='Cuota + Cargo extra')
     history = HistoricalRecords()
 
     def toJSON(self):
@@ -392,10 +394,10 @@ class ItemCuotaSocial(models.Model):
         item['socio'] = self.socio.toJSON()
         return item
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(self, *args, **kwargs):
         self.cuota = self.socio.get_categoria().cuota
         self.total_parcial = self.cuota + self.cargo_extra
-        super(ItemCuotaSocial, self).save(force_insert, force_update, using, update_fields)
+        super(ItemCuotaSocial, self).save()
 
     class Meta:
         verbose_name = 'Detalle de cuota social'

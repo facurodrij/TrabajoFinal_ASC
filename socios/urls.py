@@ -22,7 +22,9 @@ urlpatterns = [
     # URLs de cuotas de socios (administración)
     path('admin/cuotas/', lambda request: redirect('admin-cuota-listado', permanent=True), name='admin-cuota'),
     path('admin/cuotas/listado/', CuotaSocialAdminListView.as_view(), name='admin-cuota-listado'),
+    path('admin/cuotas/generar/', CuotaSocialAdminGenerateView.as_view(), name='admin-cuota-generar'),
     path('admin/cuotas/<int:pk>/eliminar/', cuota_delete, name='admin-cuota-eliminar'),
+
     path('admin/cuotas/<int:cuota_pk>/<int:history_pk>/', cuota_history_pdf, name='cuota-history-pdf'),
 
     # URLs de cuotas de socios (usuario)

@@ -1,0 +1,303 @@
+{% extends "extends/admin/base.html" %}
+{% load static %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin-cuota-listado' %}">Cuotas Sociales</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card overflow-hidden">
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">Personas Válidas</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Describir porque son válidas -->
+                        <p>Las personas que se enumeran a continuación cumplen con los requisitos necesarios para
+                            generarles una cuota social en el período seleccionado. Estos requisitos incluyen:</p>
+                        <ul>
+                            <li>
+                                <p>La persona no debe tener una cuota social generada en el período seleccionado.</p>
+                            </li>
+                            <li>
+                                <p>La persona debe ser titular.</p>
+                            </li>
+                            <li>
+                                <p>La persona debe ser un socio activo o ser tutor de al menos un socio activo. Si
+                                    es socio activo, debe haber sido inscripto antes del período seleccionado.
+                                </p>
+                            </li>
+                            <li>
+                                <p>En caso de solamente ser tutor de un socio, el socio debe haber sido inscripto
+                                    antes del período seleccionado.</p>
+                            </li>
+                        </ul>
+                        <button type="button" class="btn btn-primary mt-2" id="generarCuotasSociales">
+                            <i class="fas fa-plus"></i> Generar Cuotas Sociales del Período ({{ periodo }})
+                        </button>
+                        <hr>
+                        <table id="dataTable" class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th scope="col" style="">ID</th>
+                                <th scope="col" style="">CUIL</th>
+                                <th scope="col" style="">Nombre completo (Titular)</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for persona in personas %}
+                                <tr>
+                                    <td>{{ persona.pk }}</td>
+                                    <td>{{ persona.cuil_completo }}</td>
+                                    <td>{{ persona.get_full_name }}</td>
+                                    <td>
+                                        <button class="btn btn-info btn-sm" title="Vista previa"
+                                                onclick="previewCuotaSocial({{ persona.cuota_social }})">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </button>
+                                        <a href="{% url 'admin-persona-editar' persona.pk %}"
+                                           class="btn btn-warning btn-sm">
+                                            <i class="fa-solid fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th scope="col" style="">ID</th>
+                                <th scope="col" style="">CUIL</th>
+                                <th scope="col" style="">Nombre completo (Titular)</th>
+                                <th></th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="previewCuotaSocial" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Vista Previa de la Cuota Social</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-6 text-right float-right">
+                        <ul class="px-0 list-unstyled cuota-info">
+                        </ul>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-items">
+                            <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Socio &amp; Categoria</th>
+                                <th scope="col" class="text-right">Cargo unitario</th>
+                                <th scope="col" class="text-right">Cargo extra c/u</th>
+                                <th scope="col" class="text-right">Subtotal</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-6"></div>
+                        <div class="col-6 ml-auto table-responsive">
+                            <table class="table table-clear table-totales">
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+    {# DataTable #}
+    <link rel="stylesheet" type="text/css" href="{% static 'libs/DataTables/datatables.css' %}"/>
+    <script type="text/javascript" src="{% static 'libs/DataTables/datatables.js' %}"></script>
+    <script type="text/javascript" src="{% static 'libs/DataTables/Select-1.5.0/js/dataTables.select.js' %}"></script>
+    <script>
+        let table = $('#dataTable');
+        let btnGenerarCuotasSociales = $('#generarCuotasSociales');
+
+        table.DataTable({
+            language: {
+                url: '{% static 'libs/datatables/es-ES.json' %}',
+            },
+            dom: 'Bfrtip',
+            responsive: true,
+            autoWidth: false,
+            columnDefs: [ // Quitarle estilos a la ultima columna
+                {
+                    target: -1,
+                    orderable: false,
+                },
+                {
+                    target: 0,
+                    visible: false,
+                }
+            ],
+            // Cuando se haga click en la ultima columna, no se seleccione la fila
+            createdRow: function (row, data, dataIndex) {
+                $(row).find('td:last-child').click(function (e) {
+                    e.stopPropagation();
+                });
+            },
+            buttons: [
+                {
+                    extend: 'selectAll',
+                    text: 'Seleccionar todo',
+                    className: 'btn btn-primary btn-sm'
+                },
+                {
+                    extend: 'selectNone',
+                    text: 'Deseleccionar todo',
+                    className: 'btn btn-primary btn-sm'
+                },
+            ],
+            select: true
+        });
+
+        function previewCuotaSocial(cuota_social) {
+            // Abrir el modal previewCuotaSocial
+            $('#previewCuotaSocial').modal('show');
+            // Armar el ul de la info de la cuota social
+            let ul = $('#previewCuotaSocial .cuota-info');
+            console.log(cuota_social);
+            ul.empty();
+            ul.append($('<li>').text('Fecha emisión: ' + cuota_social['fecha_emision']));
+            ul.append($('<li>').text('Período seleccionado: ' + cuota_social['periodo_mes'] + '/' + cuota_social['periodo_anio']));
+            ul.append($('<li>').text('Fecha vencimiento: ' + cuota_social['fecha_vencimiento']));
+
+            // Armar el tbody de la tabla con los datos de la cuota social
+            let tbody = $('#previewCuotaSocial .table-items tbody');
+            tbody.empty();
+            console.log(cuota_social);
+            for (let i = 0; i < cuota_social['items'].length; i++) {
+                let item = cuota_social['items'][i];
+                let tr = $('<tr>');
+                let th = $('<th scope="row">').text(i + 1);
+                let td = $('<td>');
+                let p1 = $('<p>').text(item['nombre_completo']);
+                let p2 = $('<p class="text-muted">').text(item['categoria']);
+                td.append(p1);
+                td.append(p2);
+                let td2 = $('<td class="text-right text-bold-500">').text(item['cuota']);
+                let td3 = $('<td class="text-right text-bold-500">').text(item['cargo_extra']);
+                let td4 = $('<td class="text-right text-bold-500">').text(item['total_parcial']);
+                tr.append(th);
+                tr.append(td);
+                tr.append(td2);
+                tr.append(td3);
+                tr.append(td4);
+                tbody.append(tr);
+            }
+
+            // Armar el tbody de la tabla con los totales
+            let tbody2 = $('#previewCuotaSocial .table-totales tbody');
+            tbody2.empty();
+            let tr = $('<tr>');
+            let td = $('<td class="text-left">').html('<strong>TOTAL</strong>');
+            let td2 = $('<td class="text-right text-bold-500">').text('$ ' + cuota_social['total']);
+            let p = $('<p class="text-muted text-right">').text(cuota_social['total_letras']);
+            let tr2 = $('<tr>');
+            // Agregar p debajo de td2
+            td2.append(p);
+            tr.append(td);
+            tr.append(td2);
+            tbody2.append(tr);
+            tbody2.append(tr2);
+        }
+
+        // Si no hay registros, deshabilitar el boton de generar cuotas sociales
+        btnGenerarCuotasSociales.prop('disabled', table.DataTable().data().count() === 0);
+        btnGenerarCuotasSociales.click(function () {
+            // Si no hay filas seleccionadas, mostrar mensaje de error
+            if (table.DataTable().rows('.selected').data().length === 0) {
+                Swal.fire({
+                    position: 'top-end',
+                    title: 'Error',
+                    text: 'No hay filas seleccionadas',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+                return;
+            }
+            Swal.fire({
+                position: 'top-end',
+                title: '¿Está seguro?',
+                text: "Se generarán las cuotas sociales para las personas seleccionadas",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Aceptar',
+                cancelButtonText: 'Cancelar',
+            }).then((result) => {
+                if (result.value) {
+                    $.ajax({
+                        url: window.location.href,
+                        type: 'POST',
+                        data: {
+                            'ids': table.DataTable().rows('.selected').data().toArray().map(function (row) {
+                                return row[0];
+                            }),
+                            'periodo': '{{ periodo }}',
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        success: function (data) {
+                            if (!data.hasOwnProperty('error')) {
+                                location.href = '{% url "admin-cuota-listado" %}'
+                            } else {
+                                let errors = []
+                                if (typeof data.error === 'object') {
+                                    $.each(data.error, function (key, value) {
+                                        errors.push(value);
+                                    });
+                                } else {
+                                    errors = data.error
+                                }
+                                Swal.fire({
+                                    position: 'top-end',
+                                    icon: 'error',
+                                    title: 'Ocurrió un error',
+                                    text: errors,
+                                    showConfirmButton: true,
+                                })
+                            }
+                        },
+                        error: function (data) {
+                            // Mostrar mensaje de error
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'Ocurrió un error al generar la cuota social',
+                                icon: 'error',
+                                confirmButtonText: 'Aceptar'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+{% endblock body_js %}
