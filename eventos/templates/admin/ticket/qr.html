@@ -37,6 +37,7 @@
             icon = 'success';
             title = 'El Ticket es válido. \n Check-in realizado con éxito.';
             list = '<ul class="list-group mt-3">';
+            list += '<li class="list-group-item"><b>DNI del cliente:</b> {{ ticket.dni }}</li>';
             list += '<li class="list-group-item"><b>Nombre del cliente:</b> {{ ticket.nombre }}</li>';
             list += '<li class="list-group-item"><b>Evento:</b> {{ ticket.ticket_variante.evento }}</li>';
             list += '<li class="list-group-item"><b>Tipo de ticket:</b> {{ ticket.ticket_variante.nombre }}</li>';
@@ -46,6 +47,7 @@
             list = '<ul class="list-group mt-3">';
             list += '<li class="list-group-item"><b>Fecha de check-in:</b> {{ check_date }}</li>';
             list += '<li class="list-group-item"><b>Escaneado por:</b> {{ check_by }}</li>';
+            list += '<li class="list-group-item"><b>DNI del cliente:</b> {{ ticket.dni }}</li>';
             list += '<li class="list-group-item"><b>Nombre del cliente:</b> {{ ticket.nombre }}</li>';
             list += '<li class="list-group-item"><b>Evento:</b> {{ ticket.ticket_variante.evento }}</li>';
             list += '<li class="list-group-item"><b>Tipo de ticket:</b> {{ ticket.ticket_variante.nombre }}</li>';

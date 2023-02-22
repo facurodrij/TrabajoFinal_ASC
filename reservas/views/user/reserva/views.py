@@ -199,17 +199,17 @@ class ReservaUserPaymentView(TemplateView):
                 return redirect('reservas-listado')
             if reserva.pagado:
                 messages.error(request, 'La reserva ya ha sido pagada.')
-                if request.user.is_admin():
+                if request.user.is_authenticated and request.user.is_admin():
                     return redirect('admin-reservas-detalle', reserva.pk)
                 return redirect('reservas-detalle', reserva.pk)
             if reserva.forma_pago == 1:
                 messages.error(request, 'La reserva tiene forma de pago presencial.')
-                if request.user.is_admin():
+                if request.user.is_authenticated and request.user.is_admin():
                     return redirect('admin-reservas-detalle', reserva.pk)
                 return redirect('reservas-detalle', reserva.pk)
             if reserva.is_finished():
                 messages.error(request, 'La reserva ya ha finalizado.')
-                if request.user.is_admin():
+                if request.user.is_authenticated and request.user.is_admin():
                     return redirect('admin-reservas-detalle', reserva.pk)
                 return redirect('index')
         except Reserva.DoesNotExist:
