@@ -443,7 +443,7 @@ class PagoVentaTicket(models.Model):
     Modelo de los pagos de las ventas de tickets.
     """
     venta_ticket = models.OneToOneField('eventos.VentaTicket', on_delete=models.PROTECT, verbose_name='Venta de ticket')
-    payment_id = models.CharField(max_length=255, verbose_name='Payment ID')
+    payment_id = models.CharField(max_length=255, verbose_name='Payment ID', unique=True)
     status = models.CharField(max_length=50, verbose_name='Estado')
     status_detail = models.CharField(max_length=255, verbose_name='Detalle del estado')
     transaction_amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Monto de la transacción')

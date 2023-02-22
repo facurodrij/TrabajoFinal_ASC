@@ -233,10 +233,7 @@ class CuotaSocial(SoftDeleteModel):
 
     def is_pagada(self):
         try:
-            if not self.pagocuotasocial.is_deleted:
-                return True
-            else:
-                return False
+            return self.pagocuotasocial_set.exists()
         except AttributeError:
             return False
 
@@ -277,7 +274,7 @@ class CuotaSocial(SoftDeleteModel):
         return self.fecha_vencimiento.strftime('%d/%m/%Y') if self.fecha_vencimiento else 'Sin vencimiento'
 
     def get_fecha_pago(self):
-        return self.pagocuotasocial.fecha_pago.strftime('%d/%m/%Y') if self.is_pagada() else 'Sin pago'
+        return self.pagocuotasocial_set.last().fecha_pago.strftime('%d/%m/%Y') if self.is_pagada() else 'Sin pago'
 
     def get_periodo(self):
         return datetime.strptime(f'{self.periodo_anio}-{self.periodo_mes}', '%Y-%m').strftime('%B %Y').capitalize()
@@ -324,30 +321,6 @@ class CuotaSocial(SoftDeleteModel):
                                              periodo_anio=self.periodo_anio).exclude(pk=self.pk).exists():
             raise ValidationError('Ya existe una cuota social generada para el mes y año seleccionado.')
 
-    # TODO: Consultar si es necesario verificar esto.
-    # if self.pk is None:
-    #     # Si es una nueva cuota, verificar que la anterior sea del mes anterior.
-    #     cuota_anterior = CuotaSocial.objects.filter(
-    #         persona=self.persona).order_by(
-    #         '-periodo_anio', '-periodo_mes').first()
-    #     if cuota_anterior:
-    #         if self.periodo_anio == cuota_anterior.periodo_anio:
-    #             if self.periodo_mes != cuota_anterior.periodo_mes + 1:
-    #                 raise ValidationError('La cuota debe ser del mes siguiente a la anterior.')
-    #         elif self.periodo_anio != cuota_anterior.periodo_anio + 1:
-    #             raise ValidationError('La cuota debe ser del mes siguiente a la anterior.')
-    # else:
-    #     # Si es una cuota existente, verificar que la anterior sea del mes anterior.
-    #     cuota_anterior = CuotaSocial.objects.filter(persona=self.persona).exclude(pk=self.pk).order_by(
-    #         '-periodo_anio', '-periodo_mes').first()
-    #     if cuota_anterior:
-    #         if self.periodo_anio == cuota_anterior.periodo_anio:
-    #             if self.periodo_mes != cuota_anterior.periodo_mes + 1:
-    #                 raise ValidationError('La cuota debe ser del mes siguiente a la anterior.')
-    #         elif self.periodo_anio != cuota_anterior.periodo_anio + 1:
-    #             raise ValidationError('La cuota debe ser del mes siguiente a la anterior.') Los periodos de las
-    #             cuotas por cada socio deben ser consecutivos.
-
     class Meta:
         verbose_name = 'Cuota social'
         verbose_name_plural = 'Cuotas sociales'
@@ -363,14 +336,6 @@ class CuotaSocial(SoftDeleteModel):
                                    name='cuota_social_cargo_extra_valido',
                                    violation_error_message=
                                    'Cargo extra: El cargo extra debe ser mayor o igual a 0.'),
-            # TODO: Consultar si es necesario validar esto.
-            # Validar que Fecha de vencimiento no puede ser menor a la fecha de emisión.
-            # models.CheckConstraint(check=models.Q(fecha_vencimiento__gte=models.F('fecha_emision')),
-            #                        name='cuota_social_fecha_vencimiento_valido',
-            #                        violation_error_message=_(
-            #                            'Fecha de vencimiento: La fecha de vencimiento no puede '
-            #                            'ser menor a la fecha de emisión.')),
-            # Validar que total_pagado no puede ser menor al total.
         ]
 
 
@@ -421,25 +386,44 @@ class ItemCuotaSocial(models.Model):
         ]
 
 
+class PagoCuotaSocialCuotas(models.Model):
+    pago_cuota_social = models.ForeignKey('socios.PagoCuotaSocial', on_delete=models.PROTECT)
+    cuota_social = models.ForeignKey('socios.CuotaSocial', on_delete=models.PROTECT)
+    interes_aplicado = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Interés aplicado')
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Subtotal')
+    total_pagado = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total pagado')
+
+    class Meta:
+        db_table = 'socios_pagocuotasocial_cuotas'
+        unique_together = ('pago_cuota_social', 'cuota_social')
+
+
 class PagoCuotaSocial(SoftDeleteModel):
     """
     Modelo para almacenar los pagos de las cuotas sociales.
     """
-    cuota_social = models.OneToOneField('socios.CuotaSocial', on_delete=models.PROTECT, verbose_name='Cuota social')
-    medio_pago = models.ForeignKey('parameters.MedioPago', on_delete=models.PROTECT, verbose_name='Medio de pago')
+    cuotas = models.ManyToManyField(
+        'socios.CuotaSocial',
+        verbose_name='Cuotas sociales',
+        through=PagoCuotaSocialCuotas,
+        through_fields=('pago_cuota_social', 'cuota_social'),
+    )
+    medio_pago = models.CharField(max_length=50, verbose_name='Medio de pago')
     fecha_pago = models.DateField(verbose_name='Fecha de pago')
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Subtotal')
+    interes_aplicado = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Interés aplicado')
     total_pagado = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Total pagado')
+    payment_id = models.CharField(max_length=255, verbose_name='Payment ID', unique=True)
+    status = models.CharField(max_length=50, verbose_name='Estado')
+    status_detail = models.CharField(max_length=255, verbose_name='Detalle del estado')
+    date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
+    date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
+    date_approved = models.DateTimeField(null=True, blank=True, verbose_name='Fecha de aprobación')
     history = HistoricalRecords()
-
-    def meses_atraso(self):
-        return self.fecha_pago.month - self.cuota_social.periodo_mes
-
-    def interes_aplicado(self):
-        return self.total_pagado - self.cuota_social.total
 
     def toJSON(self):
         item = model_to_dict(self)
-        item['cuota_social'] = self.cuota_social.toJSON()
+        item['cuotas'] = [cuota.toJSON() for cuota in self.cuotas.all()]
         return item
 
     class Meta:

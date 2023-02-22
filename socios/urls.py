@@ -28,7 +28,11 @@ urlpatterns = [
     path('admin/cuotas/<int:cuota_pk>/<int:history_pk>/', cuota_history_pdf, name='cuota-history-pdf'),
 
     # URLs de cuotas de socios (usuario)
-    path('cuotas/mis_cuotas/', CuotaSocialListView.as_view(), name='socio-cuotas'),
+    path('cuotas/', lambda request: redirect('cuotas-listado', permanent=True), name='cuotas'),
+    path('cuotas/listado/', CuotaSocialUserListView.as_view(), name='cuotas-listado'),
+    path('cuotas/orden/', CuotaSocialUserOrderView.as_view(), name='cuotas-orden'),
+    path('cuotas/checkout/', CuotaSocialUserCheckoutView.as_view(), name='cuotas-checkout'),
+    path('cuotas/comprobante/<int:pk>/', PagoCuotaSocialUserReceiptView.as_view(), name='cuotas-comprobante'),
     path('cuotas/reporte/<int:pk>/', cuota_social_pdf, name='cuotas-pdf'),
 
     # URLs de categorias de socios (administración)
