@@ -1,122 +1,482 @@
 [
-  {
-    "model": "eventos.TicketVariante",
-    "pk": 1,
-    "fields": {
-      "evento_id": 1,
-      "nombre": "Ticket Estándar",
-      "precio": "100.00",
-      "total_tickets": 100,
-      "date_created": "2023-02-16T12:34:56",
-      "date_updated": "2023-02-16T12:34:56"
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 1,
+        "fields": {
+            "evento_id": 1,
+            "nombre": "Ticket Estándar",
+            "precio": "100.00",
+            "total_tickets": 100,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 2,
+        "fields": {
+            "evento_id": 1,
+            "nombre": "Ticket VIP",
+            "precio": "250.00",
+            "total_tickets": 50,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 3,
+        "fields": {
+            "evento_id": 2,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 4,
+        "fields": {
+            "evento_id": 2,
+            "nombre": "Ticket Premium",
+            "precio": "150.00",
+            "total_tickets": 100,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 5,
+        "fields": {
+            "evento_id": 3,
+            "nombre": "Ticket Menor de Edad",
+            "precio": "20.00",
+            "total_tickets": 500,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 6,
+        "fields": {
+            "evento_id": 3,
+            "nombre": "Ticket Mayor de Edad",
+            "precio": "80.00",
+            "total_tickets": 50,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 7,
+        "fields": {
+            "evento_id": 4,
+            "nombre": "Ticket Clásico",
+            "precio": "75.00",
+            "total_tickets": 150,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 8,
+        "fields": {
+            "evento_id": 4,
+            "nombre": "Ticket VIP",
+            "precio": "150.00",
+            "total_tickets": 50,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 9,
+        "fields": {
+            "evento_id": 5,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 10,
+        "fields": {
+            "evento_id": 5,
+            "nombre": "Ticket Premium",
+            "precio": "150.00",
+            "total_tickets": 100,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 11,
+        "fields": {
+            "evento_id": 6,
+            "nombre": "Ticket Menor de Edad",
+            "precio": "20.00",
+            "total_tickets": 500,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 12,
+        "fields": {
+            "evento_id": 6,
+            "nombre": "Ticket Mayor de Edad",
+            "precio": "80.00",
+            "total_tickets": 50,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 13,
+        "fields": {
+            "evento_id": 7,
+            "nombre": "Ticket Clásico",
+            "precio": "75.00",
+            "total_tickets": 150,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 14,
+        "fields": {
+            "evento_id": 7,
+            "nombre": "Ticket VIP",
+            "precio": "150.00",
+            "total_tickets": 50,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 15,
+        "fields": {
+            "evento_id": 8,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 16,
+        "fields": {
+            "evento_id": 8,
+            "nombre": "Ticket Premium",
+            "precio": "150.00",
+            "total_tickets": 100,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 17,
+        "fields": {
+            "evento_id": 9,
+            "nombre": "Ticket Menor de Edad",
+            "precio": "20.00",
+            "total_tickets": 500,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 18,
+        "fields": {
+            "evento_id": 9,
+            "nombre": "Ticket Mayor de Edad",
+            "precio": "80.00",
+            "total_tickets": 50,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 19,
+        "fields": {
+            "evento_id": 10,
+            "nombre": "Ticket Clásico",
+            "precio": "75.00",
+            "total_tickets": 150,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 20,
+        "fields": {
+            "evento_id": 10,
+            "nombre": "Ticket VIP",
+            "precio": "150.00",
+            "total_tickets": 50,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 21,
+        "fields": {
+            "evento_id": 11,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 22,
+        "fields": {
+            "evento_id": 12,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 23,
+        "fields": {
+            "evento_id": 13,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 24,
+        "fields": {
+            "evento_id": 14,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 25,
+        "fields": {
+            "evento_id": 15,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 26,
+        "fields": {
+            "evento_id": 16,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 27,
+        "fields": {
+            "evento_id": 17,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 28,
+        "fields": {
+            "evento_id": 18,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 29,
+        "fields": {
+            "evento_id": 19,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 30,
+        "fields": {
+            "evento_id": 20,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 31,
+        "fields": {
+            "evento_id": 21,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 32,
+        "fields": {
+            "evento_id": 22,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 33,
+        "fields": {
+            "evento_id": 23,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 34,
+        "fields": {
+            "evento_id": 24,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 35,
+        "fields": {
+            "evento_id": 25,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 36,
+        "fields": {
+            "evento_id": 26,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 37,
+        "fields": {
+            "evento_id": 27,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 38,
+        "fields": {
+            "evento_id": 28,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 39,
+        "fields": {
+            "evento_id": 29,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.TicketVariante",
+        "pk": 40,
+        "fields": {
+            "evento_id": 30,
+            "nombre": "Ticket General",
+            "precio": "50.00",
+            "total_tickets": 200,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
     }
-  },
-  {
-    "model": "eventos.TicketVariante",
-    "pk": 2,
-    "fields": {
-      "evento_id": 1,
-      "nombre": "Ticket VIP",
-      "precio": "250.00",
-      "total_tickets": 50,
-      "date_created": "2023-02-16T12:34:56",
-      "date_updated": "2023-02-16T12:34:56"
-    }
-  },
-  {
-    "model": "eventos.TicketVariante",
-    "pk": 3,
-    "fields": {
-      "evento_id": 2,
-      "nombre": "Ticket General",
-      "precio": "50.00",
-      "total_tickets": 200,
-      "date_created": "2023-02-16T12:34:56",
-      "date_updated": "2023-02-16T12:34:56"
-    }
-  },
-  {
-    "model": "eventos.TicketVariante",
-    "pk": 4,
-    "fields": {
-      "evento_id": 2,
-      "nombre": "Ticket Premium",
-      "precio": "150.00",
-      "total_tickets": 100,
-      "date_created": "2023-02-16T12:34:56",
-      "date_updated": "2023-02-16T12:34:56"
-    }
-  },
-  {
-    "model": "eventos.TicketVariante",
-    "pk": 5,
-    "fields": {
-      "evento_id": 3,
-      "nombre": "Ticket Menor de Edad",
-      "precio": "20.00",
-      "total_tickets": 500,
-      "date_created": "2023-02-16T12:34:56",
-      "date_updated": "2023-02-16T12:34:56"
-    }
-  },
-  {
-    "model": "eventos.TicketVariante",
-    "pk": 6,
-    "fields": {
-      "evento_id": 3,
-      "nombre": "Ticket Mayor de Edad",
-      "precio": "80.00",
-      "total_tickets": 50,
-      "date_created": "2023-02-16T12:34:56",
-      "date_updated": "2023-02-16T12:34:56"
-    }
-  },
-  {
-    "model": "eventos.TicketVariante",
-    "pk": 7,
-    "fields": {
-      "evento_id": 4,
-      "nombre": "Ticket Clásico",
-      "precio": "75.00",
-      "total_tickets": 150,
-      "date_created": "2023-02-16T12:34:56",
-      "date_updated": "2023-02-16T12:34:56"
-    }
-  },
-  {
-    "model": "eventos.TicketVariante",
-    "pk": 8,
-    "fields": {
-      "evento_id": 4,
-      "nombre": "Ticket VIP",
-      "precio": "150.00",
-      "total_tickets": 50,
-      "date_created": "2023-02-16T12:34:56",
-      "date_updated": "2023-02-16T12:34:56"
-    }
-  },
-  {
-    "model": "eventos.TicketVariante",
-    "pk": 9,
-    "fields": {
-      "evento_id": 5,
-      "nombre": "Ticket General",
-      "precio": "50.00",
-      "total_tickets": 200,
-      "date_created": "2023-02-16T12:34:56",
-      "date_updated": "2023-02-16T12:34:56"
-    }
-  },
-  {
-    "model": "eventos.TicketVariante",
-    "pk": 10,
-    "fields": {
-      "evento_id": 5,
-      "nombre": "Ticket Premium",
-      "precio": "150.00",
-      "total_tickets": 100,
-      "date_created": "2023-02-16T12:34:56",
-      "date_updated": "2023-02-16T12:34:56"
-    }
-  }
 ]
