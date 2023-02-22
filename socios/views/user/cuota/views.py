@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.db import transaction
 from django.http import JsonResponse, HttpResponse
@@ -32,9 +33,6 @@ class CuotaSocialUserListView(LoginRequiredMixin, ListView):
     """
     Vista para obtener el listado de cuotas sociales de la persona autenticada.
     """
-    # TODO: Para mostrar la lista de Cuotas Sociales no utilizar DataTables
-    # TODO: Permitir seleccionar varias Cuotas Sociales para ser pagadas.
-    # TODO: Controlar que las cuotas sean pagadas ordenado por periodos, primero la mas antigua
     model = CuotaSocial
     template_name = 'user/cuota/list.html'
     context_object_name = 'cuotas_sociales'
@@ -103,47 +101,54 @@ class CuotaSocialUserOrderView(LoginRequiredMixin, TemplateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        # Crear el checkout de mercadopago con las cuotas seleccionadas en session
-        cuotas = CuotaSocial.objects.filter(pk__in=request.session['cuotas'])
-        total = 0
-        for cuota in cuotas:
-            total += cuota.total_a_pagar()
-        site = get_current_site(request)
-        preference = {
-            "items": [
-                {
-                    "title": "Pago de Cuotas Sociales",
-                    "quantity": 1,
-                    "currency_id": "ARS",
-                    "unit_price": float(total),
-                }
-            ],
-            "payer": {
-                "email": request.user.email,
-            },
-            "statement_descriptor": "Compra de tickets",
-            "excluded_payment_types": [
-                {
-                    "id": "ticket"
-                }
-            ],
-            "installments": 1,
-            "binary_mode": True,
-            "expires": True,
-            "expiration_date_from": datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')).isoformat(),
-            "expiration_date_to": (datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')) + timedelta(
-                minutes=10)).isoformat(),
-            "back_urls": {
-                "success": "{}://{}{}".format('https' if self.request.is_secure() else 'http', site.domain,
-                                              reverse('cuotas-checkout')),
-                "failure": "{}://{}{}".format('https' if self.request.is_secure() else 'http', site.domain,
-                                              reverse('cuotas-checkout')),
-            },
-            "auto_return": "approved",
-            "external_reference": request.session['cuotas'],
-        }
-        preference_result = sdk.preference().create(preference)
-        preference_id = preference_result['response']['id']
+        data = {}
+        try:
+            # Crear el checkout de mercadopago con las cuotas seleccionadas en session
+            cuotas = CuotaSocial.objects.filter(pk__in=request.session['cuotas'])
+            total = 0
+            for cuota in cuotas:
+                if cuota.is_pagada():
+                    raise ValidationError('Ya se realizó el pago de una de las cuotas seleccionadas')
+                total += cuota.total_a_pagar()
+            site = get_current_site(request)
+            preference = {
+                "items": [
+                    {
+                        "title": "Pago de Cuotas Sociales",
+                        "quantity": 1,
+                        "currency_id": "ARS",
+                        "unit_price": float(total),
+                    }
+                ],
+                "payer": {
+                    "email": request.user.email,
+                },
+                "statement_descriptor": "Compra de tickets",
+                "excluded_payment_types": [
+                    {
+                        "id": "ticket"
+                    }
+                ],
+                "installments": 1,
+                "binary_mode": True,
+                "expires": True,
+                "expiration_date_from": datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')).isoformat(),
+                "expiration_date_to": (datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')) + timedelta(
+                    minutes=10)).isoformat(),
+                "back_urls": {
+                    "success": "{}://{}{}".format('https' if self.request.is_secure() else 'http', site.domain,
+                                                  reverse('cuotas-checkout')),
+                    "failure": "{}://{}{}".format('https' if self.request.is_secure() else 'http', site.domain,
+                                                  reverse('cuotas-checkout')),
+                },
+                "auto_return": "approved",
+                "external_reference": request.session['cuotas'],
+            }
+            preference_result = sdk.preference().create(preference)
+            preference_id = preference_result['response']['id']
+        except (ValidationError, Exception) as e:
+            data['error'] = e.args[0]
+            return JsonResponse(data, safe=False)
         return JsonResponse({
             'preference_id': preference_id,
             'public_key': public_key
@@ -159,22 +164,23 @@ class CuotaSocialUserCheckoutView(View):
         try:
             if 'status' in request.GET:
                 if request.GET['status'] == 'approved':
-                    external_references = request.GET['external_reference']
                     with transaction.atomic():
                         # Obtener el id de la cuota social con external_reference
+                        external_references = request.GET['external_reference']
                         ids = [int(id.strip()) for id in external_references.strip('[]').split(',')]
                         cuotas = CuotaSocial.objects.filter(pk__in=ids)
+                        payment_info = sdk.payment().get(request.GET['payment_id'])
                         # Con todas las cuotas, crear solo un pago de cuota social
                         pago = PagoCuotaSocial.objects.create(
                             medio_pago="MercadoPago",
                             fecha_pago=datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')),
                             subtotal=0,
                             interes_aplicado=0,
-                            total_pagado=0,
+                            total_pagado=payment_info['response']['transaction_amount'],
                             payment_id=request.GET['payment_id'],
-                            status=request.GET['status'],
-                            status_detail=request.GET['status_detail'],
-                            date_approved=request.GET['date_approved'],
+                            status=payment_info['response']['status'],
+                            status_detail=payment_info['response']['status_detail'],
+                            date_approved=payment_info['response']['date_approved'],
                         )
                         subtotal = 0
                         interes = 0

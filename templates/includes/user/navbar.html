@@ -21,6 +21,11 @@
                         <a class="dropdown-item" href="{% url 'user-perfil' %}">
                             <i class="fas fa-circle-user pr-2"></i> Mi perfil
                         </a>
+                        {% if user.get_socio %}
+                            <a class="dropdown-item" href="{% url 'cuotas-listado' %}">
+                                <i class="fas fa-receipt pr-2"></i> Mis cuotas
+                            </a>
+                        {% endif %}
                         <a class="dropdown-item" href="{% url 'venta-ticket-listado' %}">
                             <i class="fas fa-ticket pr-2"></i> Mis pedidos
                         </a>

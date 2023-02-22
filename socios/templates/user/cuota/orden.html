@@ -116,11 +116,21 @@
                                         autoOpen: true,
                                     });
                                 } else {
-                                    Swal.fire(
-                                        '¡Error!',
-                                        'Ha ocurrido un error al realizar el pago.',
-                                        'error'
-                                    );
+                                    let errors = []
+                                    if (typeof data.error === 'object') {
+                                        $.each(data.error, function (key, value) {
+                                            errors.push(value);
+                                        });
+                                    } else {
+                                        errors = data.error
+                                    }
+                                    Swal.fire({
+                                        position: 'top-end',
+                                        icon: 'error',
+                                        title: 'Ocurrió un error',
+                                        text: errors,
+                                        showConfirmButton: true,
+                                    });
                                 }
                             },
                             error: function (data) {

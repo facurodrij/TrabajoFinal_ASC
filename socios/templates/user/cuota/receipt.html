@@ -52,6 +52,7 @@
                     <thead>
                     <tr>
                         <th class="text-left">ID Cuota</th>
+                        <th><strong>Titular</strong></th>
                         <th><strong>Período</strong></th>
                         <th class="text-right"><strong>Subtotal</strong></th>
                         <th class="text-right"><strong>Interés por mora</strong></th>
@@ -62,6 +63,7 @@
                     {% for cuota in pago_cuota_social.cuotas.all %}
                         <tr>
                             <td>{{ cuota.pk }}</td>
+                            <td>{{ cuota.persona }}</td>
                             <td class="left strong">{{ cuota.get_periodo }}</td>
                             <td class="text-right">${{ cuota.pagocuotasocialcuotas_set.get.subtotal }}</td>
                             <td class="text-right">${{ cuota.pagocuotasocialcuotas_set.get.interes_aplicado }}</td>
