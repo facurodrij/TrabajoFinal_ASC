@@ -455,3 +455,6 @@ class EventoUserListView(LoginRequiredMixin, ListView):
         context['title'] = 'Eventos'
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         return context
+
+
+# TODO: Realizar capturas de tickets

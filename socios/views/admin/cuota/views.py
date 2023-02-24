@@ -18,7 +18,7 @@ from weasyprint import HTML, CSS
 from accounts.decorators import admin_required
 from core.models import Club, Persona
 from parameters.models import MedioPago
-from socios.models import CuotaSocial, ItemCuotaSocial
+from socios.models import CuotaSocial, ItemCuotaSocial, Parameters, PagoCuotaSocial, PagoCuotaSocialCuotas
 
 
 class CuotaSocialAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -41,91 +41,56 @@ class CuotaSocialAdminListView(LoginRequiredMixin, PermissionRequiredMixin, List
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            periodo = request.POST['periodo']
-            request.session['periodo_mes'] = periodo.split('/')[0]
-            request.session['periodo_anio'] = periodo.split('/')[1]
-            # if action == 'get_total_cuota_social':
-            #     # Si la acción es get_total_cuota_social, se calcula el total de la cuota social
-            #     cuota_social = CuotaSocial.objects.get(pk=request.POST['id'])
-            #     # Calcular intereses
-            #     if cuota_social.is_atrasada():
-            #         aumento_por_cuota_vencida = Parameters.objects.get(pk=1).aumento_por_cuota_vencida
-            #         # Calcular los meses de atraso
-            #         meses_atraso = cuota_social.meses_atraso()
-            #         interes = cuota_social.interes()
-            #         total_w_interes = cuota_social.total + interes
-            #         data['meses_atraso'] = meses_atraso
-            #         data['interes_por_mes'] = aumento_por_cuota_vencida
-            #         data['interes'] = interes
-            #         data['total_w_interes'] = round(total_w_interes, 2)
-            #     else:
-            #         data['total'] = cuota_social.total
-            # elif action == 'mark_as_paid':
-            #     # Si la acción es mark_as_paid, se marca una cuota social como pagada
-            #     cuota_social = CuotaSocial.objects.get(pk=request.POST['id'])
-            #     with transaction.atomic():
-            #         medio_pago = MedioPago.objects.get(pk=request.POST['medio_pago'])
-            #         PagoCuotaSocial.objects.create(
-            #             cuota_social=cuota_social,
-            #             medio_pago=medio_pago,
-            #             fecha_pago=datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')),
-            #             total_pagado=request.POST['total_pagado'])
-            #         cuota_social.observaciones = request.POST['observaciones']
-            #         cuota_social.save()
-            #         data['id'] = request.POST['id']
-            #         data['history_id'] = cuota_social.history.first().pk
-            # if action == 'generar_deudas':
-            #     # Si la acción es generar_deudas, se generan las deudas de las cuotas sociales
-            #     socios = Socio.objects.all()
-            #     periodo_mes = request.POST['periodo_mes']
-            #     periodo_anio = request.POST['periodo_anio']
-            #     parameters_dia_vencimiento = Parameters.objects.get(pk=1).dia_vencimiento_cuota
-            #     periodo_date = date(int(periodo_anio), int(periodo_mes), 1)
-            #     cuotas = 0
-            #     for socio in socios.filter(date_created__lte=periodo_date):
-            #         categoria = socio.get_categoria()
-            #         if socio.persona.es_titular() and socio.itemcuotasocial_set.filter(
-            #                 cuota_social__periodo_mes=periodo_mes,
-            #                 cuota_social__periodo_anio=periodo_anio).count() == 0:
-            #             with transaction.atomic():
-            #                 cuota_social = CuotaSocial.objects.create(
-            #                     persona=socio.persona,
-            #                     fecha_emision=datetime.now(),
-            #                     fecha_vencimiento=datetime.now() + timedelta(days=parameters_dia_vencimiento, hours=00,
-            #                                                                  minutes=00, seconds=00),
-            #                     periodo_mes=periodo_mes,
-            #                     periodo_anio=periodo_anio,
-            #                 )
-            #                 cuota_social.save()
-            #                 # Agregar el detalle de la cuota social
-            #                 detalle = ItemCuotaSocial()
-            #                 detalle.cuota_social = cuota_social
-            #                 detalle.socio = socio
-            #                 detalle.nombre_completo = socio.persona.get_full_name()
-            #                 detalle.categoria = categoria.__str__()
-            #                 detalle.save()
-            #                 for miembro in socio.get_miembros():
-            #                     detalle_miembro = ItemCuotaSocial()
-            #                     detalle_miembro.cuota_social = cuota_social
-            #                     detalle_miembro.socio = miembro
-            #                     detalle_miembro.nombre_completo = miembro.persona.get_full_name()
-            #                     detalle_miembro.categoria = miembro.get_categoria().__str__()
-            #                     detalle_miembro.save()
-            #                 # Generar el total, sumando los totales parciales de los detalles relacionados.
-            #                 total = cuota_social.cargo_extra
-            #                 for detalle in cuota_social.itemcuotasocial_set.all():
-            #                     total += detalle.total_parcial
-            #                 cuota_social.total = total
-            #                 cuota_social.save()
-            #                 cuotas += 1
-            #     if cuotas > 0:
-            #         messages.success(request, 'Cuota/s social/es agregada/s correctamente')
-            #     else:
-            #         messages.error(request,
-            #                        'No se agregaron cuotas sociales, ningún socio ha sido dado de alta antes '
-            #                        'del periodo seleccionado')
-            # else:
-            #     data['error'] = 'Ha ocurrido un error, intente nuevamente'
+            if 'action' in request.POST:
+                action = request.POST['action']
+                if action == 'get_total_cuota_social':
+                    # Si la acción es get_total_cuota_social, se calcula el total de la cuota social
+                    cuota_social = CuotaSocial.objects.get(pk=request.POST['id'])
+                    # Calcular intereses
+                    if cuota_social.is_atrasada():
+                        aumento_por_cuota_vencida = Parameters.objects.get(pk=1).aumento_por_cuota_vencida
+                        # Calcular los meses de atraso
+                        meses_atraso = cuota_social.meses_atraso()
+                        interes = cuota_social.interes()
+                        total_w_interes = cuota_social.total + interes
+                        data['meses_atraso'] = meses_atraso
+                        data['interes_por_mes'] = aumento_por_cuota_vencida
+                        data['interes'] = interes
+                        data['total_w_interes'] = round(total_w_interes, 2)
+                    else:
+                        data['total'] = cuota_social.total
+                    return JsonResponse(data, safe=False)
+                elif action == 'mark_as_paid':
+                    # Si la acción es mark_as_paid, se marca una cuota social como pagada
+                    cuota_social = CuotaSocial.objects.get(pk=request.POST['id'])
+                    with transaction.atomic():
+                        medio_pago = MedioPago.objects.get(pk=request.POST['medio_pago'])
+                        pago = PagoCuotaSocial.objects.create(
+                            medio_pago=medio_pago.nombre,
+                            fecha_pago=datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')),
+                            subtotal=cuota_social.total,
+                            interes_aplicado=cuota_social.interes(),
+                            total_pagado=request.POST['total_pagado'],
+                            payment_id=cuota_social.pk,
+                            status='approved',
+                            status_detail='approved',
+                            date_approved=datetime.now(pytz.timezone('America/Argentina/Buenos_Aires')),
+                        )
+                        cuota_social.observaciones = request.POST['observaciones']
+                        cuota_social.save()
+                        PagoCuotaSocialCuotas.objects.create(
+                            pago_cuota_social=pago,
+                            cuota_social=cuota_social,
+                            interes_aplicado=cuota_social.interes(),
+                            subtotal=cuota_social.total,
+                            total_pagado=cuota_social.total_a_pagar()
+                        )
+                        data['id'] = request.POST['id']
+                        return JsonResponse(data, safe=False)
+            else:
+                periodo = request.POST['periodo']
+                request.session['periodo_mes'] = periodo.split('/')[0]
+                request.session['periodo_anio'] = periodo.split('/')[1]
         except Exception as e:
             data['error'] = e.args[0]
             messages.error(request, e.args[0])

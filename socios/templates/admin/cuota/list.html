@@ -272,15 +272,10 @@
                                         Swal.fire({
                                             position: 'top-end',
                                             title: 'Cuota marcada como pagada',
-                                            text: 'El socio pagó la cuota correctamente',
+                                            text: 'La cuota social se ha marcado como pagada.',
                                             icon: 'success',
-                                            confirmButtonText: 'Imprimir comprobante de operación',
-                                            showCancelButton: true,
-                                            cancelButtonText: 'Cerrar',
+                                            confirmButtonText: 'Aceptar'
                                         }).then((result) => {
-                                            if (result.isConfirmed) {
-                                                window.open('/admin/cuotas/' + data.id + '/' + data.history_id + '/', '_blank');
-                                            }
                                             location.reload();
                                         });
                                     } else {

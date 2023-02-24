@@ -1,4 +1,5 @@
 import base64
+import socket
 from datetime import datetime, timedelta
 from io import BytesIO
 
@@ -265,7 +266,9 @@ class Ticket(SoftDeleteModel):
         """
         factory = SvgPathFillImage
         url = reverse('admin-tickets-qr', kwargs={'pk': self.pk})
-        qr_string = "http://127.0.0.1:8000" + url
+        hostname = socket.gethostname()
+        ip_address = socket.gethostbyname(hostname)
+        qr_string = "http://{}:8000".format(ip_address) + url
         img = qrcode.make(qr_string, image_factory=factory, box_size=20, border=1)
         stream = BytesIO()
         img.save(stream)
