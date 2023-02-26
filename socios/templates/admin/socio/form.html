@@ -172,36 +172,7 @@
                 processData: false,
                 success: function (data) {
                     if (!data.hasOwnProperty('error')) {
-                        Swal.fire({
-                            position: 'top-end',
-                            title: data['swal_title'],
-                            text: data['swal_text'],
-                            icon: 'success',
-                            confirmButtonText: 'Imprimir comprobante de operación',
-                            showCancelButton: true,
-                            cancelButtonText: 'Continuar',
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                $.ajax({
-                                    url: "{% url 'admin-socio-ajax' %}",
-                                    type: "GET",
-                                    data: {
-                                        'action': 'print_comprobante',
-                                        'persona': data['persona'],
-                                        'socio': data['socio'],
-                                    },
-                                    success: function (data) {
-                                        if (data['url']) {
-                                            window.open(data['url'], '_blank');
-                                        }
-                                    },
-                                    error: function (data) {
-                                        console.log('Error:', data);
-                                    }
-                                });
-                            }
-                            window.location.href = "{% url 'admin-socio-listado' %}";
-                        });
+                        window.location.href = "{% url 'admin-socio-listado' %}";
                     } else {
                         let errors = []
                         if (typeof data.error === 'object') {

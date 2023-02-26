@@ -18,6 +18,9 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
+admin.site.site_header = 'Panel Administrativo del Club'
+admin.site.index_title = 'Panel Administrativo'
+
 urlpatterns = [
     path('django/admin/', admin.site.urls),
     path('', include('accounts.urls')),
@@ -25,6 +28,5 @@ urlpatterns = [
     path('', include('eventos.urls')),
     path('', include('reservas.urls')),
     path('', include('socios.urls')),
-
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
