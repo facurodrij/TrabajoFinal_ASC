@@ -458,7 +458,3 @@ class EventoUserListView(LoginRequiredMixin, ListView):
         context['title'] = 'Eventos'
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         return context
-
-# TODO: Realizar capturas de pantalla de las vistas de escaner de QR
-# TODO: Agregar ventas de tickets para mejorar la estadistica de eventos
-# TODO: Agregar reservas de canchas para mejorar la estadistica de reservas

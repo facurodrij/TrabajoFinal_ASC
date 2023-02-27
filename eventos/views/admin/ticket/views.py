@@ -20,7 +20,7 @@ class TicketAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView)
 
     def get_queryset(self):
         return Ticket.objects.all().values('id', 'ticket_variante__evento__nombre', 'ticket_variante__nombre', 'nombre',
-                                           'is_used')
+                                           'is_used').order_by('-date_created')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
