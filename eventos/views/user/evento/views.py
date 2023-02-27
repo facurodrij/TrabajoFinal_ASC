@@ -448,7 +448,10 @@ class EventoUserListView(LoginRequiredMixin, ListView):
     context_object_name = 'eventos'
 
     def get_queryset(self):
-        return Evento.objects.filter(fecha_inicio__gte=datetime.now().date()).order_by('fecha_inicio')
+        eventos = []
+        for e in Evento.objects.filter(fecha_inicio__gte=datetime.now().date()).order_by('fecha_inicio'):
+            eventos.append(e) if e.get_start_datetime() > datetime.now() else None
+        return eventos
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -456,5 +459,6 @@ class EventoUserListView(LoginRequiredMixin, ListView):
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         return context
 
-
-# TODO: Realizar capturas de tickets
+# TODO: Realizar capturas de pantalla de las vistas de escaner de QR
+# TODO: Agregar ventas de tickets para mejorar la estadistica de eventos
+# TODO: Agregar reservas de canchas para mejorar la estadistica de reservas

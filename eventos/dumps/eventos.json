@@ -3,7 +3,7 @@
         "model": "eventos.Evento",
         "pk": 1,
         "fields": {
-            "nombre": "Evento 1",
+            "nombre": "Mitre vs. Guaraní",
             "descripcion": "Descripcion del evento 1",
             "fecha_inicio": "2022-12-01",
             "hora_inicio": "10:00:00",
@@ -19,7 +19,7 @@
         "model": "eventos.Evento",
         "pk": 2,
         "fields": {
-            "nombre": "Evento 2",
+            "nombre": "Mitre vs. Reyes de la Noche",
             "descripcion": "Descripcion del evento 2",
             "fecha_inicio": "2022-12-06",
             "hora_inicio": "10:00:00",
@@ -35,7 +35,7 @@
         "model": "eventos.Evento",
         "pk": 3,
         "fields": {
-            "nombre": "Evento 3",
+            "nombre": "Mitre vs. Chain de Roque",
             "descripcion": "Descripcion del evento 3",
             "fecha_inicio": "2022-12-10",
             "hora_inicio": "10:00:00",
@@ -51,7 +51,7 @@
         "model": "eventos.Evento",
         "pk": 4,
         "fields": {
-            "nombre": "Evento 4",
+            "nombre": "Mitre vs. La Picada",
             "descripcion": "Descripcion del evento 4",
             "fecha_inicio": "2022-12-16",
             "hora_inicio": "10:00:00",
@@ -67,7 +67,7 @@
         "model": "eventos.Evento",
         "pk": 5,
         "fields": {
-            "nombre": "Evento 5",
+            "nombre": "Mitre vs. Brown",
             "descripcion": "Descripcion del evento 5",
             "fecha_inicio": "2022-12-20",
             "hora_inicio": "10:00:00",
@@ -83,7 +83,7 @@
         "model": "eventos.Evento",
         "pk": 6,
         "fields": {
-            "nombre": "Evento 6",
+            "nombre": "Mitre vs. Sacachispas",
             "descripcion": "Descripcion del evento 6",
             "fecha_inicio": "2022-12-25",
             "hora_inicio": "10:00:00",
@@ -99,7 +99,7 @@
         "model": "eventos.Evento",
         "pk": 7,
         "fields": {
-            "nombre": "Evento 7",
+            "nombre": "Mitre vs. Crucero del Monte",
             "descripcion": "Descripcion del evento 7",
             "fecha_inicio": "2022-12-25",
             "hora_inicio": "16:00:00",
@@ -115,7 +115,7 @@
         "model": "eventos.Evento",
         "pk": 8,
         "fields": {
-            "nombre": "Evento 8",
+            "nombre": "Mitre vs. Tormenta del Norte",
             "descripcion": "Descripcion del evento 8",
             "fecha_inicio": "2022-12-29",
             "hora_inicio": "10:00:00",
@@ -131,7 +131,7 @@
         "model": "eventos.Evento",
         "pk": 9,
         "fields": {
-            "nombre": "Evento 9",
+            "nombre": "Mitre vs. Tormenta Azul FC",
             "descripcion": "Descripcion del evento 9",
             "fecha_inicio": "2022-12-30",
             "hora_inicio": "10:00:00",
@@ -147,7 +147,7 @@
         "model": "eventos.Evento",
         "pk": 10,
         "fields": {
-            "nombre": "Evento 10",
+            "nombre": "Mitre vs. La Cascada FC",
             "descripcion": "Descripcion del evento 10",
             "fecha_inicio": "2022-12-31",
             "hora_inicio": "14:00:00",
@@ -163,7 +163,7 @@
         "model": "eventos.Evento",
         "pk": 11,
         "fields": {
-            "nombre": "Evento 11",
+            "nombre": "Mitre vs. Guaraní",
             "descripcion": "Descripcion del evento 11",
             "fecha_inicio": "2023-01-03",
             "hora_inicio": "14:00:00",
@@ -179,7 +179,7 @@
         "model": "eventos.Evento",
         "pk": 12,
         "fields": {
-            "nombre": "Evento 12",
+            "nombre": "Mitre vs. La Fraternidad",
             "descripcion": "Descripcion del evento 12",
             "fecha_inicio": "2023-01-04",
             "hora_inicio": "14:00:00",
@@ -195,7 +195,7 @@
         "model": "eventos.Evento",
         "pk": 13,
         "fields": {
-            "nombre": "Evento 13",
+            "nombre": "Mitre vs. Atlético de San José",
             "descripcion": "Descripcion del evento 13",
             "fecha_inicio": "2023-01-05",
             "hora_inicio": "14:00:00",
@@ -211,7 +211,7 @@
         "model": "eventos.Evento",
         "pk": 14,
         "fields": {
-            "nombre": "Evento 14",
+            "nombre": "Mitre vs. Belgrano",
             "descripcion": "Descripcion del evento 14",
             "fecha_inicio": "2023-01-09",
             "hora_inicio": "14:00:00",
@@ -227,7 +227,7 @@
         "model": "eventos.Evento",
         "pk": 15,
         "fields": {
-            "nombre": "Evento 15",
+            "nombre": "Mitre vs. Carapeguá",
             "descripcion": "Descripcion del evento 15",
             "fecha_inicio": "2023-01-15",
             "hora_inicio": "14:00:00",
@@ -243,7 +243,7 @@
         "model": "eventos.Evento",
         "pk": 16,
         "fields": {
-            "nombre": "Evento 16",
+            "nombre": "Mitre vs. La Cima",
             "descripcion": "Descripcion del evento 16",
             "fecha_inicio": "2023-01-16",
             "hora_inicio": "14:00:00",
@@ -259,7 +259,7 @@
         "model": "eventos.Evento",
         "pk": 17,
         "fields": {
-            "nombre": "Evento 17",
+            "nombre": "Mitre vs. De Primera FC",
             "descripcion": "Descripcion del evento 17",
             "fecha_inicio": "2023-01-17",
             "hora_inicio": "14:00:00",
@@ -275,7 +275,7 @@
         "model": "eventos.Evento",
         "pk": 18,
         "fields": {
-            "nombre": "Evento 18",
+            "nombre": "Mitre vs. Branca FC",
             "descripcion": "Descripcion del evento 18",
             "fecha_inicio": "2023-01-18",
             "hora_inicio": "14:00:00",
@@ -291,7 +291,7 @@
         "model": "eventos.Evento",
         "pk": 19,
         "fields": {
-            "nombre": "Evento 19",
+            "nombre": "Mitre vs. La Pala FC",
             "descripcion": "Descripcion del evento 19",
             "fecha_inicio": "2023-01-25",
             "hora_inicio": "14:00:00",
@@ -307,7 +307,7 @@
         "model": "eventos.Evento",
         "pk": 20,
         "fields": {
-            "nombre": "Evento 20",
+            "nombre": "Mitre vs. Deportivo Azara",
             "descripcion": "Descripcion del evento 20",
             "fecha_inicio": "2023-01-28",
             "hora_inicio": "14:00:00",
@@ -323,7 +323,7 @@
         "model": "eventos.Evento",
         "pk": 21,
         "fields": {
-            "nombre": "Evento 21",
+            "nombre": "Mitre vs. Apóstoles FC",
             "descripcion": "Descripcion del evento 21",
             "fecha_inicio": "2023-02-01",
             "hora_inicio": "14:00:00",
@@ -339,7 +339,7 @@
         "model": "eventos.Evento",
         "pk": 22,
         "fields": {
-            "nombre": "Evento 22",
+            "nombre": "Mitre vs. Furius FC",
             "descripcion": "Descripcion del evento 22",
             "fecha_inicio": "2023-02-07",
             "hora_inicio": "14:00:00",
@@ -355,7 +355,7 @@
         "model": "eventos.Evento",
         "pk": 23,
         "fields": {
-            "nombre": "Evento 23",
+            "nombre": "Mitre vs. GIVENCHY",
             "descripcion": "Descripcion del evento 23",
             "fecha_inicio": "2023-02-08",
             "hora_inicio": "14:00:00",
@@ -371,7 +371,7 @@
         "model": "eventos.Evento",
         "pk": 24,
         "fields": {
-            "nombre": "Evento 24",
+            "nombre": "Mitre vs. Atlético Posadas",
             "descripcion": "Descripcion del evento 24",
             "fecha_inicio": "2023-02-09",
             "hora_inicio": "14:00:00",
@@ -387,7 +387,7 @@
         "model": "eventos.Evento",
         "pk": 25,
         "fields": {
-            "nombre": "Evento 25",
+            "nombre": "Mitre vs. KFC",
             "descripcion": "Descripcion del evento 25",
             "fecha_inicio": "2023-02-10",
             "hora_inicio": "14:00:00",
@@ -403,7 +403,7 @@
         "model": "eventos.Evento",
         "pk": 26,
         "fields": {
-            "nombre": "Evento 26",
+            "nombre": "Mitre vs. Kunisports",
             "descripcion": "Descripcion del evento 26",
             "fecha_inicio": "2023-02-19",
             "hora_inicio": "14:00:00",
@@ -419,7 +419,7 @@
         "model": "eventos.Evento",
         "pk": 27,
         "fields": {
-            "nombre": "Evento 27",
+            "nombre": "Mitre vs. Saiyans FC",
             "descripcion": "Descripcion del evento 27",
             "fecha_inicio": "2023-02-20",
             "hora_inicio": "14:00:00",
@@ -435,7 +435,7 @@
         "model": "eventos.Evento",
         "pk": 28,
         "fields": {
-            "nombre": "Evento 28",
+            "nombre": "Mitre vs. Misioneros",
             "descripcion": "Descripcion del evento 28",
             "fecha_inicio": "2023-02-25",
             "hora_inicio": "14:00:00",
@@ -451,7 +451,7 @@
         "model": "eventos.Evento",
         "pk": 29,
         "fields": {
-            "nombre": "Evento 29",
+            "nombre": "Mitre vs. Móstoles FC",
             "descripcion": "Descripcion del evento 29",
             "fecha_inicio": "2023-02-26",
             "hora_inicio": "14:00:00",
@@ -467,7 +467,7 @@
         "model": "eventos.Evento",
         "pk": 30,
         "fields": {
-            "nombre": "Evento 30",
+            "nombre": "Mitre vs. Juveniles",
             "descripcion": "Descripcion del evento 30",
             "fecha_inicio": "2023-02-27",
             "hora_inicio": "14:00:00",

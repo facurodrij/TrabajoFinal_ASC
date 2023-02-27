@@ -87,7 +87,7 @@ class Evento(SoftDeleteModel):
             Image.open(self.imagen.path)
             return self.imagen.url
         except (FileNotFoundError, ValueError):
-            return settings.STATIC_URL + 'img/empty.svg'
+            return settings.STATIC_URL + 'img/eventos-default.jpg'
 
     def get_expiration_date(self, isoformat=True):
         """

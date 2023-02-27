@@ -287,31 +287,31 @@
             "locale": "es-AR",
             // Si el post tiene errores, se mantiene la fecha seleccionada, tener en cuenta que la fecha llega en formato AAAA-MM-DD y se debe convertir a DD/MM/AAAA
             "date": moment('{{ form.fecha_inicio.value|date:"d/m/Y" }}', 'DD/MM/YYYY'),
-            "minDate": moment().startOf('day'),
+            {% if action == 'add' %}"minDate": moment().startOf('day'),{% endif %}
         });
         inputFechaFin.datetimepicker({
             "format": "L",
             "locale": "es-AR",
             "date": moment('{{ form.fecha_fin.value|date:"d/m/Y" }}', 'DD/MM/YYYY'),
-            "minDate": moment().startOf('day'),
+            {% if action == 'add' %}"minDate": moment().startOf('day'),{% endif %}
         });
         inputHoraInicio.datetimepicker({
             "format": "LT",
             "locale": "es-AR",
             "date": moment('{{ form.hora_inicio.value|date:"H:i" }}', 'HH:mm'),
-            "minDate": moment().startOf('day'),
+            {% if action == 'add' %}"minDate": moment().startOf('day'),{% endif %}
         });
         inputHoraFin.datetimepicker({
             "format": "LT",
             "locale": "es-AR",
             "date": moment('{{ form.hora_fin.value|date:"H:i" }}', 'HH:mm'),
-            "minDate": moment().startOf('day'),
+            {% if action == 'add' %}"minDate": moment().startOf('day'),{% endif %}
         });
         inputRegistroDeadline.datetimepicker({
             "format": "L",
             "locale": "es-AR",
             "date": moment('{{ form.registro_deadline.value|date:"d/m/Y" }}', 'DD/MM/YYYY'),
-            "minDate": moment().startOf('day'),
+            {% if action == 'add' %}"minDate": moment().startOf('day'),{% endif %}
         });
         // Imagen preview
         document.querySelector('.custom-file-input').addEventListener('change', function (e) {
