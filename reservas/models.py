@@ -110,13 +110,10 @@ class Reserva(SoftDeleteModel):
         """
         return self.fecha.strftime('%Y-%m-%d')
 
-    def start_datetime(self):
+    def start_datetime(self, isoformat=True):
         """Método para obtener la fecha y hora de inicio de la reserva."""
-        return datetime.combine(self.fecha, self.hora).isoformat()
-
-    def start_datetime_display(self):
-        """Método para obtener la fecha y hora de inicio de la reserva."""
-        return datetime.combine(self.fecha, self.hora)
+        return datetime.combine(self.fecha, self.hora).isoformat() if isoformat else datetime.combine(self.fecha,
+                                                                                                      self.hora)
 
     def end_datetime(self):
         """Método para obtener la fecha y hora de fin de la reserva."""
@@ -137,6 +134,10 @@ class Reserva(SoftDeleteModel):
                 minutes=minutos)).isoformat() if isoformat else self.created_at + timedelta(
                 minutes=minutos)
         return None
+
+    def get_START_DATETIME_display(self):
+        """Método para obtener la fecha y hora de inicio de la reserva."""
+        return datetime.combine(self.fecha, self.hora).strftime('%d/%m/%Y %H:%M')
 
     def get_FORMA_PAGO_display(self):
         """Método para obtener el nombre de la forma de pago."""
@@ -201,7 +202,7 @@ class Reserva(SoftDeleteModel):
         item['start'] = self.start_datetime()
         item['end'] = self.end_datetime()
         item['con_luz_display'] = self.get_CON_LUZ_display()
-        item['start_display'] = self.start_datetime_display().strftime('%A %d de %B de %Y %H:%M')
+        item['start_display'] = datetime.combine(self.fecha, self.hora).strftime('%A %d de %B de %Y %H:%M')
         return item
 
     def clean(self):
