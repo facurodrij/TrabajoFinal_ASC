@@ -18,7 +18,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-admin.site.site_header = 'Panel Administrativo del Club'
+admin.site.site_header = 'Panel Administrativo del Sistema'
 admin.site.index_title = 'Panel Administrativo'
 
 urlpatterns = [

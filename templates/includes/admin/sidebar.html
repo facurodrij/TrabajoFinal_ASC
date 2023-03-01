@@ -156,6 +156,14 @@
                         <p>Estadísticas</p>
                     </a>
                 </li>
+                {% if user.is_staff or user.is_superuser %}
+                    <li class="nav-item">
+                        <a href="{% url 'admin:index' %}" class="nav-link">
+                            <i class="fas fa-screwdriver-wrench nav-icon"></i>
+                            <p>Panel Staff</p>
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
         </nav>
         <!-- /.sidebar-menu -->
