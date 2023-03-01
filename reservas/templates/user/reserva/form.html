@@ -300,7 +300,7 @@
             // Cambiar el formato fecha de DD/MM/YYYY a YYYY-MM-DD
             fecha = fecha.split('/').reverse().join('-');
             $.ajax({
-                url: "{% url 'admin-reservas-ajax' %}",
+                url: "{% url 'reservas-ajax' %}",
                 type: "GET",
                 data: {
                     'action': 'get_canchas_disponibles',
@@ -331,7 +331,7 @@
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 $.ajax({
-                                    url: "{% url 'admin-reservas-ajax' %}",
+                                    url: "{% url 'reservas-ajax' %}",
                                     type: "GET",
                                     data: {
                                         'action': 'search_horas_disponibles',

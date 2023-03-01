@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta, time
 
 import mercadopago
 from django.contrib import messages
@@ -19,7 +19,7 @@ from accounts.views import User
 from core.models import Club
 from core.utilities import send_email
 from reservas.forms import ReservaUserForm
-from reservas.models import Reserva, PagoReserva, Cancha, HoraLaboral
+from reservas.models import Reserva, PagoReserva, Cancha, HoraLaboral, Parameters
 from reservas.tokens import reserva_create_token
 from static.credentials import MercadoPagoCredentials  # Aquí debería insertar sus credenciales de MercadoPago
 
@@ -371,3 +371,67 @@ def reserva_liberada_activate(request, uidb64, token):
     else:
         messages.error(request, 'El link de creación de reserva no es válido.')
         return redirect('login')
+
+
+def reserva_user_ajax(request):
+    data = {}
+    # Obtener si el GET o POST
+    try:
+        if request.method == 'GET':
+            action = request.GET['action']
+            with transaction.atomic():
+                if action == 'get_canchas_disponibles':
+                    deporte_id = request.GET['deporte_id']
+                    hora = request.GET['hora']
+                    fecha = request.GET['fecha']
+                    fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
+                    hora = datetime.strptime(hora, '%H:%M:%S').time()
+                    start_date = datetime.combine(fecha, hora)
+                    # Fecha de inicio de la reserva debe ser con al menos 2 horas de anticipación
+                    horas_anticipacion = Parameters.objects.get(club_id=1).horas_anticipacion
+                    if start_date < datetime.now() + timedelta(hours=horas_anticipacion):
+                        data['error'] = 'El inicio de la reserva debe ser con al menos {} horas de ' \
+                                        'anticipación.'.format(horas_anticipacion)
+                        return JsonResponse(data, safe=False)
+                    # Excluir las canchas que tengan reservas en esa hora y fecha y no estén eliminadas
+                    canchas_disp = Cancha.objects.filter(deporte_id=deporte_id, hora_laboral__hora=hora)
+                    for reserva in Reserva.global_objects.filter(cancha__deporte_id=deporte_id,
+                                                                 hora=hora,
+                                                                 fecha=fecha,
+                                                                 is_deleted=False):
+                        try:
+                            reserva.clean()
+                            canchas_disp = canchas_disp.exclude(id=reserva.cancha.id)
+                        except ValidationError:
+                            pass
+                    if canchas_disp:
+                        data['canchas'] = list(canchas_disp.values_list('id'))
+                    else:
+                        data['error'] = 'No hay canchas disponibles para la fecha y hora seleccionada.'
+                elif action == 'search_horas_disponibles':
+                    deporte_id = request.GET['deporte_id']
+                    fecha = request.GET['fecha']
+                    fecha = datetime.strptime(fecha, '%Y-%m-%d')
+                    horas_anticipacion = Parameters.objects.get(club_id=1).horas_anticipacion
+                    horas_disponibles = []
+                    for i in range(24):
+                        hora = datetime.combine(fecha, time(hour=i))
+                        if hora < datetime.now() + timedelta(hours=horas_anticipacion):
+                            continue
+                        if hora.date() > fecha.date():
+                            break
+                        canchas_disp = Cancha.objects.filter(deporte_id=deporte_id,
+                                                             hora_laboral__hora=hora.time()).exclude(
+                            reserva__hora=hora,
+                            reserva__fecha=fecha,
+                            reserva__is_deleted=False)
+                        if canchas_disp:
+                            horas_disponibles.append(hora.strftime('%H:%M:%S'))
+                    if horas_disponibles:
+                        data['horas_disponibles'] = horas_disponibles
+                    else:
+                        data['error'] = 'No hay canchas disponibles para la fecha seleccionada.'
+    except Exception as e:
+        data['error'] = e.args[0]
+    print('socio_user_ajax: ', data)
+    return JsonResponse(data, safe=False)

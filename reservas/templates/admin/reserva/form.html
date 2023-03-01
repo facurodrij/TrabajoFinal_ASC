@@ -222,9 +222,8 @@
             let fechaHoraActual = moment().format('YYYY-MM-DD HH:mm');
             if (fechaHora < fechaHoraActual) {
                 alert('La fecha y hora seleccionada debe ser mayor a la actual');
-                $(this).val('');
+                selectCancha.empty().prop('disabled', true).trigger('change');
                 return false;
-                // TODO: Ver si no es mejor que solamente se deshabilite la opción de pago online
             }
             $.ajax({
                 url: "{% url 'admin-reservas-ajax' %}",
