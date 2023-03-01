@@ -288,12 +288,16 @@
             // Si el post tiene errores, se mantiene la fecha seleccionada, tener en cuenta que la fecha llega en formato AAAA-MM-DD y se debe convertir a DD/MM/AAAA
             "date": moment('{{ form.fecha_inicio.value|date:"d/m/Y" }}', 'DD/MM/YYYY'),
             {% if action == 'add' %}"minDate": moment().startOf('day'),{% endif %}
+            {% if action == 'edit' %}"minDate":
+                moment('{{ form.fecha_inicio.value|date:"d/m/Y" }}', 'DD/MM/YYYY'),{% endif %}
         });
         inputFechaFin.datetimepicker({
             "format": "L",
             "locale": "es-AR",
             "date": moment('{{ form.fecha_fin.value|date:"d/m/Y" }}', 'DD/MM/YYYY'),
             {% if action == 'add' %}"minDate": moment().startOf('day'),{% endif %}
+            {% if action == 'edit' %}"minDate":
+                moment('{{ form.fecha_fin.value|date:"d/m/Y" }}', 'DD/MM/YYYY'),{% endif %}
         });
         inputHoraInicio.datetimepicker({
             "format": "LT",
@@ -332,6 +336,25 @@
 
             $('#id_imagen').val('').next().html('<span class="text-muted"> ' + filename + '</span>');
             $('#imageResult').attr('src', '{{ object.get_imagen }}');
+
+            $('#evento_form').submit(function (e) {
+                e.preventDefault();
+                Swal.fire({
+                    position: 'top-end',
+                    title: '¿Estás seguro?',
+                    text: "Se enviará un correo a los usuarios que ya compraron tickets para informarles que el evento fue actualizado",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, actualizar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.submit();
+                    }
+                })
+            });
         {% endif %}
     </script>
     <script>
