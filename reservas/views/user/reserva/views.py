@@ -390,8 +390,8 @@ def reserva_user_ajax(request):
                     # Fecha de inicio de la reserva debe ser con al menos 2 horas de anticipación
                     horas_anticipacion = Parameters.objects.get(club_id=1).horas_anticipacion
                     if start_date < datetime.now() + timedelta(hours=horas_anticipacion):
-                        data['error'] = 'El inicio de la reserva debe ser con al menos {} horas de ' \
-                                        'anticipación.'.format(horas_anticipacion)
+                        data['error'] = 'Es necesario realizar la reserva con al menos {} horas de anticipación antes' \
+                                        ' del inicio.'.format(horas_anticipacion)
                         return JsonResponse(data, safe=False)
                     # Excluir las canchas que tengan reservas en esa hora y fecha y no estén eliminadas
                     canchas_disp = Cancha.objects.filter(deporte_id=deporte_id, hora_laboral__hora=hora)
