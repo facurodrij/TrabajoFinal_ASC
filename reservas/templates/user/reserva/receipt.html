@@ -42,8 +42,8 @@
                     <strong>Comprobante</strong> #{{ pago_reserva.pk }}<br>
                     <strong>Fecha de creación:</strong> {{ pago_reserva.date_created }}<br>
                     <strong>Fecha de aprobación:</strong> {{ pago_reserva.date_approved }}<br>
-                    <strong>Estado:</strong> {{ pago_reserva.status }}<br>
-                    <strong>Detalle de estado:</strong> {{ pago_reserva.status_detail }}<br>
+                    <strong>Estado del pago:</strong> {{ pago_reserva.get_STATUS_display  }}<br>
+                    <strong>Detalle de estado:</strong> {{ pago_reserva.get_STATUS_DETAIL_display }}<br>
                 </div>
                 <div class="col-sm-6">
                     <strong>Cliente:</strong> {{ reserva.nombre }}<br>

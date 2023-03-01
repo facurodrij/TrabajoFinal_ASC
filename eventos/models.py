@@ -455,6 +455,20 @@ class PagoVentaTicket(models.Model):
     date_approved = models.DateTimeField(verbose_name='Fecha de aprobación')
     history = HistoricalRecords()
 
+    def get_STATUS_display(self):
+        """Método para mostrar el estado del pago."""
+        if self.status == 'approved':
+            return 'Aprobado'
+        else:
+            return 'Pendiente'
+
+    def get_STATUS_DETAIL_display(self):
+        """Método para mostrar el detalle del estado del pago."""
+        if self.status_detail == 'accredited':
+            return 'Acreditado'
+        else:
+            return 'Pendiente'
+
     def toJSON(self):
         """
         Devuelve el modelo en formato JSON.

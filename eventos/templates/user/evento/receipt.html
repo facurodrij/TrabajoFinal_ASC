@@ -42,8 +42,8 @@
                     <strong>Comprobante</strong> #{{ pago_venta_ticket.pk }}<br>
                     <strong>Fecha de creación:</strong> {{ pago_venta_ticket.date_created }}<br>
                     <strong>Fecha de aprobación:</strong> {{ pago_venta_ticket.date_approved }}<br>
-                    <strong>Estado:</strong> {{ pago_venta_ticket.status }}<br>
-                    <strong>Detalle de estado:</strong> {{ pago_venta_ticket.status_detail }}<br>
+                    <strong>Estado del pago:</strong> {{ pago_venta_ticket.get_STATUS_display }}<br>
+                    <strong>Detalle del estado:</strong> {{ pago_venta_ticket.get_STATUS_DETAIL_display }}<br>
                 </div>
                 <div class="col-sm-6">
                     <strong>Cliente</strong><br>

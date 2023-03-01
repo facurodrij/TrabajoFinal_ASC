@@ -37,8 +37,8 @@
             <div class="card-footer">
                 {% if not reserva.is_finished %}
                     <button id="btn-delete" type="button" class="btn btn-danger">
-                        <i class="fa-solid fa-trash"></i>
-                        Cancelar orden
+                        <i class="fa-solid fa-ban"></i>
+                        Cancelar reserva
                     </button>
                 {% endif %}
                 {% if reserva.forma_pago == 2 %}
