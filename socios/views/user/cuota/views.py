@@ -49,8 +49,6 @@ class CuotaSocialUserListView(LoginRequiredMixin, ListView):
             itemcuotasocial__socio=self.request.user.socio
         ).exclude(pagocuotasocialcuotas__isnull=False).order_by('periodo_anio', 'periodo_mes')
 
-    # TODO: Excluir aquellas cuotas que ya fueron pagadas en periodos anteriores
-
     def post(self, request, *args, **kwargs):
         data = {}
         try:

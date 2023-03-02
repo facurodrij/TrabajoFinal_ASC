@@ -134,6 +134,7 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
 class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """
     Vista para mostrar un socio, solo para administradores
+    # TODO: Mostrar las cuotas pagadas y las que faltan pagar
     """
     model = Socio
     template_name = 'admin/socio/detail.html'

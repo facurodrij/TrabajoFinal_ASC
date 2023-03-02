@@ -16,7 +16,6 @@ urlpatterns = [
     path('admin/tickets/listado/', TicketAdminListView.as_view(), name='admin-tickets-listado'),
     path('admin/tickets/<int:pk>/', TicketAdminDetailView.as_view(), name='admin-tickets-detalle'),
     path('admin/tickets/<int:pk>/qr/', TicketAdminQRView.as_view(), name='admin-tickets-qr'),
-    path('admin/tickets/scanner/', TicketAdminScannerQRView.as_view(), name='admin-tickets-scanner'),
 
     path('admin/ticket_variante/<int:pk>/delete/', delete_ticket_variante, name='admin-ticket-variante-delete'),
 

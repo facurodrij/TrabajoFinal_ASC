@@ -1,21 +1,15 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.core.files.storage import FileSystemStorage
 from django.db import transaction
-from django.http import JsonResponse, HttpResponse
-from django.template.loader import render_to_string
+from django.http import JsonResponse
 from django.views.generic import ListView, CreateView, UpdateView
-from weasyprint import HTML
 
-from accounts.decorators import admin_required
 from core.forms import PersonaAdminForm
 from core.models import Persona
 
 
 class PersonaAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """ Vista para el listado de personas """
-    # TODO: Permitir filtrar por eliminados
     model = Persona
     template_name = 'admin/persona/list.html'
     permission_required = 'accounts.view_persona'
@@ -79,7 +73,6 @@ class PersonaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, Create
 
 class PersonaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """ Vista para la actualización de personas """
-    # TODO: Si la persona esta eliminada, redirigir a su detalle
     model = Persona
     form_class = PersonaAdminForm
     template_name = 'admin/persona/form.html'

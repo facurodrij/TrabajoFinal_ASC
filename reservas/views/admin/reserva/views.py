@@ -17,7 +17,6 @@ from reservas.models import Reserva, PagoReserva, Cancha, Parameters
 class ReservaAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """
     Vista para listar las reservas.
-    TODO: Mostrar referencia de colores.
     """
     model = Reserva
     template_name = 'admin/reserva/list.html'
@@ -99,7 +98,6 @@ class ReservaAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, Detail
 class ReservaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Vista para actualizar una reserva.
-    # TODO: Revisar la implementación de la edición de una reserva.
     """
     model = Reserva
     template_name = 'admin/reserva/form.html'
