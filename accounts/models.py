@@ -65,18 +65,9 @@ class User(AbstractUser):
     objects = CustomUserManager()
 
     def __str__(self):
-        try:
-            if self.is_admin():
-                return self.socio.persona.get_full_name() + ' (Administrador)'
-            return self.socio.persona.get_full_name()
-        except AttributeError:
-            if self.is_admin():
-                return self.get_full_name() + ' (Administrador)'
-            return self.get_full_name()
-        except OperationalError:
-            if self.is_admin():
-                return self.get_full_name() + ' (Administrador)'
-            return self.get_full_name()
+        if self.is_admin():
+            return self.get_full_name() + ' (Administrador)'
+        return self.get_full_name()
 
     def get_full_name(self):
         return self.nombre + ' ' + self.apellido
