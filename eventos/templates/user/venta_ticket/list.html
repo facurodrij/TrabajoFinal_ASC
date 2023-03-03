@@ -13,22 +13,22 @@
                         <table id="dataTable" class="table table-bordered table-striped">
                             <thead>
                             <tr>
+                                <th scope="col" style="">Fecha de compra</th>
                                 <th scope="col" style="">Evento</th>
                                 <th scope="col" style="">Cantidad de tickets adquiridos</th>
                                 <th scope="col" style="">Estado de pago</th>
                                 <th scope="col" style="">Estado de evento</th>
-                                <th scope="col" style="">Fecha de compra</th>
                                 <th></th>
                             </tr>
                             </thead>
                             <tbody>
                             {% for venta in ventas %}
                                 <tr>
+                                    <td>{{ venta.get_fecha_creacion }}</td>
                                     <td>{{ venta.evento }}</td>
                                     <td>{{ venta.get_related_objects.count }}</td>
                                     <td>{{ venta.get_ESTADO_PAGO_display }}</td>
                                     <td>{{ venta.evento.get_ESTADO_display }}</td>
-                                    <td>{{ venta.date_created }}</td>
                                     <td>
                                         <a href="{% url 'venta-ticket-detalle' venta.pk %}" class="btn btn-sm btn-info">
                                             <i class="fas fa-eye"></i>
@@ -47,11 +47,11 @@
                             </tbody>
                             <tfoot>
                             <tr>
+                                <th scope="col" style="">Fecha de compra</th>
                                 <th scope="col" style="">Evento</th>
                                 <th scope="col" style="">Cantidad de tickets adquiridos</th>
                                 <th scope="col" style="">Estado de pago</th>
                                 <th scope="col" style="">Estado de evento</th>
-                                <th scope="col" style="">Fecha de compra</th>
                                 <th></th>
                             </tr>
                             </tfoot>
@@ -68,34 +68,22 @@
     <link rel="stylesheet" type="text/css" href="{% static 'libs/DataTables/datatables.css' %}"/>
     <script type="text/javascript" src="{% static 'libs/DataTables/datatables.js' %}"></script>
     <script type="text/javascript" src="{% static 'libs/DataTables/Select-1.5.0/js/dataTables.select.js' %}"></script>
-    {# Datatable Internacionalización #}
-    <script src="{% static 'libs/datatables/es-ES.json' %}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.13.2/sorting/datetime-moment.js"></script>
     <script>
-        let table = $('#dataTable');
-
-        table.DataTable({
-            responsive: true,
-            lengthChange: false,
-            order: [[0, 'desc']],
-            autoWidth: false,
-            // Quitarle estilos a la ultima columna
-            columnDefs: [
-                {"orderable": false, "targets": -1}
-            ],
-            language: {
-                search: "Buscar:",
-                lengthMenu: "Mostrar _MENU_ registros por página",
-                zeroRecords: "No se encontraron registros",
-                info: "Mostrando página _PAGE_ de _PAGES_",
-                infoEmpty: "No hay registros disponibles",
-                infoFiltered: "(filtrado de _MAX_ registros totales)",
-                paginate: {
-                    first: "Primero",
-                    last: "Último",
-                    next: "Siguiente",
-                    previous: "Anterior"
+        $(document).ready(function () {
+            $.fn.dataTable.moment('DD/MM/YYYY HH:mm');
+            $('#dataTable').DataTable({
+                language: {
+                    url: '{% static 'libs/datatables/es-ES.json' %}'
                 },
-            }
+                columnDefs: [ // Quitarle estilos a la ultima columna
+                    {"orderable": false, "targets": -1}
+                ],
+                responsive: true,
+                order: [[0, 'desc']],
+                autoWidth: false
+            });
         });
     </script>
 {% endblock body_js %}

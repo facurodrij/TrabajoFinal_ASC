@@ -135,15 +135,15 @@ class EventoUserOrderView(TemplateView):
         items = self.request.session.get('items')
         descuento_socio = self.request.session.get('descuento_socio') or 0
         subtotal = self.request.session.get('subtotal')
-        total = subtotal - (subtotal * descuento_socio)
+        total = subtotal - (subtotal * (descuento_socio / 100))
         context = super().get_context_data(**kwargs)
         context['title'] = 'Orden de Compra'
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         context['evento'] = evento
         context['tickets'] = tickets
         context['items'] = items
-        context['descuento_socio'] = descuento_socio * 100
-        context['descuento_valor'] = float(subtotal * descuento_socio)
+        context['descuento_socio'] = descuento_socio
+        context['descuento_valor'] = float(subtotal * (descuento_socio / 100))
         context['subtotal'] = float(subtotal)
         context['total'] = float(total)
         context['total_letras'] = 'Son: {} pesos argentinos'.format(num2words(total, lang='es'))
@@ -183,7 +183,7 @@ class EventoUserOrderView(TemplateView):
                         evento=evento,
                         email=email,
                         subtotal=subtotal,
-                        porcentaje_descuento=descuento_socio * 100,
+                        porcentaje_descuento=descuento_socio,
                         pagado=False,
                     )
                     # Se crean los items de la venta

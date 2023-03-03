@@ -70,20 +70,17 @@
             allowEnterKey: false,
             stopKeydownPropagation: false,
             showConfirmButton: true,
-            confirmButtonText: 'Escanear otro',
+            confirmButtonText: 'Ver Tickets',
             confirmButtonColor: '#3085d6',
-            // boton de cancelar
             showCancelButton: true,
             cancelButtonText: 'Volver al inicio',
             // Size big
             width: 600,
         }).then((result) => {
             if (result.isConfirmed) {
-                // Redireccionar a la página de inicio
-                location.href = '{% url 'admin-tickets-scanner' %}';
+                location.href = '{% url 'admin-tickets-listado' %}';
             } else {
-                // Redireccionar a la página de inicio
-                location.href = '{% url 'index_admin' %}';
+                location.href = '{% url 'admin-index' %}';
             }
         });
     });

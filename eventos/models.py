@@ -80,7 +80,7 @@ class Evento(SoftDeleteModel):
 
     def get_imagen(self):
         """
-        Devuelve la imagen de la persona.
+        Devuelve la imagen del evento.
         """
         try:
             # Si existe una imagen en self.imagen.url, la devuelve.
@@ -137,6 +137,10 @@ class Evento(SoftDeleteModel):
         if self.ticketvariante_set.exists():
             return self.ticketvariante_set.order_by('precio').first().precio
         return '-'
+
+    def clean(self):
+        if self.get_start_datetime() > self.get_end_datetime():
+            raise ValidationError('La fecha y hora de inicio debe ser menor o igual a la fecha y hora de finalización.')
 
     def save(self, *args, **kwargs):
         """Método save() sobrescrito para redimensionar la imagen."""
@@ -362,6 +366,12 @@ class VentaTicket(SoftDeleteModel):
         minutos = Parameters.objects.get(club_id=1).minutos_expiracion_venta
         return (self.date_created + timedelta(minutes=minutos)).isoformat() if isoformat else \
             self.date_created + timedelta(minutes=minutos)
+
+    def get_fecha_creacion(self):
+        """
+        Devuelve la fecha de creación de la venta.
+        """
+        return self.date_created.strftime('%d/%m/%Y %H:%M')
 
     def get_related_objects(self):
         """
