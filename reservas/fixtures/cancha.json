@@ -11,7 +11,7 @@
       "cantidad_jugadores": 5,
       "precio": "2500.00",
       "precio_luz": "3000.00",
-      "imagen": ""
+      "imagen": "img/cancha/1/cancha1.jpeg"
     }
   },
   {
@@ -26,7 +26,7 @@
       "cantidad_jugadores": 5,
       "precio": "2500.00",
       "precio_luz": "3000.00",
-      "imagen": ""
+      "imagen": "img/cancha/2/cancha2.jpg"
     }
   },
   {
@@ -41,7 +41,7 @@
       "cantidad_jugadores": 5,
       "precio": "2500.00",
       "precio_luz": "3000.00",
-      "imagen": ""
+      "imagen": "img/cancha/3/cancha3.jpg"
     }
   },
   {
@@ -56,7 +56,7 @@
       "cantidad_jugadores": 7,
       "precio": "3000.00",
       "precio_luz": "3500.00",
-      "imagen": ""
+      "imagen": "img/cancha/4/cancha4.jpg"
     }
   }
 ]

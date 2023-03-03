@@ -203,6 +203,7 @@ class Reserva(SoftDeleteModel):
         item['end'] = self.end_datetime()
         item['con_luz_display'] = self.get_CON_LUZ_display()
         item['start_display'] = datetime.combine(self.fecha, self.hora).strftime('%A %d de %B de %Y %H:%M')
+        item['cancha_imagen'] = self.cancha.get_imagen()
         return item
 
     def clean(self):
@@ -348,7 +349,6 @@ class Cancha(SoftDeleteModel):
     def save(self, *args, **kwargs):
         """Método save() sobrescrito para redimensionar la imagen."""
         super().save(*args, **kwargs)
-
         try:
             img = Image.open(self.imagen.path)
             if img.height > 300 or img.width > 300:
@@ -359,12 +359,14 @@ class Cancha(SoftDeleteModel):
             pass
 
     def get_imagen(self):
-        """Método para obtener la imagen de perfil del usuario."""
+        """
+        Devuelve la imagen de la cancha.
+        """
         try:
             # Si existe una imagen en self.imagen.url, la devuelve.
             Image.open(self.imagen.path)
             return self.imagen.url
-        except FileNotFoundError:
+        except (FileNotFoundError, ValueError):
             return settings.STATIC_URL + 'img/empty.svg'
 
     class Meta:
@@ -372,6 +374,10 @@ class Cancha(SoftDeleteModel):
         verbose_name_plural = "Canchas"
         ordering = ['id']
         constraints = [
+            # El precio por hora y el precio por hora con luz debe ser positivo.
+            models.CheckConstraint(check=models.Q(precio__gte=0) & models.Q(precio_luz__gte=0),
+                                   name='cancha_precio_positivo',
+                                   violation_error_message='Los precios definidos deben ser positivo.'),
             # El precio por hora con luz no puede ser menor al precio por hora.
             models.CheckConstraint(check=models.Q(precio_luz__gte=models.F('precio')),
                                    name='precio_luz_mayor_precio',
