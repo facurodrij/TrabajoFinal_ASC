@@ -156,6 +156,9 @@
                                     <a href="{% url 'admin-socio-editar' socio.pk %}" class="btn btn-sm btn-warning">
                                         <i class="fa-solid fa-edit"></i>
                                     </a>
+                                    <a href="{% url 'admin-socio-print' socio.pk %}" class="btn btn-sm btn-default" target="_blank">
+                                        <i class="fa-solid fa-print"></i>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -202,7 +205,7 @@
                                 </div>
                                 <hr>
                                 <h5>Socios Miembros del Grupo Familiar</h5>
-                                <table id="dataTable" class="table table-bordered table-striped">
+                                <table id="dataTable" class="table table-bordered table-striped dataTable">
                                     <thead>
                                     <tr class="table-primary">
                                         <th scope="col" style="">N° Ficha</th>
@@ -263,6 +266,85 @@
                     </div>
                 </div>
             {% endif %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="card overflow-hidden">
+                        <div class="card-header bg-primary">
+                            <h3 class="card-title">Cuotas Sociales</h3>
+                        </div>
+                        <div class="card-body">
+                            <table id="dataTable" class="table table-bordered table-striped dataTable display nowrap">
+                                <thead>
+                                <tr>
+                                    <th scope="col" style="">ID Cuota</th>
+                                    <th scope="col" style="">Titular</th>
+                                    <th scope="col" style="">Período</th>
+                                    <th scope="col" style="">Total</th>
+                                    <th scope="col" style="">Fecha de vencimiento</th>
+                                    <th scope="col" style="">Estado de pago</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for cuota in cuotas_sociales %}
+                                    <tr>
+                                        <td>{{ cuota.pk }}</td>
+                                        <td>
+                                            <a href="{% url 'admin-socio-detalle' cuota.persona.socio.pk %}">{{ cuota.persona }}</a>
+                                        </td>
+                                        <td>{{ cuota.get_periodo }}</td>
+                                        <td>${{ cuota.total_a_pagar }}</td>
+                                        <td>{{ cuota.fecha_vencimiento }}</td>
+                                        {% if cuota.is_deleted %}
+                                            <td><span class="badge badge-danger">{{ cuota.get_estado }}</span></td>
+                                            <td>
+                                                <a href="{% url 'cuotas-pdf' cuota.pk %}" class="btn btn-info btn-sm">
+                                                    <i class="fa-solid fa-file-pdf"></i>
+                                                </a>
+                                            </td>
+                                        {% elif not cuota.is_pagada %}
+                                            <td><span class="badge badge-warning">{{ cuota.get_estado }}</span></td>
+                                            <td>
+                                                <button class="btn btn-success btn-sm mark-as-paid"
+                                                        value="{{ cuota.pk }}">
+                                                    <i class="fa-solid fa-check-double"></i>
+                                                </button>
+                                                <a href="{% url 'cuotas-pdf' cuota.pk %}" class="btn btn-info btn-sm">
+                                                    <i class="fa-solid fa-file-pdf"></i>
+                                                </a>
+                                                <a href="{% url 'admin-cuota-eliminar' cuota.pk %}"
+                                                   class="btn btn-danger btn-sm anular-cuota">
+                                                    <i class="fa-solid fa-ban"></i>
+                                                </a>
+                                            </td>
+                                        {% elif cuota.is_pagada %}
+                                            <td><span class="badge badge-success">{{ cuota.get_estado }}</span></td>
+                                            <td>
+                                                <a href="{% url 'cuotas-comprobante' cuota.pagocuotasocial_set.get.pk %}"
+                                                   class="btn btn-info btn-sm">
+                                                    <i class="fa-solid fa-receipt"></i>
+                                                </a>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    <th scope="col" style="">ID Cuota</th>
+                                    <th scope="col" style="">Titular</th>
+                                    <th scope="col" style="">Período</th>
+                                    <th scope="col" style="">Total</th>
+                                    <th scope="col" style="">Fecha de vencimiento</th>
+                                    <th scope="col" style="">Estado de pago</th>
+                                    <th></th>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         {% endif %}
     </div>
 {% endblock content %}
@@ -273,9 +355,7 @@
     <script type="text/javascript" src="{% static 'libs/DataTables/datatables.js' %}"></script>
     <script type="text/javascript" src="{% static 'libs/DataTables/Select-1.5.0/js/dataTables.select.js' %}"></script>
     <script>
-        let table = $('#dataTable');
-
-        table.DataTable({
+        $('.dataTable').DataTable({
             language: {
                 url: '{% static 'libs/datatables/es-ES.json' %}'
             },

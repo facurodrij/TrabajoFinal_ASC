@@ -21,7 +21,7 @@ from accounts.decorators import admin_required
 from accounts.forms import *
 from core.models import Club, Persona
 from socios.forms import SocioAdminForm, SocioParametersForm
-from socios.models import Socio, Parameters
+from socios.models import Socio, Parameters, CuotaSocial
 
 
 class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -143,6 +143,9 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Detalle de Socio'
+        context['cuotas_sociales'] = CuotaSocial.objects.filter(
+            itemcuotasocial__socio=self.get_object()
+        ).order_by('periodo_anio', 'periodo_mes')
         return context
 
     def get_object(self, queryset=None):
@@ -315,6 +318,23 @@ class SocioAdminRestoreView(LoginRequiredMixin, PermissionRequiredMixin, FormVie
             data['error'] = e.args[0]
         print('SocioAdminRestoreView: ', data)
         return JsonResponse(data, safe=False)
+
+
+class SocioAdminDetailPrintView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    """
+    Vista para imprimir el detalle de un socio, solo para administradores
+    """
+    model = Socio
+    template_name = 'admin/socio/detail_print.html'
+    permission_required = 'socios.view_socio'
+    context_object_name = 'socio'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Detalle de Socio'
+        context['club'] = Club.objects.get(pk=1)
+        context['miembros'] = self.object.get_miembros()
+        return context
 
 
 @login_required

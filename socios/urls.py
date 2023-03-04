@@ -16,6 +16,7 @@ urlpatterns = [
     path('admin/socios/<int:pk>/baja/', SocioAdminDeleteView.as_view(), name='admin-socio-baja'),
     path('admin/socios/<int:pk>/restaurar/', SocioAdminRestoreView.as_view(), name='admin-socio-restaurar'),
     path('admin/socios/ajax/', socio_admin_ajax, name='admin-socio-ajax'),
+    path('admin/socios/<int:pk>/print/', SocioAdminDetailPrintView.as_view(), name='admin-socio-print'),
 
     # URLs de cuotas de socios (administración)
     path('admin/cuotas/', lambda request: redirect('admin-cuota-listado', permanent=True), name='admin-cuota'),
