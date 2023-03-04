@@ -1,9 +1,73 @@
 {% extends 'extends/admin/base.html' %}
 {% load static %}
 
+{% block head_js %}
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+{% endblock head_js %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+{% endblock %}
+
 {% block content %}
     <div class="container-fluid">
-        <h1>Index de Administración</h1>
+        <div class="row">
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>{{ socios_activos }}</h3>
+                        <p>Socios Activos</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-person-stalker"></i>
+                    </div>
+                    <a href="{% url 'admin-socio-listado' %}" class="small-box-footer">Más info <i
+                            class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3>{{ reservas_activas }}</h3>
+                        <p>Reservas Registradas</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-android-calendar"></i>
+                    </div>
+                    <a href="{% url 'admin-reservas-listado' %}" class="small-box-footer">Más info <i
+                            class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3>{{ tickets_vendidos }}</h3>
+                        <p>Tickets Vendidos</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-ios-pricetags"></i>
+                    </div>
+                    <a href="{% url 'admin-tickets-listado' %}" class="small-box-footer">Más info <i
+                            class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-danger">
+                    <div class="inner">
+                        <h3>{{ cuotas_sociales_pendientes }}</h3>
+                        <p>Cuotas Sociales Pendientes</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-ios-timer"></i>
+                    </div>
+                    <a href="{% url 'admin-cuota-listado' %}" class="small-box-footer">Más info <i
+                            class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock content %}
 
