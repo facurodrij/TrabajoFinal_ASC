@@ -5,12 +5,16 @@
     <title>Link de Pago</title>
 </head>
 <body>
-<p>Hola cliente</p>
-<p>Has creado una orden de compra de tickets para el evento <b>{{ venta.evento.nombre }}</b></p>
-<p>Para pagar tu orden de compra, haz click en el siguiente enlace:</p>
+<p>Estimado/a cliente,</p>
+<p>¡Gracias por su orden de compra! Nos complace informarle que su orden de compra ha sido procesada y está lista para
+    ser pagada.</p>
+<p>Le adjuntamos el enlace para que pueda realizar el pago de su orden de compra.
+    Puede hacer clic en el siguiente enlace para acceder a su orden de compra y realizar el pago:</p>
 {% autoescape off %}
-    <a href="{{ protocol }}://{{ domain }}{% url 'venta-ticket-pago' venta.pk %}" target="_blank">Pagar Orden de
-        Compra</a>
+    <a href="{{ protocol }}://{{ domain }}{% url 'venta-ticket-pago' venta.pk %}" target="_blank">
+        Pagar Orden de Compra</a>
 {% endautoescape %}
+<br>
+<p>Atentamente, Club Atlético Bartolomé Mitre</p>
 </body>
 </html>

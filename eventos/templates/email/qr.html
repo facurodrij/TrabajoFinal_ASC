@@ -6,23 +6,24 @@
 </head>
 <body>
 <p>Hola {{ ticket.venta_ticket.user }},</p>
-<p>Gracias por la compra de su ticket. Debajo encontrará los códigos QR de sus tickets que deberá presentar en la
-    entrada
-    del evento y el detalle de cada ticket.</p>
+<p>¡Gracias por la compra de su ticket! Debajo encontrará los códigos QR de sus tickets que deberá presentar en la
+    entrada del evento y el detalle de cada ticket.</p>
 <p>Si tiene alguna duda, no dude en contactar con nosotros.</p>
 <!-- Detalle de los ticket -->
 {% for ticket in tickets %}
     <ul>
         <li><b># </b> {{ forloop.counter }}</li>
-        <li><b>Ticket ID:</b> {{ ticket.id }}</
-        >
-        <li><b>Nombre del evento:</b> {{ ticket.ticket_variante.evento }}</li>
+        <li><b>Ticket ID:</b> {{ ticket.id }}</li>
+        <li><b>Nombre del evento:</b> {{ ticket.ticket_variante.evento.nombre }}</li>
         <li><b>Fecha de inicio:</b> {{ ticket.ticket_variante.evento.get_start_datetime }}</li>
         <li><b>Tipo de entrada:</b> {{ ticket.ticket_variante.nombre }}</li>
+        <li><b>Este ticket tiene asociado al DNI:</b> {{ ticket.dni }}</li>
         <li><b>Este ticket está a nombre de:</b> {{ ticket.nombre }}</li>
     </ul>
     <img src="{{ ticket.get_qr_code }}" alt="QRCODE">
     <hr>
 {% endfor %}
+<br>
+<p>Atentamente, Club Atlético Bartolomé Mitre</p>
 </body>
 </html>
