@@ -40,7 +40,7 @@
                                     <td>
                                         <a href="{% url 'admin-socio-detalle' cuota.persona.socio.pk %}">{{ cuota.persona }}</a>
                                     </td>
-                                    <td>{{ cuota.get_periodo }}</td>
+                                    <td>{{ cuota.periodo_mes }}/{{ cuota.periodo_anio }}</td>
                                     <td>${{ cuota.total_a_pagar }}</td>
                                     <td>{{ cuota.fecha_vencimiento }}</td>
                                     {% if cuota.is_deleted %}
@@ -143,54 +143,66 @@
     <link rel="stylesheet" type="text/css" href="{% static 'libs/DataTables/datatables.css' %}"/>
     <script type="text/javascript" src="{% static 'libs/DataTables/datatables.js' %}"></script>
     <script type="text/javascript" src="{% static 'libs/DataTables/Select-1.5.0/js/dataTables.select.js' %}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.13.2/sorting/datetime-moment.js"></script>
     <script>
-        let table = $('#dataTable');
-
-        table.DataTable({
-            language: {
-                url: '{% static 'libs/datatables/es-ES.json' %}'
-            },
-            dom: 'Bfrtip',
-            columnDefs: [ // Quitarle estilos a la ultima columna
-                {"orderable": false, "targets": -1}
-            ],
-            responsive: true,
-            ordering: false,
-            autoWidth: false,
-            buttons: [
-                {
-                    extend: 'print',
-                    text: '<i class="fa-solid fa-print"></i> Imprimir',
-                    titleAttr: 'Imprimir',
-                    className: 'btn btn-info btn-sm border',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5]
+        $(document).ready(function () {
+            $.fn.dataTable.moment('MM/YYYY');
+            $('#dataTable').DataTable({
+                language: {
+                    url: '{% static 'libs/datatables/es-ES.json' %}'
+                },
+                dom: 'Bfrtip',
+                columnDefs: [ // Quitarle estilos a la ultima columna
+                    {
+                        targets: -1,
+                        orderable: false
+                    },
+                    {
+                        targets: 2,
+                        render: function (data, type, row) {
+                            return moment(data, 'MM/YYYY').format('MM/YYYY');
+                        }
+                    },
+                ],
+                order: [[2, 'desc']],
+                responsive: true,
+                autoWidth: false,
+                buttons: [
+                    {
+                        extend: 'print',
+                        text: '<i class="fa-solid fa-print"></i> Imprimir',
+                        titleAttr: 'Imprimir',
+                        className: 'btn btn-info btn-sm border',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5]
+                        }
+                    },
+                    {
+                        extend: 'colvis',
+                        text: '<i class="fa-solid fa-eye"></i> Ver columnas',
+                        titleAttr: 'Ver columnas',
+                        className: 'btn btn-secondary btn-sm border',
+                        columns: ':gt(0)',
+                        postfixButtons: ['colvisRestore']
+                    },
+                    {
+                        extend: 'searchPanes',
+                        text: '<i class="fa-solid fa-filter"></i> Filtros',
+                        className: 'btn btn-secondary btn-sm border',
+                        config: {
+                            cascadePanes: true,
+                            viewTotal: true,
+                            layout: 'columns-3',
+                            columns: [1, 2, 3, 4, 5],
+                        }
+                    },
+                    {
+                        extend: 'pageLength',
+                        className: 'btn btn-secondary btn-sm border',
                     }
-                },
-                {
-                    extend: 'colvis',
-                    text: '<i class="fa-solid fa-eye"></i> Ver columnas',
-                    titleAttr: 'Ver columnas',
-                    className: 'btn btn-secondary btn-sm border',
-                    columns: ':gt(0)',
-                    postfixButtons: ['colvisRestore']
-                },
-                {
-                    extend: 'searchPanes',
-                    text: '<i class="fa-solid fa-filter"></i> Filtros',
-                    className: 'btn btn-secondary btn-sm border',
-                    config: {
-                        cascadePanes: true,
-                        viewTotal: true,
-                        layout: 'columns-3',
-                        columns: [1, 2, 3, 4, 5],
-                    }
-                },
-                {
-                    extend: 'pageLength',
-                    className: 'btn btn-secondary btn-sm border',
-                }
-            ],
+                ],
+            });
         });
 
         $('#dataTable tbody').on('click', '.mark-as-paid', function (e) {
