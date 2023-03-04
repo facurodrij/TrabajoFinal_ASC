@@ -3,7 +3,7 @@ from datetime import datetime
 
 import pytz
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.forms import model_to_dict
 from django.urls import reverse
@@ -30,6 +30,7 @@ class Parameters(models.Model):
         verbose_name='Día de emisión')
     dia_vencimiento_cuota = models.PositiveSmallIntegerField(
         default=28,
+        validators=[MinValueValidator(1), MaxValueValidator(28)],
         verbose_name='Día de vencimiento')
     cantidad_maxima_cuotas_pendientes = models.PositiveSmallIntegerField(
         default=3,
@@ -353,6 +354,9 @@ class ItemCuotaSocial(models.Model):
                                         help_text='Cuota + Cargo extra')
     history = HistoricalRecords()
 
+    def __str__(self):
+        return f'{self.nombre_completo} - {self.categoria}'
+
     def toJSON(self):
         item = model_to_dict(self)
         item['cuota_social'] = self.cuota_social.toJSON()
@@ -420,6 +424,20 @@ class PagoCuotaSocial(SoftDeleteModel):
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
     date_approved = models.DateTimeField(null=True, blank=True, verbose_name='Fecha de aprobación')
     history = HistoricalRecords()
+
+    def get_STATUS_display(self):
+        """Método para mostrar el estado del pago."""
+        if self.status == 'approved':
+            return 'Aprobado'
+        else:
+            return 'Pendiente'
+
+    def get_STATUS_DETAIL_display(self):
+        """Método para mostrar el detalle del estado del pago."""
+        if self.status_detail == 'accredited':
+            return 'Acreditado'
+        else:
+            return 'Pendiente'
 
     def toJSON(self):
         item = model_to_dict(self)

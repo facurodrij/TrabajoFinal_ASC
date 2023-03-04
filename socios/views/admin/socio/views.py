@@ -235,6 +235,8 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
                                                      ' y se ha enviado un email para establecer la contraseña.')
                         data = {'persona': self.get_object().persona.toJSON(),
                                 'socio': self.get_object().toJSON(),
+                                'url_redirect': reverse_lazy('admin-socio-detalle',
+                                                             kwargs={'pk': self.get_object().pk}),
                                 'swal_title': 'Socio editado',
                                 'swal_text': 'El socio ha sido editado exitosamente.'}
                 else:

@@ -128,6 +128,7 @@ class CuotaSocialAdminGenerateView(LoginRequiredMixin, PermissionRequiredMixin, 
             messages.error(self.request, 'Debe seleccionar un periodo para generar las cuotas sociales')
             return redirect('admin-cuota-listado')
         context['periodo'] = periodo_mes + '/' + periodo_anio
+        dia_vencimiento_cuota = Parameters.objects.get(pk=1).dia_vencimiento_cuota
         # Filtrar por las personas que sean titulares, que sean socios o que tengan almenos un miembro como socio
         # creado antes del periodo seleccionado y que no tengan una cuota social generada para el periodo
         # seleccionado.
@@ -181,7 +182,8 @@ class CuotaSocialAdminGenerateView(LoginRequiredMixin, PermissionRequiredMixin, 
                 'fecha_emision': datetime.now().strftime('%d/%m/%Y'),
                 'periodo_mes': datetime(int(periodo_anio), int(periodo_mes), 1).strftime('%B').capitalize(),
                 'periodo_anio': periodo_anio,
-                'fecha_vencimiento': datetime(int(periodo_anio), int(periodo_mes), 28).strftime('%d/%m/%Y'),
+                'fecha_vencimiento': datetime(int(periodo_anio), int(periodo_mes), dia_vencimiento_cuota).strftime(
+                    '%d/%m/%Y'),
                 'items': []
             }
             # Agregar los items de la cuota social
@@ -229,13 +231,15 @@ class CuotaSocialAdminGenerateView(LoginRequiredMixin, PermissionRequiredMixin, 
             # Obtener el periodo de las cuotas sociales
             periodo = request.POST.get('periodo')
             periodo_mes, periodo_anio = periodo.split('/')
+            dia_vencimiento_cuota = Parameters.objects.get(pk=1).dia_vencimiento_cuota
             # Crear las cuotas sociales
             for persona in personas:
                 with transaction.atomic():
                     cuota = CuotaSocial.objects.create(
                         persona=persona,
                         fecha_emision=timezone.now(),
-                        fecha_vencimiento=datetime(int(periodo_anio), int(periodo_mes), 28, 0, 0, 0, 0),
+                        fecha_vencimiento=datetime(int(periodo_anio), int(periodo_mes), dia_vencimiento_cuota,
+                                                   0, 0, 0, 0),
                         # TODO: Parametrizar el vencimiento de las cuotas sociales
                         periodo_mes=periodo_mes,
                         periodo_anio=periodo_anio,

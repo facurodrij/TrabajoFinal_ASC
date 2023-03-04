@@ -43,8 +43,8 @@
                     <strong>Comprobante</strong> #{{ pago_cuota_social.pk }}<br>
                     <strong>Fecha de creación:</strong> {{ pago_cuota_social.date_created }}<br>
                     <strong>Fecha de aprobación:</strong> {{ pago_cuota_social.date_approved }}<br>
-                    <strong>Estado:</strong> {{ pago_cuota_social.status }}<br>
-                    <strong>Detalle de estado:</strong> {{ pago_cuota_social.status_detail }}<br>
+                    <strong>Estado del pago:</strong> {{ pago_cuota_social.get_STATUS_display }}<br>
+                    <strong>Detalle de estado:</strong> {{ pago_cuota_social.get_STATUS_DETAIL_display }}<br>
                 </div>
             </div>
             <div class="table-responsive-sm">
@@ -52,7 +52,7 @@
                     <thead>
                     <tr>
                         <th class="text-left">ID Cuota</th>
-                        <th><strong>Titular</strong></th>
+                        <th><strong>Titular & Items</strong></th>
                         <th><strong>Período</strong></th>
                         <th class="text-right"><strong>Subtotal</strong></th>
                         <th class="text-right"><strong>Interés por mora</strong></th>
@@ -63,7 +63,12 @@
                     {% for cuota in pago_cuota_social.cuotas.all %}
                         <tr>
                             <td>{{ cuota.pk }}</td>
-                            <td>{{ cuota.persona }}</td>
+                            <td>
+                                {{ cuota.persona }}<hr>
+                                {% for item in cuota.itemcuotasocial_set.all %}
+                                    {{ item }}<br>
+                                {% endfor %}
+                            </td>
                             <td class="left strong">{{ cuota.get_periodo }}</td>
                             <td class="text-right">${{ cuota.pagocuotasocialcuotas_set.get.subtotal }}</td>
                             <td class="text-right">${{ cuota.pagocuotasocialcuotas_set.get.interes_aplicado }}</td>
