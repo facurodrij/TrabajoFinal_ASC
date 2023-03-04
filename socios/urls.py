@@ -15,9 +15,7 @@ urlpatterns = [
     path('admin/socios/<int:pk>/editar/', SocioAdminUpdateView.as_view(), name='admin-socio-editar'),
     path('admin/socios/<int:pk>/baja/', SocioAdminDeleteView.as_view(), name='admin-socio-baja'),
     path('admin/socios/<int:pk>/restaurar/', SocioAdminRestoreView.as_view(), name='admin-socio-restaurar'),
-    path('admin/socios/<int:socio_pk>/<int:history_pk>/', socio_history_pdf, name='socio-history-pdf'),
     path('admin/socios/ajax/', socio_admin_ajax, name='admin-socio-ajax'),
-    path('admin/socios/parametros/', ParametersSocioFormView.as_view(), name='admin-socio-parametros'),
 
     # URLs de cuotas de socios (administración)
     path('admin/cuotas/', lambda request: redirect('admin-cuota-listado', permanent=True), name='admin-cuota'),

@@ -121,8 +121,7 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
                                                                'se ha enviado un email para establecer la contraseña.')
                         data = {'persona': socio.persona.toJSON(),
                                 'socio': socio.toJSON(),
-                                'swal_title': 'Socio creado',
-                                'swal_text': 'El socio ha sido creado exitosamente.'}
+                                'url_redirect': reverse_lazy('admin-socio-detalle', kwargs={'pk': socio.pk})}
                 else:
                     data['error'] = form.errors
         except Exception as e:
@@ -318,25 +317,6 @@ class SocioAdminRestoreView(LoginRequiredMixin, PermissionRequiredMixin, FormVie
 
 @login_required
 @admin_required
-def socio_history_pdf(request, socio_pk, history_pk):
-    socio = Socio.global_objects.get(pk=socio_pk)
-    club = Club.objects.get(pk=1)
-    history = socio.history.get(pk=history_pk)
-    html_string = render_to_string('admin/socio/history_pdf.html', {'history': history,
-                                                                    'socio': socio,
-                                                                    'club': club})
-    html = HTML(string=html_string, base_url=request.build_absolute_uri())
-    html.write_pdf(target='/tmp/socio_historial.pdf',
-                   stylesheets=[CSS('{}/libs/bootstrap-4.6.2/bootstrap.min.css'.format(settings.STATICFILES_DIRS[0]))])
-    fs = FileSystemStorage('/tmp')
-    with fs.open('socio_historial.pdf') as pdf:
-        response = HttpResponse(pdf, content_type='application/pdf')
-        response['Content-Disposition'] = 'filename="socio_historial.pdf"'
-        return response
-
-
-@login_required
-@admin_required
 def socio_admin_ajax(request):
     data = {}
     # Obtener si el GET o POST
@@ -359,27 +339,3 @@ def socio_admin_ajax(request):
         pass
     print('socio_admin_ajax: ', data)
     return JsonResponse(data, safe=False)
-
-
-class ParametersSocioFormView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
-    """Vista para la edición de los parámetros de socios."""
-    template_name = 'socios.html'
-    form_class = SocioParametersForm
-    permission_required = 'parameters.change_socios'
-    success_url = reverse_lazy('admin-socio-parametros')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Parámetros de Socios'
-        return context
-
-    # Definir message success
-    def form_valid(self, form):
-        form.save()
-        messages.success(self.request, 'Los parámetros de socios se guardaron correctamente.')
-        return super().form_valid(form)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['instance'] = Parameters.objects.get(club=Club.objects.get(pk=1))
-        return kwargs

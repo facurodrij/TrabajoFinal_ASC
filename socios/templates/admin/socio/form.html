@@ -172,7 +172,7 @@
                 processData: false,
                 success: function (data) {
                     if (!data.hasOwnProperty('error')) {
-                        window.location.href = "{% url 'admin-socio-listado' %}";
+                        window.location.href = data.url_redirect;
                     } else {
                         let errors = []
                         if (typeof data.error === 'object') {
