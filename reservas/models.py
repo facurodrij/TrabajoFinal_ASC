@@ -37,7 +37,7 @@ class Parameters(models.Model):
                                                                   'La reserva debe ser pagada dentro de esta cantidad de'
                                                                   ' minutos, de lo contrario se cancelará.')
     max_reservas_user = models.PositiveSmallIntegerField(default=2,
-                                                         verbose_name='Máximo de reservas activas por usuario',
+                                                         verbose_name='Máximo de reservas pendientes por usuario',
                                                          help_text=
                                                          'La cantidad máxima de reservas activas que puede tener un'
                                                          ' usuario.')

@@ -20,6 +20,7 @@ from weasyprint import HTML, CSS
 from accounts.decorators import admin_required
 from accounts.forms import *
 from core.models import Club, Persona
+from parameters.models import MedioPago
 from socios.forms import SocioAdminForm, SocioParametersForm
 from socios.models import Socio, Parameters, CuotaSocial
 
@@ -146,6 +147,7 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
         context['cuotas_sociales'] = CuotaSocial.objects.filter(
             itemcuotasocial__socio=self.get_object()
         ).order_by('periodo_anio', 'periodo_mes')
+        context['medios_pagos'] = MedioPago.objects.all()
         return context
 
     def get_object(self, queryset=None):

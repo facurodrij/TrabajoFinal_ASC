@@ -143,12 +143,14 @@ class Persona(SoftDeleteModel):
         else:
             return self.persona_titular.persona_set.all()
 
-
     def get_related_objects(self):
         """
         Devuelve una lista de objetos relacionados con la persona.
         """
-        return [self.socio]
+        try:
+            return [self.socio]
+        except Socio.DoesNotExist:
+            return []
 
     def toJSON(self):
         """
