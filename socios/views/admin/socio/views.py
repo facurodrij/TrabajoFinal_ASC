@@ -19,9 +19,10 @@ from weasyprint import HTML, CSS
 
 from accounts.decorators import admin_required
 from accounts.forms import *
-from core.models import Club
+from core.models import Club, Persona
+from parameters.models import MedioPago
 from socios.forms import SocioAdminForm, SocioParametersForm
-from socios.models import Socio
+from socios.models import Socio, Parameters, CuotaSocial
 
 
 class SocioAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -51,11 +52,24 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
         context = super().get_context_data(**kwargs)
         context['title'] = 'Nuevo Socio'
         context['action'] = 'add'
+        context['persona_id'] = self.request.GET.get('persona_id')
         return context
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        form.fields['persona'].queryset = Persona.objects.filter(socio__isnull=True)
+        persona_id = self.request.GET.get('persona_id')
+        # Si no existe la persona se inicializa el campo persona con filter(socio__isnull=True)
+        if persona_id:
+            # Si la persona existe pero ya tiene un socio se inicializa el campo persona con filter(socio__isnull=True)
+            if Persona.objects.filter(pk=persona_id).exists():
+                persona = Persona.objects.get(pk=persona_id)
+                if persona.get_socio(global_objects=True):
+                    form.fields['persona'].queryset = Persona.objects.filter(socio__isnull=True)
+                else:
+                    form.fields['persona'].queryset = Persona.objects.filter(pk=persona_id)
+                    form.fields['persona'].initial = persona
+        else:
+            form.fields['persona'].queryset = Persona.objects.filter(socio__isnull=True)
         return form
 
     def post(self, request, *args, **kwargs):
@@ -108,8 +122,7 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
                                                                'se ha enviado un email para establecer la contraseña.')
                         data = {'persona': socio.persona.toJSON(),
                                 'socio': socio.toJSON(),
-                                'swal_title': 'Socio creado',
-                                'swal_text': 'El socio ha sido creado exitosamente.'}
+                                'url_redirect': reverse_lazy('admin-socio-detalle', kwargs={'pk': socio.pk})}
                 else:
                     data['error'] = form.errors
         except Exception as e:
@@ -121,6 +134,7 @@ class SocioAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
 class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """
     Vista para mostrar un socio, solo para administradores
+    # TODO: Mostrar las cuotas pagadas y las que faltan pagar
     """
     model = Socio
     template_name = 'admin/socio/detail.html'
@@ -130,7 +144,10 @@ class SocioAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Detalle de Socio'
-        context['grupo_familiar'] = self.object.grupo_familiar()
+        context['cuotas_sociales'] = CuotaSocial.objects.filter(
+            itemcuotasocial__socio=self.get_object()
+        ).order_by('periodo_anio', 'periodo_mes')
+        context['medios_pagos'] = MedioPago.objects.all()
         return context
 
     def get_object(self, queryset=None):
@@ -223,6 +240,8 @@ class SocioAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
                                                      ' y se ha enviado un email para establecer la contraseña.')
                         data = {'persona': self.get_object().persona.toJSON(),
                                 'socio': self.get_object().toJSON(),
+                                'url_redirect': reverse_lazy('admin-socio-detalle',
+                                                             kwargs={'pk': self.get_object().pk}),
                                 'swal_title': 'Socio editado',
                                 'swal_text': 'El socio ha sido editado exitosamente.'}
                 else:
@@ -303,23 +322,21 @@ class SocioAdminRestoreView(LoginRequiredMixin, PermissionRequiredMixin, FormVie
         return JsonResponse(data, safe=False)
 
 
-@login_required
-@admin_required
-def socio_history_pdf(request, socio_pk, history_pk):
-    socio = Socio.global_objects.get(pk=socio_pk)
-    club = Club.objects.get(pk=1)
-    history = socio.history.get(pk=history_pk)
-    html_string = render_to_string('admin/socio/history_pdf.html', {'history': history,
-                                                                    'socio': socio,
-                                                                    'club': club})
-    html = HTML(string=html_string, base_url=request.build_absolute_uri())
-    html.write_pdf(target='/tmp/socio_historial.pdf',
-                   stylesheets=[CSS('{}/libs/bootstrap-4.6.2/bootstrap.min.css'.format(settings.STATICFILES_DIRS[0]))])
-    fs = FileSystemStorage('/tmp')
-    with fs.open('socio_historial.pdf') as pdf:
-        response = HttpResponse(pdf, content_type='application/pdf')
-        response['Content-Disposition'] = 'filename="socio_historial.pdf"'
-        return response
+class SocioAdminDetailPrintView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    """
+    Vista para imprimir el detalle de un socio, solo para administradores
+    """
+    model = Socio
+    template_name = 'admin/socio/detail_print.html'
+    permission_required = 'socios.view_socio'
+    context_object_name = 'socio'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Detalle de Socio'
+        context['club'] = Club.objects.get(pk=1)
+        context['miembros'] = self.object.get_miembros()
+        return context
 
 
 @login_required
@@ -332,10 +349,7 @@ def socio_admin_ajax(request):
         if action == 'get_persona':
             # Si la acción es get_persona, se obtiene la persona
             try:
-                try:
-                    persona = Persona.global_objects.get(dni=request.GET['dni'])
-                except KeyError:
-                    persona = Persona.global_objects.get(pk=request.GET['id'])
+                persona = Persona.global_objects.get(pk=request.GET['id'])
                 if persona.is_deleted:
                     data = {'persona_is_deleted': persona.toJSON()}
                 elif persona.get_socio(global_objects=True):
@@ -349,27 +363,3 @@ def socio_admin_ajax(request):
         pass
     print('socio_admin_ajax: ', data)
     return JsonResponse(data, safe=False)
-
-
-class ParametersSocioFormView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
-    """Vista para la edición de los parámetros de socios."""
-    template_name = 'socios.html'
-    form_class = SocioParametersForm
-    permission_required = 'parameters.change_socios'
-    success_url = reverse_lazy('admin-socio-parametros')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Parámetros de Socios'
-        return context
-
-    # Definir message success
-    def form_valid(self, form):
-        form.save()
-        messages.success(self.request, 'Los parámetros de socios se guardaron correctamente.')
-        return super().form_valid(form)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['instance'] = Parameters.objects.get(club=Club.objects.get(pk=1))
-        return kwargs

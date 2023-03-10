@@ -1,23 +1,20 @@
 from django.contrib.auth import (
     logout, get_user_model)
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.files.storage import FileSystemStorage
 from django.core.mail import EmailMessage
 from django.db import transaction
-from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import FormView, UpdateView, CreateView, ListView
-from weasyprint import HTML
+from django.views.generic import FormView, UpdateView
 
 from accounts.decorators import *
 from accounts.forms import *
 from accounts.tokens import account_activation_token
+from core.models import Club
 
 User = get_user_model()
 
@@ -101,159 +98,6 @@ def activate_account(request, uidb64, token):
         return redirect('login')
 
 
-class PersonaAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
-    """ Vista para el listado de personas """
-    # TODO: Permitir filtrar por eliminados
-    model = Persona
-    template_name = 'admin/persona/list.html'
-    permission_required = 'accounts.view_persona'
-    context_object_name = 'personas'
-
-    def get_queryset(self):
-        return Persona.global_objects.all()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Listado de Personas'
-        return context
-
-
-class PersonaAdminCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    """ Vista para la creación de personas """
-    # TODO: Generar comprobante de operación
-    model = Persona
-    form_class = PersonaAdminForm
-    template_name = 'admin/persona/form.html'
-    permission_required = 'accounts.add_persona'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Nueva Persona'
-        if self.request.GET.get('titular'):
-            context['title'] = 'Nuevo Persona Titular'
-        context['action'] = 'add'
-        return context
-
-    # Si en la url existe 'titular=true', se deshabilita el campo es_menor del formulario
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        if self.request.GET.get('titular'):
-            form.fields['es_menor'].widget.attrs['disabled'] = True
-            form.fields['persona_titular'].widget.attrs['disabled'] = True
-        return form
-
-    def post(self, request, *args, **kwargs):
-        data = {}
-        try:
-            action = request.POST['action']
-            if action == 'add':
-                form = self.form_class(request.POST, request.FILES)
-                if form.is_valid():
-                    with transaction.atomic():
-                        persona = form.save()
-                        persona_titular = form.cleaned_data.get('persona_titular')
-                        if persona_titular:
-                            persona.persona_titular = persona_titular
-                            persona.save()
-                            persona.validate()
-                            persona.persona_titular.validate()
-                        else:
-                            persona.validate()
-                        data['persona'] = persona.toJSON()
-                else:
-                    data['error'] = form.errors
-            else:
-                data['error'] = 'Ha ocurrido un error'
-        except Exception as e:
-            data['error'] = e.args[0]
-        print(data)
-        return JsonResponse(data)
-
-
-class PersonaAdminUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
-    """ Vista para la actualización de personas """
-    # TODO: Generar comprobante de operación
-    # TODO: Si la persona esta eliminada, redirigir a su detalle
-    model = Persona
-    form_class = PersonaAdminForm
-    template_name = 'admin/persona/form.html'
-    permission_required = 'accounts.change_persona'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Editar Persona'
-        context['action'] = 'edit'
-        return context
-
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        form.fields['persona_titular'].initial = self.object.persona_titular
-        form.fields['persona_titular'].queryset = Persona.objects.filter(persona_titular__isnull=True).exclude(
-            pk=self.object.pk)
-        if self.object.persona_set.exists():
-            form.fields['persona_titular'].widget.attrs['disabled'] = True
-            form.fields['persona_titular'].help_text = 'No se puede modificar porque la persona tiene personas a cargo.'
-        return form
-
-    def post(self, request, *args, **kwargs):
-        data = {}
-        try:
-            action = request.POST['action']
-            change_reason = request.POST['change_reason']
-            if action == 'edit':
-                form = self.form_class(request.POST, request.FILES, instance=self.get_object())
-                if form.is_valid():
-                    with transaction.atomic():
-                        persona_titular = form.cleaned_data.get('persona_titular')
-                        if persona_titular:
-                            persona = form.save(commit=False)
-                            persona.persona_titular = persona_titular
-                            persona._change_reason = change_reason
-                            persona.save()
-                            persona.validate()
-                        else:
-                            persona = form.save(commit=False)
-                            persona.persona_titular = None
-                            persona._change_reason = change_reason
-                            persona.save()
-                            persona.validate()
-                        messages.success(request, 'Persona actualizada correctamente.')
-                else:
-                    data['error'] = form.errors
-            else:
-                data['error'] = 'Ha ocurrido un error'
-        except Exception as e:
-            data['error'] = e.args[0]
-        print(data)
-        return JsonResponse(data)
-
-
-@login_required
-@admin_required
-def persona_history_pdf(request):
-    """ Vista para generar el pdf de la historia de una persona """
-    if request.method == 'GET':
-        action = request.GET['action']
-        if action == 'print':
-            try:
-                persona_id = request.GET['persona_id']
-                persona = Persona.global_objects.get(pk=persona_id)
-                html_string = render_to_string('admin/persona/comprobante.html', {'persona': persona})
-                html = HTML(string=html_string, base_url=request.build_absolute_uri())
-                html.write_pdf(target='/tmp/personas.pdf')
-                fs = FileSystemStorage('/tmp')
-                with fs.open('personas.pdf') as pdf:
-                    response = HttpResponse(pdf, content_type='application/pdf')
-                    response['Content-Disposition'] = 'inline; filename="personas.pdf"'
-                    return response
-            except Exception as e:
-                print(e.args[0])
-                return HttpResponse('Error al generar el PDF')
-
-
-# TODO: PersonaAdminDetailView
-# TODO: PersonaAdminDeleteView
-
 class ProfileUserView(LoginRequiredMixin, UpdateView):
     """ Vista para el perfil de usuario """
     model = User
@@ -268,8 +112,52 @@ class ProfileUserView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Perfil de Usuario'
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
+        context['socio'] = self.object.get_socio() if self.object.get_socio() else None
         return context
 
     def form_valid(self, form):
         messages.success(self.request, 'Usuario actualizado correctamente.')
         return super().form_valid(form)
+
+
+class ChangeEmailView(LoginRequiredMixin, UpdateView):
+    """ Vista para cambiar el email de usuario """
+    model = User
+    template_name = 'user/change_email.html'
+    form_class = ChangeEmailForm
+    success_url = reverse_lazy('user-perfil')
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_initial(self):
+        return {'email': ''}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Cambiar Email'
+        context['club_logo'] = Club.objects.get(pk=1).get_imagen()
+        return context
+
+    def form_valid(self, form):
+        with transaction.atomic():
+            user = form.save(commit=False)
+            user.is_active = False
+            user.save()
+            current_site = get_current_site(self.request)
+            mail_subject = 'Active su cuenta.'
+            message = render_to_string('registration/activate_account_email.html', {
+                'user': user,
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': account_activation_token.make_token(user),
+                'protocol': 'https' if self.request.is_secure() else 'http',
+                'club': Club.objects.first(),
+            })
+            to_email = user.email
+            email = EmailMessage(
+                mail_subject, message, to=[to_email]
+            )
+            email.send()
+        messages.success(self.request, 'Se ha enviado un email a su casilla para que active su cuenta.')
+        return redirect('login')

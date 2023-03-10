@@ -1,91 +1,9 @@
 from django import forms
 from django.contrib.auth import authenticate, password_validation
 from django.contrib.auth.forms import UserCreationForm, UsernameField, AuthenticationForm
-from django.db.utils import OperationalError, ProgrammingError
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import User, Persona
-from core.models import Club
-from socios.models import Parameters
-
-
-class PersonaAdminForm(forms.ModelForm):
-    """
-    Formulario para registrar los datos de una Persona. Se utiliza en el formulario de registro de un nuevo usuario.
-    """
-    try:
-        edad_minima_titular = Parameters.objects.get(club_id=1).edad_minima_titular
-        es_menor = forms.BooleanField(
-            label='Es menor de {} años?'.format(edad_minima_titular),
-            required=False,
-            widget=forms.CheckboxInput(),
-            help_text='Marque esta casilla si la persona es menor de {} años.'.format(edad_minima_titular)
-        )
-    except (OperationalError, ProgrammingError, Parameters.DoesNotExist) as e:
-        print(e)
-        es_menor = forms.BooleanField(
-            label='Es menor?',
-            required=False,
-            widget=forms.CheckboxInput(),
-            help_text='Marque esta casilla si la persona es menor.'
-        )
-    cuil = forms.CharField(
-        max_length=13,
-        label='CUIL',
-        required=True,
-        widget=forms.TextInput(
-            attrs={'placeholder': '00-00000000-0',
-                   'class': 'form-control',
-                   'autocomplete': 'off',
-                   }))
-    sexo = forms.Select(attrs={'class': 'form-control select2'})
-    persona_titular = forms.ModelChoiceField(
-        required=False,
-        label='Persona a cargo',
-        queryset=Persona.objects.filter(persona_titular__isnull=True),
-        widget=forms.Select(attrs={'class': 'form-control select2'}))
-    nombre = forms.CharField(
-        max_length=100,
-        required=True,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'Ingrese el nombre',
-                   'class': 'form-control',
-                   'autocomplete': 'off',
-                   }))
-    apellido = forms.CharField(
-        max_length=100,
-        required=True,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'Ingrese el apellido',
-                   'class': 'form-control',
-                   'autocomplete': 'off',
-                   }))
-    fecha_nacimiento = forms.DateField(
-        required=True,
-        widget=forms.TextInput(
-            attrs={
-                'autocomplete': 'off',
-                'placeholder': 'Ingrese la fecha de nacimiento',
-                'class': 'form-control datetimepicker-input',
-                'data-toggle': 'datetimepicker',
-                'data-target': '#id_fecha_nacimiento',
-            }
-        ))
-    imagen = forms.ImageField(
-        required=True,
-        label='Foto carnet',
-        widget=forms.FileInput(attrs={'class': 'custom-file-input'}))
-    club = forms.ModelChoiceField(
-        queryset=Club.objects.all(),
-        widget=forms.HiddenInput())
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['club'].initial = Club.objects.get(pk=1)
-
-    class Meta:
-        model = Persona
-        fields = ['cuil', 'sexo', 'nombre', 'apellido', 'fecha_nacimiento', 'imagen', 'club']
+from accounts.models import User
 
 
 class LoginForm(AuthenticationForm):
@@ -140,29 +58,6 @@ class SignUpForm(UserCreationForm):
     """
     Formulario para el registro de usuarios.
     """
-    email = forms.EmailField(
-        max_length=100,
-        required=True,
-        widget=forms.EmailInput(attrs={'placeholder': 'Ingrese su email',
-                                       'class': 'form-control',
-                                       'autocomplete': 'off',
-                                       }))
-    nombre = forms.CharField(
-        max_length=100,
-        required=True,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'Ingrese su nombre',
-                   'class': 'form-control',
-                   'autocomplete': 'off',
-                   }))
-    apellido = forms.CharField(
-        max_length=100,
-        required=True,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'Ingrese su apellido',
-                   'class': 'form-control',
-                   'autocomplete': 'off',
-                   }))
     password1 = forms.CharField(
         label=_("Password"),
         strip=False,
@@ -197,6 +92,18 @@ class SignUpForm(UserCreationForm):
         fields = ('email', 'nombre', 'apellido', 'notificaciones')
         field_classes = {'email': UsernameField}
         widgets = {
+            'email': forms.EmailInput(attrs={'placeholder': 'Ingrese su email',
+                                             'class': 'form-control',
+                                             'autocomplete': 'off',
+                                             }),
+            'nombre': forms.TextInput(attrs={'placeholder': 'Ingrese su nombre',
+                                             'class': 'form-control',
+                                             'autocomplete': 'off',
+                                             }),
+            'apellido': forms.TextInput(attrs={'placeholder': 'Ingrese su apellido',
+                                               'class': 'form-control',
+                                               'autocomplete': 'off',
+                                               }),
             'notificaciones': forms.CheckboxInput(),
         }
 
@@ -205,35 +112,12 @@ class ProfileForm(forms.ModelForm):
     """
     Formulario para el perfil de usuarios.
     """
-    email = forms.EmailField(
-        max_length=100,
-        required=True,
-        widget=forms.EmailInput(attrs={'placeholder': 'Ingrese su email',
-                                       'class': 'form-control',
-                                       'autocomplete': 'off',
-                                       }))
-    nombre = forms.CharField(
-        max_length=100,
-        required=True,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'Ingrese su nombre',
-                   'class': 'form-control',
-                   'autocomplete': 'off',
-                   }))
-    apellido = forms.CharField(
-        max_length=100,
-        required=True,
-        widget=forms.TextInput(
-            attrs={'placeholder': 'Ingrese su apellido',
-                   'class': 'form-control',
-                   'autocomplete': 'off',
-                   }))
     password = forms.CharField(
         label=_("Password"),
         strip=False,
         widget=forms.PasswordInput(attrs={"autocomplete": "current-password",
                                           'class': 'form-control',
-                                          'placeholder': 'Contraseña'})
+                                          'placeholder': 'Contraseña actual'})
     )
 
     def __init__(self, *args, **kwargs):
@@ -248,9 +132,48 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = User
-        exclude = ['password', 'last_login', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'groups',
-                   'user_permissions']
-        field_classes = {'email': UsernameField}
+        fields = ('nombre', 'apellido', 'notificaciones')
         widgets = {
+            'nombre': forms.TextInput(attrs={'placeholder': 'Ingrese su nombre',
+                                             'class': 'form-control',
+                                             'autocomplete': 'off',
+                                             }),
+            'apellido': forms.TextInput(attrs={'placeholder': 'Ingrese su apellido',
+                                               'class': 'form-control',
+                                               'autocomplete': 'off',
+                                               }),
             'notificaciones': forms.CheckboxInput(),
+        }
+
+
+class ChangeEmailForm(forms.ModelForm):
+    """
+    Formulario para el cambio de email de usuarios.
+    """
+    password = forms.CharField(
+        label=_("Password"),
+        strip=False,
+        widget=forms.PasswordInput(attrs={"autocomplete": "current-password",
+                                          'class': 'form-control',
+                                          'placeholder': 'Contraseña actual'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs['autofocus'] = True
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        if not self.instance.check_password(password):
+            raise forms.ValidationError('Contraseña incorrecta')
+        pass
+
+    class Meta:
+        model = User
+        fields = ('email',)
+        widgets = {
+            'email': forms.EmailInput(attrs={'placeholder': 'Ingrese su nuevo email',
+                                             'class': 'form-control',
+                                             'autocomplete': 'off',
+                                             }),
         }

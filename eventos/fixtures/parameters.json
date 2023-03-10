@@ -1,0 +1,11 @@
+[
+  {
+    "model": "eventos.Parameters",
+    "pk": 1,
+    "fields": {
+      "club": 1,
+      "minutos_expiracion_venta": 8,
+      "max_tickets_por_venta": 10
+    }
+  }
+]

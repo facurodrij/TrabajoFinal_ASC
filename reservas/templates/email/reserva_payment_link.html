@@ -5,11 +5,27 @@
     <title>Link de Pago</title>
 </head>
 <body>
-<p>Hola cliente</p>
-<p>Has creado una reserva en nuestro sistema de reservas de canchas</p>
-<p>Para pagar tu reserva, haz click en el siguiente enlace:</p>
+<p>Estimado/a cliente,</p>
+<p>¡Gracias por su orden de reserva! Nos complace informarle que su orden de reserva ha sido procesada y está lista para
+    ser pagada.</p>
+<!-- Descripción de la reserva -->
+<p>Detalle de la reserva:</p>
+<ul>
+    <li><b>Establecimiento:</b> {{ reserva.cancha.club }}</li>
+    <li><b>Deporte:</b> {{ reserva.cancha.deporte }}</li>
+    <li><b>Cancha:</b> {{ reserva.cancha }}</li>
+    <li><b>Fecha:</b> {{ reserva.fecha }}</li>
+    <li><b>Hora:</b> {{ reserva.hora }}</li>
+    <li><b>Precio de la reserva:</b> {{ reserva.precio }}</li>
+    <li><b>Con luz:</b> {{ reserva.get_CON_LUZ_display }}</li>
+</ul>
+<br>
+<p>Le adjuntamos el enlace para que pueda realizar el pago de su orden de reserva.
+    Puede hacer clic en el siguiente enlace para acceder a su reserva y realizar el pago:</p>
 {% autoescape off %}
     <a href="{{ protocol }}://{{ domain }}{% url 'reservas-pago' reserva.pk %}" target="_blank">Pagar reserva</a>
 {% endautoescape %}
+<br>
+<p>Atentamente, Club Atlético Bartolomé Mitre</p>
 </body>
 </html>

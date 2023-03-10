@@ -1,4 +1,5 @@
 import base64
+import socket
 from datetime import datetime, timedelta
 from io import BytesIO
 
@@ -57,10 +58,10 @@ class Evento(SoftDeleteModel):
                                                    'no hay límite.')
     mayor_edad = models.BooleanField(verbose_name='Mayor de edad', default=False,
                                      help_text='Indica si el evento es para mayores de edad.')
-    descuento_socio = models.DecimalField(max_digits=3, decimal_places=2, default=0,
+    descuento_socio = models.DecimalField(max_digits=5, decimal_places=2, default=0,
                                           verbose_name='Descuento para socios',
-                                          validators=[MinValueValidator(0), MaxValueValidator(1)],
-                                          help_text='Descuento para los socios, ingrese un número entre 0 y 1.')
+                                          validators=[MinValueValidator(0), MaxValueValidator(100)],
+                                          help_text='Porcentaje de descuento para socios.')
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
     history = HistoricalRecords()
@@ -74,17 +75,18 @@ class Evento(SoftDeleteModel):
     imagen = models.ImageField(upload_to=image_directory_path, verbose_name='Imagen')
 
     def __str__(self):
-        return self.nombre
+        # Retornar el nombre del evento y la fecha de inicio con siguiente formato: Nombre (DD de enero de YYYY HH:MMhs)
+        return '{} ({})'.format(self.nombre, self.get_start_datetime().strftime('%d de %B de %Y %H:%Mhs'))
 
     def get_imagen(self):
         """
-        Devuelve la imagen de la persona.
+        Devuelve la imagen del evento.
         """
         try:
             # Si existe una imagen en self.imagen.url, la devuelve.
             Image.open(self.imagen.path)
             return self.imagen.url
-        except FileNotFoundError:
+        except (FileNotFoundError, ValueError):
             return settings.STATIC_URL + 'img/empty.svg'
 
     def get_expiration_date(self, isoformat=True):
@@ -107,6 +109,18 @@ class Evento(SoftDeleteModel):
         """
         return datetime.combine(self.fecha_fin, self.hora_fin)
 
+    def get_FECHA_INICIO_display(self):
+        """
+        Devuelve la fecha de inicio del evento en formato DD/MM/YYYY HH:MM.
+        """
+        return self.get_start_datetime().strftime('%d/%m/%Y %H:%M')
+
+    def get_FECHA_FIN_display(self):
+        """
+        Devuelve la fecha de finalización del evento en formato DD/MM/YYYY HH:MM.
+        """
+        return self.get_end_datetime().strftime('%d/%m/%Y %H:%M')
+
     def get_ESTADO_display(self):
         """Método para mostrar el estado de la reserva."""
         if self.get_end_datetime() < datetime.now():
@@ -115,6 +129,18 @@ class Evento(SoftDeleteModel):
             return 'En curso'
         else:
             return 'Por comenzar'
+
+    def get_ticket_variante_lower_price(self):
+        """
+        Devuelve la variante de ticket con el precio más bajo.
+        """
+        if self.ticketvariante_set.exists():
+            return self.ticketvariante_set.order_by('precio').first().precio
+        return '-'
+
+    def clean(self):
+        if self.get_start_datetime() > self.get_end_datetime():
+            raise ValidationError('La fecha y hora de inicio debe ser menor o igual a la fecha y hora de finalización.')
 
     def save(self, *args, **kwargs):
         """Método save() sobrescrito para redimensionar la imagen."""
@@ -225,6 +251,7 @@ class Ticket(SoftDeleteModel):
     venta_ticket = models.ForeignKey('eventos.VentaTicket', on_delete=models.PROTECT, verbose_name='Venta')
     ticket_variante = models.ForeignKey('eventos.TicketVariante', on_delete=models.PROTECT,
                                         verbose_name='Variante de ticket')
+    dni = models.CharField(max_length=9, verbose_name='DNI')
     nombre = models.CharField(max_length=255, verbose_name='Nombre del cliente')
     is_used = models.BooleanField(default=False, verbose_name='Usado')
     check_date = models.DateTimeField(null=True, blank=True, verbose_name='Fecha de check-in')
@@ -243,7 +270,9 @@ class Ticket(SoftDeleteModel):
         """
         factory = SvgPathFillImage
         url = reverse('admin-tickets-qr', kwargs={'pk': self.pk})
-        qr_string = "http://127.0.0.1:8000" + url
+        hostname = socket.gethostname()
+        ip_address = socket.gethostbyname(hostname)
+        qr_string = "http://{}:8000".format(ip_address) + url
         img = qrcode.make(qr_string, image_factory=factory, box_size=20, border=1)
         stream = BytesIO()
         img.save(stream)
@@ -338,6 +367,12 @@ class VentaTicket(SoftDeleteModel):
         return (self.date_created + timedelta(minutes=minutos)).isoformat() if isoformat else \
             self.date_created + timedelta(minutes=minutos)
 
+    def get_fecha_creacion(self):
+        """
+        Devuelve la fecha de creación de la venta.
+        """
+        return self.date_created.strftime('%d/%m/%Y %H:%M')
+
     def get_related_objects(self):
         """
         Devuelve los objetos relacionados con la venta.
@@ -421,7 +456,7 @@ class PagoVentaTicket(models.Model):
     Modelo de los pagos de las ventas de tickets.
     """
     venta_ticket = models.OneToOneField('eventos.VentaTicket', on_delete=models.PROTECT, verbose_name='Venta de ticket')
-    payment_id = models.CharField(max_length=255, verbose_name='Payment ID')
+    payment_id = models.CharField(max_length=255, verbose_name='Payment ID', unique=True)
     status = models.CharField(max_length=50, verbose_name='Estado')
     status_detail = models.CharField(max_length=255, verbose_name='Detalle del estado')
     transaction_amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Monto de la transacción')
@@ -429,6 +464,20 @@ class PagoVentaTicket(models.Model):
     date_updated = models.DateTimeField(auto_now=True, verbose_name='Fecha de actualización')
     date_approved = models.DateTimeField(verbose_name='Fecha de aprobación')
     history = HistoricalRecords()
+
+    def get_STATUS_display(self):
+        """Método para mostrar el estado del pago."""
+        if self.status == 'approved':
+            return 'Aprobado'
+        else:
+            return 'Pendiente'
+
+    def get_STATUS_DETAIL_display(self):
+        """Método para mostrar el detalle del estado del pago."""
+        if self.status_detail == 'accredited':
+            return 'Acreditado'
+        else:
+            return 'Pendiente'
 
     def toJSON(self):
         """

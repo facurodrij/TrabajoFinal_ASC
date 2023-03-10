@@ -24,8 +24,7 @@
                         <table id="dataTable" class="table table-bordered table-striped">
                             <thead>
                             <tr>
-                                <th scope="col" style="">Fecha de inicio</th>
-                                <th scope="col" style="">Hora de inicio</th>
+                                <th scope="col" style="">Fecha y Hora</th>
                                 <th scope="col" style="">Cancha</th>
                                 <th scope="col" style="">Cliente</th>
                                 <th scope="col" style="">Estado de pago</th>
@@ -36,8 +35,7 @@
                             <tbody>
                             {% for reserva in reservas %}
                                 <tr>
-                                    <td>{{ reserva.fecha }}</td>
-                                    <td>{{ reserva.hora }}</td>
+                                    <td>{{ reserva.get_START_DATETIME_display }}</td>
                                     <td>{{ reserva.cancha }}</td>
                                     <td>{{ reserva.nombre }}</td>
                                     <td>{{ reserva.get_ESTADO_PAGO_display }}</td>
@@ -53,8 +51,7 @@
                             </tbody>
                             <tfoot>
                             <tr>
-                                <th scope="col" style="">Fecha de inicio</th>
-                                <th scope="col" style="">Hora de inicio</th>
+                                <th scope="col" style="">Fecha y Hora</th>
                                 <th scope="col" style="">Cancha</th>
                                 <th scope="col" style="">Cliente</th>
                                 <th scope="col" style="">Estado de pago</th>
@@ -77,128 +74,56 @@
     {# DataTable #}
     <link rel="stylesheet" type="text/css" href="{% static 'libs/DataTables/datatables.css' %}"/>
     <script type="text/javascript" src="{% static 'libs/DataTables/datatables.js' %}"></script>
-    <script type="text/javascript" src="{% static 'libs/DataTables/Select-1.5.0/js/dataTables.select.js' %}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.13.2/sorting/datetime-moment.js"></script>
     <script>
-        let table = $('#dataTable');
-
-        table.DataTable({
-            language: {
-                "processing": "Procesando...",
-                "lengthMenu": "Mostrar _MENU_ registros",
-                "zeroRecords": "No se encontraron resultados",
-                "emptyTable": "Ningún dato disponible en esta tabla",
-                "infoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
-                "infoFiltered": "(filtrado de un total de _MAX_ registros)",
-                "search": "Buscar:",
-                "infoThousands": ",",
-                "loadingRecords": "Cargando...",
-                "paginate": {
-                    "first": "Primero",
-                    "last": "Último",
-                    "next": "Siguiente",
-                    "previous": "Anterior"
+        $(document).ready(function () {
+            $.fn.dataTable.moment('DD/MM/YYYY HH:mm');
+            $('#dataTable').DataTable({
+                language: {
+                    url: '{% static 'libs/datatables/es-ES.json' %}'
                 },
-                "aria": {
-                    "sortAscending": ": Activar para ordenar la columna de manera ascendente",
-                    "sortDescending": ": Activar para ordenar la columna de manera descendente"
-                },
-                "buttons": {
-                    "copy": "Copiar",
-                    "colvis": "Visibilidad",
-                    "collection": "Colección",
-                    "colvisRestore": "Restaurar visibilidad",
-                    "copyKeys": "Presione ctrl o u2318 + C para copiar los datos de la tabla al portapapeles del sistema. <br \/> <br \/> Para cancelar, haga clic en este mensaje o presione escape.",
-                    "copySuccess": {
-                        "1": "Copiada 1 fila al portapapeles",
-                        "_": "Copiadas %ds fila al portapapeles"
+                dom: 'Bfrtip',
+                columnDefs: [ // Quitarle estilos a la ultima columna
+                    {"orderable": false, "targets": -1}
+                ],
+                responsive: true,
+                order: [[0, 'desc']],
+                autoWidth: false,
+                buttons: [
+                    {
+                        extend: 'print',
+                        text: '<i class="fa-solid fa-print"></i> Imprimir',
+                        titleAttr: 'Imprimir',
+                        className: 'btn btn-info btn-sm border',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5]
+                        }
                     },
-                    "copyTitle": "Copiar al portapapeles",
-                    "csv": "CSV",
-                    "excel": "Excel",
-                    "pageLength": {
-                        "-1": "Mostrar todas las filas",
-                        "_": "Mostrar %d filas"
+                    {
+                        extend: 'colvis',
+                        text: '<i class="fa-solid fa-eye"></i> Ver columnas',
+                        titleAttr: 'Ver columnas',
+                        className: 'btn btn-secondary btn-sm border',
+                        postfixButtons: ['colvisRestore']
                     },
-                    "pdf": "PDF",
-                    "print": "Imprimir",
-                    "renameState": "Cambiar nombre",
-                    "updateState": "Actualizar",
-                    "createState": "Crear Estado",
-                    "removeAllStates": "Remover Estados",
-                    "removeState": "Remover",
-                    "savedStates": "Estados Guardados",
-                    "stateRestore": "Estado %d"
-                },
-                "searchPanes": {
-                    "clearMessage": "Borrar todo",
-                    "collapse": {
-                        "0": '<i class="fa-solid fa-filter"></i> Filtros',
-                        "_": '<i class="fa-solid fa-filter"></i> Filtros (%d)'
+                    {
+                        extend: 'searchPanes',
+                        text: '<i class="fa-solid fa-filter"></i> Filtros',
+                        className: 'btn btn-secondary btn-sm border',
+                        config: {
+                            cascadePanes: true,
+                            viewTotal: true,
+                            layout: 'columns-3',
+                            columns: [1, 2, 3, 4, 5],
+                        }
                     },
-                    "count": "{total}",
-                    "countFiltered": "{shown} ({total})",
-                    "emptyPanes": "No hay suficientes datos para mostrar los filtros",
-                    "loadMessage": "Cargando paneles de búsqueda",
-                    "title": "Filtros Activos - %d",
-                    "showMessage": "Mostrar Todo",
-                    "collapseMessage": "Colapsar Todo"
-                },
-                "select": {
-                    "cells": {
-                        "1": "1 celda seleccionada",
-                        "_": "%d celdas seleccionadas"
-                    },
-                    "columns": {
-                        "1": "1 columna seleccionada",
-                        "_": "%d columnas seleccionadas"
-                    },
-                    "rows": {
-                        "1": "1 fila seleccionada",
-                        "_": "%d filas seleccionadas"
+                    {
+                        extend: 'pageLength',
+                        className: 'btn btn-secondary btn-sm border',
                     }
-                },
-                "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
-            },
-            dom: 'Bfrtip',
-            columnDefs: [ // Quitarle estilos a la ultima columna
-                {"orderable": false, "targets": -1}
-            ],
-            responsive: true,
-            order: [[0, 'desc']],
-            autoWidth: false,
-            buttons: [
-                {
-                    extend: 'print',
-                    text: '<i class="fa-solid fa-print"></i> Imprimir',
-                    titleAttr: 'Imprimir',
-                    className: 'btn btn-info btn-sm border',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5]
-                    }
-                },
-                {
-                    extend: 'colvis',
-                    text: '<i class="fa-solid fa-eye"></i> Ver columnas',
-                    titleAttr: 'Ver columnas',
-                    className: 'btn btn-secondary btn-sm border',
-                    postfixButtons: ['colvisRestore']
-                },
-                {
-                    extend: 'searchPanes',
-                    text: '<i class="fa-solid fa-filter"></i> Filtros',
-                    className: 'btn btn-secondary btn-sm border',
-                    config: {
-                        cascadePanes: true,
-                        viewTotal: true,
-                        layout: 'columns-3',
-                        columns: [1, 2, 3, 4, 5],
-                    }
-                },
-                {
-                    extend: 'pageLength',
-                    className: 'btn btn-secondary btn-sm border',
-                }
-            ],
+                ],
+            });
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.0.2/index.global.js"></script>

@@ -1,0 +1,210 @@
+[
+    {
+        "model": "core.Persona",
+        "pk": 10,
+        "fields": {
+            "cuil": "20123456789",
+            "nombre": "Juan",
+            "apellido": "Perez",
+            "fecha_nacimiento": "1990-01-01",
+            "club": 1,
+            "persona_titular": null,
+            "sexo": 1
+        }
+    },
+    {
+        "model": "core.Persona",
+        "pk": 11,
+        "fields": {
+            "cuil": "20234789569",
+            "nombre": "Maria",
+            "apellido": "Gomez",
+            "fecha_nacimiento": "1998-01-01",
+            "club": 1,
+            "persona_titular": null,
+            "sexo": 2
+        }
+    },
+    {
+        "model": "core.Persona",
+        "pk": 12,
+        "fields": {
+            "cuil": "20345678901",
+            "nombre": "Pedro",
+            "apellido": "Gonzalez",
+            "fecha_nacimiento": "1995-01-01",
+            "club": 1,
+            "persona_titular": null,
+            "sexo": 1
+        }
+    },
+    {
+        "model": "core.Persona",
+        "pk": 13,
+        "fields": {
+            "cuil": "20456789012",
+            "nombre": "Jose",
+            "apellido": "Rodriguez",
+            "fecha_nacimiento": "1992-01-01",
+            "club": 1,
+            "persona_titular": null,
+            "sexo": 1
+        }
+    },
+    {
+        "model": "core.Persona",
+        "pk": 14,
+        "fields": {
+            "cuil": "20567890123",
+            "nombre": "Ana",
+            "apellido": "Fernandez",
+            "fecha_nacimiento": "1999-01-01",
+            "club": 1,
+            "persona_titular": null,
+            "sexo": 2
+        }
+    },
+    {
+        "model": "core.Persona",
+        "pk": 15,
+        "fields": {
+            "cuil": "20678901234",
+            "nombre": "Luis",
+            "apellido": "Gutierrez",
+            "fecha_nacimiento": "1996-01-01",
+            "club": 1,
+            "persona_titular": null,
+            "sexo": 1
+        }
+    },
+    {
+        "model": "core.Persona",
+        "pk": 16,
+        "fields": {
+            "cuil": "20789012345",
+            "nombre": "Maria",
+            "apellido": "Martinez",
+            "fecha_nacimiento": "2005-01-01",
+            "club": 1,
+            "persona_titular": 11,
+            "sexo": 2
+        }
+    },
+    {
+        "model": "core.Persona",
+        "pk": 17,
+        "fields": {
+            "cuil": "20890123456",
+            "nombre": "Jorge",
+            "apellido": "Lopez",
+            "fecha_nacimiento": "2008-01-01",
+            "club": 1,
+            "persona_titular": 14,
+            "sexo": 1
+        }
+    },
+    {
+        "model": "core.Persona",
+        "pk": 18,
+        "fields": {
+            "cuil": "20901234567",
+            "nombre": "Sofia",
+            "apellido": "Sanchez",
+            "fecha_nacimiento": "2011-01-01",
+            "club": 1,
+            "persona_titular": 12,
+            "sexo": 2
+        }
+    },
+    {
+        "model": "core.Persona",
+        "pk": 19,
+        "fields": {
+            "cuil": "21012345678",
+            "nombre": "Miguel",
+            "apellido": "Perez",
+            "fecha_nacimiento": "1999-01-01",
+            "club": 1,
+            "persona_titular": 12,
+            "sexo": 1
+        }
+    },
+    {
+        "model": "core.Persona",
+        "pk": 20,
+        "fields": {
+            "cuil": "21123456789",
+            "nombre": "Lucas",
+            "apellido": "Gomez",
+            "fecha_nacimiento": "1991-01-01",
+            "club": 1,
+            "persona_titular": null,
+            "sexo": 1
+        }
+    },
+    {
+        "model": "core.Persona",
+        "pk": 21,
+        "fields": {
+            "cuil": "21234789569",
+            "nombre": "Julieta",
+            "apellido": "Gonzalez",
+            "fecha_nacimiento": "1994-01-01",
+            "club": 1,
+            "persona_titular": 14,
+            "sexo": 2
+        }
+    },
+    {
+        "model": "core.Persona",
+        "pk": 22,
+        "fields": {
+            "cuil": "21345678901",
+            "nombre": "Mateo",
+            "apellido": "Rodriguez",
+            "fecha_nacimiento": "1997-01-01",
+            "club": 1,
+            "persona_titular": 13,
+            "sexo": 1
+        }
+    },
+    {
+        "model": "core.Persona",
+        "pk": 23,
+        "fields": {
+            "cuil": "21456789012",
+            "nombre": "Agustin",
+            "apellido": "Fernandez",
+            "fecha_nacimiento": "2000-01-01",
+            "club": 1,
+            "persona_titular": 13,
+            "sexo": 1
+        }
+    },
+    {
+        "model": "core.Persona",
+        "pk": 24,
+        "fields": {
+            "cuil": "21567890123",
+            "nombre": "Valentina",
+            "apellido": "Gutierrez",
+            "fecha_nacimiento": "2003-01-01",
+            "club": 1,
+            "persona_titular": 15,
+            "sexo": 2
+        }
+    },
+    {
+        "model": "core.Persona",
+        "pk": 25,
+        "fields": {
+            "cuil": "21678901234",
+            "nombre": "Benjamin",
+            "apellido": "Martinez",
+            "fecha_nacimiento": "2006-01-01",
+            "club": 1,
+            "persona_titular": 15,
+            "sexo": 1
+        }
+    }
+]

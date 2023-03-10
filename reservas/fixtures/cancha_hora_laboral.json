@@ -370,19 +370,10 @@
   },
   {
     "model": "reservas.canchahoralaboral",
-    "pk": 41,
-    "fields": {
-      "cancha": 3,
-      "hora_laboral": 13,
-      "con_luz": true
-    }
-  },
-  {
-    "model": "reservas.canchahoralaboral",
     "pk": 42,
     "fields": {
       "cancha": 3,
-      "hora_laboral": 14,
+      "hora_laboral": 13,
       "con_luz": true
     }
   },
@@ -391,7 +382,7 @@
     "pk": 43,
     "fields": {
       "cancha": 3,
-      "hora_laboral": 15,
+      "hora_laboral": 14,
       "con_luz": true
     }
   },
@@ -400,7 +391,7 @@
     "pk": 44,
     "fields": {
       "cancha": 3,
-      "hora_laboral": 16,
+      "hora_laboral": 15,
       "con_luz": true
     }
   },
@@ -409,7 +400,7 @@
     "pk": 45,
     "fields": {
       "cancha": 3,
-      "hora_laboral": 1,
+      "hora_laboral": 16,
       "con_luz": true
     }
   },
@@ -418,7 +409,7 @@
     "pk": 46,
     "fields": {
       "cancha": 3,
-      "hora_laboral": 2,
+      "hora_laboral": 1,
       "con_luz": true
     }
   },
@@ -427,13 +418,22 @@
     "pk": 47,
     "fields": {
       "cancha": 3,
-      "hora_laboral": 3,
+      "hora_laboral": 2,
       "con_luz": true
     }
   },
   {
     "model": "reservas.canchahoralaboral",
     "pk": 48,
+    "fields": {
+      "cancha": 3,
+      "hora_laboral": 3,
+      "con_luz": true
+    }
+  },
+  {
+    "model": "reservas.canchahoralaboral",
+    "pk": 49,
     "fields": {
       "cancha": 4,
       "hora_laboral": 4,
@@ -442,7 +442,7 @@
   },
   {
     "model": "reservas.canchahoralaboral",
-    "pk": 49,
+    "pk": 50,
     "fields": {
       "cancha": 4,
       "hora_laboral": 5,
@@ -451,7 +451,7 @@
   },
   {
     "model": "reservas.canchahoralaboral",
-    "pk": 50,
+    "pk": 51,
     "fields": {
       "cancha": 4,
       "hora_laboral": 6,
@@ -460,7 +460,7 @@
   },
   {
     "model": "reservas.canchahoralaboral",
-    "pk": 51,
+    "pk": 52,
     "fields": {
       "cancha": 4,
       "hora_laboral": 7,
@@ -469,7 +469,7 @@
   },
   {
     "model": "reservas.canchahoralaboral",
-    "pk": 52,
+    "pk": 53,
     "fields": {
       "cancha": 4,
       "hora_laboral": 8,
@@ -478,7 +478,7 @@
   },
   {
     "model": "reservas.canchahoralaboral",
-    "pk": 53,
+    "pk": 54,
     "fields": {
       "cancha": 4,
       "hora_laboral": 9,
@@ -487,7 +487,7 @@
   },
   {
     "model": "reservas.canchahoralaboral",
-    "pk": 54,
+    "pk": 55,
     "fields": {
       "cancha": 4,
       "hora_laboral": 10,
@@ -496,7 +496,7 @@
   },
   {
     "model": "reservas.canchahoralaboral",
-    "pk": 55,
+    "pk": 56,
     "fields": {
       "cancha": 4,
       "hora_laboral": 11,
@@ -505,7 +505,7 @@
   },
   {
     "model": "reservas.canchahoralaboral",
-    "pk": 56,
+    "pk": 57,
     "fields": {
       "cancha": 4,
       "hora_laboral": 12,
@@ -514,7 +514,7 @@
   },
   {
     "model": "reservas.canchahoralaboral",
-    "pk": 57,
+    "pk": 58,
     "fields": {
       "cancha": 4,
       "hora_laboral": 13,
@@ -523,7 +523,7 @@
   },
   {
     "model": "reservas.canchahoralaboral",
-    "pk": 58,
+    "pk": 59,
     "fields": {
       "cancha": 4,
       "hora_laboral": 14,
@@ -532,7 +532,7 @@
   },
   {
     "model": "reservas.canchahoralaboral",
-    "pk": 59,
+    "pk": 60,
     "fields": {
       "cancha": 4,
       "hora_laboral": 15,
@@ -541,7 +541,7 @@
   },
   {
     "model": "reservas.canchahoralaboral",
-    "pk": 60,
+    "pk": 61,
     "fields": {
       "cancha": 4,
       "hora_laboral": 16,
@@ -550,7 +550,7 @@
   },
   {
     "model": "reservas.canchahoralaboral",
-    "pk": 61,
+    "pk": 62,
     "fields": {
       "cancha": 4,
       "hora_laboral": 1,
@@ -559,7 +559,7 @@
   },
   {
     "model": "reservas.canchahoralaboral",
-    "pk": 62,
+    "pk": 63,
     "fields": {
       "cancha": 4,
       "hora_laboral": 2,
@@ -568,19 +568,11 @@
   },
   {
     "model": "reservas.canchahoralaboral",
-    "pk": 63,
+    "pk": 64,
     "fields": {
       "cancha": 4,
       "hora_laboral": 3,
       "con_luz": true
-    }
-  },
-  {
-    "model": "reservas.horalaboral",
-    "pk": 1,
-    "fields": {
-      "club": 1,
-      "hora": "00:00:00"
     }
   }
 ]

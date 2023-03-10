@@ -1,5 +1,6 @@
 from django import forms
 
+from core.models import Persona
 from socios.models import Categoria, Socio, CuotaSocial, Parameters
 
 
@@ -7,7 +8,11 @@ class SocioAdminForm(forms.ModelForm):
     """
     Formulario para crear un socio.
     """
-    persona = forms.Select()
+    persona = forms.ModelChoiceField(queryset=Persona.objects.all(),
+                                     label='Persona',
+                                     help_text='Si la persona no se encuentra en la lista, revise que este creada '
+                                               'y que no sea socio.',
+                                     widget=forms.Select()) 
     user = forms.CharField(required=False,
                            label='Usuario',
                            widget=forms.TextInput(attrs={'readonly': 'readonly',
@@ -34,9 +39,9 @@ class CuotaSocialForm(forms.ModelForm):
 
     class Meta:
         model = CuotaSocial
-        fields = ['persona', 'periodo_anio', 'cargo_extra', 'observaciones']
+        fields = ['periodo_anio', 'cargo_extra', 'observaciones']
         widgets = {
-            'persona': forms.HiddenInput(),
+            # '': forms.HiddenInput(),
             # 'periodo_mes': forms.SelectMultiple(attrs={'class': 'form-control', 'size': '12'}),
             'periodo_anio': forms.DateTimeInput(attrs={'class': 'form-control'}),
             'cargo_extra': forms.NumberInput(attrs={'class': 'form-control', 'value': 0}),

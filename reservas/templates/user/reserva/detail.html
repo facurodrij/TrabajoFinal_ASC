@@ -32,31 +32,30 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="col">
-                        <h5>Opciones Disponibles</h5>
-                        {% if reserva.forma_pago == 2 %}
-                            {% if pago_reserva %}
-                                <a href="{% url 'reservas-comprobante' reserva.id %}"
-                                   class="btn btn-block btn-outline-primary">
-                                    <i class="fas fa-receipt"></i>
-                                    Comprobante de pago
-                                </a>
-                            {% else %}
-                                <a href="{% url 'reservas-pago' reserva.id %}"
-                                   class="btn btn-block btn-outline-primary">
-                                    <i class="fas fa-dollar-sign"></i>
-                                    Pagar reserva
-                                </a>
-                            {% endif %}
-                        {% endif %}
-                        {% if not reserva.is_finished %}
-                            <button id="btn-delete" type="button" class="btn btn-block btn-danger">
-                                <i class="fa-solid fa-trash"></i>
-                                Cancelar reserva
-                            </button>
-                        {% endif %}
-                    </div>
                 </div>
+            </div>
+            <div class="card-footer">
+                {% if not reserva.is_finished %}
+                    <button id="btn-delete" type="button" class="btn btn-danger">
+                        <i class="fa-solid fa-ban"></i>
+                        Cancelar reserva
+                    </button>
+                {% endif %}
+                {% if reserva.forma_pago == 2 %}
+                    {% if pago_reserva %}
+                        <a href="{% url 'reservas-comprobante' reserva.id %}"
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-receipt"></i>
+                            Comprobante de pago
+                        </a>
+                    {% else %}
+                        <a href="{% url 'reservas-pago' reserva.id %}"
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-dollar-sign"></i>
+                            Pagar orden
+                        </a>
+                    {% endif %}
+                {% endif %}
             </div>
         </div>
     </div>

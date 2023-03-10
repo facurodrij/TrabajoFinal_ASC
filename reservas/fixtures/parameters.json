@@ -5,8 +5,8 @@
     "fields": {
       "club": 1,
       "horas_anticipacion": 2,
-      "minutos_expiracion": 20,
-      "max_reservas_user": 2,
+      "minutos_expiracion_reserva": 8,
+      "max_reservas_user": 3,
       "avisar_cancha_libre": true,
       "horas_avisar_cancha_libre": 5
     }

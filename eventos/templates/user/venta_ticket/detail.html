@@ -97,7 +97,12 @@
                         <img src="{{ venta_ticket.evento.get_imagen }}" alt="Imagen del Evento"
                              class="img-fluid rounded mx-auto d-block mb-3">
                         <ul class="list-group">
-                            <li class="list-group-item"><b>Nombre:</b> {{ venta_ticket.evento.nombre }}</li>
+                            {% if venta_ticket.evento.mayor_edad %}
+                                <li class="list-group-item bg-warning">
+                                    <b>Advertencia:</b> Este evento es para mayores de edad.
+                                </li>
+                            {% endif %}
+                            <li class="list-group-item"><b>Nombre del Evento:</b> {{ venta_ticket.evento.nombre }}</li>
                             <li class="list-group-item"><b>Fecha de
                                 inicio:</b> {{ venta_ticket.evento.get_start_datetime }}</li>
                             <li class="list-group-item"><b>Fecha de

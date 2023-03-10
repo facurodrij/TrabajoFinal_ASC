@@ -16,11 +16,12 @@ urlpatterns = [
     path('admin/tickets/listado/', TicketAdminListView.as_view(), name='admin-tickets-listado'),
     path('admin/tickets/<int:pk>/', TicketAdminDetailView.as_view(), name='admin-tickets-detalle'),
     path('admin/tickets/<int:pk>/qr/', TicketAdminQRView.as_view(), name='admin-tickets-qr'),
-    path('admin/tickets/scanner/', TicketAdminScannerQRView.as_view(), name='admin-tickets-scanner'),
 
     path('admin/ticket_variante/<int:pk>/delete/', delete_ticket_variante, name='admin-ticket-variante-delete'),
 
     # URLs de los eventos (usuarios)
+    path('eventos/', lambda request: redirect('eventos-listado', permanent=True), name='eventos'),
+    path('eventos/listado/', EventoUserListView.as_view(), name='eventos-listado'),
     path('eventos/<int:pk>/', EventoUserDetailView.as_view(), name='eventos-detalle'),
     path('eventos/orden/', EventoUserOrderView.as_view(), name='eventos-orden'),
 

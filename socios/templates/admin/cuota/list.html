@@ -3,7 +3,7 @@
 
 {% block breadcrumbs %}
     <ol class="breadcrumb float-sm-right">
-        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
         <li class="breadcrumb-item active">{{ title }}</li>
     </ol>
 {% endblock %}
@@ -12,28 +12,24 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <div class="card">
+                <div class="card overflow-hidden">
                     <div class="card-header bg-primary">
-                        <h3 class="card-title">Cuotas Sociales</h3>
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                        </div>
+                        <h3 class="card-title">{{ title }}</h3>
                     </div>
                     <div class="card-body">
-                        <button id="btn-generar-deudas" type="button" class="btn btn-primary mb-3">
-                            <i class="fas fa-plus"></i> Generar deudas
+                        <button type="button" class="btn btn-primary mb-3" data-toggle="modal"
+                                data-target="#ModalGenerateDeuda">
+                            <i class="fas fa-plus"></i> Generar Cuotas Sociales
                         </button>
-                        <table id="cuota-table" class="table table-bordered table-striped dataTable display nowrap">
+                        <table id="dataTable" class="table table-bordered table-striped dataTable display nowrap">
                             <thead>
                             <tr>
-                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">ID Cuota</th>
                                 <th scope="col" style="">Titular</th>
-                                <th scope="col" style="">Total</th>
                                 <th scope="col" style="">Período</th>
+                                <th scope="col" style="">Total</th>
                                 <th scope="col" style="">Fecha de vencimiento</th>
-                                <th scope="col" style="">Estado</th>
+                                <th scope="col" style="">Estado de pago</th>
                                 <th></th>
                             </tr>
                             </thead>
@@ -44,15 +40,8 @@
                                     <td>
                                         <a href="{% url 'admin-socio-detalle' cuota.persona.socio.pk %}">{{ cuota.persona }}</a>
                                     </td>
-                                    {% if cuota.is_deleted %}
-                                        <td>${{ cuota.total }}</td>
-                                    {% elif not cuota.is_pagada %}
-                                        <td>${{ cuota.total_a_pagar }}</td>
-                                    {% elif cuota.is_pagada %}
-                                        <td>${{ cuota.pagocuotasocial.total_pagado }}</td>
-                                    {% endif %}
-                                    <td>{{ cuota.get_periodo }}</td>
-
+                                    <td>{{ cuota.periodo_mes }}/{{ cuota.periodo_anio }}</td>
+                                    <td>${{ cuota.total_a_pagar }}</td>
                                     <td>{{ cuota.fecha_vencimiento }}</td>
                                     {% if cuota.is_deleted %}
                                         <td><span class="badge badge-danger">{{ cuota.get_estado }}</span></td>
@@ -78,8 +67,9 @@
                                     {% elif cuota.is_pagada %}
                                         <td><span class="badge badge-success">{{ cuota.get_estado }}</span></td>
                                         <td>
-                                            <a href="{% url 'cuotas-pdf' cuota.pk %}" class="btn btn-info btn-sm">
-                                                <i class="fa-solid fa-file-pdf"></i>
+                                            <a href="{% url 'cuotas-comprobante' cuota.pagocuotasocial_set.get.pk %}"
+                                               class="btn btn-info btn-sm">
+                                                <i class="fa-solid fa-receipt"></i>
                                             </a>
                                         </td>
                                     {% endif %}
@@ -88,12 +78,12 @@
                             </tbody>
                             <tfoot>
                             <tr>
-                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">ID Cuota</th>
                                 <th scope="col" style="">Titular</th>
-                                <th scope="col" style="">Total</th>
                                 <th scope="col" style="">Período</th>
+                                <th scope="col" style="">Total</th>
                                 <th scope="col" style="">Fecha de vencimiento</th>
-                                <th scope="col" style="">Estado</th>
+                                <th scope="col" style="">Estado de pago</th>
                                 <th></th>
                             </tr>
                             </tfoot>
@@ -103,7 +93,44 @@
             </div>
         </div>
     </div>
-    {% include 'admin/cuota/modals/generate-deuda.html' %}
+    <div class="modal fade" id="ModalGenerateDeuda" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">
+                        <b><i class="fas fa-user-plus"></i> Generar Cuotas Sociales</b>
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="id_periodo">Período (mes/año)</label>
+                            <div class="input-group" id="div_id_periodo"
+                                 data-target-input="nearest">
+                                <input type="text" name="periodo" autocomplete="off" placeholder="Seleccione un período"
+                                       class="form-control datetimepicker-input" data-toggle="datetimepicker"
+                                       data-target="#id_periodo" id="id_periodo" required>
+                                <div class="input-group-append" data-target="#id_periodo"
+                                     data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            Siguiente <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
 
 {% block body_js %}
@@ -112,9 +139,73 @@
           rel="stylesheet">
     <script src="{% static 'libs/tempusdominus-bootstrap-5.39/moment-with-locales.min.js' %}"></script>
     <script src="{% static 'libs/tempusdominus-bootstrap-5.39/tempusdominus-bootstrap-4.min.js' %}"></script>
-    {% include 'includes/dataTable.html' %}
+    {# DataTable #}
+    <link rel="stylesheet" type="text/css" href="{% static 'libs/DataTables/datatables.css' %}"/>
+    <script type="text/javascript" src="{% static 'libs/DataTables/datatables.js' %}"></script>
+    <script type="text/javascript" src="{% static 'libs/DataTables/Select-1.5.0/js/dataTables.select.js' %}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.13.2/sorting/datetime-moment.js"></script>
     <script>
-        $('#cuota-table tbody').on('click', '.mark-as-paid', function (e) {
+        $(document).ready(function () {
+            $.fn.dataTable.moment('MM/YYYY');
+            $('#dataTable').DataTable({
+                language: {
+                    url: '{% static 'libs/datatables/es-ES.json' %}'
+                },
+                dom: 'Bfrtip',
+                columnDefs: [ // Quitarle estilos a la ultima columna
+                    {
+                        targets: -1,
+                        orderable: false
+                    },
+                    {
+                        targets: 2,
+                        render: function (data, type, row) {
+                            return moment(data, 'MM/YYYY').format('MM/YYYY');
+                        }
+                    },
+                ],
+                order: [[2, 'desc']],
+                responsive: true,
+                autoWidth: false,
+                buttons: [
+                    {
+                        extend: 'print',
+                        text: '<i class="fa-solid fa-print"></i> Imprimir',
+                        titleAttr: 'Imprimir',
+                        className: 'btn btn-info btn-sm border',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5]
+                        }
+                    },
+                    {
+                        extend: 'colvis',
+                        text: '<i class="fa-solid fa-eye"></i> Ver columnas',
+                        titleAttr: 'Ver columnas',
+                        className: 'btn btn-secondary btn-sm border',
+                        columns: ':gt(0)',
+                        postfixButtons: ['colvisRestore']
+                    },
+                    {
+                        extend: 'searchPanes',
+                        text: '<i class="fa-solid fa-filter"></i> Filtros',
+                        className: 'btn btn-secondary btn-sm border',
+                        config: {
+                            cascadePanes: true,
+                            viewTotal: true,
+                            layout: 'columns-3',
+                            columns: [1, 2, 3, 4, 5],
+                        }
+                    },
+                    {
+                        extend: 'pageLength',
+                        className: 'btn btn-secondary btn-sm border',
+                    }
+                ],
+            });
+        });
+
+        $('#dataTable tbody').on('click', '.mark-as-paid', function (e) {
             e.preventDefault();
             let cuota_id = $(this).val();
             $.ajax({
@@ -193,15 +284,10 @@
                                         Swal.fire({
                                             position: 'top-end',
                                             title: 'Cuota marcada como pagada',
-                                            text: 'El socio pagó la cuota correctamente',
+                                            text: 'La cuota social se ha marcado como pagada.',
                                             icon: 'success',
-                                            confirmButtonText: 'Imprimir comprobante de operación',
-                                            showCancelButton: true,
-                                            cancelButtonText: 'Cerrar',
+                                            confirmButtonText: 'Aceptar'
                                         }).then((result) => {
-                                            if (result.isConfirmed) {
-                                                window.open('/admin/cuotas/' + data.id + '/' + data.history_id + '/', '_blank');
-                                            }
                                             location.reload();
                                         });
                                     } else {
@@ -224,7 +310,7 @@
             });
         });
 
-        $('#cuota-table tbody').on('click', '.anular-cuota', function (e) {
+        $('#dataTable tbody').on('click', '.anular-cuota', function (e) {
             e.preventDefault();
             Swal.fire({
                 position: 'top-end',
@@ -254,78 +340,13 @@
             })
         });
 
-        $('#btn-generar-deudas').on('click', function (e) {
-            e.preventDefault();
-            // Abrir modal ModalGenerateDeudas
-            $('#id_periodo_anio').datetimepicker({
-                "format": "YYYY",
-                // Seleccionar solamente años
-                "viewMode": "years",
-                "locale": "es",
-                "useCurrent": false,
-                "minDate": "1900",
-                // maxDate es el año actual, incrementado en 1
-                "maxDate": moment().add(1, 'years').format('YYYY'),
-            });
-            $('#ModalGenerateDeuda').modal('show');
-        });
-
-        $('#formDeuda').on('submit', function (e) { // Evento submit del formulario de una cuota
-            e.preventDefault();
-            // Crear una lista con los meses seleccionados
-            let html = '<p class="text-left">' +
-                '<strong>Año: </strong>' + $('#id_periodo_anio').val() + '<br>' +
-                '<strong>Mes: </strong>' + $('#id_periodo_mes').val() + '<br>' +
-                '</p>';
-            Swal.fire({
-                position: 'top-end',
-                title: '¿Está seguro que desea generar las deudas?',
-                html: html,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Si, generar!',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let form = new FormData(this);
-                    form.append('action', 'generar_deudas'); // Agregar la acción que se va a ejecutar en el backend
-                    $.ajax({
-                        url: window.location.pathname,
-                        type: 'POST',
-                        data: form,
-                        dataType: 'json',
-                        contentType: false,
-                        processData: false,
-                        success: function (data) {
-                            if (!data.hasOwnProperty('error')) {
-                                location.reload();
-                            } else {
-                                let errors = [];
-                                if (typeof data.error === 'object') { // Si 'data.error' es un objeto cargar los errores al array
-                                    $.each(data.error, function (key, value) {
-                                        errors.push(value);
-                                    });
-                                } else {
-                                    errors = data.error
-                                }
-                                Swal.fire({
-                                    position: 'top-end',
-                                    icon: 'error',
-                                    title: 'Ocurrió un error',
-                                    text: errors,
-                                    showConfirmButton: true,
-                                })
-                                document.body.classList.remove('swal2-height-auto');
-                            }
-                        },
-                        error: function (data) {
-                            alert('Error al guardar la cuota social');
-                        }
-                    });
-                }
-            })
+        let inputPeriodo = $('#id_periodo');
+        inputPeriodo.datetimepicker({
+            "format": "MM/YYYY",
+            "locale": "es",
+            "useCurrent": false,
+            "minDate": "2000-01-01",
+            "maxDate": moment().add(1, 'months').format('YYYY-MM-DD'),
         });
     </script>
 {% endblock body_js %}

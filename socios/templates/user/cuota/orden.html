@@ -1,0 +1,149 @@
+{% extends "extends/user/base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">{{ title }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <h5>Detalle del Pago</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th class="center">#</th>
+                                    <th><strong>Período</strong></th>
+                                    <th class="text-right"><strong>Subtotal</strong></th>
+                                    <th class="text-right"><strong>Interés por mora</strong></th>
+                                    <th class="text-right"><strong>Total</strong></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for cuota in cuotas %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td class="left strong">{{ cuota.get_periodo }}</td>
+                                        <td class="text-right">${{ cuota.total }}</td>
+                                        <td class="text-right">${{ cuota.interes }}</td>
+                                        <td class="text-right">${{ cuota.total_a_pagar }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row">
+                            <div class="col-5"></div>
+                            <div class="col-7 ml-auto table-responsive">
+                                <table class="table table-clear">
+                                    <tbody>
+                                    <tr>
+                                        <td class="left">
+                                            <strong>Subtotal</strong>
+                                        </td>
+                                        <td class="text-right">${{ subtotal }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="left">
+                                            <strong>Intereses</strong>
+                                        </td>
+                                        <td class="text-right">+${{ interes }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="left">
+                                            <strong>Total</strong>
+                                        </td>
+                                        <td class="text-right">
+                                            <strong>${{ total }}</strong><br>
+                                            <p class="text-muted text-right">{{ total_letras }}</p>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button id="btn-pagar" class="btn btn-primary float-right">
+                            <i class="fas fa-dollar-sign"></i> Pagar
+                        </button>
+                        <a href="{% url 'cuotas-listado' %}"
+                           class="btn btn-default">
+                            <i class="fas fa-arrow-left"></i> Regresar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+    <!-- MercadoPago SDK -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+    <script>
+        $(document).ready(function () {
+            $('#btn-pagar').click(function () {
+                Swal.fire({
+                    title: '¿Está seguro?',
+                    text: "¿Desea realizar el pago de la deuda?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Si, pagar!',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: window.location.href,
+                            type: 'POST',
+                            data: {
+                                'csrfmiddlewaretoken': '{{ csrf_token }}'
+                            },
+                            success: function (data) {
+                                if (data.hasOwnProperty('preference_id')) {
+                                    const mercadopago = new MercadoPago(data.public_key, {
+                                        locale: 'es-AR'
+                                    });
+                                    mercadopago.checkout({
+                                        preference: {
+                                            id: data.preference_id
+                                        },
+                                        autoOpen: true,
+                                    });
+                                } else {
+                                    let errors = []
+                                    if (typeof data.error === 'object') {
+                                        $.each(data.error, function (key, value) {
+                                            errors.push(value);
+                                        });
+                                    } else {
+                                        errors = data.error
+                                    }
+                                    Swal.fire({
+                                        position: 'top-end',
+                                        icon: 'error',
+                                        title: 'Ocurrió un error',
+                                        text: errors,
+                                        showConfirmButton: true,
+                                    });
+                                }
+                            },
+                            error: function (data) {
+                                Swal.fire(
+                                    '¡Error!',
+                                    'Ha ocurrido un error al realizar el pago.',
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock body_js %}

@@ -67,7 +67,7 @@ class ReservaAdminForm(forms.ModelForm):
         with transaction.atomic():
             reserva.expira = False if reserva.forma_pago == 1 else self.instance.expira
             if reserva.precio is None:
-                reserva.precio = reserva.cancha.precio_luz if reserva.con_luz else reserva.cancha.precio
+                reserva.precio = reserva.cancha.precio_luz if reserva.con_luz and reserva.cancha.precio_luz else reserva.cancha.precio
             reserva.save()
             if reserva.forma_pago == 2:
                 preference_data = {
@@ -173,7 +173,7 @@ class ReservaUserForm(forms.ModelForm):
         with transaction.atomic():
             hora_laboral = HoraLaboral.objects.get(hora=self.cleaned_data['hora'])
             reserva.con_luz = reserva.cancha.canchahoralaboral_set.get(hora_laboral=hora_laboral).con_luz
-            reserva.precio = reserva.cancha.precio_luz if reserva.con_luz else reserva.cancha.precio
+            reserva.precio = reserva.cancha.precio_luz if reserva.con_luz and reserva.cancha.precio_luz else reserva.cancha.precio
             reserva.forma_pago = 2
             if commit:
                 reserva.save()

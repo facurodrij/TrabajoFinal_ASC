@@ -1,0 +1,118 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block head_meta %}
+    {% endblock head_meta %}
+
+    <title>{{ title }} - RESERVÁ</title>
+    <!-- Bootstrap 4.6 CSS -->
+    <link rel="stylesheet" href="{% static 'libs/bootstrap-4.6.2/bootstrap.min.css' %}">
+    <!-- Font Awesome -->
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
+    <!-- Bootstrap 4.6 JS -->
+    <script src="{% static 'libs/bootstrap-4.6.2/bootstrap.bundle.min.js' %}"></script>
+    <style>
+        body {
+            margin-top: 10px;
+            background: #eee;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <img src="{{ club.get_imagen }}" alt="Logo" width="100" height="100">
+            <span class="float-right">
+                {{ club.nombre }}<br>
+                {{ club.direccion }}<br>
+                {{ club.localidad }}<br>
+            </span>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-sm-6">
+                    <h5><strong>{{ title }}</strong></h5>
+                    <strong>Comprobante</strong> #{{ pago_cuota_social.pk }}<br>
+                    <strong>Fecha de creación:</strong> {{ pago_cuota_social.date_created }}<br>
+                    <strong>Fecha de aprobación:</strong> {{ pago_cuota_social.date_approved }}<br>
+                    <strong>Estado del pago:</strong> {{ pago_cuota_social.get_STATUS_display }}<br>
+                    <strong>Detalle de estado:</strong> {{ pago_cuota_social.get_STATUS_DETAIL_display }}<br>
+                </div>
+            </div>
+            <div class="table-responsive-sm">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th class="text-left">ID Cuota</th>
+                        <th><strong>Titular & Items</strong></th>
+                        <th><strong>Período</strong></th>
+                        <th class="text-right"><strong>Subtotal</strong></th>
+                        <th class="text-right"><strong>Interés por mora</strong></th>
+                        <th class="text-right"><strong>Total</strong></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for cuota in pago_cuota_social.cuotas.all %}
+                        <tr>
+                            <td>{{ cuota.pk }}</td>
+                            <td>
+                                {{ cuota.persona }}<hr>
+                                {% for item in cuota.itemcuotasocial_set.all %}
+                                    {{ item }}<br>
+                                {% endfor %}
+                            </td>
+                            <td class="left strong">{{ cuota.get_periodo }}</td>
+                            <td class="text-right">${{ cuota.pagocuotasocialcuotas_set.get.subtotal }}</td>
+                            <td class="text-right">${{ cuota.pagocuotasocialcuotas_set.get.interes_aplicado }}</td>
+                            <td class="text-right">${{ cuota.pagocuotasocialcuotas_set.get.total_pagado }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-7"></div>
+                <div class="col-5 ml-auto table-responsive">
+                    <table class="table table-clear">
+                        <tbody>
+                        <tr>
+                            <td class="left">
+                                <strong>Subtotal</strong>
+                            </td>
+                            <td class="text-right">${{ pago_cuota_social.subtotal }}</td>
+                        </tr>
+                        <tr>
+                            <td class="left">
+                                <strong>Intereses</strong>
+                            </td>
+                            <td class="text-right">+${{ pago_cuota_social.interes_aplicado }}</td>
+                        </tr>
+                        <tr>
+                            <td class="left">
+                                <strong>Total</strong>
+                            </td>
+                            <td class="text-right">
+                                <strong>${{ pago_cuota_social.total_pagado }}</strong>
+                                <p class="text-muted text-right">{{ total_pagado_letras }}</p>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <span class="text-left">
+                Generado el {{ fecha_actual }}
+            </span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

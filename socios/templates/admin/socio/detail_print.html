@@ -1,0 +1,92 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block head_meta %}
+    {% endblock head_meta %}
+
+    <title>{{ title }} - RESERVÁ</title>
+    <!-- Bootstrap 4.6 CSS -->
+    <link rel="stylesheet" href="{% static 'libs/bootstrap-4.6.2/bootstrap.min.css' %}">
+    <!-- Font Awesome -->
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
+    <!-- Bootstrap 4.6 JS -->
+    <script src="{% static 'libs/bootstrap-4.6.2/bootstrap.bundle.min.js' %}"></script>
+    <style>
+        body {
+            margin-top: 10px;
+            background: #eee;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <img src="{{ club.get_imagen }}" alt="Logo" width="100" height="100">
+            <span class="float-right">
+                {{ club.nombre }}<br>
+                {{ club.direccion }}<br>
+                {{ club.localidad }}<br>
+            </span>
+        </div>
+        <div class="card-body">
+
+            <h5><strong>{{ title }}</strong></h5>
+            <div class="row">
+                <div class="col">
+                    <h5>Información Personal</h5>
+                    <ul class="list-group mb-1">
+                        <li class="list-group-item"><b>CUIL: </b>{{ socio.persona.cuil_completo }}</li>
+                        <li class="list-group-item"><b>Nombre
+                            completo: </b>{{ socio.persona.get_full_name }}</li>
+                        <li class="list-group-item"><b>Sexo: </b>{{ socio.persona.sexo }}</li>
+                        <li class="list-group-item"><b>Edad: </b>{{ socio.persona.get_edad }}
+                            ({{ socio.persona.fecha_nacimiento }})
+                        </li>
+                        {% if not socio.persona.es_titular %}
+                            <li class="list-group-item"><b>Persona a cargo: </b>
+                                {{ socio.persona.persona_titular }}<br>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col">
+                    <h5>Información de Socio</h5>
+                    <ul class="list-group mb-1">
+                        <li class="list-group-item"><b>Fecha de creación: </b>{{ socio.date_created }}
+                        </li>
+                        <li class="list-group-item"><b>Categoria: </b>{{ socio.get_categoria }}</li>
+                        <li class="list-group-item"><b>Estado de
+                            socio: </b>{{ socio.get_ESTADO_display }}</li>
+                        {% if socio.user %}
+                            <li class="list-group-item"><b>Email: </b>{{ socio.user.email }}</li>
+                            <li class="list-group-item">
+                                <b>Estado de usuario: </b>{{ socio.user.get_estado }}
+                            </li>
+                            <li class="list-group-item">
+                                <b>Fecha de creación de usuario: </b>{{ socio.user.date_joined }}
+                            </li>
+                            <li class="list-group-item">
+                                <b>Último inicio de sesión: </b>
+                                {% if not socio.user.last_login %}
+                                    <span>Aún no ha iniciado sesión</span>
+                                {% else %}
+                                    {{ socio.user.last_login }}
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

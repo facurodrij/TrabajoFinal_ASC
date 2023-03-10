@@ -1,0 +1,141 @@
+{% extends "extends/admin/base.html" %}
+{% load static %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item active">Persona</li>
+    </ol>
+{% endblock %}
+
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card overflow-hidden">
+                    <div class="card-header bg-primary">
+                        <h3 class="card-title">Personas Registradas</h3>
+                    </div>
+                    <div class="card-body">
+                        <a href="{% url 'admin-persona-crear' %}" class="btn btn-success">
+                            <i class="fas fa-plus pr-1"></i> Agregar Persona
+                        </a>
+                        <hr>
+                        <table id="dataTable" class="table table-bordered table-striped dataTable">
+                            <thead>
+                            <tr>
+                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">CUIL</th>
+                                <th scope="col" style="">Nombre completo</th>
+                                <th scope="col" style="">Edad</th>
+                                <th scope="col" style="">Es titular?</th>
+                                <th scope="col" style="">Es socio?</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for persona in personas %}
+                                <tr>
+                                    <td>{{ persona.pk }}</td>
+                                    <td>{{ persona.cuil_completo }}</td>
+                                    <td>{{ persona.get_full_name }}</td>
+                                    <td>{{ persona.get_edad }}</td>
+                                    {% if persona.es_titular %}
+                                        <td>
+                                            <span class="badge badge-success">Si</span>
+                                        </td>
+                                    {% else %}
+                                        <td>
+                                            <span class="badge badge-danger">No</span>
+                                        </td>
+                                    {% endif %}
+                                    {% if persona.get_socio %}
+                                        <td>
+                                            <span class="badge badge-success">Si</span>
+                                        </td>
+                                    {% else %}
+                                        <td>
+                                            <span class="badge badge-danger">No</span>
+                                        </td>
+                                    {% endif %}
+                                    <td>
+                                        <a href="{% url 'admin-persona-editar' persona.pk %}"
+                                           class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% if persona.get_socio %}
+                                            <a href="{% url 'admin-socio-detalle' persona.socio.pk %}"
+                                               title="Ver Socio"
+                                               class="btn btn-info btn-sm">
+                                                <i class="fas fa-user-tie"></i> Ver Socio
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th scope="col" style="">#</th>
+                                <th scope="col" style="">CUIL</th>
+                                <th scope="col" style="">Nombre completo</th>
+                                <th scope="col" style="">Edad</th>
+                                <th scope="col" style="">Es titular?</th>
+                                <th scope="col" style="">Es socio?</th>
+                                <th></th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block body_js %}
+    {# DataTable #}
+    <link rel="stylesheet" type="text/css" href="{% static 'libs/DataTables/datatables.css' %}"/>
+    <script type="text/javascript" src="{% static 'libs/DataTables/datatables.js' %}"></script>
+    <script type="text/javascript" src="{% static 'libs/DataTables/Select-1.5.0/js/dataTables.select.js' %}"></script>
+    <script>
+        let table = $('#dataTable');
+
+        table.DataTable({
+            language: {
+                url: "{% static 'libs/datatables/es-ES.json' %}"
+            },
+            dom: 'Bfrtip',
+            columnDefs: [ // Quitarle estilos a la ultima columna
+                {"orderable": false, "targets": -1}
+            ],
+            responsive: true,
+            order: [[0, 'desc']],
+            autoWidth: false,
+            buttons: [
+                {
+                    extend: 'print',
+                    text: '<i class="fa-solid fa-print"></i> Imprimir',
+                    titleAttr: 'Imprimir',
+                    className: 'btn btn-info btn-sm border',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3]
+                    }
+                },
+                {
+                    extend: 'colvis',
+                    text: '<i class="fa-solid fa-eye"></i> Ver columnas',
+                    titleAttr: 'Ver columnas',
+                    className: 'btn btn-secondary btn-sm border',
+                    columns: ':gt(0)',
+                    postfixButtons: ['colvisRestore']
+                },
+                {
+                    extend: 'pageLength',
+                    className: 'btn btn-secondary btn-sm border',
+                }
+            ],
+        });
+    </script>
+{% endblock body_js %}

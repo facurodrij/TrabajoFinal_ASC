@@ -11,7 +11,7 @@ class EventoAdmin(SimpleHistoryAdmin):
 
 class TicketVarianteAdmin(SimpleHistoryAdmin):
     def get_queryset(self, request):
-        return TicketVariante.global_objects.all()
+        return TicketVariante.objects.all()
 
 
 class TicketAdmin(SimpleHistoryAdmin):

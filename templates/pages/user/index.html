@@ -63,22 +63,55 @@
                     </form>
                 </div>
             </div>
+        </div>
+        <div class="row">
             <div class="col">
                 <div class="card card-primary">
                     <div class="card-header">
                         <h3 class="card-title">Eventos</h3>
                     </div>
-                    <div class="card-body text-center">
+                    <div class="card-body">
                         <!-- Lista de eventos -->
-                        {% for evento in eventos %}
-                            <ul class="list-group">
-                                <li class="list-group-item">
-                                    <a href="{% url 'eventos-detalle' evento.pk %}">
-                                        {{ evento.nombre }}
-                                    </a>
-                                </li>
-                            </ul>
-                        {% endfor %}
+                        <div class="d-flex justify-content-center row">
+                            <div class="col-md-10">
+                                {% if not eventos %}
+                                    <div class="alert alert-info" role="alert">
+                                        No hay eventos disponibles
+                                    </div>
+                                {% else %}
+                                    {% for evento in eventos %}
+                                        <div class="row p-2 border rounded mb-2" style="background-color: #DAECFF">
+                                            <div class="col-sm-3 mt-1 mb-1">
+                                                <img class="img-fluid rounded mx-auto d-block" alt="Imagen de evento"
+                                                     src="{{ evento.get_imagen }}">
+                                            </div>
+                                            <div class="col-sm-6 mt-1">
+                                                <h5>{{ evento.nombre }}</h5>
+                                                <div class="d-flex flex-row">
+                                                    <time datetime="{{ evento.get_start_datetime }}">
+                                                        <i class="fas fa-calendar-alt mr-2"></i>{{ evento.get_start_datetime }}
+                                                    </time>
+                                                </div>
+                                                <br>
+                                                <p class="text-justify text-truncate">{{ evento.descripcion }}</p>
+                                            </div>
+                                            <div class="align-items-center align-content-center col-md-3 border-left mt-1">
+                                                <div class="d-flex flex-row align-items-center">
+                                                    <h4 class="mr-1"><small>desde</small>
+                                                        ${{ evento.get_ticket_variante_lower_price }}</h4>
+                                                </div>
+                                                <a href="{% url 'eventos-detalle' evento.pk %}"
+                                                   class="btn btn-block btn-primary btn-sm">
+                                                    <i class="fas fa-shopping-cart"></i> Detalle</a>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    <div class="d-flex justify-content-center">
+                                        <a href="{% url 'eventos-listado' %}" class="btn btn-primary">Ver todos</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -1,0 +1,2340 @@
+[
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 1,
+        "fields": {
+            "evento_id": 1,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 500,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 2,
+        "fields": {
+            "evento_id": 1,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 500,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 3,
+        "fields": {
+            "evento_id": 1,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 100,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 4,
+        "fields": {
+            "evento_id": 1,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 5,
+        "fields": {
+            "evento_id": 1,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 6,
+        "fields": {
+            "evento_id": 1,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 200,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 7,
+        "fields": {
+            "evento_id": 1,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 100,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 8,
+        "fields": {
+            "evento_id": 1,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 200,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 9,
+        "fields": {
+            "evento_id": 1,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 10,
+        "fields": {
+            "evento_id": 2,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 500,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 11,
+        "fields": {
+            "evento_id": 2,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 300,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 12,
+        "fields": {
+            "evento_id": 2,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 200,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 13,
+        "fields": {
+            "evento_id": 2,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 100,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 14,
+        "fields": {
+            "evento_id": 2,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 15,
+        "fields": {
+            "evento_id": 2,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 200,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 16,
+        "fields": {
+            "evento_id": 2,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 100,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 17,
+        "fields": {
+            "evento_id": 2,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 18,
+        "fields": {
+            "evento_id": 2,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 200,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 19,
+        "fields": {
+            "evento_id": 2,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 100,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 20,
+        "fields": {
+            "evento_id": 3,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 300,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 21,
+        "fields": {
+            "evento_id": 3,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 200,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 22,
+        "fields": {
+            "evento_id": 3,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 100,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 23,
+        "fields": {
+            "evento_id": 3,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 24,
+        "fields": {
+            "evento_id": 3,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 500,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 25,
+        "fields": {
+            "evento_id": 3,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 100,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 26,
+        "fields": {
+            "evento_id": 3,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 200,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 27,
+        "fields": {
+            "evento_id": 3,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 400,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 28,
+        "fields": {
+            "evento_id": 3,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 29,
+        "fields": {
+            "evento_id": 3,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 200,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 30,
+        "fields": {
+            "evento_id": 4,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 100,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 31,
+        "fields": {
+            "evento_id": 4,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 200,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 32,
+        "fields": {
+            "evento_id": 4,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 300,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 33,
+        "fields": {
+            "evento_id": 4,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 400,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 34,
+        "fields": {
+            "evento_id": 4,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 500,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 35,
+        "fields": {
+            "evento_id": 4,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 600,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 36,
+        "fields": {
+            "evento_id": 4,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 700,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 37,
+        "fields": {
+            "evento_id": 4,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 800,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 38,
+        "fields": {
+            "evento_id": 4,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 900,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 39,
+        "fields": {
+            "evento_id": 4,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 1000,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 40,
+        "fields": {
+            "evento_id": 5,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 100,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 41,
+        "fields": {
+            "evento_id": 5,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 200,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 42,
+        "fields": {
+            "evento_id": 5,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 300,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 43,
+        "fields": {
+            "evento_id": 5,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 400,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 44,
+        "fields": {
+            "evento_id": 5,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 500,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 45,
+        "fields": {
+            "evento_id": 6,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 100,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 46,
+        "fields": {
+            "evento_id": 6,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 200,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 47,
+        "fields": {
+            "evento_id": 6,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 300,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 48,
+        "fields": {
+            "evento_id": 6,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 400,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 49,
+        "fields": {
+            "evento_id": 6,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 500,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 50,
+        "fields": {
+            "evento_id": 7,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 100,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 51,
+        "fields": {
+            "evento_id": 7,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 200,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 52,
+        "fields": {
+            "evento_id": 7,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 300,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 53,
+        "fields": {
+            "evento_id": 7,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 400,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 54,
+        "fields": {
+            "evento_id": 7,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 500,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 55,
+        "fields": {
+            "evento_id": 7,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 100,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 56,
+        "fields": {
+            "evento_id": 7,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 200,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 57,
+        "fields": {
+            "evento_id": 7,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 300,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 58,
+        "fields": {
+            "evento_id": 8,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 400,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 59,
+        "fields": {
+            "evento_id": 8,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 500,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 60,
+        "fields": {
+            "evento_id": 8,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 100,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 61,
+        "fields": {
+            "evento_id": 8,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 200,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 62,
+        "fields": {
+            "evento_id": 8,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 300,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 63,
+        "fields": {
+            "evento_id": 9,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 64,
+        "fields": {
+            "evento_id": 9,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 65,
+        "fields": {
+            "evento_id": 9,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 66,
+        "fields": {
+            "evento_id": 9,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 67,
+        "fields": {
+            "evento_id": 9,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 68,
+        "fields": {
+            "evento_id": 9,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 69,
+        "fields": {
+            "evento_id": 9,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 70,
+        "fields": {
+            "evento_id": 9,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 71,
+        "fields": {
+            "evento_id": 9,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 72,
+        "fields": {
+            "evento_id": 9,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 73,
+        "fields": {
+            "evento_id": 10,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 74,
+        "fields": {
+            "evento_id": 10,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 75,
+        "fields": {
+            "evento_id": 10,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 76,
+        "fields": {
+            "evento_id": 10,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 77,
+        "fields": {
+            "evento_id": 10,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 78,
+        "fields": {
+            "evento_id": 10,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 79,
+        "fields": {
+            "evento_id": 10,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 80,
+        "fields": {
+            "evento_id": 10,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 81,
+        "fields": {
+            "evento_id": 10,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 82,
+        "fields": {
+            "evento_id": 11,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 83,
+        "fields": {
+            "evento_id": 11,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 84,
+        "fields": {
+            "evento_id": 11,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 85,
+        "fields": {
+            "evento_id": 11,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 86,
+        "fields": {
+            "evento_id": 12,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 87,
+        "fields": {
+            "evento_id": 12,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 88,
+        "fields": {
+            "evento_id": 12,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 89,
+        "fields": {
+            "evento_id": 12,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 90,
+        "fields": {
+            "evento_id": 12,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 91,
+        "fields": {
+            "evento_id": 12,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 92,
+        "fields": {
+            "evento_id": 12,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 93,
+        "fields": {
+            "evento_id": 12,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 94,
+        "fields": {
+            "evento_id": 12,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 95,
+        "fields": {
+            "evento_id": 12,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 96,
+        "fields": {
+            "evento_id": 13,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 97,
+        "fields": {
+            "evento_id": 13,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 98,
+        "fields": {
+            "evento_id": 13,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 99,
+        "fields": {
+            "evento_id": 13,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 100,
+        "fields": {
+            "evento_id": 13,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 101,
+        "fields": {
+            "evento_id": 14,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 102,
+        "fields": {
+            "evento_id": 14,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 103,
+        "fields": {
+            "evento_id": 14,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 104,
+        "fields": {
+            "evento_id": 14,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 105,
+        "fields": {
+            "evento_id": 14,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 106,
+        "fields": {
+            "evento_id": 15,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 107,
+        "fields": {
+            "evento_id": 15,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 108,
+        "fields": {
+            "evento_id": 15,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 109,
+        "fields": {
+            "evento_id": 15,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 110,
+        "fields": {
+            "evento_id": 15,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 111,
+        "fields": {
+            "evento_id": 16,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 112,
+        "fields": {
+            "evento_id": 16,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 113,
+        "fields": {
+            "evento_id": 16,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 114,
+        "fields": {
+            "evento_id": 16,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 115,
+        "fields": {
+            "evento_id": 16,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 116,
+        "fields": {
+            "evento_id": 17,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 117,
+        "fields": {
+            "evento_id": 17,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 118,
+        "fields": {
+            "evento_id": 17,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 119,
+        "fields": {
+            "evento_id": 17,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 120,
+        "fields": {
+            "evento_id": 17,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 121,
+        "fields": {
+            "evento_id": 18,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 122,
+        "fields": {
+            "evento_id": 18,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 123,
+        "fields": {
+            "evento_id": 18,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 124,
+        "fields": {
+            "evento_id": 18,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 125,
+        "fields": {
+            "evento_id": 19,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 126,
+        "fields": {
+            "evento_id": 19,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 127,
+        "fields": {
+            "evento_id": 19,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 128,
+        "fields": {
+            "evento_id": 19,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 129,
+        "fields": {
+            "evento_id": 19,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 130,
+        "fields": {
+            "evento_id": 20,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 131,
+        "fields": {
+            "evento_id": 20,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 132,
+        "fields": {
+            "evento_id": 20,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 133,
+        "fields": {
+            "evento_id": 20,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 134,
+        "fields": {
+            "evento_id": 20,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 135,
+        "fields": {
+            "evento_id": 21,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 136,
+        "fields": {
+            "evento_id": 21,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 137,
+        "fields": {
+            "evento_id": 21,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 138,
+        "fields": {
+            "evento_id": 21,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 139,
+        "fields": {
+            "evento_id": 21,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 140,
+        "fields": {
+            "evento_id": 22,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 141,
+        "fields": {
+            "evento_id": 22,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 142,
+        "fields": {
+            "evento_id": 22,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 143,
+        "fields": {
+            "evento_id": 23,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 144,
+        "fields": {
+            "evento_id": 23,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 145,
+        "fields": {
+            "evento_id": 23,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 146,
+        "fields": {
+            "evento_id": 23,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 147,
+        "fields": {
+            "evento_id": 23,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 148,
+        "fields": {
+            "evento_id": 24,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 149,
+        "fields": {
+            "evento_id": 24,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 150,
+        "fields": {
+            "evento_id": 24,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 151,
+        "fields": {
+            "evento_id": 24,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 152,
+        "fields": {
+            "evento_id": 24,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 153,
+        "fields": {
+            "evento_id": 24,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 650,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 154,
+        "fields": {
+            "evento_id": 24,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 750,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 155,
+        "fields": {
+            "evento_id": 24,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 850,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 156,
+        "fields": {
+            "evento_id": 24,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 950,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 157,
+        "fields": {
+            "evento_id": 24,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 1050,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 158,
+        "fields": {
+            "evento_id": 25,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 150,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 159,
+        "fields": {
+            "evento_id": 25,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 250,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 160,
+        "fields": {
+            "evento_id": 25,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 350,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 161,
+        "fields": {
+            "evento_id": 25,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 450,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 162,
+        "fields": {
+            "evento_id": 25,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 550,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 163,
+        "fields": {
+            "evento_id": 25,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 650,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 164,
+        "fields": {
+            "evento_id": 25,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 750,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 165,
+        "fields": {
+            "evento_id": 25,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 850,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 166,
+        "fields": {
+            "evento_id": 25,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 950,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    },
+    {
+        "model": "eventos.VentaTicket",
+        "pk": 167,
+        "fields": {
+            "evento_id": 25,
+            "email": "prueba@localhost",
+            "porcentaje_descuento": 0,
+            "subtotal": 1050,
+            "pagado": true,
+            "preference_id": null,
+            "date_created": "2023-02-16T12:34:56",
+            "date_updated": "2023-02-16T12:34:56"
+        }
+    }
+]

@@ -5,16 +5,18 @@
     <title>Pago Aprobado</title>
 </head>
 <body>
-<p>Hola cliente</p>
-<p>Su pago ha sido aprobado</p>
-<p>Gracias por su compra</p>
-
+<p>Estimado/a cliente,</p>
+<p>¡Gracias por su compra! Nos complace informarle que su pago ha sido aprobado y su pedido se encuentra en proceso de
+    envío. Nos tomamos muy en serio la satisfacción de nuestros clientes y trabajamos arduamente para garantizar que
+    cada transacción sea lo más fluida y satisfactoria posible.</p>
+<p>Le adjuntamos el enlace para que pueda ver el comprobante de pago correspondiente a su compra. Puede hacer clic en el
+    siguiente enlace para acceder a su comprobante de pago: </p>
 {% autoescape off %}
-    <p>Para ver el detalle de su compra, ingrese a su cuenta en el siguiente link:
-        <a href="{{ protocol }}://{{ domain }}{% url 'venta-ticket-comprobante' venta_ticket.pk %}" target="_blank">
-            Ver Comprobante de Pago
-        </a>
-    </p>
+    <a href="{{ protocol }}://{{ domain }}{% url 'venta-ticket-comprobante' venta_ticket.pk %}" target="_blank">
+        Ver Comprobante de Pago
+    </a>
 {% endautoescape %}
+<br>
+<p>Atentamente, Club Atlético Bartolomé Mitre</p>
 </body>
 </html>

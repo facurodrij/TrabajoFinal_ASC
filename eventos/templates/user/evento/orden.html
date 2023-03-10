@@ -78,7 +78,7 @@
                             Siguiente <i class="fas fa-arrow-right"></i>
                         </button>
                         <a href="{% url 'eventos-detalle' evento.pk %}"
-                           class="btn btn-secondary float-right mr-2">
+                           class="btn btn-default">
                             <i class="fas fa-arrow-left"></i> Regresar
                         </a>
                     </div>
@@ -94,7 +94,12 @@
                              width="300px" height="300px"
                              class="img-fluid rounded mx-auto d-block mb-3">
                         <ul class="list-group">
-                            <li class="list-group-item"><b>Nombre:</b> {{ evento.nombre }}</li>
+                            {% if evento.mayor_edad %}
+                                <li class="list-group-item bg-warning">
+                                    <b>Advertencia:</b> Este evento es para mayores de edad.
+                                </li>
+                            {% endif %}
+                            <li class="list-group-item"><b>Nombre del Evento:</b> {{ evento.nombre }}</li>
                             <li class="list-group-item"><b>Fecha de inicio:</b> {{ evento.get_start_datetime }}</li>
                             <li class="list-group-item"><b>Fecha de finalización:</b> {{ evento.get_end_datetime }}</li>
                             <li class="list-group-item"><b>Descripción:</b> {{ evento.descripcion }}</li>
@@ -118,24 +123,41 @@
                 <form method="post">
                     <div class="modal-body">
                         {% csrf_token %}
-                        <input type="hidden" name="action" value="pago">
-                        <label for="id_email">Email comprador</label>
-                        <input type="email" id="id_email" name="email" placeholder="Ingrese su email"
-                               {% if user.is_authenticated %}value="{{ user.email }}"{% endif %}
-                               class="form-control" required>
-                        <hr>
+                        {% if user.is_authenticated %}
+                            <div hidden>
+                                <input type="hidden" name="action" value="pago">
+                                <label for="id_email">Email comprador</label>
+                                <input type="email" id="id_email" name="email" placeholder="Ingrese su email"
+                                       value="{{ user.email }}" class="form-control" required>
+                            </div>
+                        {% else %}
+                            <input type="hidden" name="action" value="pago">
+                            <label for="id_email">Email comprador</label>
+                            <input type="email" id="id_email" name="email" placeholder="Ingrese su email"
+                                   class="form-control" required>
+                            <hr>
+                        {% endif %}
                         {% for ticket in tickets %}
                             <label for="id_nombre_{{ ticket.ticket_variante_id }}_{{ forloop.counter0 }}">
-                                {{ ticket.ticket_variante }}
+                                {{ forloop.counter }}. {{ ticket.ticket_variante }}
                             </label>
+                            <input type="text" id="id_dni_{{ ticket.ticket_variante_id }}_{{ forloop.counter0 }}"
+                                   name="dni_{{ ticket.ticket_variante_id }}_{{ forloop.counter0 }}"
+                                   placeholder="DNI de la persona" class="form-control mb-2" required>
                             <input type="text" id="id_nombre_{{ ticket.ticket_variante_id }}_{{ forloop.counter0 }}"
                                    name="nombre_{{ ticket.ticket_variante_id }}_{{ forloop.counter0 }}"
-                                   placeholder="Nombre de la persona" class="form-control" required>
-                            <br>
+                                   placeholder="Nombre completo que figura en el DNI" class="form-control mb-3"
+                                   required>
                         {% endfor %}
+                        <small class="text-muted">
+                            Revise que los datos ingresados sean correctos, ya que no se podrá realizar cambios una vez
+                            pagado y se compromete al momento de asistir al evento.
+                        </small>
                     </div>
                     <div class="modal-footer">
-                        <input type="submit" value="Pagar" class="btn btn-primary float-right">
+                        <button type="submit" class="btn btn-primary float-right">
+                            <i class="fas fa-dollar-sign"></i> Pagar
+                        </button>
                     </div>
                 </form>
             </div>

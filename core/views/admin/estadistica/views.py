@@ -46,3 +46,5 @@ class EstadisticaAdminView(LoginRequiredMixin, AdminRequiredMixin, TemplateView)
                     'total': total,
                 })
         return JsonResponse(data, safe=False)
+
+# TODO: Mejorar los gráficos estadísticos

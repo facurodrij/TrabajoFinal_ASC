@@ -5,16 +5,30 @@
     <title>Pago Aprobado</title>
 </head>
 <body>
-<p>Hola cliente</p>
-<p>Su pago ha sido aprobado</p>
-<p>Gracias por su compra</p>
-
+<p>Estimado/a cliente,</p>
+<p>¡Gracias por su reserva! Nos complace informarle que su pago ha sido aprobado y su reserva ha sido confirmada.
+    Nos tomamos muy en serio la satisfacción de nuestros clientes y trabajamos arduamente para garantizar que
+    cada transacción sea lo más fluida y satisfactoria posible.</p>
+<!-- Descripción de la reserva -->
+<p>Detalle de la reserva:</p>
+<ul>
+    <li><b>Establecimiento:</b> {{ reserva.cancha.club }}</li>
+    <li><b>Deporte:</b> {{ reserva.cancha.deporte }}</li>
+    <li><b>Cancha:</b> {{ reserva.cancha }}</li>
+    <li><b>Fecha:</b> {{ reserva.fecha }}</li>
+    <li><b>Hora:</b> {{ reserva.hora }}</li>
+    <li><b>Precio de la reserva:</b> {{ reserva.precio }}</li>
+    <li><b>Con luz:</b> {{ reserva.get_CON_LUZ_display }}</li>
+</ul>
+<br>
+<p>Le adjuntamos el enlace para que pueda ver el comprobante de pago correspondiente a su reserva. Puede hacer clic en
+    el siguiente enlace para acceder a su comprobante de pago: </p>
 {% autoescape off %}
-    <p>Para ver el detalle de su reserva, ingrese a su cuenta en el siguiente link:
-        <a href="{{ protocol }}://{{ domain }}{% url 'reservas-comprobante' reserva.pk %}" target="_blank">
-            Ver Comprobante de Pago
-        </a>
-    </p>
+    <a href="{{ protocol }}://{{ domain }}{% url 'reservas-comprobante' reserva.pk %}" target="_blank">
+        Ver Comprobante de Pago
+    </a>
 {% endautoescape %}
+<br>
+<p>Atentamente, Club Atlético Bartolomé Mitre</p>
 </body>
 </html>

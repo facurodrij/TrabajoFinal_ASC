@@ -7,6 +7,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView, DetailView, ListView
 from num2words import num2words
@@ -40,7 +41,7 @@ class EventoUserDetailView(DetailView):
         except (TicketVariante.DoesNotExist, VentaTicket.DoesNotExist, ValidationError):
             pass
         if evento.get_expiration_date(isoformat=False) < datetime.now().date():
-            messages.error(request, 'El evento ya ha expirado.')
+            messages.error(request, 'El evento ya no se encuentra disponible para la compra de tickets')
             return redirect('index')
         return super().dispatch(request, *args, **kwargs)
 
@@ -53,53 +54,58 @@ class EventoUserDetailView(DetailView):
 
     def post(self, request, *args, **kwargs):
         evento = self.get_object()
-        action = request.POST.get('action')
-        if action == 'orden':
-            tickets = []
-            items = []
-            subtotal = 0
-            max_tickets_por_venta = Parameters.objects.get(pk=1).max_tickets_por_venta
-            cantidad_tickets = 0
-            for ticket_variante in TicketVariante.objects.filter(evento=evento):
-                # Se obtiene la cantidad de tickets de la variante
-                cantidad = request.POST.get(f'cantidad_{ticket_variante.pk}')
-                if cantidad is None or cantidad == '0':
-                    continue
-                cantidad = int(cantidad)
-                cantidad_tickets += cantidad
-                if cantidad > ticket_variante.get_tickets_restantes():
-                    messages.error(request, 'No hay suficientes tickets {} disponibles'.format(ticket_variante.nombre))
-                    return redirect('eventos-detalle', pk=evento.pk)
-                items.append({
-                    'ticket_variante_id': ticket_variante.pk,
-                    'ticket_variante': ticket_variante.nombre,
-                    'cantidad': cantidad,
-                    'precio_unit': ticket_variante.precio.__float__(),
-                    'subtotal': (ticket_variante.precio * cantidad).__float__()
-                })
-                subtotal += ticket_variante.precio * cantidad
-                # Se crea un diccionario con cada ticket
-                for cantidad in range(cantidad):
-                    tickets.append({
+        try:
+            action = request.POST.get('action')
+            if action == 'orden':
+                tickets = []
+                items = []
+                subtotal = 0
+                max_tickets_por_venta = Parameters.objects.get(pk=1).max_tickets_por_venta
+                cantidad_tickets = 0
+                for ticket_variante in TicketVariante.objects.filter(evento=evento):
+                    # Se obtiene la cantidad de tickets de la variante
+                    cantidad = request.POST.get(f'cantidad_{ticket_variante.pk}')
+                    if cantidad is None or cantidad == '0':
+                        continue
+                    cantidad = int(cantidad)
+                    cantidad_tickets += cantidad
+                    if cantidad > ticket_variante.get_tickets_restantes():
+                        messages.error(request,
+                                       'No hay suficientes tickets {} disponibles'.format(ticket_variante.nombre))
+                        return redirect('eventos-detalle', pk=evento.pk)
+                    items.append({
                         'ticket_variante_id': ticket_variante.pk,
-                        'ticket_variante': ticket_variante.__str__(),
-                        'precio': ticket_variante.precio.__float__()
+                        'ticket_variante': ticket_variante.nombre,
+                        'cantidad': cantidad,
+                        'precio_unit': ticket_variante.precio.__float__(),
+                        'subtotal': (ticket_variante.precio * cantidad).__float__()
                     })
-            if subtotal <= 0:
-                messages.error(request, 'No se ha seleccionado ningún ticket')
-                return redirect('eventos-detalle', pk=evento.pk)
-            if cantidad_tickets > max_tickets_por_venta:
-                messages.error(request, 'No se pueden comprar más de {} tickets'.format(max_tickets_por_venta))
-                return redirect('eventos-detalle', pk=evento.pk)
-            # Guardar en sesión los datos de la venta
-            # Si el usuario está logueado, y es socio, se le aplica el descuento
-            if request.user.is_authenticated and request.user.get_socio():
-                request.session['descuento_socio'] = float(evento.descuento_socio)
-            request.session['items'] = items
-            request.session['tickets'] = tickets
-            request.session['subtotal'] = float(subtotal)
-            request.session['evento_id'] = evento.pk
-            return redirect('eventos-orden')
+                    subtotal += ticket_variante.precio * cantidad
+                    # Se crea un diccionario con cada ticket
+                    for cantidad in range(cantidad):
+                        tickets.append({
+                            'ticket_variante_id': ticket_variante.pk,
+                            'ticket_variante': ticket_variante.__str__(),
+                            'precio': ticket_variante.precio.__float__()
+                        })
+                if subtotal <= 0:
+                    messages.error(request, 'No se ha seleccionado ningún ticket')
+                    return redirect('eventos-detalle', pk=evento.pk)
+                if cantidad_tickets > max_tickets_por_venta:
+                    messages.error(request, 'No se pueden comprar más de {} tickets'.format(max_tickets_por_venta))
+                    return redirect('eventos-detalle', pk=evento.pk)
+                # Guardar en sesión los datos de la venta
+                # Si el usuario está logueado, y es socio, se le aplica el descuento
+                if request.user.is_authenticated and request.user.get_socio():
+                    request.session['descuento_socio'] = float(evento.descuento_socio)
+                request.session['items'] = items
+                request.session['tickets'] = tickets
+                request.session['subtotal'] = float(subtotal)
+                request.session['evento_id'] = evento.pk
+                return redirect('eventos-orden')
+        except Exception as e:
+            messages.error(request, 'Ha ocurrido un error al procesar la solicitud')
+            return redirect('eventos-detalle', pk=evento.pk)
 
 
 class EventoUserOrderView(TemplateView):
@@ -129,15 +135,15 @@ class EventoUserOrderView(TemplateView):
         items = self.request.session.get('items')
         descuento_socio = self.request.session.get('descuento_socio') or 0
         subtotal = self.request.session.get('subtotal')
-        total = subtotal - (subtotal * descuento_socio)
+        total = subtotal - (subtotal * (descuento_socio / 100))
         context = super().get_context_data(**kwargs)
         context['title'] = 'Orden de Compra'
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         context['evento'] = evento
         context['tickets'] = tickets
         context['items'] = items
-        context['descuento_socio'] = descuento_socio * 100
-        context['descuento_valor'] = float(subtotal * descuento_socio)
+        context['descuento_socio'] = descuento_socio
+        context['descuento_valor'] = float(subtotal * (descuento_socio / 100))
         context['subtotal'] = float(subtotal)
         context['total'] = float(total)
         context['total_letras'] = 'Son: {} pesos argentinos'.format(num2words(total, lang='es'))
@@ -165,6 +171,7 @@ class EventoUserOrderView(TemplateView):
                 tickets[i] = {
                     'ticket_variante_id': ticket_variante.pk,
                     'ticket_variante': ticket_variante.__str__(),
+                    'dni': request.POST.get(f'dni_{ticket_variante.pk}_{i}'),
                     'nombre': request.POST.get(f'nombre_{ticket_variante.pk}_{i}'),
                 }
                 i += 1
@@ -176,7 +183,7 @@ class EventoUserOrderView(TemplateView):
                         evento=evento,
                         email=email,
                         subtotal=subtotal,
-                        porcentaje_descuento=descuento_socio * 100,
+                        porcentaje_descuento=descuento_socio,
                         pagado=False,
                     )
                     # Se crean los items de la venta
@@ -192,6 +199,7 @@ class EventoUserOrderView(TemplateView):
                         Ticket.objects.create(
                             venta_ticket=venta,
                             ticket_variante_id=ticket['ticket_variante_id'],
+                            dni=ticket['dni'],
                             nombre=ticket['nombre'],
                             is_used=False
                         )
@@ -224,12 +232,15 @@ class VentaTicketUserPaymentView(TemplateView):
             return redirect('index')
         if venta_ticket.pagado:
             messages.error(request, 'El pago del ticket ya se encuentra realizado.')
-            return redirect('index')  # TODO: Redireccionar a la página de tickets
+            return redirect('index')
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         venta_ticket = VentaTicket.objects.get(pk=kwargs['pk'])
         preference_id = venta_ticket.preference_id
+        site = get_current_site(request)
+        complete_url = '{}://{}{}'.format('https' if self.request.is_secure() else 'http', site.domain,
+                                          reverse('venta-ticket-checkout'))
         if preference_id is None:
             # Se crea el pago en MercadoPago
             preference = {
@@ -256,8 +267,10 @@ class VentaTicketUserPaymentView(TemplateView):
                 "expiration_date_from": venta_ticket.date_created.isoformat(),
                 "expiration_date_to": venta_ticket.get_expiration_date(),
                 "back_urls": {
-                    "success": "http://127.0.0.1:8000/venta_ticket/checkout/".format(venta_ticket.pk),
-                    "failure": "http://127.0.0.1:8000/venta_ticket/checkout/".format(venta_ticket.pk),
+                    "success": "{}://{}{}".format('https' if self.request.is_secure() else 'http', site.domain,
+                                                  reverse('venta-ticket-checkout')),
+                    "failure": "{}://{}{}".format('https' if self.request.is_secure() else 'http', site.domain,
+                                                  reverse('venta-ticket-checkout'))
                 },
                 "auto_return": "approved",
                 "external_reference": venta_ticket.pk
@@ -422,5 +435,26 @@ class TicketUserDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Detalle del Ticket'
+        context['club_logo'] = Club.objects.get(pk=1).get_imagen()
+        return context
+
+
+class EventoUserListView(LoginRequiredMixin, ListView):
+    """
+    Vista para obtener los eventos de un usuario.
+    """
+    model = Evento
+    template_name = 'user/evento/list.html'
+    context_object_name = 'eventos'
+
+    def get_queryset(self):
+        eventos = []
+        for e in Evento.objects.filter(fecha_inicio__gte=datetime.now().date()).order_by('fecha_inicio'):
+            eventos.append(e) if e.get_start_datetime() > datetime.now() else None
+        return eventos
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Eventos'
         context['club_logo'] = Club.objects.get(pk=1).get_imagen()
         return context

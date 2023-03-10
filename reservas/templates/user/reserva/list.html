@@ -24,7 +24,7 @@
                             <tbody>
                             {% for reserva in reservas %}
                                 <tr>
-                                    <td>{{ reserva.fecha }}, {{ reserva.hora }}</td>
+                                    <td>{{ reserva.get_START_DATETIME_display }}</td>
                                     <td>${{ reserva.precio }}</td>
                                     <td>{{ reserva.cancha }}</td>
                                     <td>{{ reserva.get_ESTADO_PAGO_display }}</td>
@@ -59,35 +59,24 @@
     {# DataTable #}
     <link rel="stylesheet" type="text/css" href="{% static 'libs/DataTables/datatables.css' %}"/>
     <script type="text/javascript" src="{% static 'libs/DataTables/datatables.js' %}"></script>
-    <script type="text/javascript" src="{% static 'libs/DataTables/Select-1.5.0/js/dataTables.select.js' %}"></script>
-    {# Datatable Internacionalización #}
-    <script src="{% static 'libs/datatables/es-ES.json' %}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.13.2/sorting/datetime-moment.js"></script>
     <script>
-        let table = $('#dataTable');
-
-        table.DataTable({
-            responsive: true,
-            lengthChange: false,
-            order: [[0, 'desc']],
-            autoWidth: false,
-            // Quitarle estilos a la ultima columna
-            columnDefs: [
-                {"orderable": false, "targets": -1}
-            ],
-            language: {
-                search: "Buscar:",
-                lengthMenu: "Mostrar _MENU_ registros por página",
-                zeroRecords: "No se encontraron reservas",
-                info: "Mostrando página _PAGE_ de _PAGES_",
-                infoEmpty: "No hay registros disponibles",
-                infoFiltered: "(filtrado de _MAX_ registros totales)",
-                paginate: {
-                    first: "Primero",
-                    last: "Último",
-                    next: "Siguiente",
-                    previous: "Anterior"
+        $(document).ready(function () {
+            $.fn.dataTable.moment('DD/MM/YYYY HH:mm');
+            $('#dataTable').DataTable({
+                language: {
+                    url: '{% static 'libs/datatables/es-ES.json' %}'
                 },
-            }
+                responsive: true,
+                lengthChange: false,
+                order: [[0, 'desc']],
+                autoWidth: false,
+                // Quitarle estilos a la ultima columna
+                columnDefs: [
+                    {"orderable": false, "targets": -1}
+                ],
+            });
         });
     </script>
 {% endblock body_js %}

@@ -6,7 +6,7 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
-from django.views.generic import ListView, DetailView, TemplateView
+from django.views.generic import ListView, DetailView
 
 from core.models import Club
 from eventos.models import Ticket, send_qr_code
@@ -20,7 +20,7 @@ class TicketAdminListView(LoginRequiredMixin, PermissionRequiredMixin, ListView)
 
     def get_queryset(self):
         return Ticket.objects.all().values('id', 'ticket_variante__evento__nombre', 'ticket_variante__nombre', 'nombre',
-                                           'is_used')
+                                           'is_used').order_by('-date_created')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -90,18 +90,6 @@ class TicketAdminDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailV
             data['error'] = e.args[0]
         messages.error(request, data['error'])
         return redirect('admin-tickets-detalle', pk=self.kwargs['pk'])
-
-
-class TicketAdminScannerQRView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
-    template_name = 'admin/ticket/scanner_qr.html'
-    permission_required = 'eventos.change_ticket'
-
-    # TODO: Personalizar el template
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Escanear Código QR'
-        return context
 
 
 class TicketAdminQRView(LoginRequiredMixin, PermissionRequiredMixin, View):
