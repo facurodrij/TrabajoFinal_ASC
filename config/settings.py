@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Aplicaciones de terceros
     'active_link',
-    "django_apscheduler",
     # 'django_cleanup.apps.CleanupConfig',
     'fontawesomefree',
     'simple_history',
@@ -88,12 +87,8 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'proyecto_software',
-        'USER': 'postgres',
-        'PASSWORD': '181020',
-        'HOST': 'localhost',
-        'PORT': '32768',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / '../db.sqlite3',
     }
 }
 

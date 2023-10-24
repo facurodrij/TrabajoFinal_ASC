@@ -152,9 +152,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# Migration
-migrations/
-
 # __init__.py
 __init__.py
 
