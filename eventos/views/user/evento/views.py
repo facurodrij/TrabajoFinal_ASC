@@ -275,8 +275,13 @@ class VentaTicketUserPaymentView(TemplateView):
                 "auto_return": "approved",
                 "external_reference": venta_ticket.pk
             }
-            preference_result = sdk.preference().create(preference)
-            preference_id = preference_result['response']['id']
+            try:
+                preference_response = sdk.preference().create(preference)
+            except ConnectionError:
+                raise ConnectionError("Error al crear la preferencia de pago, revise las credenciales.")
+            if preference_response["status"] == 400:
+                raise ConnectionError("Error al crear la preferencia de pago, revise las credenciales.")
+            preference_id = preference_response['response']['id']
             venta_ticket.preference_id = preference_id
             venta_ticket.save()
         return render(request, 'user/evento/payment.html', {
