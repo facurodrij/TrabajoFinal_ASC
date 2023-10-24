@@ -149,9 +149,9 @@ LOGOUT_REDIRECT_URL = 'login'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Configuración de email
-EMAIL_HOST = 'smtp.mailtrap.io'
-EMAIL_HOST_USER = '5027a8498e59ae'
-EMAIL_HOST_PASSWORD = 'f90bfae96da13e'
-EMAIL_PORT = '2525'
+# Configuración de email (Por defecto, envía los emails al backend)
+# EMAIL_HOST = 'smtp.mailtrap.io' # Inserte su host, por ejemplo: smtp.gmail.com
+# EMAIL_HOST_USER = `Inserte su usuario`
+# EMAIL_HOST_PASSWORD = `Inserte su contraseña`
+# EMAIL_PORT = '2525'
 DEFAULT_FROM_EMAIL = 'administración@localhost'
