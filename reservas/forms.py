@@ -102,12 +102,13 @@ class ReservaAdminForm(forms.ModelForm):
                     "auto_return": "approved",
                     "external_reference": str(reserva.pk),
                 }
-                preference_response = sdk.preference().create(preference_data)
-                preference = preference_response["response"]
-                # Si la preferencia devuelve un bad request, se elimina la reserva
+                try:
+                    preference_response = sdk.preference().create(preference_data)
+                except ConnectionError:
+                    raise ConnectionError("Error al crear la preferencia de pago, revise las credenciales.")
                 if preference_response["status"] == 400:
-                    raise ConnectionError(
-                        "Error al crear la preferencia de pago: " + preference_response["response"]["message"])
+                    raise ConnectionError("Error al crear la preferencia de pago, revise las credenciales.")
+                preference = preference_response["response"]
                 reserva.preference_id = preference["id"]
                 reserva.save()
         return reserva
@@ -209,7 +210,12 @@ class ReservaUserForm(forms.ModelForm):
                     "auto_return": "approved",
                     "external_reference": str(reserva.pk),
                 }
-                preference_response = sdk.preference().create(preference_data)
+                try:
+                    preference_response = sdk.preference().create(preference_data)
+                except ConnectionError:
+                    raise ConnectionError("Error al crear la preferencia de pago, revise las credenciales.")
+                if preference_response["status"] == 400:
+                    raise ConnectionError("Error al crear la preferencia de pago, revise las credenciales.")
                 preference = preference_response["response"]
                 reserva.preference_id = preference["id"]
                 reserva.save()
