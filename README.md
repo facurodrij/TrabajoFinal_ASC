@@ -1,40 +1,78 @@
-# Sistema para gestión de Reservas, Eventos, Socios y Pagos de un Club Deportivo
+# RESERVÁ
+RESERVÁ is a system for managing reservations of courts, events and members in a club. 
+It integrates the API of MercadoPago to manage the payment of the reservations, tickets for events and the payment of the subscription of the members.
 
-## Descripción
-Este sistema ha sido construido para la aprobación de la materia Trabajo Final y finalización de la carrera de Analista
-en Sistemas de Computación de la Universidad Nacional de Misiones. 
+## Modules
 
-El sistema permite la gestión de reservas de canchas de fútbol, eventos, socios y pagos de un club deportivo. Se integra
-con la plataforma de MercadoPago para la realización de pagos online.
+- Accounts: Contains the configuration of the users of the system.
+- Core: Contains the main configuration of the system.
+- Eventos: Contains the configuration of the events and tickets. Includes handling of categories, tickets and prices.
+- Parameters: Contains the configuration of the parameters of the system.
+- Reservas: Contains the configuration of the reservations. Includes handling of hours, courts and prices.
+- Socios: Contains the configuration of the members of the club. Includes handling of categories, subscriptions and payments.
 
-## Requisitos
-Para poder ejecutar el sistema, se debe contar con los siguientes requisitos:
-- Python 3.8 o superior
+## Requirements
+The system requires the following software to be installed:
+- Python 3.8 or higher
+- Git
 
-## Instalación
-Para instalar el sistema, se debe clonar el repositorio y luego ejecutar los siguientes comandos:
-```
+## Installation and execution
+To install the system, you must follow the following steps:
+1. Clone the repository.
+2. Create a virtual environment and activate it.
+3. Install the requirements.
+
+```bash
+git clone https://github.com/facurodrij/TrabajoFinal_ASC.git
+cd TrabajoFinal_ASC
+
 python -m venv venv
-venv\Scripts\activate
+source venv/bin/activate
+
 pip install -r requirements.txt
+```
+
+To run the system, you must follow the following steps:
+1. Activate the virtual environment.
+
+```bash
+source venv/bin/activate
+```
+
+2. Run migrations.
+
+```bash
 python manage.py makemigrations
 python manage.py migrate
+```
+
+3. Create a superuser.
+    
+```bash
 python manage.py createsuperuser
 ```
 
-## Ejecución
-Antes de ejecutar el sistema recomiendo cargar los datos de configuración que se encuentran en los directorios
-fixtures/ dentro de cada aplicación. Para ello, ejecutar los siguientes comandos:
-```
+4. Load configuration data.
+    
+```bash
 python manage.py loaddata core/fixtures/*.json eventos/fixtures/*.json parameters/fixtures/*.json socios/fixtures/*.json reservas/fixtures/*.json
 ```
-Opcionalmente, se puede cargar un conjuntos de datos de prueba que se encuentran en el directorio dumps/ dentro de cada
-aplicación. Para ello, ejecutar los siguientes comandos:
-```
+
+5. Load initial data (optional).
+
+```bash
 python manage.py loaddata core/dumps/*.json eventos/dumps/*.json socios/dumps/*.json reservas/dumps/*.json
 ```
 
-Para ejecutar el sistema, se debe ejecutar el siguiente comando:
-```
+6. Run the server.
+
+```bash
 python manage.py runserver
 ```
+
+## API MercadoPago Configuration
+The credentials of the MercadoPago API must be configured in file `static/credentials.py`, changing the values of the following variables:
+- `public_key`: Public key of the MercadoPago API.
+- `access_token`: Access token of the MercadoPago API.
+
+For getting the credentials and more information about the API, visit the following link: [MercadoPago Developers](https://www.mercadopago.com.ar/developers/es/reference)
