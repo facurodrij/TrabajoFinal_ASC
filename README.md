@@ -16,24 +16,32 @@ The system requires the following software to be installed:
 - Python 3.8 or higher
 - Git
 
+Framework used:
+- Django 4.1.3
+
 ## Installation and execution
 To install the system, you must follow the following steps:
 1. Clone the repository.
-2. Create a virtual environment and activate it.
-3. Install the requirements.
 
 ```bash
 git clone https://github.com/facurodrij/TrabajoFinal_ASC.git
 cd TrabajoFinal_ASC
+```
 
+2. Create a virtual environment and activate it.
+```bash   
 python -m venv venv
 source venv/bin/activate
+```
 
+3. Install the requirements.
+
+```bash
 pip install -r requirements.txt
 ```
 
 To run the system, you must follow the following steps:
-1. Activate the virtual environment.
+1. Activate the virtual environment (if not activated).
 
 ```bash
 source venv/bin/activate
