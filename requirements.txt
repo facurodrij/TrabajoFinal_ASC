@@ -19,7 +19,7 @@ mercadopago==2.2.0
 num2words==0.5.12
 numpy==1.26.0
 openpyxl==3.1.2
-pandas==2.1.0
+pandas==2.2.3
 Pillow==9.3.0
 pycparser==2.21
 pydyf==0.8.0
@@ -29,6 +29,7 @@ python-dateutil==2.8.2
 pytz==2022.6
 qrcode==7.4.2
 requests==2.31.0
+setuptools==75.1.0
 six==1.16.0
 sqlparse==0.4.4
 tinycss2==1.2.1
